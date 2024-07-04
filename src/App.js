@@ -9,6 +9,7 @@ import Workers from './pages/Workers';
 import Devices from "./pages/Devices";
 import Tickets from "./pages/Tickets";
 import OneTicket from "./pages/OneTicket";
+import AddClient from "./components/AddClient";
 
 function App() {
     return (
@@ -21,6 +22,7 @@ function App() {
                 <Route path="/clients/:clientId/devices" element={<Devices />} />
                 <Route path="/tickets" element={<Tickets />} />
                 <Route path="/ticket/:ticketId" element={<OneTicket />} />
+                <Route path="/add-client" element={<AddClient />} />
             </Routes>
         </Router>
     );
