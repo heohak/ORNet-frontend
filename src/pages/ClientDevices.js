@@ -1,24 +1,20 @@
-// src/pages/Tickets.js
+// src/pages/ClientDevices.js
 
-import React, {useEffect, useState} from 'react';
-import {useNavigate} from "react-router-dom";
-import axios from "axios";
-import {Alert, Button, Card, Col, Container, Row, Spinner} from "react-bootstrap";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
+import { Container, Row, Col, Card, Spinner, Alert, ListGroup } from 'react-bootstrap';
 
-
-
-
-function Tickets() {
-
+function ClientDevices() {
+    const { clientId } = useParams();
     const [devices, setDevices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchDevices = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/devices');
+                const response = await axios.get(`http://localhost:8080/devices/${clientId}`);
                 setDevices(response.data);
             } catch (error) {
                 setError(error.message);
@@ -28,9 +24,7 @@ function Tickets() {
         };
 
         fetchDevices();
-    }, []);
-
-
+    }, [clientId]);
 
     if (loading) {
         return (
@@ -53,18 +47,17 @@ function Tickets() {
         );
     }
 
-
     return (
         <Container className="mt-5">
-            <h1 className="mb-4">Devices</h1>
+            <h1 className="mb-4">Devices for Client {clientId}</h1>
             <Row>
                 {devices.map((device) => (
                     <Col md={4} key={device.id} className="mb-4">
                         <Card>
                             <Card.Body>
-                                <Card.Title>{device.name}</Card.Title>
+                                <Card.Title>{device.deviceName}</Card.Title>
                                 <Card.Text>
-                                    <strong>Serial Number:</strong> {device.serialNumber}<br />
+                                    <strong>Serial Number:</strong> {device.serialNumber}
                                 </Card.Text>
                             </Card.Body>
                         </Card>
@@ -75,4 +68,4 @@ function Tickets() {
     );
 }
 
-export default Tickets;
+export default ClientDevices;
