@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from "react-dom/client";
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -8,7 +7,8 @@ import Clients from './pages/Clients';
 import Home from './pages/Home';
 import Workers from './pages/Workers';
 import Devices from "./pages/Devices";
-import Ticket from "./pages/Ticket";
+import Tickets from "./pages/Tickets";
+import OneTicket from "./pages/OneTicket";
 
 function App() {
     return (
@@ -19,7 +19,8 @@ function App() {
                 <Route path="/clients" element={<Clients />} />
                 <Route path="/workers" element={<Workers />} />
                 <Route path="/clients/:clientId/devices" element={<Devices />} />
-                <Route path="/tickets" element={<Ticket />} />
+                <Route path="/tickets" element={<Tickets />} />
+                <Route path="/ticket/:ticketId" element={<OneTicket />} />
             </Routes>
         </Router>
     );
