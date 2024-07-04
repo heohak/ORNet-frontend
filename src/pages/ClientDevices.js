@@ -2,14 +2,15 @@
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
-import { Container, Row, Col, Card, Spinner, Alert, ListGroup } from 'react-bootstrap';
+import {useNavigate, useParams} from 'react-router-dom';
+import {Container, Row, Col, Card, Spinner, Alert, Button} from 'react-bootstrap';
 
 function ClientDevices() {
     const { clientId } = useParams();
     const [devices, setDevices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchDevices = async () => {
@@ -25,6 +26,8 @@ function ClientDevices() {
 
         fetchDevices();
     }, [clientId]);
+
+
 
     if (loading) {
         return (
@@ -59,6 +62,7 @@ function ClientDevices() {
                                 <Card.Text>
                                     <strong>Serial Number:</strong> {device.serialNumber}
                                 </Card.Text>
+                                <Button onClick={() => navigate(`/device/${device.id}`)}>View Device</Button>
                             </Card.Body>
                         </Card>
                     </Col>

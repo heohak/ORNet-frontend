@@ -11,6 +11,7 @@ import Tickets from "./pages/Tickets";
 import OneTicket from "./pages/OneTicket";
 import AddClient from "./components/AddClient";
 import Devices from "./pages/Devices" ;
+import OneDevice from "./pages/OneDevice"
 
 function App() {
     return (
@@ -25,6 +26,8 @@ function App() {
                 <Route path="/ticket/:ticketId" element={<OneTicket />} />
                 <Route path="/add-client" element={<AddClient />} />
                 <Route path="/devices" element={<Devices />} />
+                <Route path="/device/:deviceId" element={<OneDevice />} />
+
             </Routes>
         </Router>
     );

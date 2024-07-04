@@ -66,6 +66,7 @@ function Tickets() {
                                 <Card.Text>
                                     <strong>Serial Number:</strong> {device.serialNumber}<br />
                                 </Card.Text>
+                                <Button onClick={() => navigate(`/device/${device.id}`)}>View Device</Button>
                             </Card.Body>
                         </Card>
                     </Col>
