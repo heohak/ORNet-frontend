@@ -1,4 +1,4 @@
-// src/Clients.js
+// src/pages/Home.js
 
 import React from 'react';
 
