@@ -22,7 +22,7 @@ const Menubar = () => {
                         <LinkContainer to="/">
                             <Nav.Link>Seadmed</Nav.Link>
                         </LinkContainer>
-                        <LinkContainer to="/">
+                        <LinkContainer to="/tickets">
                             <Nav.Link>Piletid</Nav.Link>
                         </LinkContainer>
                     </Nav>

@@ -8,6 +8,7 @@ import Clients from './pages/Clients';
 import Home from './pages/Home';
 import Workers from './pages/Workers';
 import Devices from "./pages/Devices";
+import Ticket from "./pages/Ticket";
 
 function App() {
     return (
@@ -18,6 +19,7 @@ function App() {
                 <Route path="/clients" element={<Clients />} />
                 <Route path="/workers" element={<Workers />} />
                 <Route path="/clients/:clientId/devices" element={<Devices />} />
+                <Route path="/tickets" element={<Ticket />} />
             </Routes>
         </Router>
     );
