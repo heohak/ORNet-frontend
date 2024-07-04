@@ -9,6 +9,7 @@ import Home from './pages/Home';
 import Workers from './pages/Workers';
 import Devices from "./pages/Devices";
 import Ticket from "./pages/Ticket";
+import AddClient from "./components/AddClient";
 
 function App() {
     return (
@@ -20,6 +21,7 @@ function App() {
                 <Route path="/workers" element={<Workers />} />
                 <Route path="/clients/:clientId/devices" element={<Devices />} />
                 <Route path="/tickets" element={<Ticket />} />
+                <Route path="/add-client" element={<AddClient />} />
             </Routes>
         </Router>
     );

@@ -9,6 +9,7 @@ function Clients() {
     const [clients, setClients] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [deleteError, setDeleteError] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -34,6 +35,20 @@ function Clients() {
         navigate(`/clients/${clientId}/devices`);
     };
 
+    const handleDeleteClient = async (clientId) => {
+        setDeleteError(null);
+        try {
+            await axios.delete(`http://localhost:8080/client/${clientId}`);
+            setClients(clients.filter(client => client.id !== clientId));
+        } catch (error) {
+            setDeleteError(error.message);
+        }
+    };
+
+    const handleAddClient = () => {
+        navigate('/add-client');
+    };
+
     if (loading) {
         return (
             <Container className="text-center mt-5">
@@ -57,7 +72,10 @@ function Clients() {
 
     return (
         <Container className="mt-5">
-            <h1 className="mb-4">Clients</h1>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+            <h1 className="mb-4">Kliendid</h1>
+            <Button variant="success" onClick={handleAddClient} className="ms-3">Add Client</Button>
+            </div>
             <Row>
                 {clients.map((client) => (
                     <Col md={4} key={client.id} className="mb-4">
@@ -73,6 +91,9 @@ function Clients() {
                                 </Button>
                                 <Button variant="secondary" className="ms-2" onClick={() => handleNavigateDevices(client.id)}>
                                     View Devices
+                                </Button>
+                                <Button variant="danger" className="position-absolute top-0 end-0 m-2" onClick={() => handleDeleteClient(client.id)}>
+                                    Delete
                                 </Button>
                             </Card.Body>
                         </Card>
