@@ -19,7 +19,7 @@ const Menubar = () => {
                         <LinkContainer to="/clients">
                             <Nav.Link>Kliendid</Nav.Link>
                         </LinkContainer>
-                        <LinkContainer to="/">
+                        <LinkContainer to="/devices">
                             <Nav.Link>Seadmed</Nav.Link>
                         </LinkContainer>
                         <LinkContainer to="/tickets">
