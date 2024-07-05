@@ -1,11 +1,12 @@
 // src/pages/Home.js
 
 import React from 'react';
+import chung from './chungus.png'
 
 function Home() {
     return (
         <div>
-            <h1>Hello World!</h1>
+            <img src={chung} alt="chung.png" style={{display: "flex", width: "100%", justifyContent: "center"}}/>
         </div>
     );
 }
