@@ -1,7 +1,7 @@
 // src/pages/Home.js
 
 import React from 'react';
-import chung from './chungus.png'
+import chung from '../assets/chungus.png'
 
 function Home() {
     return (
