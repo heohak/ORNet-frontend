@@ -10,6 +10,7 @@ function Workers() {
     const [workers, setWorkers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [deleteError, setDeleteError] = useState(null);
 
     useEffect(() => {
         if (!clientId) {
@@ -30,6 +31,16 @@ function Workers() {
 
         fetchWorkers();
     }, [clientId, navigate]);
+
+    const handleDeleteWorker = async (workerId) => {
+        setDeleteError(null);
+        try {
+            await axios.delete(`http://localhost:8080/workers/${workerId}`);
+            setWorkers(workers.filter(worker => worker.id !== workerId));
+        } catch (error) {
+            setDeleteError(error.message);
+        }
+    };
 
     const handleAddWorker = () => {
         navigate('/add-worker', { state: { clientId } });
@@ -56,6 +67,17 @@ function Workers() {
         );
     }
 
+    if (deleteError) {
+        return (
+            <Container className="mt-5">
+                <Alert variant="danger">
+                    <Alert.Heading>Error</Alert.Heading>
+                    <p>{deleteError}</p>
+                </Alert>
+            </Container>
+        );
+    }
+
     return (
         <Container className="mt-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
@@ -67,6 +89,13 @@ function Workers() {
                     <Col md={4} key={worker.id} className="mb-4">
                         <Card>
                             <Card.Body>
+                                <Button
+                                    variant="danger"
+                                    className="position-absolute top-0 end-0 m-2"
+                                    onClick={() => handleDeleteWorker(worker.id)}
+                                >
+                                    Delete
+                                </Button>
                                 <Card.Title>{worker.firstName} {worker.lastName}</Card.Title>
                                 <Card.Text>
                                     <strong>Email:</strong> {worker.email}<br />
