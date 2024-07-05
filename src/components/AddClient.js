@@ -65,6 +65,7 @@ function AddClient() {
                 <Button variant="success" type="submit">
                     Add Client
                 </Button>
+                <Button className="gy-5" onClick={() => navigate(-1)}>Back</Button>
             </Form>
         </Container>
     );

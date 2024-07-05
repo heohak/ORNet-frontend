@@ -15,7 +15,7 @@ function OneTicket() {
     useEffect(() => {
         const fetchTickets = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/tickets/${ticketId}`);
+                const response = await axios.get(`http://localhost:8080/tickets/main/${ticketId}`);
                 setTickets(response.data);
             } catch (error) {
                 setError(error.message);
