@@ -27,7 +27,9 @@ function ClientDevices() {
         fetchDevices();
     }, [clientId]);
 
-
+    const handleAddDevice = () => {
+        navigate('/add-client-device', { state: { clientId } });
+    };
 
     if (loading) {
         return (
@@ -52,7 +54,10 @@ function ClientDevices() {
 
     return (
         <Container className="mt-5">
-            <h1 className="mb-4">Devices for Client {clientId}</h1>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h1 className="mb-4">Devices for Client {clientId}</h1>
+                <Button variant="success" onClick={handleAddDevice} className="ms-3">Add Device</Button>
+            </div>
             <Row>
                 {devices.map((device) => (
                     <Col md={4} key={device.id} className="mb-4">
