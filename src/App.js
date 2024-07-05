@@ -13,6 +13,7 @@ import AddClient from "./components/AddClient";
 import AddWorker from "./components/AddWorker";
 import Devices from "./pages/Devices" ;
 import OneDevice from "./pages/OneDevice"
+import AddClientDevice from "./components/AddClientDevice";
 
 function App() {
     return (
@@ -29,7 +30,7 @@ function App() {
                 <Route path="/add-worker" element={<AddWorker />} />
                 <Route path="/devices" element={<Devices />} />
                 <Route path="/device/:deviceId" element={<OneDevice />} />
-
+                <Route path="/add-client-device" element={<AddClientDevice />} />
             </Routes>
         </Router>
     );
