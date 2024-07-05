@@ -19,7 +19,7 @@ function Softwares() {
 
         const fetchSoftwares = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/software/${clientId}`);
+                const response = await axios.get(`http://localhost:8080/software/client/${clientId}`);
                 setSoftwares(response.data);
             } catch (error) {
                 setError(error.message);
