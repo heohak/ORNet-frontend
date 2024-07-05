@@ -1,13 +1,64 @@
-// src/pages/Home.js
-
-import React from 'react';
-import chung from '../assets/chungus.png'
+import React, { useState } from 'react';
+import chung from '../assets/chungus.png';
+import { Container, Row, Col, Form, Button, Spinner, Alert } from 'react-bootstrap';
 
 function Home() {
+    const [value1, setValue1] = useState('');
+    const [value2, setValue2] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [result, setResult] = useState(null);
+
+    const handleCalculate = () => {
+        setLoading(true);
+        setResult(null);
+        setTimeout(() => {
+            setLoading(false);
+            setResult("Hello World!");
+        }, 5000);
+    };
+
     return (
-        <div>
-            <img src={chung} alt="chung.png" style={{display: "flex", width: "100%", justifyContent: "center"}}/>
-        </div>
+        <Container className="mt-5">
+            <Row className="mb-4">
+                <Col>
+                    <img src={chung} alt="chung.png" style={{ width: "100%", display: "block", margin: "auto" }} />
+                </Col>
+            </Row>
+            <Row className="mb-3 justify-content-center">
+                <Col md={2}>
+                    <Form.Control
+                        type="text"
+                        value={value1}
+                        onChange={(e) => setValue1(e.target.value)}
+                        placeholder="Enter number"
+                    />
+                </Col>
+                <Col md="auto" className="d-flex align-items-center">
+                    <span>+</span>
+                </Col>
+                <Col md={2}>
+                    <Form.Control
+                        type="text"
+                        value={value2}
+                        onChange={(e) => setValue2(e.target.value)}
+                        placeholder="Enter number"
+                    />
+                </Col>
+            </Row>
+            <Row className="mb-3 justify-content-center">
+                <Col md={2}>
+                    <Button variant="primary" onClick={handleCalculate} disabled={loading}>
+                        Calculate
+                    </Button>
+                </Col>
+            </Row>
+            <Row className="justify-content-center">
+                <Col md="auto">
+                    {loading && <Spinner animation="border" role="status"><span className="visually-hidden">Loading...</span></Spinner>}
+                    {result && <Alert variant="success">{result}</Alert>}
+                </Col>
+            </Row>
+        </Container>
     );
 }
 
