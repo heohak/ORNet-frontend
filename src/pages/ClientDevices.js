@@ -68,7 +68,9 @@ function ClientDevices() {
                     </Col>
                 ))}
             </Row>
+            <Button onClick={() => navigate(-1)}>Back</Button>
         </Container>
+
     );
 }
 
