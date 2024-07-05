@@ -6,11 +6,13 @@ import Menubar from './components/menubar';
 import Clients from './pages/Clients';
 import Home from './pages/Home';
 import Workers from './pages/Workers';
-import Devices from "./pages/Devices";
+import ClientDevices from "./pages/ClientDevices";
 import Tickets from "./pages/Tickets";
 import OneTicket from "./pages/OneTicket";
 import AddClient from "./components/AddClient";
 import AddWorker from "./components/AddWorker";
+import Devices from "./pages/Devices" ;
+import OneDevice from "./pages/OneDevice"
 
 function App() {
     return (
@@ -20,11 +22,14 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/clients" element={<Clients />} />
                 <Route path="/workers" element={<Workers />} />
-                <Route path="/clients/:clientId/devices" element={<Devices />} />
+                <Route path="/clients/:clientId/devices" element={<ClientDevices />} />
                 <Route path="/tickets" element={<Tickets />} />
                 <Route path="/ticket/:ticketId" element={<OneTicket />} />
                 <Route path="/add-client" element={<AddClient />} />
                 <Route path="/add-worker" element={<AddWorker />} />
+                <Route path="/devices" element={<Devices />} />
+                <Route path="/device/:deviceId" element={<OneDevice />} />
+
             </Routes>
         </Router>
     );
