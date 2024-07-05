@@ -8,7 +8,7 @@ const Menubar = () => {
         <Navbar bg="light" expand="lg">
             <Container>
                 <LinkContainer to="/">
-                    <Navbar.Brand>MyApp</Navbar.Brand>
+                    <Navbar.Brand>Chungus Client Manager</Navbar.Brand>
                 </LinkContainer>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
