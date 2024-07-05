@@ -13,7 +13,7 @@ function Home() {
         setResult(null);
         setTimeout(() => {
             setLoading(false);
-            setResult("Hello World!");
+            setResult("You Have Been Molested By Big Chungus");
         }, 5000);
     };
 
@@ -24,6 +24,7 @@ function Home() {
                     <img src={chung} alt="chung.png" style={{ width: "100%", display: "block", margin: "auto" }} />
                 </Col>
             </Row>
+            <h1 style={{display: "flex", justifyContent: "center"}}>Calculator</h1>
             <Row className="mb-3 justify-content-center">
                 <Col md={2}>
                     <Form.Control
@@ -47,10 +48,13 @@ function Home() {
             </Row>
             <Row className="mb-3 justify-content-center">
                 <Col md={2}>
-                    <Button variant="primary" onClick={handleCalculate} disabled={loading}>
-                        Calculate
-                    </Button>
+                    <div style={{width: "100%", display: "flex", justifyContent: "center"}}>
+                        <Button variant="primary" onClick={handleCalculate} disabled={loading}>
+                            Calculate
+                        </Button>
+                    </div>
                 </Col>
+                <p style={{display: "flex", justifyContent: "center"}}>Answer:</p>
             </Row>
             <Row className="justify-content-center">
                 <Col md="auto">
