@@ -10,6 +10,7 @@ function ClientDevices() {
     const [devices, setDevices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [deleteError, setDeleteError] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -29,6 +30,16 @@ function ClientDevices() {
 
     const handleAddDevice = () => {
         navigate('/add-client-device', { state: { clientId } });
+    };
+
+    const handleDeleteDevice = async (deviceId) => {
+        setDeleteError(null);
+        try {
+            await axios.delete(`http://localhost:8080/device/${deviceId}`);
+            setDevices(devices.filter(device => device.id !== deviceId));
+        } catch (error) {
+            setDeleteError(error.message);
+        }
     };
 
     if (loading) {
@@ -52,6 +63,17 @@ function ClientDevices() {
         );
     }
 
+    if (deleteError) {
+        return (
+            <Container className="mt-5">
+                <Alert variant="danger">
+                    <Alert.Heading>Error</Alert.Heading>
+                    <p>{deleteError}</p>
+                </Alert>
+            </Container>
+        );
+    }
+
     return (
         <Container className="mt-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
@@ -68,6 +90,9 @@ function ClientDevices() {
                                     <strong>Serial Number:</strong> {device.serialNumber}
                                 </Card.Text>
                                 <Button onClick={() => navigate(`/device/${device.id}`)}>View Device</Button>
+                                <Button variant="danger" className="position-absolute top-0 end-0 m-2" onClick={() => handleDeleteDevice(device.id)}>
+                                    Delete
+                                </Button>
                             </Card.Body>
                         </Card>
                     </Col>
