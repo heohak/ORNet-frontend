@@ -1,8 +1,7 @@
-// src/pages/Workers.js
-
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Container, Row, Col, Card,Button, Spinner, Alert } from 'react-bootstrap';
 
 function Workers() {
     const location = useLocation();
@@ -32,29 +31,54 @@ function Workers() {
         fetchWorkers();
     }, [clientId, navigate]);
 
+    const handleAddWorker = () => {
+        navigate('/add-worker', { state: { clientId } });
+    };
+
     if (loading) {
-        return <div>Loading...</div>;
+        return (
+            <Container className="text-center mt-5">
+                <Spinner animation="border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </Spinner>
+            </Container>
+        );
     }
 
     if (error) {
-        return <div>Error: {error}</div>;
+        return (
+            <Container className="mt-5">
+                <Alert variant="danger">
+                    <Alert.Heading>Error</Alert.Heading>
+                    <p>{error}</p>
+                </Alert>
+            </Container>
+        );
     }
 
     return (
-        <div>
-            <h1>Workers for Client {clientId}</h1>
-            <ul>
+        <Container className="mt-5">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h1 className="mb-0">Workers for Client {clientId}</h1>
+                <Button variant="success" onClick={handleAddWorker}>Add Worker</Button>
+            </div>
+            <Row>
                 {workers.map((worker) => (
-                    <li key={worker.id}>
-                        <strong>Name:</strong> {worker.firstName} {worker.lastName}<br />
-                        <strong>Email:</strong> {worker.email}<br />
-                        <strong>Phone number:</strong> {worker.phoneNumber}<br />
-                        <strong>Title:</strong> {worker.title}<br />
-
-                    </li>
+                    <Col md={4} key={worker.id} className="mb-4">
+                        <Card>
+                            <Card.Body>
+                                <Card.Title>{worker.firstName} {worker.lastName}</Card.Title>
+                                <Card.Text>
+                                    <strong>Email:</strong> {worker.email}<br />
+                                    <strong>Phone number:</strong> {worker.phoneNumber}<br />
+                                    <strong>Title:</strong> {worker.title}
+                                </Card.Text>
+                            </Card.Body>
+                        </Card>
+                    </Col>
                 ))}
-            </ul>
-        </div>
+            </Row>
+        </Container>
     );
 }
 
