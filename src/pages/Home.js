@@ -42,11 +42,11 @@ function Home() {
         setTimeout(() => {
             setLoading(false);
             setDelayedMessage(false);
-
-            if (randomChance <= 0.1) {
+            console.log(randomChance);
+            if (randomChance <= 0.3) {
                 const sum = parseFloat(value1) + parseFloat(value2);
                 setResult(`The result is: ${sum}`);
-            } if (randomChance >= 0.3 && randomChance <=0.5) {
+            } else if (randomChance >= 0.3 && randomChance <=0.5) {
                 setResult("She is 18")
             } else {
                 setResult("You Have Been Molested By Big Chungus");
