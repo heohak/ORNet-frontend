@@ -8,7 +8,7 @@ function Home() {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
     const [ip, setIp] = useState('');
-
+    const [delayedMessage, setDelayedMessage] = useState(false);
     const fetchIp = async () => {
         try {
             const response = await axios.get('https://api.ipify.org?format=json');
@@ -17,7 +17,6 @@ function Home() {
             console.error('Error fetching IP:', error);
         }
     };
-    const [delayedMessage, setDelayedMessage] = useState(false);
 
     useEffect(() => {
         if (loading) {
