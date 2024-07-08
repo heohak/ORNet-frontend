@@ -39,11 +39,15 @@ function Tickets() {
     const handleDeleteTicket = async (ticketId) => {
         setDeleteError(null);
         try {
-            await axios.delete(`http://localhost:8080/tickets/${ticketId}`);
+            await axios.delete(`http://localhost:8080/ticket/${ticketId}`);
             setTickets(tickets.filter(ticket => ticket.id !== ticketId));
         } catch (error) {
             setDeleteError(error.message);
         }
+    };
+
+    const handleAddTicket = () => {
+        navigate('/add-ticket');
     };
 
     if (loading) {
@@ -70,7 +74,10 @@ function Tickets() {
 
     return (
         <Container className="mt-5">
-            <h1 className="mb-4">Tickets</h1>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h1 className="mb-0">Tickets</h1>
+                <Button variant="success" onClick={handleAddTicket}>Add Ticket</Button>
+            </div>
             {deleteError && (
                 <Alert variant="danger">
                     <Alert.Heading>Error</Alert.Heading>

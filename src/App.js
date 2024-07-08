@@ -14,6 +14,7 @@ import AddWorker from "./components/AddWorker";
 import Devices from "./pages/Devices" ;
 import OneDevice from "./pages/OneDevice"
 import AddClientDevice from "./components/AddClientDevice";
+import AddTicket from "./components/AddTicket";
 
 function App() {
     return (
@@ -31,6 +32,7 @@ function App() {
                 <Route path="/devices" element={<Devices />} />
                 <Route path="/device/:deviceId" element={<OneDevice />} />
                 <Route path="/add-client-device" element={<AddClientDevice />} />
+                <Route path="/add-ticket" element={<AddTicket />} />
             </Routes>
         </Router>
     );
