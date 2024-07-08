@@ -99,7 +99,7 @@ function Clients() {
                                 <Button variant="danger" className="position-absolute top-0 end-0 m-2" onClick={() => handleDeleteClient(client.id)}>
                                     Delete
                                 </Button>
-                                <Button variant="info" className="ms-2" onClick={() => handleNavigateSoftwares(client.id)}>
+                                <Button variant="info" className="mt-2" onClick={() => handleNavigateSoftwares(client.id)}>
                                     View Softwares
                                 </Button>
                             </Card.Body>

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Container, Spinner, Alert, Table } from 'react-bootstrap';
+import {Container, Spinner, Alert, Table, Button} from 'react-bootstrap';
 
 function SoftwareDetails() {
     const { softwareId } = useParams();
     const location = useLocation();
+    const navigate = useNavigate();
     const { clientId } = location.state || {};
     const [software, setSoftware] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -16,6 +17,7 @@ function SoftwareDetails() {
             try {
                 const response = await axios.get(`http://localhost:8080/software/${softwareId}`);
                 setSoftware(response.data);
+                console.log(response.data)
             } catch (error) {
                 setError(error.message);
             } finally {
@@ -59,55 +61,55 @@ function SoftwareDetails() {
                     </tr>
                     <tr>
                         <td>DB Version</td>
-                        <td>{software.db_version}</td>
+                        <td>{software.dbVersion}</td>
                     </tr>
                     <tr>
                         <td>DICOM Update Date</td>
-                        <td>{software.dicom_update_date}</td>
+                        <td>{software.dicom.updateDate}</td>
                     </tr>
                     <tr>
                         <td>DICOM Vendor Name</td>
-                        <td>{software.dicom_vendor_name}</td>
+                        <td>{software.dicom.vendorName}</td>
                     </tr>
                     <tr>
                         <td>DICOM Version</td>
-                        <td>{software.dicom_version}</td>
+                        <td>{software.dicom.version}</td>
                     </tr>
                     <tr>
                         <td>HIS Update Date</td>
-                        <td>{software.his_update_date}</td>
+                        <td>{software.his.updateDate}</td>
                     </tr>
                     <tr>
                         <td>HIS Vendor Name</td>
-                        <td>{software.his_vendor_name}</td>
+                        <td>{software.his.vendorName}</td>
                     </tr>
                     <tr>
                         <td>HIS Version</td>
-                        <td>{software.his_version}</td>
+                        <td>{software.his.version}</td>
                     </tr>
                     <tr>
                         <td>HL7 Update Date</td>
-                        <td>{software.hl7_update_date}</td>
+                        <td>{software.hl7.updateDate}</td>
                     </tr>
                     <tr>
                         <td>HL7 Vendor Name</td>
-                        <td>{software.hl7_vendor_name}</td>
+                        <td>{software.hl7.vendorName}</td>
                     </tr>
                     <tr>
                         <td>HL7 Version</td>
-                        <td>{software.hl7_version}</td>
+                        <td>{software.hl7.version}</td>
                     </tr>
                     <tr>
                         <td>LIS Update Date</td>
-                        <td>{software.lis_update_date}</td>
+                        <td>{software.lis.updateDate}</td>
                     </tr>
                     <tr>
                         <td>LIS Vendor Name</td>
-                        <td>{software.lis_vendor_name}</td>
+                        <td>{software.lis.vendorName}</td>
                     </tr>
                     <tr>
                         <td>LIS Version</td>
-                        <td>{software.lis_version}</td>
+                        <td>{software.lis.version}</td>
                     </tr>
                     <tr>
                         <td>Name</td>
@@ -115,19 +117,20 @@ function SoftwareDetails() {
                     </tr>
                     <tr>
                         <td>PACS Update Date</td>
-                        <td>{software.pacs_update_date}</td>
+                        <td>{software.pacs.updateDate}</td>
                     </tr>
                     <tr>
                         <td>PACS Vendor Name</td>
-                        <td>{software.pacs_vendor_name}</td>
+                        <td>{software.pacs.vendorName}</td>
                     </tr>
                     <tr>
                         <td>PACS Version</td>
-                        <td>{software.pacs_version}</td>
+                        <td>{software.pacs.version}</td>
                     </tr>
                     </tbody>
                 </Table>
             )}
+            <Button onClick={() => navigate(-1)}>Back</Button>
         </Container>
     );
 }

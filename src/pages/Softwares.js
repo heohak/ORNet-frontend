@@ -66,6 +66,8 @@ function Softwares() {
                     </ListGroup.Item>
                 ))}
             </ListGroup>
+            <Button onClick={() => navigate(-1)} className="mt-3">Back</Button>
+
         </Container>
     );
 }
