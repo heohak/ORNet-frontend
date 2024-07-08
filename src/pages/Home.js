@@ -11,9 +11,16 @@ function Home() {
     const handleCalculate = () => {
         setLoading(true);
         setResult(null);
+
         setTimeout(() => {
             setLoading(false);
-            setResult("You Have Been Molested By Big Chungus");
+            const randomChance = Math.random();
+            if (randomChance <= 0.1) {
+                const sum = parseFloat(value1) + parseFloat(value2);
+                setResult(`The result is: ${sum}`);
+            } else {
+                setResult("You Have Been Molested By Big Chungus");
+            }
         }, 5000);
     };
 
