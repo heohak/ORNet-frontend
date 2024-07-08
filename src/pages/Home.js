@@ -1,16 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import chung from '../assets/chungus.png';
 import { Container, Row, Col, Form, Button, Spinner, Alert } from 'react-bootstrap';
+import axios from 'axios';
 
 function Home() {
     const [value1, setValue1] = useState('');
     const [value2, setValue2] = useState('');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
+    const [ip, setIp] = useState('');
+
+    const fetchIp = async () => {
+        try {
+            const response = await axios.get('https://api.ipify.org?format=json');
+            setIp(response.data.ip);
+        } catch (error) {
+            console.error('Error fetching IP:', error);
+        }
+    };
 
     const handleCalculate = () => {
         setLoading(true);
         setResult(null);
+        fetchIp(); // Fetch IP on each calculation
 
         setTimeout(() => {
             setLoading(false);
@@ -31,7 +43,7 @@ function Home() {
                     <img src={chung} alt="chung.png" style={{ width: "100%", display: "block", margin: "auto" }} />
                 </Col>
             </Row>
-            <h1 style={{display: "flex", justifyContent: "center"}}>Calculator</h1>
+            <h1 style={{ display: "flex", justifyContent: "center" }}>Calculator</h1>
             <Row className="mb-3 justify-content-center">
                 <Col md={2}>
                     <Form.Control
@@ -55,13 +67,13 @@ function Home() {
             </Row>
             <Row className="mb-3 justify-content-center">
                 <Col md={2}>
-                    <div style={{width: "100%", display: "flex", justifyContent: "center"}}>
+                    <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
                         <Button variant="primary" onClick={handleCalculate} disabled={loading}>
                             Calculate
                         </Button>
                     </div>
                 </Col>
-                <p style={{display: "flex", justifyContent: "center"}}>Answer:</p>
+                <p style={{ display: "flex", justifyContent: "center" }}>Answer:</p>
             </Row>
             <Row className="justify-content-center">
                 <Col md="auto">
@@ -69,6 +81,13 @@ function Home() {
                     {result && <Alert variant="success">{result}</Alert>}
                 </Col>
             </Row>
+            {ip && (
+                <Row className="justify-content-center">
+                    <Col md="auto">
+                        <Alert variant="info">Your IP: {ip}</Alert>
+                    </Col>
+                </Row>
+            )}
         </Container>
     );
 }
