@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import chung from '../assets/chungus.png';
 import { Container, Row, Col, Form, Button, Spinner, Alert } from 'react-bootstrap';
+import axios from "axios";
 
 function Home() {
     const [value1, setValue1] = useState('');
@@ -27,6 +28,7 @@ function Home() {
             return () => clearTimeout(timeoutId);
         }
     }, [loading]);
+
 
     const handleCalculate = () => {
         setLoading(true);
