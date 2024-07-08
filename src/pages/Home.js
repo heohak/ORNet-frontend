@@ -42,7 +42,6 @@ function Home() {
         setTimeout(() => {
             setLoading(false);
             setDelayedMessage(false);
-            console.log(randomChance);
             if (randomChance <= 0.3) {
                 const sum = parseFloat(value1) + parseFloat(value2);
                 setResult(`The result is: ${sum}`);
