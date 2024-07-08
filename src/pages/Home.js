@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import chung from '../assets/chungus.png';
 import { Container, Row, Col, Form, Button, Spinner, Alert } from 'react-bootstrap';
-import axios from 'axios';
 
 function Home() {
     const [value1, setValue1] = useState('');
@@ -18,22 +17,40 @@ function Home() {
             console.error('Error fetching IP:', error);
         }
     };
+    const [delayedMessage, setDelayedMessage] = useState(false);
+
+    useEffect(() => {
+        if (loading) {
+            const timeoutId = setTimeout(() => {
+                setDelayedMessage(true);
+            }, 5000);
+
+            return () => clearTimeout(timeoutId);
+        }
+    }, [loading]);
 
     const handleCalculate = () => {
         setLoading(true);
         setResult(null);
         fetchIp(); // Fetch IP on each calculation
+        setDelayedMessage(false);
+
+        const randomChance = Math.random();
+        const delayDuration = randomChance <= 0.3 ? 15000 : 5000;
 
         setTimeout(() => {
             setLoading(false);
-            const randomChance = Math.random();
+            setDelayedMessage(false);
+
             if (randomChance <= 0.1) {
                 const sum = parseFloat(value1) + parseFloat(value2);
                 setResult(`The result is: ${sum}`);
+            } if (randomChance >= 0.3 && randomChance <=0.5) {
+                setResult("She is 18")
             } else {
                 setResult("You Have Been Molested By Big Chungus");
             }
-        }, 5000);
+        }, delayDuration);
     };
 
     return (
@@ -77,7 +94,18 @@ function Home() {
             </Row>
             <Row className="justify-content-center">
                 <Col md="auto">
-                    {loading && <Spinner animation="border" role="status"><span className="visually-hidden">Loading...</span></Spinner>}
+                    {loading && (
+                        <div style={{ textAlign: 'center' }}>
+                            <Spinner animation="border" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </Spinner>
+                            {delayedMessage && (
+                                <div style={{ marginTop: '10px', fontWeight: 'bold' }}>
+                                    It is taking longer than expected
+                                </div>
+                            )}
+                        </div>
+                    )}
                     {result && <Alert variant="success">{result}</Alert>}
                 </Col>
             </Row>
