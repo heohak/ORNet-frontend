@@ -15,6 +15,8 @@ import Devices from "./pages/Devices" ;
 import OneDevice from "./pages/OneDevice"
 import AddClientDevice from "./components/AddClientDevice";
 import AddTicket from "./components/AddTicket";
+import Softwares from "./pages/Softwares";
+import SoftwareDetails from "./pages/SoftwareDetails";
 
 function App() {
     return (
@@ -33,6 +35,8 @@ function App() {
                 <Route path="/device/:deviceId" element={<OneDevice />} />
                 <Route path="/add-client-device" element={<AddClientDevice />} />
                 <Route path="/add-ticket" element={<AddTicket />} />
+                <Route path="/clients/:clientId/softwares" element={<Softwares />} />
+                <Route path="/software/:softwareId" element={<SoftwareDetails />} />
             </Routes>
         </Router>
     );
