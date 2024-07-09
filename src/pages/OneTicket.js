@@ -1,16 +1,20 @@
-// src/pages/OneTicket.js
-
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { Alert, Button, Card, Col, Container, Row, Spinner } from "react-bootstrap";
+import { Alert, Button, Card, Container, Spinner } from "react-bootstrap";
 
 function OneTicket() {
     const { ticketId } = useParams();
+    const { search } = useLocation();
+    const queryParams = new URLSearchParams(search);
+    const scrollToId = queryParams.get('scrollTo');
+
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+
+    const ticketRefs = useRef({}); // Use refs to keep track of ticket elements
 
     useEffect(() => {
         const fetchTickets = async () => {
@@ -26,6 +30,12 @@ function OneTicket() {
 
         fetchTickets();
     }, [ticketId]);
+
+    useEffect(() => {
+        if (!loading && scrollToId && ticketRefs.current[scrollToId]) {
+            ticketRefs.current[scrollToId].scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, [loading, scrollToId]);
 
     if (loading) {
         return (
@@ -53,35 +63,21 @@ function OneTicket() {
             <h1 className="mb-4">Ticket Details</h1>
             {tickets.length > 0 ? (
                 <>
-                    <Card className="mb-4">
-                        <Card.Body>
-                            <Card.Title>{tickets[0].description}</Card.Title>
-                            <Card.Text>
-                                <strong>Client ID:</strong> {tickets[0].clientId}<br />
-                                <strong>Main Ticket ID:</strong> {tickets[0].mainTicketId}
-                            </Card.Text>
-                        </Card.Body>
-                    </Card>
-                    {tickets.length > 1 && (
-                        <>
-                            <h2 className="mb-4">Previous Tickets</h2>
-                            <Row>
-                                {tickets.slice(1).map((ticket) => (
-                                    <Col md={4} key={ticket.id} className="mb-4">
-                                        <Card>
-                                            <Card.Body>
-                                                <Card.Title>{ticket.description}</Card.Title>
-                                                <Card.Text>
-                                                    <strong>Client ID:</strong> {ticket.clientId}<br />
-                                                    <strong>Main Ticket ID:</strong> {ticket.mainTicketId}
-                                                </Card.Text>
-                                            </Card.Body>
-                                        </Card>
-                                    </Col>
-                                ))}
-                            </Row>
-                        </>
-                    )}
+                    {tickets.map((ticket) => (
+                        <Card
+                            key={ticket.id}
+                            ref={(el) => (ticketRefs.current[ticket.id] = el)}
+                            className="mb-4"
+                        >
+                            <Card.Body>
+                                <Card.Title>{ticket.description}</Card.Title>
+                                <Card.Text>
+                                    <strong>Client ID:</strong> {ticket.clientId}<br />
+                                    <strong>Main Ticket ID:</strong> {ticket.mainTicketId}
+                                </Card.Text>
+                            </Card.Body>
+                        </Card>
+                    ))}
                 </>
             ) : (
                 <Alert variant="info">No ticket details available.</Alert>
