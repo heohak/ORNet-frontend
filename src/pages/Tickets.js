@@ -1,15 +1,9 @@
-// src/pages/Tickets.js
-
-import React, {useEffect, useState} from 'react';
-import {useNavigate} from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import {Alert, Button, Card, Col, Container, Row, Spinner} from "react-bootstrap";
-
-
-
+import { Alert, Button, Card, Col, Container, Row, Spinner } from "react-bootstrap";
 
 function Tickets() {
-
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -31,9 +25,8 @@ function Tickets() {
         fetchTickets();
     }, []);
 
-    const handleNavigate = (ticket) => {
-        const targetId = ticket.mainTicketId ? ticket.mainTicketId : ticket.id;
-        navigate(`/ticket/${targetId}`, { state: { ticketId: ticket.id } });
+    const handleNavigate = (ticketId) => {
+        navigate(`/ticket/${ticketId}?scrollTo=${ticketId}`);
     };
 
     const handleDeleteTicket = async (ticketId) => {
@@ -71,7 +64,6 @@ function Tickets() {
         );
     }
 
-
     return (
         <Container className="mt-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
@@ -97,8 +89,7 @@ function Tickets() {
                                     <strong>Client ID:</strong> {ticket.clientId}<br />
                                     <strong>Main Ticket ID:</strong> {ticket.mainTicketId}
                                 </Card.Text>
-
-                                <Button onClick={() => handleNavigate(ticket)}>View Ticket</Button>
+                                <Button onClick={() => handleNavigate(ticket.id)}>View Ticket</Button>
                             </Card.Body>
                         </Card>
                     </Col>
