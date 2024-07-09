@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Spinner, Alert, Card, Button, ListGroup } from 'react-bootstrap';
+import { Container, Spinner, Alert, Card, Button, ListGroup, Modal, Form } from 'react-bootstrap';
 
 function OneDevice() {
     const { deviceId } = useParams();
@@ -9,6 +9,9 @@ function OneDevice() {
     const [linkedDevices, setLinkedDevices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const [availableLinkedDevices, setAvailableLinkedDevices] = useState([]);
+    const [selectedLinkedDeviceId, setSelectedLinkedDeviceId] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -32,9 +35,31 @@ function OneDevice() {
             }
         };
 
+        const fetchAvailableLinkedDevices = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8080/linked/device/all`);
+                setAvailableLinkedDevices(response.data);
+            } catch (error) {
+                setError(error.message);
+            }
+        };
+
         fetchDevice();
         fetchLinkedDevices();
+        fetchAvailableLinkedDevices();
     }, [deviceId]);
+
+    const handleLinkDevice = async () => {
+        try {
+            await axios.put(`http://localhost:8080/linked/device/link/${selectedLinkedDeviceId}/${deviceId}`);
+            // Fetch updated linked devices
+            const response = await axios.get(`http://localhost:8080/linked/device/${deviceId}`);
+            setLinkedDevices(response.data);
+            setShowModal(false);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
 
     if (loading) {
         return (
@@ -76,8 +101,9 @@ function OneDevice() {
             )}
 
             <h2 className="mb-4">Linked Devices</h2>
+            <Button variant="primary" onClick={() => setShowModal(true)}>Link Device</Button>
             {linkedDevices.length > 0 ? (
-                <ListGroup>
+                <ListGroup className="mt-3">
                     {linkedDevices.map((linkedDevice) => (
                         <ListGroup.Item key={linkedDevice.id}>
                             <Card>
@@ -95,8 +121,31 @@ function OneDevice() {
                     ))}
                 </ListGroup>
             ) : (
-                <Alert variant="info">No linked devices available.</Alert>
+                <Alert className="mt-3" variant="info">No linked devices available.</Alert>
             )}
+
+            <Modal show={showModal} onHide={() => setShowModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Link a Device</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form.Group controlId="selectDevice">
+                        <Form.Label>Select Device to Link</Form.Label>
+                        <Form.Control as="select" value={selectedLinkedDeviceId} onChange={(e) => setSelectedLinkedDeviceId(e.target.value)}>
+                            <option value="">Select a device...</option>
+                            {availableLinkedDevices.map((linkedDevice) => (
+                                <option key={linkedDevice.id} value={linkedDevice.id}>
+                                    {linkedDevice.name} (Serial: {linkedDevice.serialNumber})
+                                </option>
+                            ))}
+                        </Form.Control>
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
+                    <Button variant="primary" onClick={handleLinkDevice}>Link Device</Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 }
