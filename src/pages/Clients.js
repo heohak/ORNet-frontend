@@ -77,31 +77,39 @@ function Clients() {
     return (
         <Container className="mt-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
-            <h1 className="mb-4">Kliendid</h1>
-            <Button variant="success" onClick={handleAddClient} className="ms-3">Add Client</Button>
+                <h1>Kliendid</h1>
+                <Button variant="success" onClick={handleAddClient}>Add Client</Button>
             </div>
             <Row>
                 {clients.map((client) => (
                     <Col md={4} key={client.id} className="mb-4">
-                        <Card>
-                            <Card.Body>
-                                <Card.Title>{client.fullName}</Card.Title>
-                                <Card.Text>
-                                    <strong>Short Name:</strong> {client.shortName}<br />
-                                    <strong>Third Party IT:</strong> {client.thirdPartyIT}
-                                </Card.Text>
-                                <Button variant="primary" onClick={() => handleNavigateWorkers(client.id)}>
-                                    View Workers
-                                </Button>
-                                <Button variant="secondary" className="ms-2" onClick={() => handleNavigateDevices(client.id)}>
-                                    View Devices
-                                </Button>
-                                <Button variant="danger" className="position-absolute top-0 end-0 m-2" onClick={() => handleDeleteClient(client.id)}>
-                                    Delete
-                                </Button>
-                                <Button variant="info" className="mt-2" onClick={() => handleNavigateSoftwares(client.id)}>
-                                    View Softwares
-                                </Button>
+                        <Card className="h-100 position-relative">
+                            <Button
+                                variant="danger"
+                                className="position-absolute top-0 end-0 m-2"
+                                onClick={() => handleDeleteClient(client.id)}
+                            >
+                                Delete
+                            </Button>
+                            <Card.Body className="d-flex flex-column">
+                                <div className="mb-4">
+                                    <Card.Title>{client.fullName}</Card.Title>
+                                    <Card.Text>
+                                        <strong>Short Name:</strong> {client.shortName}<br />
+                                        <strong>Third Party IT:</strong> {client.thirdPartyIT}
+                                    </Card.Text>
+                                </div>
+                                <div className="mt-auto d-flex flex-wrap justify-content-center">
+                                    <Button variant="primary" className="mb-2 me-2" onClick={() => handleNavigateWorkers(client.id)}>
+                                        View Workers
+                                    </Button>
+                                    <Button variant="secondary" className="mb-2 me-2" onClick={() => handleNavigateDevices(client.id)}>
+                                        View Devices
+                                    </Button>
+                                    <Button variant="info" className="mb-2 me-2" onClick={() => handleNavigateSoftwares(client.id)}>
+                                        View Softwares
+                                    </Button>
+                                </div>
                             </Card.Body>
                         </Card>
                     </Col>

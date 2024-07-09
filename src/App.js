@@ -5,6 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Menubar from './components/menubar';
 import Clients from './pages/Clients';
 import Home from './pages/Home';
+import Chung from "./pages/Chung";
 import Workers from './pages/Workers';
 import ClientDevices from "./pages/ClientDevices";
 import Tickets from "./pages/Tickets";
@@ -27,6 +28,7 @@ function App() {
                 <Route path="/clients" element={<Clients />} />
                 <Route path="/workers" element={<Workers />} />
                 <Route path="/clients/:clientId/devices" element={<ClientDevices />} />
+                <Route path="/chung" element={<Chung />} />
                 <Route path="/tickets" element={<Tickets />} />
                 <Route path="/ticket/:ticketId" element={<OneTicket />} />
                 <Route path="/add-client" element={<AddClient />} />
