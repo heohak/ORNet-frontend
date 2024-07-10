@@ -1,5 +1,3 @@
-// src/pages/Clients.js
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +8,7 @@ function Clients() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [deleteError, setDeleteError] = useState(null);
+    const [expandedClientIds, setExpandedClientIds] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -51,6 +50,14 @@ function Clients() {
 
     const handleAddClient = () => {
         navigate('/add-client');
+    };
+
+    const handleToggleExpand = (clientId) => {
+        setExpandedClientIds((prevIds) =>
+            prevIds.includes(clientId)
+                ? prevIds.filter((id) => id !== clientId)
+                : [...prevIds, clientId]
+        );
     };
 
     if (loading) {
@@ -95,21 +102,35 @@ function Clients() {
                                 <div className="mb-4">
                                     <Card.Title>{client.fullName}</Card.Title>
                                     <Card.Text>
-                                        <strong>Short Name:</strong> {client.shortName}<br />
-                                        <strong>Third Party IT:</strong> {client.thirdPartyIT}
+                                        <strong>Short Name:</strong> {client.shortName}
                                     </Card.Text>
+                                    {expandedClientIds.includes(client.id) && (
+                                        <>
+                                            <Card.Text>
+                                                <strong>Pathology Client:</strong> {client.pathologyClient ? 'Yes' : 'No'}<br />
+                                                <strong>Surgery Client:</strong> {client.surgeryClient ? 'Yes' : 'No'}<br />
+                                                <strong>Editor Client:</strong> {client.editorClient ? 'Yes' : 'No'}<br />
+                                                <strong>Other Medical Information:</strong> {client.otherMedicalInformation}<br />
+                                                <strong>Last Maintenance:</strong> {client.lastMaintenance}<br />
+                                                <strong>Next Maintenance:</strong> {client.nextMaintenance}
+                                            </Card.Text>
+                                            <div className="d-flex flex-wrap justify-content-center">
+                                                <Button variant="primary" className="mb-2 me-2" onClick={() => handleNavigateWorkers(client.id)}>
+                                                    View Workers
+                                                </Button>
+                                                <Button variant="secondary" className="mb-2 me-2" onClick={() => handleNavigateDevices(client.id)}>
+                                                    View Devices
+                                                </Button>
+                                                <Button variant="info" className="mb-2 me-2" onClick={() => handleNavigateSoftwares(client.id)}>
+                                                    View Softwares
+                                                </Button>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
-                                <div className="mt-auto d-flex flex-wrap justify-content-center">
-                                    <Button variant="primary" className="mb-2 me-2" onClick={() => handleNavigateWorkers(client.id)}>
-                                        View Workers
-                                    </Button>
-                                    <Button variant="secondary" className="mb-2 me-2" onClick={() => handleNavigateDevices(client.id)}>
-                                        View Devices
-                                    </Button>
-                                    <Button variant="info" className="mb-2 me-2" onClick={() => handleNavigateSoftwares(client.id)}>
-                                        View Softwares
-                                    </Button>
-                                </div>
+                                <Button variant="link" onClick={() => handleToggleExpand(client.id)}>
+                                    {expandedClientIds.includes(client.id) ? 'View Less' : 'View More'}
+                                </Button>
                             </Card.Body>
                         </Card>
                     </Col>
