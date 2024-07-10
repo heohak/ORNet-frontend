@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Container, Form, Button, Alert } from 'react-bootstrap';
@@ -13,7 +13,22 @@ function AddWorker() {
     const [email, setEmail] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [title, setTitle] = useState('');
+    const [locationId, setLocationId] = useState('');
+    const [locations, setLocations] = useState([]);
     const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchLocations = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/location/all');
+                setLocations(response.data);
+            } catch (error) {
+                setError(error.message);
+            }
+        };
+
+        fetchLocations();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -26,9 +41,10 @@ function AddWorker() {
                 lastName,
                 email,
                 phoneNumber,
-                title
+                title,
+                locationId
             });
-            navigate(-1); // Go back to the previous page
+            navigate(-1);
         } catch (error) {
             setError(error.message);
         }
@@ -88,6 +104,22 @@ function AddWorker() {
                         onChange={(e) => setTitle(e.target.value)}
                         required
                     />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Location</Form.Label>
+                    <Form.Control
+                        as="select"
+                        value={locationId}
+                        onChange={(e) => setLocationId(e.target.value)}
+                        required
+                    >
+                        <option value="">Select a location</option>
+                        {locations.map((loc) => (
+                            <option key={loc.id} value={loc.id}>
+                                {loc.name}
+                            </option>
+                        ))}
+                    </Form.Control>
                 </Form.Group>
                 <Button variant="success" type="submit">
                     Add Worker
