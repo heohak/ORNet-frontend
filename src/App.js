@@ -37,6 +37,7 @@ function App() {
                 <Route path="/device/:deviceId" element={<OneDevice />} />
                 <Route path="/add-client-device" element={<AddClientDevice />} />
                 <Route path="/add-ticket" element={<AddTicket />} />
+                <Route path="/add-ticket/:mainTicketId" element={<AddTicket />} />
                 <Route path="/clients/:clientId/softwares" element={<Softwares />} />
                 <Route path="/software/:softwareId" element={<SoftwareDetails />} />
             </Routes>

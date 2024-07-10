@@ -14,7 +14,7 @@ function OneTicket() {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    const ticketRefs = useRef({}); // Use refs to keep track of ticket elements
+    const ticketRefs = useRef({});
 
     useEffect(() => {
         const fetchTickets = async () => {
@@ -36,6 +36,15 @@ function OneTicket() {
             ticketRefs.current[scrollToId].scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }, [loading, scrollToId]);
+
+    const handleAddTicket = () => {
+        const currentTicket = tickets.find(ticket => ticket.id === parseInt(ticketId));
+        if (currentTicket) {
+            navigate(`/add-ticket/${ticketId}?clientId=${currentTicket.clientId}`);
+        } else {
+            navigate(`/add-ticket/${ticketId}`);
+        }
+    };
 
     if (loading) {
         return (
@@ -60,7 +69,10 @@ function OneTicket() {
 
     return (
         <Container className="mt-5">
-            <h1 className="mb-4">Ticket Details</h1>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h1 className="mb-4">Ticket Details</h1>
+                <Button variant="success" onClick={handleAddTicket} className="mb-4">Add Ticket</Button>
+            </div>
             {tickets.length > 0 ? (
                 <>
                     {tickets.map((ticket) => (
@@ -82,7 +94,7 @@ function OneTicket() {
             ) : (
                 <Alert variant="info">No ticket details available.</Alert>
             )}
-            <Button onClick={() => navigate(-1)}>Back</Button>
+            <Button onClick={() => navigate(`/tickets`)}>Back</Button>
         </Container>
     );
 }
