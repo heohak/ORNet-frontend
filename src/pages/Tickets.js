@@ -40,7 +40,7 @@ function Tickets() {
     };
 
     const handleAddTicket = () => {
-        navigate('/add-ticket');
+        navigate('/add-ticket', { state: { from: 'tickets' } });
     };
 
     if (loading) {

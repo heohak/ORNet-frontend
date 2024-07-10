@@ -1,43 +1,44 @@
 import React, { useState } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Container, Form, Button, Alert } from 'react-bootstrap';
+import { Button, Form, Container, Alert } from 'react-bootstrap';
 
 function AddTicket() {
-    const navigate = useNavigate();
-    const location = useLocation();
-
-
+    const { mainTicketId } = useParams();
+    const { search } = useLocation();
+    const queryParams = new URLSearchParams(search);
+    const clientIdParam = queryParams.get('clientId');
     const [description, setDescription] = useState('');
-    const [clientId, setclientId] = useState('');
+    const [clientId, setClientId] = useState(clientIdParam || '');
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
-
         try {
-            await axios.post('http://localhost:8080/ticket', {
+            const newTicket = {
                 description,
                 clientId,
-            });
-            navigate(-1); // Go back to the previous page
-        } catch (error) {
-            setError(error.message);
+                ...(mainTicketId && { mainTicketId })  // Include mainTicketId only if it's provided
+            };
+            await axios.post('http://localhost:8080/ticket', newTicket);
+            if (!mainTicketId) {
+                navigate(`/tickets`);
+            } else {
+                navigate(`/ticket/${mainTicketId}`);
+            }
+        } catch (err) {
+            setError(err.message);
         }
     };
 
     return (
         <Container className="mt-5">
             <h1 className="mb-4">Add Ticket</h1>
-            {error && (
-                <Alert variant="danger">
-                    <Alert.Heading>Error</Alert.Heading>
-                    <p>{error}</p>
-                </Alert>
-            )}
+            {error && <Alert variant="danger">{error}</Alert>}
             <Form onSubmit={handleSubmit}>
-                <Form.Group className="mb-3">
+                <Form.Group controlId="description" className="mb-3">
                     <Form.Label>Description</Form.Label>
                     <Form.Control
                         type="text"
@@ -46,17 +47,21 @@ function AddTicket() {
                         required
                     />
                 </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Client ID</Form.Label>
-                    <Form.Control
-                        type="text"
-                        value={clientId}
-                        onChange={(e) => setclientId(e.target.value)}
-                    />
-                </Form.Group>
+                {!clientIdParam && (
+                    <Form.Group controlId="clientId" className="mb-3">
+                        <Form.Label>Client ID</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={clientId}
+                            onChange={(e) => setClientId(e.target.value)}
+                            required
+                        />
+                    </Form.Group>
+                )}
                 <Button variant="success" type="submit">
-                    Add Ticket
+                    Submit
                 </Button>
+                <Button className="gy-5" onClick={() => navigate(-1)}>Back</Button>
             </Form>
         </Container>
     );
