@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Container, Row, Col, ListGroup, Spinner, Alert, Button } from 'react-bootstrap';
+import config from "../config/config";
 
 function Softwares() {
     const location = useLocation();
@@ -19,7 +20,7 @@ function Softwares() {
 
         const fetchSoftwares = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/software/client/${clientId}`);
+                const response = await axios.get(`${config.API_BASE_URL}/software/client/${clientId}`);
                 setSoftwares(response.data);
             } catch (error) {
                 setError(error.message);

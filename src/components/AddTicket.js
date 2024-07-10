@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Button, Form, Container, Alert } from 'react-bootstrap';
+import config from "../config/config";
 
 function AddTicket() {
     const { mainTicketId } = useParams();
@@ -22,7 +23,7 @@ function AddTicket() {
                 clientId,
                 ...(mainTicketId && { mainTicketId })  // Include mainTicketId only if it's provided
             };
-            await axios.post('http://localhost:8080/ticket', newTicket);
+            await axios.post(`${config.API_BASE_URL}/ticket`, newTicket);
             if (!mainTicketId) {
                 navigate(`/tickets`);
             } else {

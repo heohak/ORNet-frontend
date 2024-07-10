@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Alert, Button, Card, Col, Container, Row, Spinner } from "react-bootstrap";
+import config from "../config/config";
 
 function Tickets() {
     const [tickets, setTickets] = useState([]);
@@ -13,7 +14,7 @@ function Tickets() {
     useEffect(() => {
         const fetchTickets = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/tickets');
+                const response = await axios.get(`${config.API_BASE_URL}/tickets`);
                 setTickets(response.data);
             } catch (error) {
                 setError(error.message);
@@ -32,7 +33,7 @@ function Tickets() {
     const handleDeleteTicket = async (ticketId) => {
         setDeleteError(null);
         try {
-            await axios.delete(`http://localhost:8080/ticket/${ticketId}`);
+            await axios.delete(`${config.API_BASE_URL}/ticket/${ticketId}`);
             setTickets(tickets.filter(ticket => ticket.id !== ticketId));
         } catch (error) {
             setDeleteError(error.message);

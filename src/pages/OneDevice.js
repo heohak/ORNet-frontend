@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Spinner, Alert, Card, Button, ListGroup, Modal, Form } from 'react-bootstrap';
+import config from "../config/config";
 
 function OneDevice() {
     const { deviceId } = useParams();
@@ -17,7 +18,7 @@ function OneDevice() {
     useEffect(() => {
         const fetchDevice = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/device/${deviceId}`);
+                const response = await axios.get(`${config.API_BASE_URL}/device/${deviceId}`);
                 setDevice(response.data);
             } catch (error) {
                 setError(error.message);
@@ -28,7 +29,7 @@ function OneDevice() {
 
         const fetchLinkedDevices = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/linked/device/${deviceId}`);
+                const response = await axios.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
                 setLinkedDevices(response.data);
             } catch (error) {
                 setError(error.message);
@@ -37,7 +38,7 @@ function OneDevice() {
 
         const fetchAvailableLinkedDevices = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/linked/device/all`);
+                const response = await axios.get(`${config.API_BASE_URL}/linked/device/all`);
                 setAvailableLinkedDevices(response.data);
             } catch (error) {
                 setError(error.message);
@@ -51,9 +52,9 @@ function OneDevice() {
 
     const handleLinkDevice = async () => {
         try {
-            await axios.put(`http://localhost:8080/linked/device/link/${selectedLinkedDeviceId}/${deviceId}`);
+            await axios.put(`${config.API_BASE_URL}/linked/device/link/${selectedLinkedDeviceId}/${deviceId}`);
             // Fetch updated linked devices
-            const response = await axios.get(`http://localhost:8080/linked/device/${deviceId}`);
+            const response = await axios.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
             setLinkedDevices(response.data);
             setShowModal(false);
         } catch (error) {

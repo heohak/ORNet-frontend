@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Container, Row, Col, Card,Button, Spinner, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Spinner, Alert } from 'react-bootstrap';
+import config from "../config/config";
 
 function Workers() {
     const location = useLocation();
     const navigate = useNavigate();
     const { clientId } = location.state || {};
     const [workers, setWorkers] = useState([]);
+    const [locations, setLocations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [deleteError, setDeleteError] = useState(null);
@@ -20,7 +22,7 @@ function Workers() {
 
         const fetchWorkers = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/workers/${clientId}`);
+                const response = await axios.get(`${config.API_BASE_URL}/workers/${clientId}`);
                 setWorkers(response.data);
             } catch (error) {
                 setError(error.message);
@@ -29,13 +31,23 @@ function Workers() {
             }
         };
 
+        const fetchLocations = async () => {
+            try {
+                const response = await axios.get(`${config.API_BASE_URL}/location/all`);
+                setLocations(response.data);
+            } catch (error) {
+                setError(error.message);
+            }
+        };
+
         fetchWorkers();
+        fetchLocations();
     }, [clientId, navigate]);
 
     const handleDeleteWorker = async (workerId) => {
         setDeleteError(null);
         try {
-            await axios.delete(`http://localhost:8080/workers/${workerId}`);
+            await axios.delete(`${config.API_BASE_URL}/workers/${workerId}`);
             setWorkers(workers.filter(worker => worker.id !== workerId));
         } catch (error) {
             setDeleteError(error.message);
@@ -44,6 +56,11 @@ function Workers() {
 
     const handleAddWorker = () => {
         navigate('/add-worker', { state: { clientId } });
+    };
+
+    const getLocationName = (locationId) => {
+        const location = locations.find(loc => loc.id === locationId);
+        return location ? location.name : 'Unknown';
     };
 
     if (loading) {
@@ -100,7 +117,8 @@ function Workers() {
                                 <Card.Text>
                                     <strong>Email:</strong> {worker.email}<br />
                                     <strong>Phone number:</strong> {worker.phoneNumber}<br />
-                                    <strong>Title:</strong> {worker.title}
+                                    <strong>Title:</strong> {worker.title}<br />
+                                    <strong>Location:</strong> {getLocationName(worker.locationId)}
                                 </Card.Text>
                             </Card.Body>
                         </Card>

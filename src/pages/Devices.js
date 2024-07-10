@@ -4,6 +4,7 @@ import React, {useEffect, useState} from 'react';
 import {useNavigate} from "react-router-dom";
 import axios from "axios";
 import {Alert, Button, Card, Col, Container, Row, Spinner} from "react-bootstrap";
+import config from "../config/config";
 
 
 
@@ -18,7 +19,7 @@ function Tickets() {
     useEffect(() => {
         const fetchDevices = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/devices');
+                const response = await axios.get(`${config.API_BASE_URL}/devices`);
                 setDevices(response.data);
             } catch (error) {
                 setError(error.message);

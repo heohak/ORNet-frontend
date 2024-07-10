@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {useNavigate, useParams} from 'react-router-dom';
 import {Container, Row, Col, Card, Spinner, Alert, Button} from 'react-bootstrap';
+import config from "../config/config";
 
 function ClientDevices() {
     const { clientId } = useParams();
@@ -16,7 +17,7 @@ function ClientDevices() {
     useEffect(() => {
         const fetchDevices = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/devices/${clientId}`);
+                const response = await axios.get(`${config.API_BASE_URL}/devices/${clientId}`);
                 setDevices(response.data);
             } catch (error) {
                 setError(error.message);
@@ -35,7 +36,7 @@ function ClientDevices() {
     const handleDeleteDevice = async (deviceId) => {
         setDeleteError(null);
         try {
-            await axios.delete(`http://localhost:8080/device/${deviceId}`);
+            await axios.delete(`${config.API_BASE_URL}/device/${deviceId}`);
             setDevices(devices.filter(device => device.id !== deviceId));
         } catch (error) {
             setDeleteError(error.message);
