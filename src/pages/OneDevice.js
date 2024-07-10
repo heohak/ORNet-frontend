@@ -91,8 +91,19 @@ function OneDevice() {
                     <Card.Body>
                         <Card.Title>{device.deviceName}</Card.Title>
                         <Card.Text>
-                            <strong>Serial Number:</strong> {device.serialNumber}<br />
-                            <strong>Description:</strong> {device.description}
+                            <strong>Device name:</strong> {device.deviceName}<br />
+                            <strong>Department:</strong> {device.department}<br />
+                            <strong>Room:</strong> {device.room}<br />
+                            <strong>Serial number:</strong> {device.serialNumber}<br />
+                            <strong>License Number:</strong> {device.licenseNumber}<br />
+                            <strong>Version:</strong> {device.version}<br />
+                            <strong>Version Update Date:</strong> {device.versionUpdateDate}<br />
+                            <strong>First IP Address:</strong> {device.firstIPAddress}<br />
+                            <strong>Second IP Address:</strong> {device.secondIPAddress}<br />
+                            <strong>Software Key:</strong> {device.softwareKey}<br />
+                            <strong>Introduced Date:</strong> {device.introducedDate}<br />
+                            <strong>Written Off Date:</strong> {device.writtenOffDate}<br />
+                            <strong>Comment:</strong> {device.comment}<br />
                         </Card.Text>
                         <Button onClick={() => navigate(-1)}>Back</Button>
                     </Card.Body>
