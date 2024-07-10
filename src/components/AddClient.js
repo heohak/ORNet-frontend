@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Container, Form, Button, Alert, Row, Col } from 'react-bootstrap';
+import config from "../config/config";
 
 function AddClient() {
     const [fullName, setFullName] = useState('');
@@ -22,10 +23,10 @@ function AddClient() {
     useEffect(() => {
         const fetchLocationsAndThirdParties = async () => {
             try {
-                const locationsResponse = await axios.get('http://localhost:8080/location/all');
+                const locationsResponse = await axios.get(`${config.API_BASE_URL}/location/all`);
                 setLocations(locationsResponse.data);
 
-                const thirdPartiesResponse = await axios.get('http://localhost:8080/third-party/all');
+                const thirdPartiesResponse = await axios.get(`${config.API_BASE_URL}/third-party/all`);
                 setThirdParties(thirdPartiesResponse.data);
             } catch (error) {
                 setError(error.message);
@@ -40,7 +41,7 @@ function AddClient() {
         setError(null);
 
         try {
-            const clientResponse = await axios.post('http://localhost:8080/client', {
+            const clientResponse = await axios.post(`${config.API_BASE_URL}/client`, {
                 fullName,
                 shortName,
                 pathologyClient,
@@ -54,8 +55,8 @@ function AddClient() {
             const clientId = clientResponse.data.token;
 
             await Promise.all([
-                ...locationIds.map(locationId => axios.put(`http://localhost:8080/client/${clientId}/${locationId}`)),
-                ...thirdPartyIds.map(thirdPartyId => axios.put(`http://localhost:8080/client/third-party/${clientId}/${thirdPartyId}`))
+                ...locationIds.map(locationId => axios.put(`${config.API_BASE_URL}/client/${clientId}/${locationId}`)),
+                ...thirdPartyIds.map(thirdPartyId => axios.put(`${config.API_BASE_URL}/client/third-party/${clientId}/${thirdPartyId}`))
             ]);
 
             navigate('/clients');

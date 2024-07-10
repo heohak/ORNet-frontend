@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Spinner, Alert } from 'react-bootstrap';
+import config from "../config/config";
 
 function Clients() {
     const [clients, setClients] = useState([]);
@@ -14,7 +15,7 @@ function Clients() {
     useEffect(() => {
         const fetchClients = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/client');
+                const response = await axios.get(`${config.API_BASE_URL}/client`);
                 setClients(response.data);
             } catch (error) {
                 setError(error.message);
@@ -41,7 +42,7 @@ function Clients() {
     const handleDeleteClient = async (clientId) => {
         setDeleteError(null);
         try {
-            await axios.delete(`http://localhost:8080/client/${clientId}`);
+            await axios.delete(`${config.API_BASE_URL}/client/${clientId}`);
             setClients(clients.filter(client => client.id !== clientId));
         } catch (error) {
             setDeleteError(error.message);
@@ -62,8 +63,8 @@ function Clients() {
         } else {
             try {
                 const [locationsResponse, thirdPartyITsResponse] = await Promise.all([
-                    axios.get(`http://localhost:8080/client/locations/${clientId}`),
-                    axios.get(`http://localhost:8080/client/third-parties/${clientId}`)
+                    axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`),
+                    axios.get(`${config.API_BASE_URL}/client/third-parties/${clientId}`)
                 ]);
                 setExpandedClientDetails(prevDetails => ({
                     ...prevDetails,

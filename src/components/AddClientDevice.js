@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Container, Form, Button, Alert } from 'react-bootstrap';
+import config from "../config/config";
 
 function AddClientDevice() {
     const navigate = useNavigate();
@@ -22,12 +23,12 @@ function AddClientDevice() {
         }
 
         try {
-            await axios.post('http://localhost:8080/device', {
+            await axios.post(`${config.API_BASE_URL}/device`, {
                 clientId,
                 deviceName,
                 serialNumber,
             });
-            navigate(-1); // Go back to the previous page
+            navigate(-1);
         } catch (error) {
             setError(error.message);
         }

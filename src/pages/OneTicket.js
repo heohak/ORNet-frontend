@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Alert, Button, Card, Container, Spinner } from "react-bootstrap";
+import config from "../config/config";
 
 function OneTicket() {
     const { ticketId } = useParams();
@@ -19,7 +20,7 @@ function OneTicket() {
     useEffect(() => {
         const fetchTickets = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/tickets/main/${ticketId}`);
+                const response = await axios.get(`${config.API_BASE_URL}/tickets/main/${ticketId}`);
                 setTickets(response.data);
             } catch (error) {
                 setError(error.message);

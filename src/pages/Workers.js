@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Container, Row, Col, Card, Button, Spinner, Alert } from 'react-bootstrap';
+import config from "../config/config";
 
 function Workers() {
     const location = useLocation();
@@ -21,7 +22,7 @@ function Workers() {
 
         const fetchWorkers = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/workers/${clientId}`);
+                const response = await axios.get(`${config.API_BASE_URL}/workers/${clientId}`);
                 setWorkers(response.data);
             } catch (error) {
                 setError(error.message);
@@ -32,7 +33,7 @@ function Workers() {
 
         const fetchLocations = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/location/all');
+                const response = await axios.get(`${config.API_BASE_URL}/location/all`);
                 setLocations(response.data);
             } catch (error) {
                 setError(error.message);
@@ -46,7 +47,7 @@ function Workers() {
     const handleDeleteWorker = async (workerId) => {
         setDeleteError(null);
         try {
-            await axios.delete(`http://localhost:8080/workers/${workerId}`);
+            await axios.delete(`${config.API_BASE_URL}/workers/${workerId}`);
             setWorkers(workers.filter(worker => worker.id !== workerId));
         } catch (error) {
             setDeleteError(error.message);

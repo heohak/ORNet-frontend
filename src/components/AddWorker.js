@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Container, Form, Button, Alert } from 'react-bootstrap';
+import config from "../config/config";
 
 function AddWorker() {
     const navigate = useNavigate();
@@ -20,7 +21,7 @@ function AddWorker() {
     useEffect(() => {
         const fetchLocations = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/location/all');
+                const response = await axios.get(`${config.API_BASE_URL}/location/all`);
                 setLocations(response.data);
             } catch (error) {
                 setError(error.message);
@@ -35,7 +36,7 @@ function AddWorker() {
         setError(null);
 
         try {
-            await axios.post('http://localhost:8080/worker', {
+            await axios.post(`${config.API_BASE_URL}/worker`, {
                 clientId,
                 firstName,
                 lastName,

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {Container, Spinner, Alert, Table, Button} from 'react-bootstrap';
+import config from "../config/config";
 
 function SoftwareDetails() {
     const { softwareId } = useParams();
@@ -15,7 +16,7 @@ function SoftwareDetails() {
     useEffect(() => {
         const fetchSoftwareDetails = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/software/${softwareId}`);
+                const response = await axios.get(`${config.API_BASE_URL}/software/${softwareId}`);
                 setSoftware(response.data);
                 console.log(response.data)
             } catch (error) {
