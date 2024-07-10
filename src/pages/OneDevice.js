@@ -8,6 +8,7 @@ function OneDevice() {
     const { deviceId } = useParams();
     const [device, setDevice] = useState(null);
     const [linkedDevices, setLinkedDevices] = useState([]);
+    const [maintenanceInfo, setMaintenanceInfo] = useState([]); // Updated to an array
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
@@ -45,15 +46,24 @@ function OneDevice() {
             }
         };
 
+        const fetchMaintenanceInfo = async () => {
+            try {
+                const response = await axios.get(`${config.API_BASE_URL}/device/maintenances/${deviceId}`);
+                setMaintenanceInfo(response.data); // Set the array of maintenance records
+            } catch (error) {
+                setError(error.message);
+            }
+        };
+
         fetchDevice();
         fetchLinkedDevices();
         fetchAvailableLinkedDevices();
+        fetchMaintenanceInfo();
     }, [deviceId]);
 
     const handleLinkDevice = async () => {
         try {
             await axios.put(`${config.API_BASE_URL}/linked/device/link/${selectedLinkedDeviceId}/${deviceId}`);
-            // Fetch updated linked devices
             const response = await axios.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
             setLinkedDevices(response.data);
             setShowModal(false);
@@ -91,14 +101,44 @@ function OneDevice() {
                     <Card.Body>
                         <Card.Title>{device.deviceName}</Card.Title>
                         <Card.Text>
-                            <strong>Serial Number:</strong> {device.serialNumber}<br />
-                            <strong>Description:</strong> {device.description}
+                            <strong>Device name:</strong> {device.deviceName}<br />
+                            <strong>Department:</strong> {device.department}<br />
+                            <strong>Room:</strong> {device.room}<br />
+                            <strong>Serial number:</strong> {device.serialNumber}<br />
+                            <strong>License Number:</strong> {device.licenseNumber}<br />
+                            <strong>Version:</strong> {device.version}<br />
+                            <strong>Version Update Date:</strong> {device.versionUpdateDate}<br />
+                            <strong>First IP Address:</strong> {device.firstIPAddress}<br />
+                            <strong>Second IP Address:</strong> {device.secondIPAddress}<br />
+                            <strong>Software Key:</strong> {device.softwareKey}<br />
+                            <strong>Introduced Date:</strong> {device.introducedDate}<br />
+                            <strong>Written Off Date:</strong> {device.writtenOffDate}<br />
+                            <strong>Comment:</strong> {device.comment}<br />
                         </Card.Text>
                         <Button onClick={() => navigate(-1)}>Back</Button>
                     </Card.Body>
                 </Card>
             ) : (
                 <Alert variant="info">No device details available.</Alert>
+            )}
+
+            <h2 className="mb-4">Maintenance Information</h2>
+            {maintenanceInfo.length > 0 ? (
+                maintenanceInfo.map((maintenance, index) => (
+                    <Card key={index} className="mb-4">
+                        <Card.Body>
+                            <Card.Title>Maintenance Details</Card.Title>
+                            <Card.Text>
+                                <strong>Maintenance Name:</strong> {maintenance.maintenanceName}<br />
+                                <strong>Maintenance Date:</strong> {maintenance.maintenanceDate}<br />
+                                <strong>Comment:</strong> {maintenance.comment}<br />
+                                <strong>Files:</strong> {maintenance.comments}<br />
+                            </Card.Text>
+                        </Card.Body>
+                    </Card>
+                ))
+            ) : (
+                <Alert variant="info">No maintenance information available.</Alert>
             )}
 
             <h2 className="mb-4">Linked Devices</h2>
