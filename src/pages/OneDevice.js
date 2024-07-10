@@ -147,7 +147,7 @@ function OneDevice() {
             )}
 
             <h2 className="mb-4">Maintenance Information</h2>
-            <Button variant="primary" onClick={() => setShowMaintenanceModal(true)}>Add Maintenance</Button>
+            <Button variant="primary" onClick={() => setShowMaintenanceModal(true)}className="mb-3">Add Maintenance</Button>
             {maintenanceInfo.length > 0 ? (
                 maintenanceInfo.map((maintenance, index) => (
                     <Card key={index} className="mb-4">
