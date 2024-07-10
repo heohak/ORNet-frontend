@@ -8,7 +8,7 @@ function Clients() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [deleteError, setDeleteError] = useState(null);
-    const [expandedClientIds, setExpandedClientIds] = useState([]);
+    const [expandedClientDetails, setExpandedClientDetails] = useState({});
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -52,12 +52,30 @@ function Clients() {
         navigate('/add-client');
     };
 
-    const handleToggleExpand = (clientId) => {
-        setExpandedClientIds((prevIds) =>
-            prevIds.includes(clientId)
-                ? prevIds.filter((id) => id !== clientId)
-                : [...prevIds, clientId]
-        );
+    const handleToggleExpand = async (clientId) => {
+        if (expandedClientDetails[clientId]) {
+            setExpandedClientDetails(prevDetails => {
+                const newDetails = { ...prevDetails };
+                delete newDetails[clientId];
+                return newDetails;
+            });
+        } else {
+            try {
+                const [locationsResponse, thirdPartyITsResponse] = await Promise.all([
+                    axios.get(`http://localhost:8080/client/locations/${clientId}`),
+                    axios.get(`http://localhost:8080/client/third-parties/${clientId}`)
+                ]);
+                setExpandedClientDetails(prevDetails => ({
+                    ...prevDetails,
+                    [clientId]: {
+                        locations: locationsResponse.data,
+                        thirdPartyITs: thirdPartyITsResponse.data
+                    }
+                }));
+            } catch (error) {
+                console.error("Error fetching client details:", error);
+            }
+        }
     };
 
     if (loading) {
@@ -104,7 +122,7 @@ function Clients() {
                                     <Card.Text>
                                         <strong>Short Name:</strong> {client.shortName}
                                     </Card.Text>
-                                    {expandedClientIds.includes(client.id) && (
+                                    {expandedClientDetails[client.id] && (
                                         <>
                                             <Card.Text>
                                                 <strong>Pathology Client:</strong> {client.pathologyClient ? 'Yes' : 'No'}<br />
@@ -112,7 +130,9 @@ function Clients() {
                                                 <strong>Editor Client:</strong> {client.editorClient ? 'Yes' : 'No'}<br />
                                                 <strong>Other Medical Information:</strong> {client.otherMedicalInformation}<br />
                                                 <strong>Last Maintenance:</strong> {client.lastMaintenance}<br />
-                                                <strong>Next Maintenance:</strong> {client.nextMaintenance}
+                                                <strong>Next Maintenance:</strong> {client.nextMaintenance}<br />
+                                                <strong>Locations:</strong> {expandedClientDetails[client.id].locations.map(loc => loc.name).join(', ')}<br />
+                                                <strong>Third Party ITs:</strong> {expandedClientDetails[client.id].thirdPartyITs.map(tpIT => tpIT.name).join(', ')}
                                             </Card.Text>
                                             <div className="d-flex flex-wrap justify-content-center">
                                                 <Button variant="primary" className="mb-2 me-2" onClick={() => handleNavigateWorkers(client.id)}>
@@ -129,7 +149,7 @@ function Clients() {
                                     )}
                                 </div>
                                 <Button variant="link" onClick={() => handleToggleExpand(client.id)}>
-                                    {expandedClientIds.includes(client.id) ? 'View Less' : 'View More'}
+                                    {expandedClientDetails[client.id] ? 'View Less' : 'View More'}
                                 </Button>
                             </Card.Body>
                         </Card>

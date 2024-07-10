@@ -1,45 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Container, Form, Button, Alert } from 'react-bootstrap';
+import { Container, Form, Button, Alert, Row, Col } from 'react-bootstrap';
 
 function AddClient() {
     const [fullName, setFullName] = useState('');
     const [shortName, setShortName] = useState('');
-    const [thirdPartyITs, setThirdPartyITs] = useState([]);
-    const [availableThirdPartyITs, setAvailableThirdPartyITs] = useState([]);
-    const [locations, setLocations] = useState([]);
-    const [availableLocations, setAvailableLocations] = useState([]);
     const [pathologyClient, setPathologyClient] = useState(false);
     const [surgeryClient, setSurgeryClient] = useState(false);
     const [editorClient, setEditorClient] = useState(false);
     const [otherMedicalInformation, setOtherMedicalInformation] = useState('');
     const [lastMaintenance, setLastMaintenance] = useState('');
     const [nextMaintenance, setNextMaintenance] = useState('');
+    const [locationIds, setLocationIds] = useState([]);
+    const [thirdPartyIds, setThirdPartyIds] = useState([]);
+    const [locations, setLocations] = useState([]);
+    const [thirdParties, setThirdParties] = useState([]);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchThirdPartyITs = async () => {
+        const fetchLocationsAndThirdParties = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/third-party/all');
-                setAvailableThirdPartyITs(response.data);
+                const locationsResponse = await axios.get('http://localhost:8080/location/all');
+                setLocations(locationsResponse.data);
+
+                const thirdPartiesResponse = await axios.get('http://localhost:8080/third-party/all');
+                setThirdParties(thirdPartiesResponse.data);
             } catch (error) {
                 setError(error.message);
             }
         };
 
-        const fetchLocations = async () => {
-            try {
-                const response = await axios.get('http://localhost:8080/location/all');
-                setAvailableLocations(response.data);
-            } catch (error) {
-                setError(error.message);
-            }
-        };
-
-        fetchThirdPartyITs();
-        fetchLocations();
+        fetchLocationsAndThirdParties();
     }, []);
 
     const handleSubmit = async (e) => {
@@ -47,11 +40,9 @@ function AddClient() {
         setError(null);
 
         try {
-            await axios.post('http://localhost:8080/client', {
+            const clientResponse = await axios.post('http://localhost:8080/client', {
                 fullName,
                 shortName,
-                thirdPartyITs,
-                locations,
                 pathologyClient,
                 surgeryClient,
                 editorClient,
@@ -59,19 +50,18 @@ function AddClient() {
                 lastMaintenance,
                 nextMaintenance
             });
+            console.log(clientResponse)
+            const clientId = clientResponse.data.token;
+
+            await Promise.all([
+                ...locationIds.map(locationId => axios.put(`http://localhost:8080/client/${clientId}/${locationId}`)),
+                ...thirdPartyIds.map(thirdPartyId => axios.put(`http://localhost:8080/client/third-party/${clientId}/${thirdPartyId}`))
+            ]);
+
             navigate('/clients');
         } catch (error) {
             setError(error.message);
         }
-    };
-
-    const handleCheckboxChange = (event, setState) => {
-        setState(event.target.checked);
-    };
-
-    const handleMultiSelectChange = (event, setState) => {
-        const options = Array.from(event.target.selectedOptions, option => option.value);
-        setState(options);
     };
 
     return (
@@ -103,57 +93,27 @@ function AddClient() {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
-                    <Form.Label>Third Party IT</Form.Label>
-                    <Form.Control
-                        as="select"
-                        multiple
-                        value={thirdPartyITs}
-                        onChange={(e) => handleMultiSelectChange(e, setThirdPartyITs)}
-                    >
-                        {availableThirdPartyITs.map((thirdPartyIT) => (
-                            <option key={thirdPartyIT.id} value={thirdPartyIT.id}>
-                                {thirdPartyIT.name}
-                            </option>
-                        ))}
-                    </Form.Control>
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Locations</Form.Label>
-                    <Form.Control
-                        as="select"
-                        multiple
-                        value={locations}
-                        onChange={(e) => handleMultiSelectChange(e, setLocations)}
-                    >
-                        {availableLocations.map((location) => (
-                            <option key={location.id} value={location.id}>
-                                {location.name}
-                            </option>
-                        ))}
-                    </Form.Control>
-                </Form.Group>
-                <Form.Group className="mb-3">
+                    <Form.Label>Pathology Client</Form.Label>
                     <Form.Check
                         type="checkbox"
-                        label="Pathology Client"
                         checked={pathologyClient}
-                        onChange={(e) => handleCheckboxChange(e, setPathologyClient)}
+                        onChange={(e) => setPathologyClient(e.target.checked)}
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
+                    <Form.Label>Surgery Client</Form.Label>
                     <Form.Check
                         type="checkbox"
-                        label="Surgery Client"
                         checked={surgeryClient}
-                        onChange={(e) => handleCheckboxChange(e, setSurgeryClient)}
+                        onChange={(e) => setSurgeryClient(e.target.checked)}
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
+                    <Form.Label>Editor Client</Form.Label>
                     <Form.Check
                         type="checkbox"
-                        label="Editor Client"
                         checked={editorClient}
-                        onChange={(e) => handleCheckboxChange(e, setEditorClient)}
+                        onChange={(e) => setEditorClient(e.target.checked)}
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
@@ -180,10 +140,42 @@ function AddClient() {
                         onChange={(e) => setNextMaintenance(e.target.value)}
                     />
                 </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Locations</Form.Label>
+                    <Form.Control
+                        as="select"
+                        multiple
+                        value={locationIds}
+                        onChange={(e) => setLocationIds([...e.target.selectedOptions].map(option => option.value))}
+                    >
+                        {locations.map(location => (
+                            <option key={location.id} value={location.id}>
+                                {location.name}
+                            </option>
+                        ))}
+                    </Form.Control>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Third Party ITs</Form.Label>
+                    <Form.Control
+                        as="select"
+                        multiple
+                        value={thirdPartyIds}
+                        onChange={(e) => setThirdPartyIds([...e.target.selectedOptions].map(option => option.value))}
+                    >
+                        {thirdParties.map(tp => (
+                            <option key={tp.id} value={tp.id}>
+                                {tp.name}
+                            </option>
+                        ))}
+                    </Form.Control>
+                </Form.Group>
                 <Button variant="success" type="submit">
                     Add Client
                 </Button>
-                <Button className="ms-3" onClick={() => navigate(-1)}>Back</Button>
+                <Button variant="secondary" className="ms-3" onClick={() => navigate(-1)}>
+                    Back
+                </Button>
             </Form>
         </Container>
     );
