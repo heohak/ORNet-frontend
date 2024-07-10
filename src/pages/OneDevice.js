@@ -8,12 +8,16 @@ function OneDevice() {
     const { deviceId } = useParams();
     const [device, setDevice] = useState(null);
     const [linkedDevices, setLinkedDevices] = useState([]);
-    const [maintenanceInfo, setMaintenanceInfo] = useState([]); // Updated to an array
+    const [maintenanceInfo, setMaintenanceInfo] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
     const [availableLinkedDevices, setAvailableLinkedDevices] = useState([]);
     const [selectedLinkedDeviceId, setSelectedLinkedDeviceId] = useState("");
+    const [maintenanceName, setMaintenanceName] = useState("");
+    const [maintenanceDate, setMaintenanceDate] = useState("");
+    const [maintenanceComment, setMaintenanceComment] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -72,6 +76,26 @@ function OneDevice() {
         }
     };
 
+    const handleAddMaintenance = async () => {
+        try {
+            const maintenanceResponse = await axios.post(`${config.API_BASE_URL}/maintenance/add`, {
+                maintenanceName,
+                maintenanceDate,
+                comment: maintenanceComment,
+            });
+            console.log('Maintenance response:', maintenanceResponse.data);
+
+            const maintenanceId = maintenanceResponse.data.token;
+
+            await axios.put(`${config.API_BASE_URL}/device/maintenance/${deviceId}/${maintenanceId}`);
+            const response = await axios.get(`${config.API_BASE_URL}/device/maintenances/${deviceId}`);
+            setMaintenanceInfo(response.data);
+            setShowMaintenanceModal(false);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
     if (loading) {
         return (
             <Container className="text-center mt-5">
@@ -123,6 +147,7 @@ function OneDevice() {
             )}
 
             <h2 className="mb-4">Maintenance Information</h2>
+            <Button variant="primary" onClick={() => setShowMaintenanceModal(true)}>Add Maintenance</Button>
             {maintenanceInfo.length > 0 ? (
                 maintenanceInfo.map((maintenance, index) => (
                     <Card key={index} className="mb-4">
@@ -185,6 +210,43 @@ function OneDevice() {
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
                     <Button variant="primary" onClick={handleLinkDevice}>Link Device</Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showMaintenanceModal} onHide={() => setShowMaintenanceModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Add Maintenance</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form.Group controlId="maintenanceName">
+                        <Form.Label>Maintenance Name</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={maintenanceName}
+                            onChange={(e) => setMaintenanceName(e.target.value)}
+                        />
+                    </Form.Group>
+                    <Form.Group controlId="maintenanceDate">
+                        <Form.Label>Maintenance Date</Form.Label>
+                        <Form.Control
+                            type="date"
+                            value={maintenanceDate}
+                            onChange={(e) => setMaintenanceDate(e.target.value)}
+                        />
+                    </Form.Group>
+                    <Form.Group controlId="maintenanceComment">
+                        <Form.Label>Comment</Form.Label>
+                        <Form.Control
+                            as="textarea"
+                            rows={3}
+                            value={maintenanceComment}
+                            onChange={(e) => setMaintenanceComment(e.target.value)}
+                        />
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowMaintenanceModal(false)}>Cancel</Button>
+                    <Button variant="primary" onClick={handleAddMaintenance}>Add Maintenance</Button>
                 </Modal.Footer>
             </Modal>
         </Container>
