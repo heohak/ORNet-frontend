@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Spinner, Alert, Card, Button, ListGroup, Modal, Form } from 'react-bootstrap';
 import config from "../config/config";
+import FileUploadModal from "../modals/FileUploadModal";
 
 function OneDevice() {
     const { deviceId } = useParams();
@@ -13,11 +14,13 @@ function OneDevice() {
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
+    const [showFileUploadModal, setShowFileUploadModal] = useState(false); // File upload modal visibility
     const [availableLinkedDevices, setAvailableLinkedDevices] = useState([]);
     const [selectedLinkedDeviceId, setSelectedLinkedDeviceId] = useState("");
     const [maintenanceName, setMaintenanceName] = useState("");
     const [maintenanceDate, setMaintenanceDate] = useState("");
     const [maintenanceComment, setMaintenanceComment] = useState("");
+    const [refresh, setRefresh] = useState(false); // State to trigger refresh
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -63,7 +66,7 @@ function OneDevice() {
         fetchLinkedDevices();
         fetchAvailableLinkedDevices();
         fetchMaintenanceInfo();
-    }, [deviceId]);
+    }, [deviceId, refresh]);
 
     const handleLinkDevice = async () => {
         try {
@@ -96,6 +99,10 @@ function OneDevice() {
         }
     };
 
+    const handleUploadSuccess = () => {
+        setRefresh(!refresh); // Toggle refresh state to trigger re-fetch
+    };
+
     if (loading) {
         return (
             <Container className="text-center mt-5">
@@ -116,6 +123,7 @@ function OneDevice() {
             </Container>
         );
     }
+
 
     return (
         <Container className="mt-5">
@@ -139,7 +147,10 @@ function OneDevice() {
                             <strong>Written Off Date:</strong> {device.writtenOffDate}<br />
                             <strong>Comment:</strong> {device.comment}<br />
                         </Card.Text>
-                        <Button onClick={() => navigate(-1)}>Back</Button>
+                        <div>
+                            <Button className="me-2" onClick={() => setShowFileUploadModal(true)}>Add Files</Button>
+                            <Button onClick={() => navigate(-1)}>Back</Button>
+                        </div>
                     </Card.Body>
                 </Card>
             ) : (
@@ -249,6 +260,12 @@ function OneDevice() {
                     <Button variant="primary" onClick={handleAddMaintenance}>Add Maintenance</Button>
                 </Modal.Footer>
             </Modal>
+            <FileUploadModal
+                show={showFileUploadModal}
+                handleClose={() => setShowFileUploadModal(false)}
+                deviceId={deviceId}
+                onUploadSuccess={handleUploadSuccess} // Pass callback to trigger refresh
+            />
         </Container>
     );
 }
