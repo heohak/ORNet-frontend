@@ -14,16 +14,19 @@ const Menubar = () => {
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="me-auto">
                         <LinkContainer to="/">
-                            <Nav.Link>Avaleht</Nav.Link>
+                            <Nav.Link>Home</Nav.Link>
                         </LinkContainer>
                         <LinkContainer to="/clients">
-                            <Nav.Link>Kliendid</Nav.Link>
+                            <Nav.Link>Clients</Nav.Link>
                         </LinkContainer>
                         <LinkContainer to="/devices">
-                            <Nav.Link>Seadmed</Nav.Link>
+                            <Nav.Link>Devices</Nav.Link>
                         </LinkContainer>
                         <LinkContainer to="/tickets">
-                            <Nav.Link>Piletid</Nav.Link>
+                            <Nav.Link>Tickets</Nav.Link>
+                        </LinkContainer>
+                        <LinkContainer to="/wiki">
+                            <Nav.Link>Wiki</Nav.Link>
                         </LinkContainer>
                     </Nav>
                 </Navbar.Collapse>

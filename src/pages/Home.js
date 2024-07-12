@@ -6,15 +6,15 @@ const HomePage = () => {
         <Container fluid className="mt-5">
             <Row className="mb-4">
                 <Col className="text-center">
-                    <h1>Tere tulemast!</h1>
-                    <p>Valige allpool olevate valikute hulgast, mida soovite hallata.</p>
+                    <h1>Welcome!</h1>
+                    <p>Please select from the options below what you want to manage</p>
                 </Col>
             </Row>
             <Row className="justify-content-center">
                 <Col md={3}>
                     <Card className="text-center mb-3">
                         <Card.Body>
-                            <Card.Title>Kliendid</Card.Title>
+                            <Card.Title>Clients</Card.Title>
                             <Button variant="primary" href="/clients">Kliendid</Button>
                         </Card.Body>
                     </Card>
@@ -22,7 +22,7 @@ const HomePage = () => {
                 <Col md={3}>
                     <Card className="text-center mb-3">
                         <Card.Body>
-                            <Card.Title>Seadmed</Card.Title>
+                            <Card.Title>Devices</Card.Title>
                             <Button variant="primary" href="/devices">Seadmed</Button>
                         </Card.Body>
                     </Card>
@@ -30,7 +30,7 @@ const HomePage = () => {
                 <Col md={3}>
                     <Card className="text-center mb-3">
                         <Card.Body>
-                            <Card.Title>Piletid</Card.Title>
+                            <Card.Title>Tickets</Card.Title>
                             <Button variant="primary" href="/tickets">Piletid</Button>
                         </Card.Body>
                     </Card>
