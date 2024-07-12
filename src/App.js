@@ -13,7 +13,7 @@ import OneTicket from "./pages/OneTicket";
 import AddClient from "./components/AddClient";
 import AddWorker from "./components/AddWorker";
 import Devices from "./pages/Devices" ;
-import OneDevice from "./pages/OneDevice"
+import OneDevice from "./pages/OneDevicePage/OneDevice"
 import AddClientDevice from "./components/AddClientDevice";
 import AddTicket from "./components/AddTicket";
 import Softwares from "./pages/Softwares";
