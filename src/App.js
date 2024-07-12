@@ -7,7 +7,7 @@ import Clients from './pages/Clients';
 import Home from './pages/Home';
 import Chung from "./pages/Chung";
 import Workers from './pages/Workers';
-import ClientDevices from "./pages/ClientDevices";
+import ClientDevices from "./pages/OneClientPage/ClientDevices";
 import Tickets from "./pages/Tickets";
 import OneTicket from "./pages/OneTicket";
 import AddClient from "./components/AddClient";
@@ -18,6 +18,7 @@ import AddClientDevice from "./components/AddClientDevice";
 import AddTicket from "./components/AddTicket";
 import Softwares from "./pages/Softwares";
 import SoftwareDetails from "./pages/SoftwareDetails";
+import OneClient from "./pages/OneClientPage/OneClient";
 
 function App() {
     return (
@@ -40,6 +41,7 @@ function App() {
                 <Route path="/add-ticket/:mainTicketId" element={<AddTicket />} />
                 <Route path="/clients/:clientId/softwares" element={<Softwares />} />
                 <Route path="/software/:softwareId" element={<SoftwareDetails />} />
+                <Route path="/client/:clientId" element={<OneClient />} />
             </Routes>
         </Router>
     );

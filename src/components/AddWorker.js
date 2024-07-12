@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { Container, Form, Button, Alert } from 'react-bootstrap';
 import config from "../config/config";
 
-function AddWorker() {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { clientId } = location.state || {};
-
+function AddWorker({ clientId, onClose, setRefresh }) {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
@@ -45,14 +40,15 @@ function AddWorker() {
                 title,
                 locationId
             });
-            navigate(-1);
+            setRefresh(prev => !prev); // Trigger refresh by toggling state
+            onClose(); // Close the modal after adding the worker
         } catch (error) {
             setError(error.message);
         }
     };
 
     return (
-        <Container className="mt-5">
+        <Container>
             <h1 className="mb-4">Add Worker</h1>
             {error && (
                 <Alert variant="danger">
