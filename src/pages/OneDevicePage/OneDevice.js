@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Spinner, Alert, Card, Button, ListGroup, Modal, Form } from 'react-bootstrap';
+import { Container, Spinner, Alert } from 'react-bootstrap';
 import config from "../../config/config";
 import DeviceDetails from "./DeviceDetails";
 import MaintenanceInfo from "./MaintenanceInfo";
 import LinkedDevices from "./LinkedDevices";
+import FileUploadModal from "../../modals/FileUploadModal";
 
 function OneDevice() {
     const { deviceId } = useParams();
@@ -21,6 +22,9 @@ function OneDevice() {
     const [maintenanceName, setMaintenanceName] = useState("");
     const [maintenanceDate, setMaintenanceDate] = useState("");
     const [maintenanceComment, setMaintenanceComment] = useState("");
+    const [showFileUploadModal, setShowFileUploadModal] = useState(false);
+    const [refresh, setRefresh] = useState(false);
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -45,7 +49,7 @@ function OneDevice() {
         };
 
         fetchData();
-    }, [deviceId]);
+    }, [deviceId, refresh]);
 
     const handleLinkDevice = async () => {
         try {
@@ -76,6 +80,10 @@ function OneDevice() {
         }
     };
 
+    const handleUploadSuccess = () => {
+        setRefresh(!refresh); //Toggle refresh state to trigger re-fetch
+    }
+
     if (loading) {
         return (
             <Container className="text-center mt-5">
@@ -99,7 +107,12 @@ function OneDevice() {
 
     return (
         <Container className="mt-5">
-            <DeviceDetails device={device} navigate={navigate} />
+
+            <DeviceDetails
+                device={device}
+                navigate={navigate}
+                setShowFileUploadModal={setShowFileUploadModal}
+            />
             <MaintenanceInfo
                 maintenanceInfo={maintenanceInfo}
                 showMaintenanceModal={showMaintenanceModal}
@@ -117,6 +130,12 @@ function OneDevice() {
                 selectedLinkedDeviceId={selectedLinkedDeviceId}
                 setSelectedLinkedDeviceId={setSelectedLinkedDeviceId}
                 handleLinkDevice={handleLinkDevice}
+            />
+            <FileUploadModal
+                show={showFileUploadModal}
+                handleClose={() => setShowFileUploadModal(false)}
+                deviceId={deviceId}
+                onUploadSuccess={handleUploadSuccess} // Pass callback to trigger refresh
             />
         </Container>
     );

@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import { Card, Button, Modal, Form, Alert } from 'react-bootstrap';
 
-function DeviceDetails({ device, navigate }) {
+function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
     const [showDeviceFieldModal, setShowDeviceFieldModal] = useState(false);
     const [visibleDeviceFields, setVisibleDeviceFields] = useState({});
 
@@ -59,6 +59,7 @@ function DeviceDetails({ device, navigate }) {
                     <Card.Body>
                         <Card.Title>{device.deviceName}</Card.Title>
                         {renderFields(device)}
+                        <Button className="me-2" onClick={() => setShowFileUploadModal(true)}>Upload Files</Button>
                         <Button onClick={() => navigate(-1)}>Back</Button>
                     </Card.Body>
                 </Card>
