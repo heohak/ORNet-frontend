@@ -13,11 +13,17 @@ function OneDevice() {
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
+    const [showDeviceFieldModal, setShowDeviceFieldModal] = useState(false);
+    const [showMaintenanceFieldModal, setShowMaintenanceFieldModal] = useState(false);
+    const [showLinkedDeviceFieldModal, setShowLinkedDeviceFieldModal] = useState(false);
     const [availableLinkedDevices, setAvailableLinkedDevices] = useState([]);
     const [selectedLinkedDeviceId, setSelectedLinkedDeviceId] = useState("");
     const [maintenanceName, setMaintenanceName] = useState("");
     const [maintenanceDate, setMaintenanceDate] = useState("");
     const [maintenanceComment, setMaintenanceComment] = useState("");
+    const [visibleDeviceFields, setVisibleDeviceFields] = useState({});
+    const [visibleMaintenanceFields, setVisibleMaintenanceFields] = useState({});
+    const [visibleLinkedDeviceFields, setVisibleLinkedDeviceFields] = useState({});
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -25,6 +31,7 @@ function OneDevice() {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/device/${deviceId}`);
                 setDevice(response.data);
+                initializeVisibleFields(response.data, setVisibleDeviceFields, 'device');
             } catch (error) {
                 setError(error.message);
             } finally {
@@ -36,6 +43,9 @@ function OneDevice() {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
                 setLinkedDevices(response.data);
+                if (response.data.length > 0) {
+                    initializeVisibleFields(response.data[0], setVisibleLinkedDeviceFields, 'linkedDevice');
+                }
             } catch (error) {
                 setError(error.message);
             }
@@ -53,7 +63,10 @@ function OneDevice() {
         const fetchMaintenanceInfo = async () => {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/device/maintenances/${deviceId}`);
-                setMaintenanceInfo(response.data); // Set the array of maintenance records
+                setMaintenanceInfo(response.data);
+                if (response.data.length > 0) {
+                    initializeVisibleFields(response.data[0], setVisibleMaintenanceFields, 'maintenance');
+                }
             } catch (error) {
                 setError(error.message);
             }
@@ -64,6 +77,30 @@ function OneDevice() {
         fetchAvailableLinkedDevices();
         fetchMaintenanceInfo();
     }, [deviceId]);
+
+    const initializeVisibleFields = (data, setVisibleFields, keyPrefix) => {
+        const savedVisibilityState = localStorage.getItem(`${keyPrefix}VisibilityState`);
+        if (savedVisibilityState) {
+            setVisibleFields(JSON.parse(savedVisibilityState));
+        } else {
+            const initialVisibleFields = Object.keys(data).reduce((acc, key) => {
+                acc[key] = true;
+                return acc;
+            }, {});
+            setVisibleFields(initialVisibleFields);
+        }
+    };
+
+    const handleFieldToggle = (field, setVisibleFields, keyPrefix) => {
+        setVisibleFields(prevVisibleFields => {
+            const newVisibleFields = {
+                ...prevVisibleFields,
+                [field]: !prevVisibleFields[field]
+            };
+            localStorage.setItem(`${keyPrefix}VisibilityState`, JSON.stringify(newVisibleFields));
+            return newVisibleFields;
+        });
+    };
 
     const handleLinkDevice = async () => {
         try {
@@ -83,8 +120,6 @@ function OneDevice() {
                 maintenanceDate,
                 comment: maintenanceComment,
             });
-            console.log('Maintenance response:', maintenanceResponse.data);
-
             const maintenanceId = maintenanceResponse.data.token;
 
             await axios.put(`${config.API_BASE_URL}/device/maintenance/${deviceId}/${maintenanceId}`);
@@ -94,6 +129,19 @@ function OneDevice() {
         } catch (error) {
             setError(error.message);
         }
+    };
+
+    const renderFields = (data, visibleFields) => {
+        return Object.keys(data).map(key => {
+            if (data[key] !== null && visibleFields[key]) {
+                return (
+                    <Card.Text key={key} className="mb-1">
+                        <strong>{key.replace(/([A-Z])/g, ' $1')}: </strong> {data[key]}
+                    </Card.Text>
+                );
+            }
+            return null;
+        });
     };
 
     if (loading) {
@@ -119,27 +167,15 @@ function OneDevice() {
 
     return (
         <Container className="mt-5">
-            <h1 className="mb-4">Device Details</h1>
+            <h1 className="mb-4">Device Details
+                <Button variant="link" className="float-end" onClick={() => setShowDeviceFieldModal(true)}>Edit Fields</Button></h1>
             {device ? (
                 <Card className="mb-4">
                     <Card.Body>
                         <Card.Title>{device.deviceName}</Card.Title>
-                        <Card.Text>
-                            <strong>Device name:</strong> {device.deviceName}<br />
-                            <strong>Department:</strong> {device.department}<br />
-                            <strong>Room:</strong> {device.room}<br />
-                            <strong>Serial number:</strong> {device.serialNumber}<br />
-                            <strong>License Number:</strong> {device.licenseNumber}<br />
-                            <strong>Version:</strong> {device.version}<br />
-                            <strong>Version Update Date:</strong> {device.versionUpdateDate}<br />
-                            <strong>First IP Address:</strong> {device.firstIPAddress}<br />
-                            <strong>Second IP Address:</strong> {device.secondIPAddress}<br />
-                            <strong>Software Key:</strong> {device.softwareKey}<br />
-                            <strong>Introduced Date:</strong> {device.introducedDate}<br />
-                            <strong>Written Off Date:</strong> {device.writtenOffDate}<br />
-                            <strong>Comment:</strong> {device.comment}<br />
-                        </Card.Text>
+                        {renderFields(device, visibleDeviceFields)}
                         <Button onClick={() => navigate(-1)}>Back</Button>
+
                     </Card.Body>
                 </Card>
             ) : (
@@ -147,18 +183,14 @@ function OneDevice() {
             )}
 
             <h2 className="mb-4">Maintenance Information</h2>
-            <Button variant="primary" onClick={() => setShowMaintenanceModal(true)}className="mb-3">Add Maintenance</Button>
+            <Button variant="primary" onClick={() => setShowMaintenanceModal(true)} className="mb-3">Add Maintenance</Button>
+            <Button variant="link" className="float-end mb-3" onClick={() => setShowMaintenanceFieldModal(true)}>Edit Fields</Button>
             {maintenanceInfo.length > 0 ? (
                 maintenanceInfo.map((maintenance, index) => (
                     <Card key={index} className="mb-4">
                         <Card.Body>
                             <Card.Title>Maintenance Details</Card.Title>
-                            <Card.Text>
-                                <strong>Maintenance Name:</strong> {maintenance.maintenanceName}<br />
-                                <strong>Maintenance Date:</strong> {maintenance.maintenanceDate}<br />
-                                <strong>Comment:</strong> {maintenance.comment}<br />
-                                <strong>Files:</strong> {maintenance.comments}<br />
-                            </Card.Text>
+                            {renderFields(maintenance, visibleMaintenanceFields)}
                         </Card.Body>
                     </Card>
                 ))
@@ -168,6 +200,7 @@ function OneDevice() {
 
             <h2 className="mb-4">Linked Devices</h2>
             <Button variant="primary" onClick={() => setShowModal(true)}>Link Device</Button>
+            <Button variant="link" className="float-end mb-3" onClick={() => setShowLinkedDeviceFieldModal(true)}>Edit Fields</Button>
             {linkedDevices.length > 0 ? (
                 <ListGroup className="mt-3">
                     {linkedDevices.map((linkedDevice) => (
@@ -175,12 +208,7 @@ function OneDevice() {
                             <Card>
                                 <Card.Body>
                                     <Card.Title>{linkedDevice.name}</Card.Title>
-                                    <Card.Text>
-                                        <strong>Manufacturer:</strong> {linkedDevice.manufacturer}<br />
-                                        <strong>Product Code:</strong> {linkedDevice.productCode}<br />
-                                        <strong>Serial Number:</strong> {linkedDevice.serialNumber}<br />
-                                        <strong>Comment:</strong> {linkedDevice.comment}
-                                    </Card.Text>
+                                    {renderFields(linkedDevice, visibleLinkedDeviceFields)}
                                 </Card.Body>
                             </Card>
                         </ListGroup.Item>
@@ -247,6 +275,72 @@ function OneDevice() {
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowMaintenanceModal(false)}>Cancel</Button>
                     <Button variant="primary" onClick={handleAddMaintenance}>Add Maintenance</Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showDeviceFieldModal} onHide={() => setShowDeviceFieldModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Visible Device Fields</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        {device && Object.keys(device).map(key => (
+                            <Form.Check
+                                key={key}
+                                type="checkbox"
+                                label={key.replace(/([A-Z])/g, ' $1')}
+                                checked={visibleDeviceFields[key]}
+                                onChange={() => handleFieldToggle(key, setVisibleDeviceFields, 'device')}
+                            />
+                        ))}
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowDeviceFieldModal(false)}>Close</Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showMaintenanceFieldModal} onHide={() => setShowMaintenanceFieldModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Visible Maintenance Fields</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        {maintenanceInfo[0] && Object.keys(maintenanceInfo[0]).map(key => (
+                            <Form.Check
+                                key={key}
+                                type="checkbox"
+                                label={key.replace(/([A-Z])/g, ' $1')}
+                                checked={visibleMaintenanceFields[key]}
+                                onChange={() => handleFieldToggle(key, setVisibleMaintenanceFields, 'maintenance')}
+                            />
+                        ))}
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowMaintenanceFieldModal(false)}>Close</Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showLinkedDeviceFieldModal} onHide={() => setShowLinkedDeviceFieldModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Visible Linked Device Fields</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        {linkedDevices[0] && Object.keys(linkedDevices[0]).map(key => (
+                            <Form.Check
+                                key={key}
+                                type="checkbox"
+                                label={key.replace(/([A-Z])/g, ' $1')}
+                                checked={visibleLinkedDeviceFields[key]}
+                                onChange={() => handleFieldToggle(key, setVisibleLinkedDeviceFields, 'linkedDevice')}
+                            />
+                        ))}
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowLinkedDeviceFieldModal(false)}>Close</Button>
                 </Modal.Footer>
             </Modal>
         </Container>
