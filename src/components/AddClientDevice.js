@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Container, Form, Button, Alert } from 'react-bootstrap';
 import config from "../config/config";
 
 function AddClientDevice({ clientId, onClose, setRefresh }) {
     const navigate = useNavigate();
-    const location = useLocation();
 
     const [deviceName, setDeviceName] = useState('');
     const [department, setDepartment] = useState('');

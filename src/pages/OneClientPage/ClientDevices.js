@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Card, ListGroup, Alert, Button, Modal } from 'react-bootstrap';
 import AddClientDevice from '../../components/AddClientDevice';
 import {useNavigate} from "react-router-dom";
-import config from "../../config/config"; // Update the import path as necessary
 
 function ClientDevices({ devices, clientId, setRefresh }) {
     const [showAddDeviceModal, setShowAddDeviceModal] = useState(false);
