@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Container, Row, Col, ListGroup, Spinner, Alert, Button } from 'react-bootstrap';
+import { Container, ListGroup, Spinner, Alert, Button } from 'react-bootstrap';
 import config from "../config/config";
 
 function Softwares() {

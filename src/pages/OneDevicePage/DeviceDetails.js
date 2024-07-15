@@ -1,9 +1,14 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Button, Modal, Form, Alert } from 'react-bootstrap';
+import { FaPlus } from 'react-icons/fa'; // Assuming you have react-icons installed
+import axios from 'axios';
+import config from "../../config/config";
 
 function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
     const [showDeviceFieldModal, setShowDeviceFieldModal] = useState(false);
     const [visibleDeviceFields, setVisibleDeviceFields] = useState({});
+    const [newField, setNewField] = useState({ key: '', value: '', addToAll: false });
+    const [showAddFieldForm, setShowAddFieldForm] = useState(false);
 
     useEffect(() => {
         if (device) {
@@ -14,14 +19,30 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
     const initializeVisibleFields = (data) => {
         const savedVisibilityState = localStorage.getItem('deviceVisibilityState');
         if (savedVisibilityState) {
-            setVisibleDeviceFields(JSON.parse(savedVisibilityState));
+            const parsedVisibilityState = JSON.parse(savedVisibilityState);
+            const newFields = getAllKeys(data).filter(key => !(key in parsedVisibilityState));
+            const newVisibilityState = newFields.reduce((acc, key) => {
+                acc[key] = true;
+                return acc;
+            }, {});
+            setVisibleDeviceFields({ ...parsedVisibilityState, ...newVisibilityState });
         } else {
-            const initialVisibleFields = Object.keys(data).reduce((acc, key) => {
+            const initialVisibleFields = getAllKeys(data).reduce((acc, key) => {
                 acc[key] = true;
                 return acc;
             }, {});
             setVisibleDeviceFields(initialVisibleFields);
         }
+    };
+
+    const getAllKeys = (data, prefix = '') => {
+        return Object.keys(data).flatMap(key => {
+            const newKey = prefix ? `${prefix}.${key}` : key;
+            if (typeof data[key] === 'object' && !Array.isArray(data[key]) && data[key] !== null) {
+                return getAllKeys(data[key], newKey);
+            }
+            return newKey;
+        });
     };
 
     const handleFieldToggle = (field) => {
@@ -35,11 +56,19 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
         });
     };
 
-    const renderFields = (data) => {
+    const renderFields = (data, prefix = '') => {
         return Object.keys(data).map(key => {
-            if (data[key] !== null && visibleDeviceFields[key]) {
+            const newKey = prefix ? `${prefix}.${key}` : key;
+            if (data[key] !== null && visibleDeviceFields[newKey]) {
+                if (typeof data[key] === 'object' && !Array.isArray(data[key])) {
+                    return (
+                        <div key={newKey} className="mb-1">
+                            {renderFields(data[key], newKey)}
+                        </div>
+                    );
+                }
                 return (
-                    <Card.Text key={key} className="mb-1">
+                    <Card.Text key={newKey} className="mb-1">
                         <strong>{key.replace(/([A-Z])/g, ' $1')}: </strong> {data[key]}
                     </Card.Text>
                 );
@@ -47,6 +76,44 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
             return null;
         });
     };
+
+    const handleAddField = () => {
+        // Validate the new field
+        if (newField.key.trim() === '' || newField.value.trim() === '') {
+            alert('Please enter both key and value for the new field.');
+            return;
+        }
+
+        // Construct the new attribute
+        const attribute = { [newField.key]: newField.value };
+
+        if (newField.addToAll) {
+            // Send the new field to the backend to add to all devices
+            axios.post(`${config.API_BASE_URL}/device/attributes/add-to-all`, attribute)
+                .then(response => {
+                    console.log('Field added to all devices:', response.data);
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Error adding field to all devices:', error);
+                });
+        } else {
+            // Send the updated device to the backend
+            axios.put(`${config.API_BASE_URL}/device/${device.id}/attributes`, attribute)
+                .then(response => {
+                    const data = response.data;
+                    console.log('Device updated:', data);
+                    initializeVisibleFields(data);
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Error updating device:', error);
+                });
+        }
+        // Clear the new field form
+        setNewField({ key: '', value: '', addToAll: false });
+    };
+
 
     return (
         <>
@@ -72,7 +139,7 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        {device && Object.keys(device).map(key => (
+                        {device && getAllKeys(device).map(key => (
                             <Form.Check
                                 key={key}
                                 type="checkbox"
@@ -81,10 +148,44 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
                                 onChange={() => handleFieldToggle(key)}
                             />
                         ))}
+                        <hr />
+                        {showAddFieldForm ? (
+                            <>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>New Field Key</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={newField.key}
+                                        onChange={(e) => setNewField({ ...newField, key: e.target.value })}
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>New Field Value</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={newField.value}
+                                        onChange={(e) => setNewField({ ...newField, value: e.target.value })}
+                                    />
+                                </Form.Group>
+                                <Form.Check
+                                    type="checkbox"
+                                    label="Add to all devices"
+                                    checked={newField.addToAll}
+                                    onChange={(e) => setNewField({ ...newField, addToAll: e.target.checked })}
+                                />
+                                <Button variant="success" onClick={handleAddField} className="mt-3">
+                                    Add Field
+                                </Button>
+                            </>
+                        ) : (
+                            <Button variant="link" className="text-success" onClick={() => setShowAddFieldForm(true)}>
+                                <FaPlus /> Add Field
+                            </Button>
+                        )}
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowDeviceFieldModal(false)}>Close</Button>
+                    <Button variant="secondary" onClick={() => setShowDeviceFieldModal(false) + setShowAddFieldForm(false)}>Close</Button>
                 </Modal.Footer>
             </Modal>
         </>
