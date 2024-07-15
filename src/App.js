@@ -17,7 +17,7 @@ import OneDevice from "./pages/OneDevicePage/OneDevice"
 import AddClientDevice from "./components/AddClientDevice";
 import AddTicket from "./components/AddTicket";
 import Softwares from "./pages/Softwares";
-import SoftwareDetails from "./pages/SoftwareDetails";
+import SoftwareDetails from "./pages/OneClientPage/SoftwareDetails";
 import OneClient from "./pages/OneClientPage/OneClient";
 import Wiki from "./pages/Wiki";
 import WikiDetails from "./pages/WikiDetails";
