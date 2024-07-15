@@ -9,12 +9,13 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
     const [visibleDeviceFields, setVisibleDeviceFields] = useState({});
     const [newField, setNewField] = useState({ key: '', value: '', addToAll: false });
     const [showAddFieldForm, setShowAddFieldForm] = useState(false);
+    const [localDevice, setLocalDevice] = useState(device);
 
     useEffect(() => {
-        if (device) {
-            initializeVisibleFields(device);
+        if (localDevice) {
+            initializeVisibleFields(localDevice);
         }
-    }, [device]);
+    }, [localDevice]);
 
     const initializeVisibleFields = (data) => {
         const savedVisibilityState = localStorage.getItem('deviceVisibilityState');
@@ -101,10 +102,9 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
             // Send the updated device to the backend
             axios.put(`${config.API_BASE_URL}/device/${device.id}/attributes`, attribute)
                 .then(response => {
-                    const data = response.data;
-                    console.log('Device updated:', data);
-                    initializeVisibleFields(data);
-                    window.location.reload();
+                    const updatedDevice = { ...localDevice, ...attribute };
+                    setLocalDevice(updatedDevice);
+                    initializeVisibleFields(updatedDevice);
                 })
                 .catch(error => {
                     console.error('Error updating device:', error);
@@ -114,18 +114,17 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
         setNewField({ key: '', value: '', addToAll: false });
     };
 
-
     return (
         <>
             <h1 className="mb-4">
                 Device Details
                 <Button variant="link" className="float-end" onClick={() => setShowDeviceFieldModal(true)}>Edit Fields</Button>
             </h1>
-            {device ? (
+            {localDevice ? (
                 <Card className="mb-4">
                     <Card.Body>
-                        <Card.Title>{device.deviceName}</Card.Title>
-                        {renderFields(device)}
+                        <Card.Title>{localDevice.deviceName}</Card.Title>
+                        {renderFields(localDevice)}
                         <Button className="me-2" onClick={() => setShowFileUploadModal(true)}>Upload Files</Button>
                         <Button onClick={() => navigate(-1)}>Back</Button>
                     </Card.Body>
@@ -139,7 +138,7 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        {device && getAllKeys(device).map(key => (
+                        {localDevice && getAllKeys(localDevice).map(key => (
                             <Form.Check
                                 key={key}
                                 type="checkbox"
@@ -185,7 +184,7 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowDeviceFieldModal(false) + setShowAddFieldForm(false)}>Close</Button>
+                    <Button variant="secondary" onClick={() => setShowDeviceFieldModal(false)}>Close</Button>
                 </Modal.Footer>
             </Modal>
         </>
