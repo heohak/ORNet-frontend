@@ -130,6 +130,8 @@ function OneDevice() {
                 selectedLinkedDeviceId={selectedLinkedDeviceId}
                 setSelectedLinkedDeviceId={setSelectedLinkedDeviceId}
                 handleLinkDevice={handleLinkDevice}
+                deviceId={deviceId} // Pass deviceId as a prop
+                setLinkedDevices={setLinkedDevices} // Pass setLinkedDevices as a prop
             />
             <FileUploadModal
                 show={showFileUploadModal}
