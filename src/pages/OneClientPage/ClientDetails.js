@@ -53,8 +53,12 @@ function ClientDetails({ client, navigate }) {
             <Button onClick={() => navigate(-1)}>Back</Button>
             <h1 className="mb-4 mt-4">
                 {client ? `${client.shortName} Details` : 'Client Details'}
+            <h1 className="mb-4" style={{display: "flex", justifyContent: "space-between"}}>
+                <Button onClick={() => navigate(-1)}>Back</Button>
+                Client Details
                 <Button variant="link" className="float-end" onClick={() => setShowClientFieldModal(true)}>Edit Fields</Button>
             </h1>
+
             {client ? (
                 <Card className="mb-4">
                     <Card.Body>

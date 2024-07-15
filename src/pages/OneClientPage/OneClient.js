@@ -6,12 +6,13 @@ import config from "../../config/config";
 import ClientDetails from "./ClientDetails";
 import ClientDevices from "./ClientDevices";
 import ClientWorker from "./ClientWorker";
-
+import SoftwareDetails from "./SoftwareDetails";
 function OneClient() {
     const { clientId } = useParams();
     const [client, setClient] = useState(null);
     const [devices, setDevices] = useState([]);
     const [workers, setWorkers] = useState([]);
+    const [softwareList, setSoftwareList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [refresh, setRefresh] = useState(false); // State to trigger refresh
@@ -21,14 +22,16 @@ function OneClient() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [clientRes, deviceRes, workerRes] = await Promise.all([
+                const [clientRes, deviceRes, workerRes, softwareRes] = await Promise.all([
                     axios.get(`${config.API_BASE_URL}/client/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/device/client/${clientId}`),
-                    axios.get(`${config.API_BASE_URL}/worker/${clientId}`)
+                    axios.get(`${config.API_BASE_URL}/worker/${clientId}`),
+                    axios.get(`${config.API_BASE_URL}/software/client/${clientId}`)
                 ]);
                 setClient(clientRes.data);
                 setDevices(deviceRes.data);
                 setWorkers(workerRes.data);
+                setSoftwareList(softwareRes.data);
             } catch (error) {
                 setError(error.message);
             } finally {
@@ -79,6 +82,9 @@ function OneClient() {
                 clientId={clientId}
                 setRefresh={setRefresh}
             />
+            <SoftwareDetails
+                softwareList={softwareList}
+                />
         </Container>
     );
 }
