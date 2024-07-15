@@ -54,7 +54,6 @@ function ClientDetails({ client, navigate }) {
                 Client Details
                 <Button variant="link" className="float-end" onClick={() => setShowClientFieldModal(true)}>Edit Fields</Button>
             </h1>
-            <p style={{color: "#c1112b"}}>NB! Ma ei saanud device ja workereid kõrvuti panna, sest siis on cssi vaja kirjutada veits, nii et see veits hiljem</p>
             {client ? (
                 <Card className="mb-4">
                     <Card.Body>

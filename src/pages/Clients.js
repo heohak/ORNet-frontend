@@ -95,7 +95,7 @@ function Clients() {
                                 <div className="mb-4">
                                     <Card.Title>{client.shortName}</Card.Title>
                                     <Card.Text>
-                                        <strong>Short Name:</strong> {client.fullName}
+                                        <strong>Full name:</strong> {client.fullName}
                                     </Card.Text>
                                 </div>
                             </Card.Body>
