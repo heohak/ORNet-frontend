@@ -7,7 +7,7 @@ import Clients from './pages/Clients';
 import Home from './pages/Home';
 import Chung from "./pages/Chung";
 import Workers from './pages/Workers';
-import ClientDevices from "./pages/ClientDevices";
+import ClientDevices from "./pages/OneClientPage/ClientDevices";
 import Tickets from "./pages/Tickets";
 import OneTicket from "./pages/OneTicket";
 import AddClient from "./components/AddClient";
