@@ -84,7 +84,7 @@ function Wiki() {
             <Row>
                 {wikis.map((wiki) => (
                     <Col md={4} key={wiki.id} className="mb-4">
-                        <Card onClick={() => navigate(`/wiki/${wiki.id}`)}>
+                        <Card style={{cursor: "pointer"}} onClick={() => navigate(`/wiki/${wiki.id}`)}>
                             <Card.Body>
                                 <Card.Title>{wiki.problem}</Card.Title>
                                 <Button variant="danger" onClick={(e) => {
