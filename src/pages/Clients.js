@@ -77,7 +77,7 @@ function Clients() {
     return (
         <Container className="mt-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1>Kliendid</h1>
+                <h1>Clients</h1>
                 <Button variant="success" onClick={handleAddClient}>Add Client</Button>
             </div>
             <Row>

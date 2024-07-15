@@ -50,8 +50,9 @@ function ClientDetails({ client, navigate }) {
 
     return (
         <>
-            <h1 className="mb-4">
-                Client Details
+            <Button onClick={() => navigate(-1)}>Back</Button>
+            <h1 className="mb-4 mt-4">
+                {client ? `${client.shortName} Details` : 'Client Details'}
                 <Button variant="link" className="float-end" onClick={() => setShowClientFieldModal(true)}>Edit Fields</Button>
             </h1>
             {client ? (
@@ -59,9 +60,10 @@ function ClientDetails({ client, navigate }) {
                     <Card.Body>
                         <Card.Title>{client.name}</Card.Title>
                         {renderFields(client)}
-                        <Button onClick={() => navigate(-1)}>Back</Button>
+
                     </Card.Body>
                 </Card>
+
             ) : (
                 <Alert variant="info">No client details available.</Alert>
             )}

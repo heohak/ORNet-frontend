@@ -49,7 +49,6 @@ function AddWorker({ clientId, onClose, setRefresh }) {
 
     return (
         <Container>
-            <h1 className="mb-4">Add Worker</h1>
             {error && (
                 <Alert variant="danger">
                     <Alert.Heading>Error</Alert.Heading>

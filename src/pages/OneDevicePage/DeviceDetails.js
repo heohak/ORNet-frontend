@@ -116,8 +116,9 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
 
     return (
         <>
-            <h1 className="mb-4">
-                Device Details
+            <Button onClick={() => navigate(-1)}>Back</Button>
+            <h1 className="mb-4 mt-4">
+                {device ? `${device.deviceName} Details` : 'Device Details'}
                 <Button variant="link" className="float-end" onClick={() => setShowDeviceFieldModal(true)}>Edit Fields</Button>
             </h1>
             {localDevice ? (
@@ -126,7 +127,7 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
                         <Card.Title>{localDevice.deviceName}</Card.Title>
                         {renderFields(localDevice)}
                         <Button className="me-2" onClick={() => setShowFileUploadModal(true)}>Upload Files</Button>
-                        <Button onClick={() => navigate(-1)}>Back</Button>
+
                     </Card.Body>
                 </Card>
             ) : (

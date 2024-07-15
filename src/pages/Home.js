@@ -15,7 +15,7 @@ const HomePage = () => {
                     <Card className="text-center mb-3">
                         <Card.Body>
                             <Card.Title>Clients</Card.Title>
-                            <Button variant="primary" href="/clients">Kliendid</Button>
+                            <Button variant="primary" href="/clients">Clients</Button>
                         </Card.Body>
                     </Card>
                 </Col>
@@ -23,7 +23,7 @@ const HomePage = () => {
                     <Card className="text-center mb-3">
                         <Card.Body>
                             <Card.Title>Devices</Card.Title>
-                            <Button variant="primary" href="/devices">Seadmed</Button>
+                            <Button variant="primary" href="/devices">Devices</Button>
                         </Card.Body>
                     </Card>
                 </Col>
@@ -31,7 +31,7 @@ const HomePage = () => {
                     <Card className="text-center mb-3">
                         <Card.Body>
                             <Card.Title>Tickets</Card.Title>
-                            <Button variant="primary" href="/tickets">Piletid</Button>
+                            <Button variant="primary" href="/tickets">Tickets</Button>
                         </Card.Body>
                     </Card>
                 </Col>

@@ -3,13 +3,15 @@ import { Card, ListGroup, Alert, Button, Modal } from 'react-bootstrap';
 import AddClientDevice from '../../components/AddClientDevice';
 import {useNavigate} from "react-router-dom";
 
-function ClientDevices({ devices, clientId, setRefresh }) {
+function ClientDevices({ devices,client, clientId, setRefresh }) {
     const [showAddDeviceModal, setShowAddDeviceModal] = useState(false);
     const navigate = useNavigate();
 
     return (
         <>
-            <h2 className="mb-4">Client Devices</h2>
+            <h2 className="mb-4">
+                {client ? `${client.shortName} Devices` : 'Client Devices'}
+            </h2>
             <Button variant="primary" onClick={() => setShowAddDeviceModal(true)}>Add Device</Button>
             {devices.length > 0 ? (
                 <ListGroup className="mt-3">
@@ -29,7 +31,7 @@ function ClientDevices({ devices, clientId, setRefresh }) {
 
             <Modal show={showAddDeviceModal} onHide={() => setShowAddDeviceModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Add Device</Modal.Title>
+                    <Modal.Title>Add Device to {client.shortName}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <AddClientDevice clientId={clientId} onClose={() => setShowAddDeviceModal(false)} setRefresh={setRefresh} /> {/* Pass clientId and setRefresh as props */}

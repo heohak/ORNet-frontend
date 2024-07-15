@@ -69,11 +69,13 @@ function OneClient() {
             />
             <ClientDevices
                 devices={devices}
+                client={client}
                 clientId={clientId}
                 setRefresh={setRefresh}
             />
             <ClientWorker
                 workers={workers}
+                client={client}
                 clientId={clientId}
                 setRefresh={setRefresh}
             />
