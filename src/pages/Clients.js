@@ -9,7 +9,6 @@ function Clients() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [deleteError, setDeleteError] = useState(null);
-    const [expandedClientDetails, setExpandedClientDetails] = useState({});
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -27,22 +26,10 @@ function Clients() {
         fetchClients();
     }, []);
 
-    const handleNavigateWorkers = (clientId) => {
-        navigate('/workers', { state: { clientId } });
-    };
-
-    const handleNavigateDevices = (clientId) => {
-        navigate(`/clients/${clientId}/devices`);
-    };
-
-    const handleNavigateSoftwares = (clientId) => {
-        navigate(`/clients/${clientId}/softwares`, { state: { clientId } });
-    };
-
     const handleDeleteClient = async (clientId) => {
         setDeleteError(null);
         try {
-            await axios.delete(`${config.API_BASE_URL}/client/${clientId}`);
+            await axios.delete(`${config.API_BASE_URL}/client/delete/${clientId}`);
             setClients(clients.filter(client => client.id !== clientId));
         } catch (error) {
             setDeleteError(error.message);
@@ -53,31 +40,6 @@ function Clients() {
         navigate('/add-client');
     };
 
-    const handleToggleExpand = async (clientId) => {
-        if (expandedClientDetails[clientId]) {
-            setExpandedClientDetails(prevDetails => {
-                const newDetails = { ...prevDetails };
-                delete newDetails[clientId];
-                return newDetails;
-            });
-        } else {
-            try {
-                const [locationsResponse, thirdPartyITsResponse] = await Promise.all([
-                    axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`),
-                    axios.get(`${config.API_BASE_URL}/client/third-parties/${clientId}`)
-                ]);
-                setExpandedClientDetails(prevDetails => ({
-                    ...prevDetails,
-                    [clientId]: {
-                        locations: locationsResponse.data,
-                        thirdPartyITs: thirdPartyITsResponse.data
-                    }
-                }));
-            } catch (error) {
-                console.error("Error fetching client details:", error);
-            }
-        }
-    };
 
     if (loading) {
         return (
@@ -100,6 +62,18 @@ function Clients() {
         );
     }
 
+    if (deleteError) {
+        return (
+            <Container className="mt-5">
+                <Alert variant="danger">
+                    <Alert.Heading>Error</Alert.Heading>
+                    <p>{deleteError}</p>
+                </Alert>
+            </Container>
+        );
+    }
+
+
     return (
         <Container className="mt-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
@@ -117,41 +91,13 @@ function Clients() {
                             >
                                 Delete
                             </Button>
-                            <Card.Body className="d-flex flex-column">
+                            <Card.Body style={{cursor: "pointer"}} onClick={() => navigate(`/client/${client.id}`)} className="d-flex flex-column">
                                 <div className="mb-4">
-                                    <Card.Title>{client.fullName}</Card.Title>
+                                    <Card.Title>{client.shortName}</Card.Title>
                                     <Card.Text>
-                                        <strong>Short Name:</strong> {client.shortName}
+                                        <strong>Full name:</strong> {client.fullName}
                                     </Card.Text>
-                                    {expandedClientDetails[client.id] && (
-                                        <>
-                                            <Card.Text>
-                                                <strong>Pathology Client:</strong> {client.pathologyClient ? 'Yes' : 'No'}<br />
-                                                <strong>Surgery Client:</strong> {client.surgeryClient ? 'Yes' : 'No'}<br />
-                                                <strong>Editor Client:</strong> {client.editorClient ? 'Yes' : 'No'}<br />
-                                                <strong>Other Medical Information:</strong> {client.otherMedicalInformation}<br />
-                                                <strong>Last Maintenance:</strong> {client.lastMaintenance}<br />
-                                                <strong>Next Maintenance:</strong> {client.nextMaintenance}<br />
-                                                <strong>Locations:</strong> {expandedClientDetails[client.id].locations.map(loc => loc.name).join(', ')}<br />
-                                                <strong>Third Party ITs:</strong> {expandedClientDetails[client.id].thirdPartyITs.map(tpIT => tpIT.name).join(', ')}
-                                            </Card.Text>
-                                            <div className="d-flex flex-wrap justify-content-center">
-                                                <Button variant="primary" className="mb-2 me-2" onClick={() => handleNavigateWorkers(client.id)}>
-                                                    View Workers
-                                                </Button>
-                                                <Button variant="secondary" className="mb-2 me-2" onClick={() => handleNavigateDevices(client.id)}>
-                                                    View Devices
-                                                </Button>
-                                                <Button variant="info" className="mb-2 me-2" onClick={() => handleNavigateSoftwares(client.id)}>
-                                                    View Softwares
-                                                </Button>
-                                            </div>
-                                        </>
-                                    )}
                                 </div>
-                                <Button variant="link" onClick={() => handleToggleExpand(client.id)}>
-                                    {expandedClientDetails[client.id] ? 'View Less' : 'View More'}
-                                </Button>
                             </Card.Body>
                         </Card>
                     </Col>

@@ -18,6 +18,7 @@ import AddClientDevice from "./components/AddClientDevice";
 import AddTicket from "./components/AddTicket";
 import Softwares from "./pages/Softwares";
 import SoftwareDetails from "./pages/SoftwareDetails";
+import OneClient from "./pages/OneClientPage/OneClient";
 import Wiki from "./pages/Wiki";
 import WikiDetails from "./pages/WikiDetails";
 
@@ -42,6 +43,7 @@ function App() {
                 <Route path="/add-ticket/:mainTicketId" element={<AddTicket />} />
                 <Route path="/clients/:clientId/softwares" element={<Softwares />} />
                 <Route path="/software/:softwareId" element={<SoftwareDetails />} />
+                <Route path="/client/:clientId" element={<OneClient />} />
                 <Route path="/wiki" element={<Wiki />} />
                 <Route path="/wiki/:wikiId" element={<WikiDetails />} />
             </Routes>

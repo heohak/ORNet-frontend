@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Container, Form, Button, Alert } from 'react-bootstrap';
 import config from "../config/config";
 
-function AddClientDevice() {
+function AddClientDevice({ clientId, onClose, setRefresh }) {
     const navigate = useNavigate();
-    const location = useLocation();
-    const { clientId } = location.state || {};
 
     const [deviceName, setDeviceName] = useState('');
     const [department, setDepartment] = useState('');
@@ -66,7 +64,8 @@ function AddClientDevice() {
                 writtenOffDate,
                 comment,
             });
-            navigate(-1);
+            setRefresh(prev => !prev); // Trigger refresh by toggling state
+            onClose(); // Close the modal after adding the device
         } catch (error) {
             setError(error.message);
         }
