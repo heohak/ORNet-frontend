@@ -116,7 +116,6 @@ function SoftwareDetails({ softwareList }) {
                     </Card.Body>
                 </Card>
             ))}
-            <Button onClick={() => navigate(-1)}>Back</Button>
         </Container>
     );
 }

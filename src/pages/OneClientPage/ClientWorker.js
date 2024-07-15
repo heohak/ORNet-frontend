@@ -53,7 +53,7 @@ function ClientWorker({ workers, clientId, setRefresh }) {
 
     return (
         <>
-            <h2 className="mb-4">Client Workers</h2>
+            <h2 className="mb-4 mt-4">Client Workers</h2>
             <Button variant="primary" onClick={() => setShowAddWorkerModal(true)}>Add Worker</Button>
             {workers.length > 0 ? (
                 <ListGroup className="mt-3">

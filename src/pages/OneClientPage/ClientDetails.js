@@ -50,16 +50,17 @@ function ClientDetails({ client, navigate }) {
 
     return (
         <>
-            <h1 className="mb-4">
+            <h1 className="mb-4" style={{display: "flex", justifyContent: "space-between"}}>
+                <Button onClick={() => navigate(-1)}>Back</Button>
                 Client Details
                 <Button variant="link" className="float-end" onClick={() => setShowClientFieldModal(true)}>Edit Fields</Button>
             </h1>
+
             {client ? (
                 <Card className="mb-4">
                     <Card.Body>
                         <Card.Title>{client.name}</Card.Title>
                         {renderFields(client)}
-                        <Button onClick={() => navigate(-1)}>Back</Button>
                     </Card.Body>
                 </Card>
             ) : (
