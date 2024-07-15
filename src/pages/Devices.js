@@ -19,7 +19,7 @@ function Tickets() {
     useEffect(() => {
         const fetchDevices = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/devices`);
+                const response = await axios.get(`${config.API_BASE_URL}/device/all`);
                 setDevices(response.data);
             } catch (error) {
                 setError(error.message);

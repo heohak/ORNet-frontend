@@ -23,8 +23,8 @@ function OneClient() {
             try {
                 const [clientRes, deviceRes, workerRes] = await Promise.all([
                     axios.get(`${config.API_BASE_URL}/client/${clientId}`),
-                    axios.get(`${config.API_BASE_URL}/devices/${clientId}`),
-                    axios.get(`${config.API_BASE_URL}/workers/${clientId}`)
+                    axios.get(`${config.API_BASE_URL}/device/client/${clientId}`),
+                    axios.get(`${config.API_BASE_URL}/worker/${clientId}`)
                 ]);
                 setClient(clientRes.data);
                 setDevices(deviceRes.data);

@@ -23,7 +23,7 @@ function AddTicket() {
                 clientId,
                 ...(mainTicketId && { mainTicketId })  // Include mainTicketId only if it's provided
             };
-            await axios.post(`${config.API_BASE_URL}/ticket`, newTicket);
+            await axios.post(`${config.API_BASE_URL}/ticket/add`, newTicket);
             if (!mainTicketId) {
                 navigate(`/tickets`);
             } else {

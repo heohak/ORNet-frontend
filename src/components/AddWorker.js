@@ -31,7 +31,7 @@ function AddWorker({ clientId, onClose, setRefresh }) {
         setError(null);
 
         try {
-            await axios.post(`${config.API_BASE_URL}/worker`, {
+            await axios.post(`${config.API_BASE_URL}/worker/add`, {
                 clientId,
                 firstName,
                 lastName,
