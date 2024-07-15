@@ -47,7 +47,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
         }
 
         try {
-            await axios.post(`${config.API_BASE_URL}/device`, {
+            await axios.post(`${config.API_BASE_URL}/device/add`, {
                 clientId,
                 locationId,
                 deviceName,

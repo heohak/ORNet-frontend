@@ -14,7 +14,7 @@ function Tickets() {
     useEffect(() => {
         const fetchTickets = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/tickets`);
+                const response = await axios.get(`${config.API_BASE_URL}/ticket/all`);
                 setTickets(response.data);
             } catch (error) {
                 setError(error.message);
@@ -33,7 +33,7 @@ function Tickets() {
     const handleDeleteTicket = async (ticketId) => {
         setDeleteError(null);
         try {
-            await axios.delete(`${config.API_BASE_URL}/ticket/${ticketId}`);
+            await axios.delete(`${config.API_BASE_URL}/ticket/delete/${ticketId}`);
             setTickets(tickets.filter(ticket => ticket.id !== ticketId));
         } catch (error) {
             setDeleteError(error.message);

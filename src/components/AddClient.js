@@ -41,7 +41,7 @@ function AddClient() {
         setError(null);
 
         try {
-            const clientResponse = await axios.post(`${config.API_BASE_URL}/client`, {
+            const clientResponse = await axios.post(`${config.API_BASE_URL}/client/add`, {
                 fullName,
                 shortName,
                 pathologyClient,

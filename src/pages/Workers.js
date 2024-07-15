@@ -22,7 +22,7 @@ function Workers() {
 
         const fetchWorkers = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/workers/${clientId}`);
+                const response = await axios.get(`${config.API_BASE_URL}/worker/${clientId}`);
                 setWorkers(response.data);
             } catch (error) {
                 setError(error.message);
@@ -47,7 +47,7 @@ function Workers() {
     const handleDeleteWorker = async (workerId) => {
         setDeleteError(null);
         try {
-            await axios.delete(`${config.API_BASE_URL}/workers/${workerId}`);
+            await axios.delete(`${config.API_BASE_URL}/worker/${workerId}`);
             setWorkers(workers.filter(worker => worker.id !== workerId));
         } catch (error) {
             setDeleteError(error.message);

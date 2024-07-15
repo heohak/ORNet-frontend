@@ -14,7 +14,7 @@ function Clients() {
     useEffect(() => {
         const fetchClients = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/client`);
+                const response = await axios.get(`${config.API_BASE_URL}/client/all`);
                 setClients(response.data);
             } catch (error) {
                 setError(error.message);
