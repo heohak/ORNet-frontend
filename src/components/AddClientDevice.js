@@ -208,9 +208,6 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                 <Button variant="success" type="submit">
                     Add Device
                 </Button>
-                <Button variant="secondary" className="ms-2" onClick={() => navigate(-1)}>
-                    Back
-                </Button>
             </Form>
         </Container>
     );
