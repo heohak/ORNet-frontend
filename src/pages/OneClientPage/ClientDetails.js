@@ -50,12 +50,9 @@ function ClientDetails({ client, navigate }) {
 
     return (
         <>
-            <Button onClick={() => navigate(-1)}>Back</Button>
-            <h1 className="mb-4 mt-4">
-                {client ? `${client.shortName} Details` : 'Client Details'}
             <h1 className="mb-4" style={{display: "flex", justifyContent: "space-between"}}>
                 <Button onClick={() => navigate(-1)}>Back</Button>
-                Client Details
+                {client ? `${client.shortName} Details` : 'Client Details'}
                 <Button variant="link" className="float-end" onClick={() => setShowClientFieldModal(true)}>Edit Fields</Button>
             </h1>
 
