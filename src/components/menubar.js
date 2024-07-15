@@ -28,6 +28,9 @@ const Menubar = () => {
                         <LinkContainer to="/wiki">
                             <Nav.Link>Wiki</Nav.Link>
                         </LinkContainer>
+                        <LinkContainer to="/settings">
+                            <Nav.Link>Settings</Nav.Link>
+                        </LinkContainer>
                     </Nav>
                 </Navbar.Collapse>
             </Container>

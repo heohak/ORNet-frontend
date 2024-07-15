@@ -21,6 +21,10 @@ import SoftwareDetails from "./pages/SoftwareDetails";
 import OneClient from "./pages/OneClientPage/OneClient";
 import Wiki from "./pages/Wiki";
 import WikiDetails from "./pages/WikiDetails";
+import Settings from "./pages/SettingsPage/Settings";
+import ViewBaitWorkers from "./pages/SettingsPage/ViewBaitWorkers";
+import ViewLocations from "./pages/SettingsPage/ViewLocations";
+import ViewDeviceClassificators from "./pages/SettingsPage/ViewDeviceClassificators";
 
 function App() {
     return (
@@ -46,6 +50,10 @@ function App() {
                 <Route path="/client/:clientId" element={<OneClient />} />
                 <Route path="/wiki" element={<Wiki />} />
                 <Route path="/wiki/:wikiId" element={<WikiDetails />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/view-bait-workers" element={<ViewBaitWorkers />} />
+                <Route path="/settings/locations" element={<ViewLocations />} />
+                <Route path="/settings/device-classificators" element={<ViewDeviceClassificators />} />
             </Routes>
         </Router>
     );
