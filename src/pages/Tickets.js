@@ -22,22 +22,11 @@ function Tickets() {
                 setLoading(false);
             }
         };
-
         fetchTickets();
     }, []);
 
     const handleNavigate = (ticketId) => {
         navigate(`/ticket/${ticketId}?scrollTo=${ticketId}`);
-    };
-
-    const handleDeleteTicket = async (ticketId) => {
-        setDeleteError(null);
-        try {
-            await axios.delete(`${config.API_BASE_URL}/ticket/delete/${ticketId}`);
-            setTickets(tickets.filter(ticket => ticket.id !== ticketId));
-        } catch (error) {
-            setDeleteError(error.message);
-        }
     };
 
     const handleAddTicket = () => {
@@ -82,9 +71,15 @@ function Tickets() {
                     <Col md={4} key={ticket.id} className="mb-4">
                         <Card>
                             <Card.Body>
-                                <Button variant="danger" className="position-absolute top-0 end-0 m-2" onClick={() => handleDeleteTicket(ticket.id)}>
-                                    Delete
-                                </Button>
+                                <div className="position-absolute top-0 end-0 m-2">
+                                    <Button
+                                        variant={ticket.statusId === 1 ? "success" : "danger"}
+                                        size=""
+                                        disabled
+                                    >
+                                        {ticket.statusId === 1 ? "open" : "closed"}
+                                    </Button>
+                                </div>
                                 <Card.Title>{ticket.description}</Card.Title>
                                 <Card.Text>
                                     <strong>Client ID:</strong> {ticket.clientId}<br />
