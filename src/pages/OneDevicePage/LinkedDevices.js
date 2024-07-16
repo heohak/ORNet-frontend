@@ -27,6 +27,7 @@ function LinkedDevices({
     });
     const [newField, setNewField] = useState({ key: '', value: '' });
     const [showAddFieldForm, setShowAddFieldForm] = useState(false);
+    const [targetDevice, setTargetDevice] = useState('All');
 
     useEffect(() => {
         const storedVisibleFields = localStorage.getItem('visibleFields');
@@ -107,11 +108,15 @@ function LinkedDevices({
         const attribute = { [newField.key]: newField.value };
 
         try {
-            await Promise.all(
-                linkedDevices.map(device =>
-                    axios.put(`${config.API_BASE_URL}/linked/device/${device.id}/attributes`, attribute)
-                )
-            );
+            if (targetDevice === 'All') {
+                await Promise.all(
+                    linkedDevices.map(device =>
+                        axios.put(`${config.API_BASE_URL}/linked/device/${device.id}/attributes`, attribute)
+                    )
+                );
+            } else {
+                await axios.put(`${config.API_BASE_URL}/linked/device/${targetDevice}/attributes`, attribute);
+            }
             const updatedLinkedDevices = await axios.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
             setLinkedDevices(updatedLinkedDevices.data);
             initializeVisibleFields(updatedLinkedDevices.data);
@@ -255,6 +260,17 @@ function LinkedDevices({
                         <hr />
                         {showAddFieldForm ? (
                             <>
+                                <Form.Group controlId="selectTargetDevice">
+                                    <Form.Label>Select Device to Add Attribute</Form.Label>
+                                    <Form.Control as="select" value={targetDevice} onChange={(e) => setTargetDevice(e.target.value)}>
+                                        <option value="All">All Devices</option>
+                                        {linkedDevices.map((linkedDevice) => (
+                                            <option key={linkedDevice.id} value={linkedDevice.id}>
+                                                {linkedDevice.name} (ID: {linkedDevice.id})
+                                            </option>
+                                        ))}
+                                    </Form.Control>
+                                </Form.Group>
                                 <Form.Group className="mb-3">
                                     <Form.Label>New Field Key</Form.Label>
                                     <Form.Control
