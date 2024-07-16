@@ -8,7 +8,6 @@ function Tickets() {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [deleteError, setDeleteError] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -60,12 +59,6 @@ function Tickets() {
                 <h1 className="mb-0">Tickets</h1>
                 <Button variant="success" onClick={handleAddTicket}>Add Ticket</Button>
             </div>
-            {deleteError && (
-                <Alert variant="danger">
-                    <Alert.Heading>Error</Alert.Heading>
-                    <p>{deleteError}</p>
-                </Alert>
-            )}
             <Row>
                 {tickets.map((ticket) => (
                     <Col md={4} key={ticket.id} className="mb-4">

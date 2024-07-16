@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { Alert, Button, Card, Container, Spinner, Accordion, Row, Col } from "react-bootstrap";
+import { Alert, Button, Card, Container, Spinner, Accordion, Row, Col, Form } from "react-bootstrap";
 import config from "../config/config";
 
 function OneTicket() {
@@ -15,6 +15,7 @@ function OneTicket() {
     const [error, setError] = useState(null);
     const [expandedTickets, setExpandedTickets] = useState(new Set());
     const [expandedSections, setExpandedSections] = useState({});
+    const [editFields, setEditFields] = useState({});
     const navigate = useNavigate();
 
     const ticketRefs = useRef({});
@@ -23,7 +24,16 @@ function OneTicket() {
         const fetchTickets = async () => {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/ticket/main/${ticketId}`);
-                setTickets(response.data);
+                const ticketsData = response.data;
+                setTickets(ticketsData);
+                const initialEditFields = {};
+                ticketsData.forEach(ticket => {
+                    initialEditFields[ticket.id] = {
+                        response: ticket.response || '',
+                        insideInfo: ticket.insideInfo || ''
+                    };
+                });
+                setEditFields(initialEditFields);
                 if (scrollToId) {
                     setExpandedTickets(new Set([scrollToId]));
                     setExpandedSections({ [scrollToId]: { dates: true, details: true } });
@@ -50,6 +60,30 @@ function OneTicket() {
             navigate(`/add-ticket/${ticketId}?clientId=${currentTicket.clientId}`);
         } else {
             navigate(`/add-ticket/${ticketId}`);
+        }
+    };
+
+    const handleChange = (e, ticketId) => {
+        const { name, value } = e.target;
+        setEditFields((prevFields) => ({
+            ...prevFields,
+            [ticketId]: {
+                ...prevFields[ticketId],
+                [name]: value
+            }
+        }));
+    };
+
+    const handleSave = async (ticketId) => {
+        try {
+            await axios.put(`${config.API_BASE_URL}/ticket/update/${ticketId}`, {
+                response: editFields[ticketId].response,
+                insideInfo: editFields[ticketId].insideInfo
+            });
+            setError(null);
+            window.location.reload();
+        } catch (error) {
+            setError(error.message);
         }
     };
 
@@ -150,6 +184,7 @@ function OneTicket() {
                                                                 <p><strong>Client ID:</strong> {ticket.clientId}</p>
                                                                 <p><strong>Location ID:</strong> {ticket.locationId}</p>
                                                                 <p><strong>Status ID:</strong> {ticket.statusId}</p>
+                                                                <p><strong>Root Cause:</strong> {ticket.rootCause}</p>
                                                             </Col>
                                                         </Row>
                                                     </Accordion.Body>
@@ -158,11 +193,30 @@ function OneTicket() {
                                             <Card.Title className="mt-4">Description</Card.Title>
                                             <Card className="mb-4 mt-1">
                                                 <Card.Body>
-                                                    <Card.Text>
-                                                        {ticket.description}
-                                                    </Card.Text>
+                                                    <Card.Text>{ticket.description}</Card.Text>
                                                 </Card.Body>
                                             </Card>
+                                            <Card.Title className="mt-4">Response</Card.Title>
+                                            <Form.Control
+                                                as="textarea"
+                                                rows={3}
+                                                name="response"
+                                                value={editFields[ticket.id]?.response || ''}
+                                                onChange={(e) => handleChange(e, ticket.id)}
+                                                placeholder="Enter your response here..."
+                                            />
+                                            <Card.Title className="mt-4">Inside Info</Card.Title>
+                                            <Form.Control
+                                                as="textarea"
+                                                rows={3}
+                                                name="insideInfo"
+                                                value={editFields[ticket.id]?.insideInfo || ''}
+                                                onChange={(e) => handleChange(e, ticket.id)}
+                                                placeholder="Enter inside info here..."
+                                            />
+                                            <Button className="mt-3" variant="primary" onClick={() => handleSave(ticket.id)}>
+                                                Save
+                                            </Button>
                                         </Card.Body>
                                     </Accordion.Body>
                                 </Accordion.Item>
@@ -179,3 +233,4 @@ function OneTicket() {
 }
 
 export default OneTicket;
+
