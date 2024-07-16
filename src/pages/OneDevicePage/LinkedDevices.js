@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Button, Modal, Form, ListGroup, Alert } from 'react-bootstrap';
+import { FaPlus } from 'react-icons/fa';
 import axios from 'axios';
 import config from "../../config/config";
 
@@ -14,8 +15,8 @@ function LinkedDevices({
                            deviceId,
                            setLinkedDevices
                        }) {
-    const [visibleLinkedDeviceFields, setVisibleLinkedDeviceFields] = useState({});
-    const [showLinkedDeviceFieldModal, setShowLinkedDeviceFieldModal] = useState(false);
+    const [visibleFields, setVisibleFields] = useState({});
+    const [showFieldModal, setShowFieldModal] = useState(false);
     const [showAddNewDeviceForm, setShowAddNewDeviceForm] = useState(false);
     const [newLinkedDevice, setNewLinkedDevice] = useState({
         name: '',
@@ -24,44 +25,53 @@ function LinkedDevices({
         serialNumber: '',
         comment: ''
     });
+    const [newField, setNewField] = useState({ key: '', value: '' });
+    const [showAddFieldForm, setShowAddFieldForm] = useState(false);
 
     useEffect(() => {
         if (linkedDevices.length > 0) {
-            initializeVisibleFields(linkedDevices[0]);
+            initializeVisibleFields(linkedDevices);
         }
     }, [linkedDevices]);
 
-    const initializeVisibleFields = (data) => {
-        const savedVisibilityState = localStorage.getItem('linkedDeviceVisibilityState');
-        if (savedVisibilityState) {
-            setVisibleLinkedDeviceFields(JSON.parse(savedVisibilityState));
-        } else {
-            const initialVisibleFields = Object.keys(data).reduce((acc, key) => {
-                acc[key] = true;
-                return acc;
-            }, {});
-            setVisibleLinkedDeviceFields(initialVisibleFields);
-        }
+    const initializeVisibleFields = (devices) => {
+        const allKeys = new Set();
+        devices.forEach(device => {
+            Object.keys(device).forEach(key => allKeys.add(key));
+            if (device.attributes) {
+                Object.keys(device.attributes).forEach(key => allKeys.add(key));
+            }
+        });
+
+        const initialVisibleFields = {};
+        allKeys.forEach(key => initialVisibleFields[key] = true);
+
+        console.log("Initialized visible fields:", initialVisibleFields);
+        setVisibleFields(initialVisibleFields);
     };
 
     const handleFieldToggle = (field) => {
-        setVisibleLinkedDeviceFields(prevVisibleFields => {
-            const newVisibleFields = {
-                ...prevVisibleFields,
-                [field]: !prevVisibleFields[field]
-            };
-            localStorage.setItem('linkedDeviceVisibilityState', JSON.stringify(newVisibleFields));
+        setVisibleFields(prevVisibleFields => {
+            const newVisibleFields = { ...prevVisibleFields, [field]: !prevVisibleFields[field] };
+            console.log("Updated visible fields:", newVisibleFields);
             return newVisibleFields;
         });
     };
 
     const renderFields = (data) => {
         return Object.keys(data).map(key => {
-            if (data[key] !== null && visibleLinkedDeviceFields[key]) {
+            if (visibleFields[key] && data[key] !== null) {
+                if (typeof data[key] === 'object' && !Array.isArray(data[key])) {
+                    return (
+                        <div key={key} className="mb-2">
+                            {renderFields(data[key])}
+                        </div>
+                    );
+                }
                 return (
-                    <Card.Text key={key} className="mb-1">
+                    <div key={key} className="mb-1">
                         <strong>{key.replace(/([A-Z])/g, ' $1')}: </strong> {data[key]}
-                    </Card.Text>
+                    </div>
                 );
             }
             return null;
@@ -70,6 +80,7 @@ function LinkedDevices({
 
     const handleAddNewLinkedDevice = async () => {
         try {
+            console.log("Adding new linked device:", newLinkedDevice);
             const response = await axios.post(`${config.API_BASE_URL}/linked/device/add`, newLinkedDevice);
             const newDeviceId = response.data.token;
 
@@ -82,11 +93,36 @@ function LinkedDevices({
         }
     };
 
+    const handleAddField = async () => {
+        if (newField.key.trim() === '' || newField.value.trim() === '') {
+            alert('Please enter both key and value for the new field.');
+            return;
+        }
+
+        const attribute = { [newField.key]: newField.value };
+
+        try {
+            await Promise.all(
+                linkedDevices.map(device =>
+                    axios.put(`${config.API_BASE_URL}/linked/device/${device.id}/attributes`, attribute)
+                )
+            );
+            const updatedLinkedDevices = await axios.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
+            setLinkedDevices(updatedLinkedDevices.data);
+            initializeVisibleFields(updatedLinkedDevices.data);
+        } catch (error) {
+            console.error('Error adding new field:', error);
+        }
+
+        setNewField({ key: '', value: '' });
+        setShowAddFieldForm(false);
+    };
+
     return (
         <>
             <h2 className="mb-4">
                 Linked Devices
-                <Button variant="link" className="float-end mb-3" onClick={() => setShowLinkedDeviceFieldModal(true)}>Edit Fields</Button>
+                <Button variant="link" className="float-end mb-3" onClick={() => setShowFieldModal(true)}>Edit Fields</Button>
             </h2>
             <Button variant="primary" onClick={() => setShowModal(true)}>Link Device</Button>
             {linkedDevices.length > 0 ? (
@@ -96,7 +132,10 @@ function LinkedDevices({
                             <Card>
                                 <Card.Body>
                                     <Card.Title>{linkedDevice.name}</Card.Title>
-                                    {renderFields(linkedDevice)}
+                                    {renderFields({
+                                        ...Object.fromEntries(Object.entries(linkedDevice).filter(([key]) => key !== 'attributes')),
+                                        ...linkedDevice.attributes
+                                    })}
                                 </Card.Body>
                             </Card>
                         </ListGroup.Item>
@@ -193,25 +232,53 @@ function LinkedDevices({
                 </Modal.Footer>
             </Modal>
 
-            <Modal show={showLinkedDeviceFieldModal} onHide={() => setShowLinkedDeviceFieldModal(false)}>
+            <Modal show={showFieldModal} onHide={() => setShowFieldModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Visible Linked Device Fields</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        {linkedDevices[0] && Object.keys(linkedDevices[0]).map(key => (
+                        {Object.keys(visibleFields).filter(key => key !== 'attributes').map(key => (
                             <Form.Check
                                 key={key}
                                 type="checkbox"
                                 label={key.replace(/([A-Z])/g, ' $1')}
-                                checked={visibleLinkedDeviceFields[key]}
+                                checked={visibleFields[key]}
                                 onChange={() => handleFieldToggle(key)}
                             />
                         ))}
+                        <hr />
+                        {showAddFieldForm ? (
+                            <>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>New Field Key</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={newField.key}
+                                        onChange={(e) => setNewField({ ...newField, key: e.target.value })}
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>New Field Value</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={newField.value}
+                                        onChange={(e) => setNewField({ ...newField, value: e.target.value })}
+                                    />
+                                </Form.Group>
+                                <Button variant="success" onClick={handleAddField} className="mt-3">
+                                    Add Field
+                                </Button>
+                            </>
+                        ) : (
+                            <Button variant="link" className="text-success" onClick={() => setShowAddFieldForm(true)}>
+                                <FaPlus /> Add Field
+                            </Button>
+                        )}
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowLinkedDeviceFieldModal(false)}>Close</Button>
+                    <Button variant="secondary" onClick={() => setShowFieldModal(false)}>Close</Button>
                 </Modal.Footer>
             </Modal>
         </>
