@@ -150,6 +150,7 @@ function OneTicket() {
                                                                 <p><strong>Client ID:</strong> {ticket.clientId}</p>
                                                                 <p><strong>Location ID:</strong> {ticket.locationId}</p>
                                                                 <p><strong>Status ID:</strong> {ticket.statusId}</p>
+                                                                <p><strong>Root Cause:</strong> {ticket.rootCause}</p>
                                                             </Col>
                                                         </Row>
                                                     </Accordion.Body>
