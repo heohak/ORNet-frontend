@@ -39,8 +39,12 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
             Object.keys(data.attributes).forEach(key => allKeys.add(key));
         }
 
-        const initialVisibleFields = {};
-        allKeys.forEach(key => initialVisibleFields[key] = true);
+        const initialVisibleFields = { ...visibleFields };
+        allKeys.forEach(key => {
+            if (!(key in initialVisibleFields)) {
+                initialVisibleFields[key] = true;
+            }
+        });
 
         console.log("Initialized visible fields:", initialVisibleFields);
         setVisibleFields(initialVisibleFields);
@@ -93,7 +97,13 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
                 await axios.put(`${config.API_BASE_URL}/device/${device.id}/attributes`, attribute);
                 const updatedDevice = { ...localDevice, attributes: { ...localDevice.attributes, ...attribute } };
                 setLocalDevice(updatedDevice);
-                initializeVisibleFields(updatedDevice);
+
+                // Update visibility state to include the new field without enabling all fields
+                setVisibleFields(prevFields => {
+                    const newFields = { ...prevFields, [newField.key]: true };
+                    localStorage.setItem('deviceVisibleFields', JSON.stringify(newFields));
+                    return newFields;
+                });
             }
         } catch (error) {
             console.error('Error updating device:', error);
