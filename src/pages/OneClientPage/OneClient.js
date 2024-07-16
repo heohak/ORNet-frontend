@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Container, Spinner, Alert } from 'react-bootstrap';
+import { Container, Spinner, Alert, Row, Col } from 'react-bootstrap';
 import config from "../../config/config";
 import ClientDetails from "./ClientDetails";
 import ClientDevices from "./ClientDevices";
 import ClientWorker from "./ClientWorker";
 import SoftwareDetails from "./SoftwareDetails";
+
 function OneClient() {
     const { clientId } = useParams();
     const [client, setClient] = useState(null);
@@ -63,28 +64,28 @@ function OneClient() {
         );
     }
 
-
     return (
         <Container className="mt-5">
-            <ClientDetails
-                client={client}
-                navigate={navigate}
-            />
-            <ClientDevices
-                devices={devices}
-                client={client}
-                clientId={clientId}
-                setRefresh={setRefresh}
-            />
-            <ClientWorker
-                workers={workers}
-                client={client}
-                clientId={clientId}
-                setRefresh={setRefresh}
-            />
-            <SoftwareDetails
-                softwareList={softwareList}
-                />
+            <ClientDetails client={client} navigate={navigate} />
+            <Row>
+                <Col md={6}>
+                    <ClientDevices
+                        devices={devices}
+                        client={client}
+                        clientId={clientId}
+                        setRefresh={setRefresh}
+                    />
+                </Col>
+                <Col md={6}>
+                    <ClientWorker
+                        workers={workers}
+                        client={client}
+                        clientId={clientId}
+                        setRefresh={setRefresh}
+                    />
+                </Col>
+            </Row>
+            <SoftwareDetails softwareList={softwareList} />
         </Container>
     );
 }
