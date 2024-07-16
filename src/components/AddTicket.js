@@ -1,7 +1,10 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Button, Form, Container, Alert } from 'react-bootstrap';
+import Datetime from 'react-datetime';
+import moment from 'moment';
+import 'react-datetime/css/react-datetime.css';
 import config from "../config/config";
 
 function AddTicket() {
@@ -10,71 +13,77 @@ function AddTicket() {
     const queryParams = new URLSearchParams(search);
     const clientIdParam = queryParams.get('clientId');
 
-    const [description, setDescription] = useState('');
-    const [rootCause, setRootCause] = useState("");
-    const [clientId, setClientId] = useState(clientIdParam || '');
-    const [startDateTime, setStartDateTime] = useState('');
-    const [endDateTime, setEndDateTime] = useState('');
-    const [responseDateTime, setResponseDateTime] = useState('');
-    const [crisis, setCrisis] = useState(false);
-    const [remote, setRemote] = useState(false);
-    const [workType, setWorkType] = useState("");
-    const [baitWorkers, setBaitWorkers] = useState([]);
+    const [formData, setFormData] = useState({
+        description: '',
+        rootCause: '',
+        clientId: clientIdParam || '',
+        startDateTime: '',
+        endDateTime: '',
+        responseDateTime: '',
+        crisis: false,
+        remote: false,
+        workType: '',
+        baitWorkerId: '',
+        locationId: '',
+        statusId: ''
+    });
+
+    const [clients, setClients] = useState([]);
     const [locations, setLocations] = useState([]);
-    const [baitWorkersIds, setBaitWorkersIds] = useState([]);
-    const [locationIds, setLocationIds] = useState([]);
-    const [statusIds, setStatusIds] = useState([]);
-    const [status, setStatus] = useState([]);
+    const [baitWorkers, setBaitWorkers] = useState([]);
+    const [statuses, setStatuses] = useState([]);
     const [error, setError] = useState(null);
-
     const navigate = useNavigate();
-
-
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [locationRes, statusRes, baitWorkerRes] = await Promise.all([
+                const [locationRes, statusRes, baitWorkerRes, clientRes] = await Promise.all([
                     axios.get(`${config.API_BASE_URL}/location/all`),
                     axios.get(`${config.API_BASE_URL}/ticket/classificator/all`),
-                    axios.get(`${config.API_BASE_URL}/bait/workers`)
+                    axios.get(`${config.API_BASE_URL}/bait/workers`),
+                    !clientIdParam && axios.get(`${config.API_BASE_URL}/client/all`)
                 ]);
+
                 setLocations(locationRes.data);
-                setStatus(statusRes.data);
+                setStatuses(statusRes.data);
                 setBaitWorkers(baitWorkerRes.data);
+                if (clientRes) setClients(clientRes.data);
             } catch (error) {
                 setError(error.message);
             }
         };
 
         fetchData();
-    }, []);
+    }, [clientIdParam]);
+
+    const handleChange = (e) => {
+        const { id, value, type, checked } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [id]: type === 'checkbox' ? checked : value
+        }));
+    };
+
+    const handleDateTimeChange = (date, id) => {
+        setFormData((prevData) => ({
+            ...prevData,
+            [id]: moment(date).format('YYYY-MM-DDTHH:mm:ss')
+        }));
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
         try {
             const newTicket = {
-                description,
-                clientId,
-                startDateTime,
-                endDateTime,
-                responseDateTime,
-                crisis,
-                remote,
-                workType,
-                baitWorkerId: baitWorkersIds.length > 0 ? baitWorkersIds[0] : '',
-                locationId: locationIds.length > 0 ? locationIds[0] : '',
-                statusId: statusIds.length > 0 ? statusIds[0] : '',
-                rootCause,
-                ...(mainTicketId && { mainTicketId })  // Include mainTicketId only if it's provided
+                ...formData,
+                clientId: formData.clientId || clients.find(client => client.id === formData.clientId).id,
+                ...(mainTicketId && { mainTicketId })
             };
+
             await axios.post(`${config.API_BASE_URL}/ticket/add`, newTicket);
-            if (!mainTicketId) {
-                navigate(`/tickets`);
-            } else {
-                navigate(`/ticket/${mainTicketId}`);
-            }
+            navigate(mainTicketId ? `/ticket/${mainTicketId}` : `/tickets`);
         } catch (err) {
             setError(err.message);
         }
@@ -89,35 +98,38 @@ function AddTicket() {
                     <Form.Label>Description</Form.Label>
                     <Form.Control
                         type="text"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
+                        value={formData.description}
+                        onChange={handleChange}
                         required
                     />
                 </Form.Group>
                 <Form.Group controlId="startDateTime" className="mb-3">
                     <Form.Label>Start Date Time</Form.Label>
-                    <Form.Control
-                        type="datetime-local"
-                        value={startDateTime}
-                        onChange={(e) => setStartDateTime(e.target.value)}
+                    <Datetime
+                        value={formData.startDateTime}
+                        onChange={(date) => handleDateTimeChange(date, 'startDateTime')}
+                        dateFormat="YYYY-MM-DD"
+                        timeFormat="HH:mm"
                         required
                     />
                 </Form.Group>
                 <Form.Group controlId="endDateTime" className="mb-3">
                     <Form.Label>End Date Time</Form.Label>
-                    <Form.Control
-                        type="datetime-local"
-                        value={endDateTime}
-                        onChange={(e) => setEndDateTime(e.target.value)}
+                    <Datetime
+                        value={formData.endDateTime}
+                        onChange={(date) => handleDateTimeChange(date, 'endDateTime')}
+                        dateFormat="YYYY-MM-DD"
+                        timeFormat="HH:mm"
                         required
                     />
                 </Form.Group>
                 <Form.Group controlId="responseDateTime" className="mb-3">
                     <Form.Label>Response Date Time</Form.Label>
-                    <Form.Control
-                        type="datetime-local"
-                        value={responseDateTime}
-                        onChange={(e) => setResponseDateTime(e.target.value)}
+                    <Datetime
+                        value={formData.responseDateTime}
+                        onChange={(date) => handleDateTimeChange(date, 'responseDateTime')}
+                        dateFormat="YYYY-MM-DD"
+                        timeFormat="HH:mm"
                         required
                     />
                 </Form.Group>
@@ -125,33 +137,33 @@ function AddTicket() {
                     <Form.Check
                         type="checkbox"
                         label="Crisis"
-                        checked={crisis}
-                        onChange={(e) => setCrisis(e.target.checked)}
+                        checked={formData.crisis}
+                        onChange={handleChange}
                     />
                 </Form.Group>
                 <Form.Group controlId="remote" className="mb-3">
                     <Form.Check
                         type="checkbox"
                         label="Remote"
-                        checked={remote}
-                        onChange={(e) => setRemote(e.target.checked)}
+                        checked={formData.remote}
+                        onChange={handleChange}
                     />
                 </Form.Group>
                 <Form.Group controlId="workType" className="mb-3">
                     <Form.Label>Work Type</Form.Label>
                     <Form.Control
                         type="text"
-                        value={workType}
-                        onChange={(e) => setWorkType(e.target.value)}
+                        value={formData.workType}
+                        onChange={handleChange}
                         required
                     />
                 </Form.Group>
-                <Form.Group controlId="workType" className="mb-3">
+                <Form.Group controlId="rootCause" className="mb-3">
                     <Form.Label>Root Cause</Form.Label>
                     <Form.Control
                         type="text"
-                        value={rootCause}
-                        onChange={(e) => setRootCause(e.target.value)}
+                        value={formData.rootCause}
+                        onChange={handleChange}
                         required
                     />
                 </Form.Group>
@@ -159,10 +171,11 @@ function AddTicket() {
                     <Form.Label>Responsible</Form.Label>
                     <Form.Control
                         as="select"
-                        multiple
-                        value={baitWorkersIds}
-                        onChange={(e) => setBaitWorkersIds([...e.target.selectedOptions].map(option => option.value))}
+                        value={formData.baitWorkerId}
+                        onChange={handleChange}
+                        id="baitWorkerId"
                     >
+                        <option value="">Select Responsible</option>
                         {baitWorkers.map(baitWorker => (
                             <option key={baitWorker.id} value={baitWorker.id}>
                                 {baitWorker.firstName + " " + baitWorker.lastName}
@@ -172,23 +185,31 @@ function AddTicket() {
                 </Form.Group>
                 {!clientIdParam && (
                     <Form.Group controlId="clientId" className="mb-3">
-                        <Form.Label>Client ID</Form.Label>
+                        <Form.Label>Client</Form.Label>
                         <Form.Control
-                            type="text"
-                            value={clientId}
-                            onChange={(e) => setClientId(e.target.value)}
-                            required
-                        />
+                            as="select"
+                            value={formData.clientId}
+                            onChange={handleChange}
+                            id="clientId"
+                        >
+                            <option value="">Select Client</option>
+                            {clients.map(client => (
+                                <option key={client.id} value={client.id}>
+                                    {client.fullName}
+                                </option>
+                            ))}
+                        </Form.Control>
                     </Form.Group>
                 )}
                 <Form.Group className="mb-3">
-                    <Form.Label>Locations</Form.Label>
+                    <Form.Label>Location</Form.Label>
                     <Form.Control
                         as="select"
-                        multiple
-                        value={locationIds}
-                        onChange={(e) => setLocationIds([...e.target.selectedOptions].map(option => option.value))}
+                        value={formData.locationId}
+                        onChange={handleChange}
+                        id="locationId"
                     >
+                        <option value="">Select Location</option>
                         {locations.map(location => (
                             <option key={location.id} value={location.id}>
                                 {location.name}
@@ -200,11 +221,12 @@ function AddTicket() {
                     <Form.Label>Status</Form.Label>
                     <Form.Control
                         as="select"
-                        multiple
-                        value={statusIds}
-                        onChange={(e) => setStatusIds([...e.target.selectedOptions].map(option => option.value))}
+                        value={formData.statusId}
+                        onChange={handleChange}
+                        id="statusId"
                     >
-                        {status.map(status => (
+                        <option value="">Select Status</option>
+                        {statuses.map(status => (
                             <option key={status.id} value={status.id}>
                                 {status.status}
                             </option>
