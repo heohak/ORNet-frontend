@@ -19,7 +19,7 @@ function ViewBaitWorkers() {
     useEffect(() => {
         const fetchWorkers = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/bait/workers`);
+                const response = await axios.get(`${config.API_BASE_URL}/bait/worker/all`);
                 setWorkers(response.data);
             } catch (error) {
                 setError(error.message);
@@ -33,14 +33,14 @@ function ViewBaitWorkers() {
 
     const handleAddWorker = async () => {
         try {
-            await axios.post(`${config.API_BASE_URL}/bait/worker`, {
+            await axios.post(`${config.API_BASE_URL}/bait/worker/add`, {
                 firstName,
                 lastName,
                 email,
                 phoneNumber,
                 title,
             });
-            const response = await axios.get(`${config.API_BASE_URL}/bait/workers`);
+            const response = await axios.get(`${config.API_BASE_URL}/bait/worker/all`);
             setWorkers(response.data);
             setShowAddModal(false);
             setFirstName('');
@@ -56,7 +56,7 @@ function ViewBaitWorkers() {
     const handleDeleteWorker = async (id) => {
         try {
             await axios.delete(`${config.API_BASE_URL}/bait/worker/${id}`);
-            const response = await axios.get(`${config.API_BASE_URL}/bait/workers`);
+            const response = await axios.get(`${config.API_BASE_URL}/bait/worker/all`);
             setWorkers(response.data);
         } catch (error) {
             setError(error.message);
