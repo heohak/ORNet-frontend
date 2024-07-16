@@ -41,7 +41,7 @@ function AddTicket() {
                 const [locationRes, statusRes, baitWorkerRes, clientRes] = await Promise.all([
                     axios.get(`${config.API_BASE_URL}/location/all`),
                     axios.get(`${config.API_BASE_URL}/ticket/classificator/all`),
-                    axios.get(`${config.API_BASE_URL}/bait/workers`),
+                    axios.get(`${config.API_BASE_URL}/bait/worker/all`),
                     !clientIdParam && axios.get(`${config.API_BASE_URL}/client/all`)
                 ]);
 
