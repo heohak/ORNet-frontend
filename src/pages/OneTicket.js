@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { Alert, Button, Card, Container, Spinner } from "react-bootstrap";
+import { Alert, Button, Card, Container, Spinner, Accordion, Row, Col } from "react-bootstrap";
 import config from "../config/config";
 
 function OneTicket() {
@@ -13,6 +13,8 @@ function OneTicket() {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [expandedTickets, setExpandedTickets] = useState(new Set());
+    const [expandedSections, setExpandedSections] = useState({});
     const navigate = useNavigate();
 
     const ticketRefs = useRef({});
@@ -22,6 +24,10 @@ function OneTicket() {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/ticket/main/${ticketId}`);
                 setTickets(response.data);
+                if (scrollToId) {
+                    setExpandedTickets(new Set([scrollToId]));
+                    setExpandedSections({ [scrollToId]: { dates: true, details: true } });
+                }
             } catch (error) {
                 setError(error.message);
             } finally {
@@ -30,7 +36,7 @@ function OneTicket() {
         };
 
         fetchTickets();
-    }, [ticketId]);
+    }, [ticketId, scrollToId]);
 
     useEffect(() => {
         if (!loading && scrollToId && ticketRefs.current[scrollToId]) {
@@ -45,6 +51,35 @@ function OneTicket() {
         } else {
             navigate(`/add-ticket/${ticketId}`);
         }
+    };
+
+    const toggleTicketExpansion = (id) => {
+        setExpandedTickets(prevExpandedTickets => {
+            const newExpandedTickets = new Set(prevExpandedTickets);
+            if (newExpandedTickets.has(id)) {
+                newExpandedTickets.delete(id);
+            } else {
+                newExpandedTickets.add(id);
+            }
+            return newExpandedTickets;
+        });
+        setExpandedSections((prevSections) => ({
+            ...prevSections,
+            [id]: {
+                dates: expandedTickets.has(id) ? !expandedSections[id]?.dates : true,
+                details: expandedTickets.has(id) ? !expandedSections[id]?.details : true,
+            }
+        }));
+    };
+
+    const toggleSectionExpansion = (ticketId, section) => {
+        setExpandedSections((prevSections) => ({
+            ...prevSections,
+            [ticketId]: {
+                ...prevSections[ticketId],
+                [section]: !prevSections[ticketId][section]
+            }
+        }));
     };
 
     if (loading) {
@@ -77,19 +112,62 @@ function OneTicket() {
             {tickets.length > 0 ? (
                 <>
                     {tickets.map((ticket) => (
-                        <Card
-                            key={ticket.id}
-                            ref={(el) => (ticketRefs.current[ticket.id] = el)}
-                            className="mb-4"
-                        >
-                            <Card.Body>
-                                <Card.Title>{ticket.description}</Card.Title>
-                                <Card.Text>
-                                    <strong>Client ID:</strong> {ticket.clientId}<br />
-                                    <strong>Main Ticket ID:</strong> {ticket.mainTicketId}
-                                </Card.Text>
-                            </Card.Body>
-                        </Card>
+                        <Accordion key={ticket.id} activeKey={expandedTickets.has(ticket.id.toString()) ? ticket.id.toString() : null}>
+                            <Card ref={(el) => (ticketRefs.current[ticket.id] = el)} className="mb-4">
+                                <Accordion.Item eventKey={ticket.id.toString()}>
+                                    <Accordion.Header onClick={() => toggleTicketExpansion(ticket.id.toString())}>
+                                        Ticket ID: {ticket.id}
+                                    </Accordion.Header>
+                                    <Accordion.Body>
+                                        <Card.Body>
+                                            <Accordion activeKey={expandedSections[ticket.id]?.dates ? "0" : null}>
+                                                <Accordion.Item eventKey="0">
+                                                    <Accordion.Header onClick={() => toggleSectionExpansion(ticket.id, 'dates')}>Dates</Accordion.Header>
+                                                    <Accordion.Body>
+                                                        <Row>
+                                                            <Col>
+                                                                <p><strong>Start Date Time:</strong> {ticket.startDateTime}</p>
+                                                                <p><strong>End Date Time:</strong> {ticket.endDateTime}</p>
+                                                                <p><strong>Response Date Time:</strong> {ticket.responseDateTime}</p>
+                                                                <p><strong>Update Time:</strong> {ticket.update_time}</p>
+                                                            </Col>
+                                                        </Row>
+                                                    </Accordion.Body>
+                                                </Accordion.Item>
+                                            </Accordion>
+                                            <Accordion activeKey={expandedSections[ticket.id]?.details ? "1" : null}>
+                                                <Accordion.Item eventKey="1">
+                                                    <Accordion.Header onClick={() => toggleSectionExpansion(ticket.id, 'details')}>Details</Accordion.Header>
+                                                    <Accordion.Body>
+                                                        <Row>
+                                                            <Col md={6}>
+                                                                <p><strong>Crisis:</strong> {ticket.crisis ? 'True' : 'False'}</p>
+                                                                <p><strong>Remote:</strong> {ticket.remote ? 'True' : 'False'}</p>
+                                                                <p><strong>Work Type:</strong> {ticket.workType}</p>
+                                                                <p><strong>Responsible ID:</strong> {ticket.baitWorkerId}</p>
+                                                            </Col>
+                                                            <Col md={6}>
+                                                                <p><strong>Client ID:</strong> {ticket.clientId}</p>
+                                                                <p><strong>Location ID:</strong> {ticket.locationId}</p>
+                                                                <p><strong>Status ID:</strong> {ticket.statusId}</p>
+                                                            </Col>
+                                                        </Row>
+                                                    </Accordion.Body>
+                                                </Accordion.Item>
+                                            </Accordion>
+                                            <Card.Title className="mt-4">Description</Card.Title>
+                                            <Card className="mb-4 mt-1">
+                                                <Card.Body>
+                                                    <Card.Text>
+                                                        {ticket.description}
+                                                    </Card.Text>
+                                                </Card.Body>
+                                            </Card>
+                                        </Card.Body>
+                                    </Accordion.Body>
+                                </Accordion.Item>
+                            </Card>
+                        </Accordion>
                     ))}
                 </>
             ) : (
