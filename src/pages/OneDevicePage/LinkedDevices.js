@@ -29,7 +29,10 @@ function LinkedDevices({
     const [showAddFieldForm, setShowAddFieldForm] = useState(false);
 
     useEffect(() => {
-        if (linkedDevices.length > 0) {
+        const storedVisibleFields = localStorage.getItem('visibleFields');
+        if (storedVisibleFields) {
+            setVisibleFields(JSON.parse(storedVisibleFields));
+        } else if (linkedDevices.length > 0) {
             initializeVisibleFields(linkedDevices);
         }
     }, [linkedDevices]);
@@ -48,12 +51,14 @@ function LinkedDevices({
 
         console.log("Initialized visible fields:", initialVisibleFields);
         setVisibleFields(initialVisibleFields);
+        localStorage.setItem('visibleFields', JSON.stringify(initialVisibleFields));
     };
 
     const handleFieldToggle = (field) => {
         setVisibleFields(prevVisibleFields => {
             const newVisibleFields = { ...prevVisibleFields, [field]: !prevVisibleFields[field] };
             console.log("Updated visible fields:", newVisibleFields);
+            localStorage.setItem('visibleFields', JSON.stringify(newVisibleFields));
             return newVisibleFields;
         });
     };
