@@ -7,6 +7,7 @@ import ClientDetails from "./ClientDetails";
 import ClientDevices from "./ClientDevices";
 import ClientWorker from "./ClientWorker";
 import SoftwareDetails from "./SoftwareDetails";
+import ClientTickets from "./ClientTickets";
 
 function OneClient() {
     const { clientId } = useParams();
@@ -14,6 +15,7 @@ function OneClient() {
     const [devices, setDevices] = useState([]);
     const [workers, setWorkers] = useState([]);
     const [softwareList, setSoftwareList] = useState([]);
+    const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [refresh, setRefresh] = useState(false); // State to trigger refresh
@@ -23,16 +25,18 @@ function OneClient() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [clientRes, deviceRes, workerRes, softwareRes] = await Promise.all([
+                const [clientRes, deviceRes, workerRes, softwareRes, ticketsRes] = await Promise.all([
                     axios.get(`${config.API_BASE_URL}/client/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/device/client/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/worker/${clientId}`),
-                    axios.get(`${config.API_BASE_URL}/software/client/${clientId}`)
+                    axios.get(`${config.API_BASE_URL}/software/client/${clientId}`),
+                    axios.get(`${config.API_BASE_URL}/ticket/client/${clientId}`)
                 ]);
                 setClient(clientRes.data);
                 setDevices(deviceRes.data);
                 setWorkers(workerRes.data);
                 setSoftwareList(softwareRes.data);
+                setTickets(ticketsRes.data);
             } catch (error) {
                 setError(error.message);
             } finally {
@@ -86,6 +90,7 @@ function OneClient() {
                 </Col>
             </Row>
             <SoftwareDetails softwareList={softwareList} />
+            <ClientTickets tickets={tickets} />
         </Container>
     );
 }
