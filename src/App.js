@@ -9,7 +9,7 @@ import Chung from "./pages/Chung";
 import Workers from './pages/Workers';
 import ClientDevices from "./pages/OneClientPage/ClientDevices";
 import Tickets from "./pages/Tickets";
-import OneTicket from "./pages/OneTicket";
+import OneTicket from "./pages/OneTicketPage/OneTicket";
 import AddClient from "./components/AddClient";
 import AddWorker from "./components/AddWorker";
 import Devices from "./pages/Devices" ;

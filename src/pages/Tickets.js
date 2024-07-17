@@ -1,19 +1,42 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Alert, Button, Card, Col, Container, Row, Spinner } from "react-bootstrap";
+import { Alert, Button, Card, Col, Container, Row, Spinner, ButtonGroup, FormControl, InputGroup } from "react-bootstrap";
 import config from "../config/config";
 
 function Tickets() {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [filter, setFilter] = useState('all');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const navigate = useNavigate();
+
+    // Debounce the search query input
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearchQuery(searchQuery);
+        }, 500); // 300ms delay
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [searchQuery]);
 
     useEffect(() => {
         const fetchTickets = async () => {
+            setLoading(true);
+            setError(null);
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/ticket/all`);
+                let url = `${config.API_BASE_URL}/ticket/all`;
+                if (filter === 'open') {
+                    url = `${config.API_BASE_URL}/ticket/status/1`;
+                } else if (filter === 'closed') {
+                    url = `${config.API_BASE_URL}/ticket/status/2`;
+                } else if (debouncedSearchQuery.trim()) {
+                    url = `${config.API_BASE_URL}/ticket/search?q=${debouncedSearchQuery}`;
+                }
+                const response = await axios.get(url);
                 setTickets(response.data);
             } catch (error) {
                 setError(error.message);
@@ -22,7 +45,7 @@ function Tickets() {
             }
         };
         fetchTickets();
-    }, []);
+    }, [filter, debouncedSearchQuery]);
 
     const handleNavigate = (ticketId) => {
         navigate(`/ticket/${ticketId}?scrollTo=${ticketId}`);
@@ -30,6 +53,16 @@ function Tickets() {
 
     const handleAddTicket = () => {
         navigate('/add-ticket', { state: { from: 'tickets' } });
+    };
+
+    const handleSearchInputChange = (e) => {
+        const value = e.target.value;
+        setSearchQuery(value);
+    };
+
+    const handleFilterChange = (newFilter) => {
+        setFilter(newFilter);
+        setSearchQuery(''); // Clear search query when filter changes
     };
 
     if (loading) {
@@ -59,6 +92,33 @@ function Tickets() {
                 <h1 className="mb-0">Tickets</h1>
                 <Button variant="success" onClick={handleAddTicket}>Add Ticket</Button>
             </div>
+            <InputGroup className="mb-4">
+                <FormControl
+                    placeholder="Search tickets..."
+                    value={searchQuery}
+                    onChange={handleSearchInputChange}
+                />
+            </InputGroup>
+            <ButtonGroup className="mb-4">
+                <Button
+                    variant={filter === 'all' ? 'primary' : 'outline-primary'}
+                    onClick={() => handleFilterChange('all')}
+                >
+                    All Tickets
+                </Button>
+                <Button
+                    variant={filter === 'open' ? 'primary' : 'outline-primary'}
+                    onClick={() => handleFilterChange('open')}
+                >
+                    Open Tickets
+                </Button>
+                <Button
+                    variant={filter === 'closed' ? 'primary' : 'outline-primary'}
+                    onClick={() => handleFilterChange('closed')}
+                >
+                    Closed Tickets
+                </Button>
+            </ButtonGroup>
             <Row>
                 {tickets.map((ticket) => (
                     <Col md={4} key={ticket.id} className="mb-4">
