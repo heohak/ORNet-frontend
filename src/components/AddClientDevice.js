@@ -16,6 +16,8 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
     const [versionUpdateDate, setVersionUpdateDate] = useState('');
     const [firstIPAddress, setFirstIPAddress] = useState('');
     const [secondIPAddress, setSecondIPAddress] = useState('');
+    const [subnetMask, setSubnetMask] = useState(''); // New state for subnet mask
+    const [deviceClassificatorId, setDeviceClassificatorId] = useState(''); // New state for device classificator
     const [softwareKey, setSoftwareKey] = useState('');
     const [introducedDate, setIntroducedDate] = useState('');
     const [writtenOffDate, setWrittenOffDate] = useState('');
@@ -23,6 +25,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
     const [error, setError] = useState(null);
     const [locations, setLocations] = useState([]);
     const [locationId, setLocationId] = useState('');
+    const [classificators, setClassificators] = useState([]); // New state for classificators
 
     useEffect(() => {
         const fetchLocations = async () => {
@@ -34,7 +37,17 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
             }
         };
 
+        const fetchClassificators = async () => {
+            try {
+                const response = await axios.get(`${config.API_BASE_URL}/device/classificator/all`);
+                setClassificators(response.data);
+            } catch (error) {
+                setError(error.message);
+            }
+        };
+
         fetchLocations();
+        fetchClassificators();
     }, []);
 
     const handleSubmit = async (e) => {
@@ -47,7 +60,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
         }
 
         try {
-            await axios.post(`${config.API_BASE_URL}/device/add`, {
+            const deviceResponse = await axios.post(`${config.API_BASE_URL}/device/add`, {
                 clientId,
                 locationId,
                 deviceName,
@@ -59,11 +72,20 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                 versionUpdateDate,
                 firstIPAddress,
                 secondIPAddress,
+                subnetMask, // Include subnet mask in the request
                 softwareKey,
                 introducedDate,
                 writtenOffDate,
                 comment,
             });
+
+            const deviceId = deviceResponse.data.token // Assuming the response contains the new device's ID
+            console.log(deviceResponse.data)
+
+            if (deviceClassificatorId) {
+                await axios.put(`${config.API_BASE_URL}/device/classificator/${deviceId}/${deviceClassificatorId}`);
+            }
+
             setRefresh(prev => !prev); // Trigger refresh by toggling state
             onClose(); // Close the modal after adding the device
         } catch (error) {
@@ -155,6 +177,30 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                         value={secondIPAddress}
                         onChange={(e) => setSecondIPAddress(e.target.value)}
                     />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Subnet Mask</Form.Label>
+                    <Form.Control
+                        type="text"
+                        value={subnetMask}
+                        onChange={(e) => setSubnetMask(e.target.value)}
+                    />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Device Classificator</Form.Label>
+                    <Form.Control
+                        as="select"
+                        value={deviceClassificatorId}
+                        onChange={(e) => setDeviceClassificatorId(e.target.value)}
+                        required
+                    >
+                        <option value="">Select Classificator</option>
+                        {classificators.map(classificator => (
+                            <option key={classificator.id} value={classificator.id}>
+                                {classificator.name}
+                            </option>
+                        ))}
+                    </Form.Control>
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Software Key</Form.Label>
