@@ -26,6 +26,8 @@ import ViewBaitWorkers from "./pages/SettingsPage/ViewBaitWorkers";
 import ViewLocations from "./pages/SettingsPage/ViewLocations";
 import ViewDeviceClassificators from "./pages/SettingsPage/ViewDeviceClassificators";
 import ViewTicketStatusClassificators from "./pages/SettingsPage/ViewTicketStatusClassificators";
+import ViewThirdPartyITs from "./pages/SettingsPage/ViewThirdPartyITs";
+import ViewLinkedDevices from "./pages/SettingsPage/ViewLinkedDevices";
 
 function App() {
     return (
@@ -56,6 +58,8 @@ function App() {
                 <Route path="/settings/locations" element={<ViewLocations />} />
                 <Route path="/settings/device-classificators" element={<ViewDeviceClassificators />} />
                 <Route path="/settings/ticket-status-classificators" element={<ViewTicketStatusClassificators />} />
+                <Route path="/settings/third-party-its" element={<ViewThirdPartyITs />} />
+                <Route path="/settings/linked-devices" element={<ViewLinkedDevices />} />
             </Routes>
         </Router>
     );

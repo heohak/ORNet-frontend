@@ -52,6 +52,28 @@ function Settings() {
                     </Button>
                 </Col>
             </Row>
+            <Row className="mb-3">
+                <Col md={6}>
+                    <Button
+                        variant="primary"
+                        onClick={() => navigate('/settings/third-party-its')}
+                        className="w-50"
+                    >
+                        View Third Party ITs
+                    </Button>
+                </Col>
+            </Row>
+            <Row className="mb-3">
+                <Col md={6}>
+                    <Button
+                        variant="primary"
+                        onClick={() => navigate('/settings/linked-devices')}
+                        className="w-50"
+                    >
+                        View Linked Devices
+                    </Button>
+                </Col>
+            </Row>
         </Container>
     );
 }
