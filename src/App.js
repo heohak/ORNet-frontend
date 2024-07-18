@@ -29,6 +29,7 @@ import ViewTicketStatusClassificators from "./pages/SettingsPage/ViewTicketStatu
 import ViewThirdPartyITs from "./pages/SettingsPage/ViewThirdPartyITs";
 import ViewLinkedDevices from "./pages/SettingsPage/ViewLinkedDevices";
 import ViewClientWorkerRoles from "./pages/SettingsPage/ViewClientWorkerRoles";
+import ViewClientWorkers from "./pages/SettingsPage/ViewClientWorkers";
 
 function App() {
     return (
@@ -62,6 +63,7 @@ function App() {
                 <Route path="/settings/third-party-its" element={<ViewThirdPartyITs />} />
                 <Route path="/settings/linked-devices" element={<ViewLinkedDevices />} />
                 <Route path="/settings/client-worker-roles" element={<ViewClientWorkerRoles />} />
+                <Route path="/settings/client-workers" element={<ViewClientWorkers />} />
             </Routes>
         </Router>
     );

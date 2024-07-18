@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Form, Button, Alert } from 'react-bootstrap';
 import config from "../config/config";
+import Select from 'react-select';
 
 function AddWorker({ clientId, onClose, setRefresh }) {
     const [firstName, setFirstName] = useState('');
@@ -11,19 +12,25 @@ function AddWorker({ clientId, onClose, setRefresh }) {
     const [title, setTitle] = useState('');
     const [locationId, setLocationId] = useState('');
     const [locations, setLocations] = useState([]);
+    const [roles, setRoles] = useState([]);
+    const [selectedRoles, setSelectedRoles] = useState([]);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchLocations = async () => {
+        const fetchData = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/location/all`);
-                setLocations(response.data);
+                const [locationsResponse, rolesResponse] = await Promise.all([
+                    axios.get(`${config.API_BASE_URL}/location/all`),
+                    axios.get(`${config.API_BASE_URL}/worker/classificator/all`)
+                ]);
+                setLocations(locationsResponse.data);
+                setRoles(rolesResponse.data.map(role => ({ value: role.id, label: role.role })));
             } catch (error) {
                 setError(error.message);
             }
         };
 
-        fetchLocations();
+        fetchData();
     }, []);
 
     const handleSubmit = async (e) => {
@@ -31,18 +38,46 @@ function AddWorker({ clientId, onClose, setRefresh }) {
         setError(null);
 
         try {
-            await axios.post(`${config.API_BASE_URL}/worker/add`, {
+            console.log('Submitting worker data:', {
                 clientId,
                 firstName,
                 lastName,
                 email,
                 phoneNumber,
                 title,
-                locationId
+                locationId,
             });
+
+            const response = await axios.post(`${config.API_BASE_URL}/worker/add`, {
+                clientId,
+                firstName,
+                lastName,
+                email,
+                phoneNumber,
+                title,
+                locationId,
+            });
+
+            console.log('Worker add response:', response.data);
+
+            if (response.data && response.data.token) {
+                const workerId = response.data.token;
+                console.log('Worker ID:', workerId);
+
+                await axios.put(`${config.API_BASE_URL}/worker/${workerId}/${clientId}`);
+                console.log(`Linked worker ${workerId} to client ${clientId}`);
+
+                for (const role of selectedRoles) {
+                    console.log(`Linking worker ${workerId} to role ${role.value}`);
+                    await axios.put(`${config.API_BASE_URL}/worker/role/${workerId}/${role.value}`);
+                    console.log(`Linked worker ${workerId} to role ${role.value}`);
+                }
+            }
+
             setRefresh(prev => !prev); // Trigger refresh by toggling state
             onClose(); // Close the modal after adding the worker
         } catch (error) {
+            console.error('Error adding worker:', error);
             setError(error.message);
         }
     };
@@ -116,6 +151,16 @@ function AddWorker({ clientId, onClose, setRefresh }) {
                             </option>
                         ))}
                     </Form.Control>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Roles</Form.Label>
+                    <Select
+                        isMulti
+                        options={roles}
+                        value={selectedRoles}
+                        onChange={setSelectedRoles}
+                        placeholder="Select roles"
+                    />
                 </Form.Group>
                 <Button variant="success" type="submit">
                     Add Worker
