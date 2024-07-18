@@ -38,16 +38,6 @@ function AddWorker({ clientId, onClose, setRefresh }) {
         setError(null);
 
         try {
-            console.log('Submitting worker data:', {
-                clientId,
-                firstName,
-                lastName,
-                email,
-                phoneNumber,
-                title,
-                locationId,
-            });
-
             const response = await axios.post(`${config.API_BASE_URL}/worker/add`, {
                 clientId,
                 firstName,
@@ -58,26 +48,19 @@ function AddWorker({ clientId, onClose, setRefresh }) {
                 locationId,
             });
 
-            console.log('Worker add response:', response.data);
-
             if (response.data && response.data.token) {
                 const workerId = response.data.token;
-                console.log('Worker ID:', workerId);
 
                 await axios.put(`${config.API_BASE_URL}/worker/${workerId}/${clientId}`);
-                console.log(`Linked worker ${workerId} to client ${clientId}`);
 
                 for (const role of selectedRoles) {
-                    console.log(`Linking worker ${workerId} to role ${role.value}`);
                     await axios.put(`${config.API_BASE_URL}/worker/role/${workerId}/${role.value}`);
-                    console.log(`Linked worker ${workerId} to role ${role.value}`);
                 }
             }
 
             setRefresh(prev => !prev); // Trigger refresh by toggling state
             onClose(); // Close the modal after adding the worker
         } catch (error) {
-            console.error('Error adding worker:', error);
             setError(error.message);
         }
     };
