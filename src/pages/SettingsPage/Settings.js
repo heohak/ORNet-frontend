@@ -74,6 +74,17 @@ function Settings() {
                     </Button>
                 </Col>
             </Row>
+            <Row className="mb-3">
+                <Col md={6}>
+                    <Button
+                        variant="primary"
+                        onClick={() => navigate('/settings/client-worker-roles')}
+                        className="w-50"
+                    >
+                        View Client Worker Roles
+                    </Button>
+                </Col>
+            </Row>
         </Container>
     );
 }
