@@ -96,6 +96,17 @@ function Settings() {
                     </Button>
                 </Col>
             </Row>
+            <Row>
+                <Col md={6}>
+                    <Button
+                        variant="primary"
+                        onClick={() => navigate('/settings/software')}
+                        className="w-50"
+                    >
+                        View Software
+                    </Button>
+                </Col>
+            </Row>
         </Container>
     );
 }

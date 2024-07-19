@@ -30,6 +30,7 @@ import ViewThirdPartyITs from "./pages/SettingsPage/ViewThirdPartyITs";
 import ViewLinkedDevices from "./pages/SettingsPage/ViewLinkedDevices";
 import ViewClientWorkerRoles from "./pages/SettingsPage/ViewClientWorkerRoles";
 import ViewClientWorkers from "./pages/SettingsPage/ViewClientWorkers";
+import ViewSoftware from "./pages/SettingsPage/ViewSoftware";
 
 function App() {
     return (
@@ -64,6 +65,7 @@ function App() {
                 <Route path="/settings/linked-devices" element={<ViewLinkedDevices />} />
                 <Route path="/settings/client-worker-roles" element={<ViewClientWorkerRoles />} />
                 <Route path="/settings/client-workers" element={<ViewClientWorkers />} />
+                <Route path="/settings/software" element={<ViewSoftware />} />
             </Routes>
         </Router>
     );
