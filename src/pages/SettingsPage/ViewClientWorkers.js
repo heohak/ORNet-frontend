@@ -12,31 +12,17 @@ function ViewClientWorkers() {
     const [refresh, setRefresh] = useState(false);
     const navigate = useNavigate();
 
-    const [clients, setClients] = useState([]);
-    const [clientId, setClientId] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [title, setTitle] = useState('');
-    const [locationId, setLocationId] = useState('');
-    const [locations, setLocations] = useState([]);
-    const [roles, setRoles] = useState([]);
-    const [selectedRoles, setSelectedRoles] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [workersResponse, clientsResponse, locationsResponse, rolesResponse] = await Promise.all([
-                    axios.get(`${config.API_BASE_URL}/worker/all`),
-                    axios.get(`${config.API_BASE_URL}/client/all`),
-                    axios.get(`${config.API_BASE_URL}/location/all`),
-                    axios.get(`${config.API_BASE_URL}/worker/classificator/all`)
-                ]);
+                const workersResponse = await axios.get(`${config.API_BASE_URL}/worker/all`);
                 setWorkers(workersResponse.data);
-                setClients(clientsResponse.data);
-                setLocations(locationsResponse.data);
-                setRoles(rolesResponse.data);
             } catch (error) {
                 setError(error.message);
             } finally {
@@ -52,35 +38,18 @@ function ViewClientWorkers() {
         setError(null);
 
         try {
-            const response = await axios.post(`${config.API_BASE_URL}/worker/add`, {
-                clientId,
+            await axios.post(`${config.API_BASE_URL}/worker/add`, {
                 firstName,
                 lastName,
                 email,
                 phoneNumber,
                 title,
-                locationId,
-                roleIds: selectedRoles
             });
-            if (response.data && response.data.id) {
-                const workerId = response.data.id;
-                await axios.put(`${config.API_BASE_URL}/worker/${workerId}/${clientId}`);
-                for (const roleId of selectedRoles) {
-                    await axios.put(`${config.API_BASE_URL}/worker/role/${workerId}/${roleId}`);
-                }
-            }
             setRefresh(prev => !prev); // Trigger refresh by toggling state
             setShowAddModal(false); // Close the modal after adding the worker
         } catch (error) {
             setError(error.message);
         }
-    };
-
-    const handleRoleChange = (e) => {
-        const { value, checked } = e.target;
-        setSelectedRoles(prevSelectedRoles =>
-            checked ? [...prevSelectedRoles, value] : prevSelectedRoles.filter(role => role !== value)
-        );
     };
 
     if (loading) {
@@ -120,9 +89,6 @@ function ViewClientWorkers() {
                                     <strong>Email:</strong> {worker.email}<br />
                                     <strong>Phone:</strong> {worker.phoneNumber}<br />
                                     <strong>Title:</strong> {worker.title}<br />
-                                    <strong>Client:</strong> {clients.find(client => client.id === worker.clientId)?.shortName || 'N/A'}<br />
-                                    <strong>Location:</strong> {locations.find(location => location.id === worker.locationId)?.name || 'N/A'}<br />
-                                    <strong>Roles:</strong> {worker.roleIds.map(roleId => roles.find(role => role.id === roleId)?.role || 'N/A').join(', ')}
                                 </Card.Text>
                             </Card.Body>
                         </Card>
@@ -142,22 +108,6 @@ function ViewClientWorkers() {
                             </Alert>
                         )}
                         <Form onSubmit={handleAddWorker}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Client</Form.Label>
-                                <Form.Control
-                                    as="select"
-                                    value={clientId}
-                                    onChange={(e) => setClientId(e.target.value)}
-                                    required
-                                >
-                                    <option value="">Select a client</option>
-                                    {clients.map((client) => (
-                                        <option key={client.id} value={client.id}>
-                                            {client.shortName}
-                                        </option>
-                                    ))}
-                                </Form.Control>
-                            </Form.Group>
                             <Form.Group className="mb-3">
                                 <Form.Label>First Name</Form.Label>
                                 <Form.Control
@@ -202,34 +152,6 @@ function ViewClientWorkers() {
                                     onChange={(e) => setTitle(e.target.value)}
                                     required
                                 />
-                            </Form.Group>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Location</Form.Label>
-                                <Form.Control
-                                    as="select"
-                                    value={locationId}
-                                    onChange={(e) => setLocationId(e.target.value)}
-                                    required
-                                >
-                                    <option value="">Select a location</option>
-                                    {locations.map((loc) => (
-                                        <option key={loc.id} value={loc.id}>
-                                            {loc.name}
-                                        </option>
-                                    ))}
-                                </Form.Control>
-                            </Form.Group>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Roles</Form.Label>
-                                {roles.map((role) => (
-                                    <Form.Check
-                                        key={role.id}
-                                        type="checkbox"
-                                        label={role.role}
-                                        value={role.id}
-                                        onChange={handleRoleChange}
-                                    />
-                                ))}
                             </Form.Group>
                             <Button variant="success" type="submit">
                                 Add Worker
