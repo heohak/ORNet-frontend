@@ -96,7 +96,7 @@ function Settings() {
                     </Button>
                 </Col>
             </Row>
-            <Row>
+            <Row className="mb-3">
                 <Col md={6}>
                     <Button
                         variant="primary"
@@ -104,6 +104,17 @@ function Settings() {
                         className="w-50"
                     >
                         View Software
+                    </Button>
+                </Col>
+            </Row>
+            <Row>
+                <Col md={6}>
+                    <Button
+                        variant="primary"
+                        onClick={() => navigate('/settings/files')}
+                        className="w-50"
+                    >
+                        Upload Files
                     </Button>
                 </Col>
             </Row>
