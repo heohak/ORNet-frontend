@@ -30,7 +30,7 @@ function Settings() {
                     </Button>
                 </Col>
             </Row>
-            <Row>
+            <Row className="mb-3">
                 <Col md={6}>
                     <Button
                         variant="primary"
@@ -38,6 +38,83 @@ function Settings() {
                         className="w-50"
                     >
                         View Device Classificators
+                    </Button>
+                </Col>
+            </Row>
+            <Row className="mb-3">
+                <Col md={6}>
+                    <Button
+                        variant="primary"
+                        onClick={() => navigate('/settings/ticket-status-classificators')}
+                        className="w-50"
+                    >
+                        View Ticket Status Classificators
+                    </Button>
+                </Col>
+            </Row>
+            <Row className="mb-3">
+                <Col md={6}>
+                    <Button
+                        variant="primary"
+                        onClick={() => navigate('/settings/third-party-its')}
+                        className="w-50"
+                    >
+                        View Third Party ITs
+                    </Button>
+                </Col>
+            </Row>
+            <Row className="mb-3">
+                <Col md={6}>
+                    <Button
+                        variant="primary"
+                        onClick={() => navigate('/settings/linked-devices')}
+                        className="w-50"
+                    >
+                        View Linked Devices
+                    </Button>
+                </Col>
+            </Row>
+            <Row className="mb-3">
+                <Col md={6}>
+                    <Button
+                        variant="primary"
+                        onClick={() => navigate('/settings/client-worker-roles')}
+                        className="w-50"
+                    >
+                        View Client Worker Roles
+                    </Button>
+                </Col>
+            </Row>
+            <Row className="mb-3">
+                <Col md={6}>
+                    <Button
+                        variant="primary"
+                        onClick={() => navigate('/settings/client-workers')}
+                        className="w-50"
+                    >
+                        View Client Workers
+                    </Button>
+                </Col>
+            </Row>
+            <Row className="mb-3">
+                <Col md={6}>
+                    <Button
+                        variant="primary"
+                        onClick={() => navigate('/settings/software')}
+                        className="w-50"
+                    >
+                        View Software
+                    </Button>
+                </Col>
+            </Row>
+            <Row>
+                <Col md={6}>
+                    <Button
+                        variant="primary"
+                        onClick={() => navigate('/settings/files')}
+                        className="w-50"
+                    >
+                        Upload Files
                     </Button>
                 </Col>
             </Row>

@@ -25,6 +25,13 @@ import Settings from "./pages/SettingsPage/Settings";
 import ViewBaitWorkers from "./pages/SettingsPage/ViewBaitWorkers";
 import ViewLocations from "./pages/SettingsPage/ViewLocations";
 import ViewDeviceClassificators from "./pages/SettingsPage/ViewDeviceClassificators";
+import ViewTicketStatusClassificators from "./pages/SettingsPage/ViewTicketStatusClassificators";
+import ViewThirdPartyITs from "./pages/SettingsPage/ViewThirdPartyITs";
+import ViewLinkedDevices from "./pages/SettingsPage/ViewLinkedDevices";
+import ViewClientWorkerRoles from "./pages/SettingsPage/ViewClientWorkerRoles";
+import ViewClientWorkers from "./pages/SettingsPage/ViewClientWorkers";
+import ViewSoftware from "./pages/SettingsPage/ViewSoftware";
+import ViewFiles from "./pages/SettingsPage/ViewFiles";
 
 function App() {
     return (
@@ -54,6 +61,13 @@ function App() {
                 <Route path="/view-bait-workers" element={<ViewBaitWorkers />} />
                 <Route path="/settings/locations" element={<ViewLocations />} />
                 <Route path="/settings/device-classificators" element={<ViewDeviceClassificators />} />
+                <Route path="/settings/ticket-status-classificators" element={<ViewTicketStatusClassificators />} />
+                <Route path="/settings/third-party-its" element={<ViewThirdPartyITs />} />
+                <Route path="/settings/linked-devices" element={<ViewLinkedDevices />} />
+                <Route path="/settings/client-worker-roles" element={<ViewClientWorkerRoles />} />
+                <Route path="/settings/client-workers" element={<ViewClientWorkers />} />
+                <Route path="/settings/software" element={<ViewSoftware />} />
+                <Route path="/settings/files" element={<ViewFiles />} />
             </Routes>
         </Router>
     );
