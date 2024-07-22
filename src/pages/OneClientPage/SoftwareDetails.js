@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+
 import { Container, Spinner, Table, Button, Card } from 'react-bootstrap';
+import AddClientSoftware from "./AddClientSoftware";
 
-
-function SoftwareDetails({ softwareList }) {
-    const navigate = useNavigate();
+function SoftwareDetails({ softwareList, clientId, setRefresh }) {
 
     // State to manage expanded state for each software item
     const [expandedSoftwareId, setExpandedSoftwareId] = useState(null);
+    const [showAddSoftwareModal, setShowAddSoftwareModal] = useState(false);
 
     const toggleTechnicalInfo = (softwareId) => {
         setExpandedSoftwareId(expandedSoftwareId === softwareId ? null : softwareId);
@@ -26,9 +26,11 @@ function SoftwareDetails({ softwareList }) {
     return (
         <Container className="mt-5">
             <h1 className="mb-4">Technical information</h1>
+            <Button variant="primary" className="mb-4" onClick={() => setShowAddSoftwareModal(true)}>
+                Add Software
+            </Button>
 
             {softwareList.map(software => (
-
                 <Card key={software.id} className="mb-4">
                     <Card.Body>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -112,10 +114,17 @@ function SoftwareDetails({ softwareList }) {
                                 </tr>
                                 </tbody>
                             </Table>
-                            )}
+                        )}
                     </Card.Body>
                 </Card>
             ))}
+
+            <AddClientSoftware
+                clientId={clientId}
+                show={showAddSoftwareModal}
+                handleClose={() => setShowAddSoftwareModal(false)}
+                setRefresh={setRefresh}
+            />
         </Container>
     );
 }

@@ -95,7 +95,9 @@ function OneClient() {
                     <ClientThirdPartyIT clientId={clientId} />
                 </Col>
                 <Col md={6}>
-                    <SoftwareDetails softwareList={softwareList} />
+                    <SoftwareDetails softwareList={softwareList}
+                                     clientId={clientId}
+                    setRefresh={setRefresh}/>
                 </Col>
             </Row>
             <ClientTickets tickets={tickets} />
