@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Modal, ListGroup, Alert } from 'react-bootstrap';
+import { Card, Button, Modal, ListGroup, Alert, Form } from 'react-bootstrap';
 import AddWorker from '../../components/AddWorker'; // Update the import path as necessary
 import axios from 'axios';
 import config from "../../config/config"; // Import axios for making HTTP requests
 
-function ClientWorker({ workers,client, clientId, setRefresh }) {
+function ClientWorker({ workers, client, clientId, setRefresh }) {
     const [showAddWorkerModal, setShowAddWorkerModal] = useState(false);
+    const [showAddRoleModal, setShowAddRoleModal] = useState(false);
     const [expandedWorkerId, setExpandedWorkerId] = useState(null);
     const [workerLocations, setWorkerLocations] = useState({});
+    const [selectedWorkerId, setSelectedWorkerId] = useState(null);
+    const [roles, setRoles] = useState([]);
+    const [selectedRoleId, setSelectedRoleId] = useState('');
 
     useEffect(() => {
-        // Fetch worker locations initially or whenever workers change
+        fetchRoles();
+    }, []);
+
+    useEffect(() => {
         fetchWorkerLocations();
     }, [workers]);
 
@@ -30,12 +37,20 @@ function ClientWorker({ workers,client, clientId, setRefresh }) {
         }
     };
 
+    const fetchRoles = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/worker/classificator/all`);
+            setRoles(response.data);
+        } catch (error) {
+            console.error('Error fetching roles:', error);
+        }
+    };
+
     const toggleWorkerDetails = async (workerId) => {
         if (expandedWorkerId === workerId) {
             setExpandedWorkerId(null); // Collapse if already expanded
         } else {
             setExpandedWorkerId(workerId); // Expand the worker
-            // Fetch location for the worker if not already fetched
             if (!workerLocations[workerId]) {
                 try {
                     const response = await axios.get(`${config.API_BASE_URL}/worker/location/${workerId}`);
@@ -48,6 +63,17 @@ function ClientWorker({ workers,client, clientId, setRefresh }) {
                     console.error(`Error fetching location for worker ${workerId}:`, error);
                 }
             }
+        }
+    };
+
+    const handleAddRole = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.put(`${config.API_BASE_URL}/worker/role/${selectedWorkerId}/${selectedRoleId}`);
+            setRefresh(prev => !prev); // Trigger refresh by toggling state
+            setShowAddRoleModal(false);
+        } catch (error) {
+            console.error('Error adding role to worker:', error);
         }
     };
 
@@ -70,17 +96,20 @@ function ClientWorker({ workers,client, clientId, setRefresh }) {
                                                 <strong>Name: </strong>{worker.firstName + " " + worker.lastName}
                                             </Card.Text>
                                         </div>
-                                        <Button variant="link" onClick={() => toggleWorkerDetails(worker.id)}>
-                                            {expandedWorkerId === worker.id ? '▲' : '▼'}
-                                        </Button>
+                                        <div>
+                                            <Button variant="link" onClick={() => toggleWorkerDetails(worker.id)}>
+                                                {expandedWorkerId === worker.id ? '▲' : '▼'}
+                                            </Button>
+                                            <Button variant="link" onClick={() => { setSelectedWorkerId(worker.id); setShowAddRoleModal(true); }}>
+                                                Add Role
+                                            </Button>
+                                        </div>
                                     </div>
-                                    {/* Additional info toggleable section */}
                                     {expandedWorkerId === worker.id && workerLocations[worker.id] && (
                                         <div>
                                             <Card.Text><strong>Phone: </strong>{worker.phoneNumber}</Card.Text>
                                             <Card.Text><strong>Email: </strong>{worker.email}</Card.Text>
                                             <Card.Text><strong>Location: </strong>{workerLocations[worker.id].name}</Card.Text>
-                                            {/* Display other location properties as needed */}
                                         </div>
                                     )}
                                 </Card.Body>
@@ -97,7 +126,29 @@ function ClientWorker({ workers,client, clientId, setRefresh }) {
                     <Modal.Title>Add Worker to {client.shortName}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <AddWorker clientId={clientId} onClose={() => setShowAddWorkerModal(false)} setRefresh={setRefresh} /> {/* Pass clientId and setRefresh as props */}
+                    <AddWorker clientId={clientId} onClose={() => setShowAddWorkerModal(false)} setRefresh={setRefresh} />
+                </Modal.Body>
+            </Modal>
+
+            <Modal show={showAddRoleModal} onHide={() => setShowAddRoleModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Add Role to Worker</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form onSubmit={handleAddRole}>
+                        <Form.Group controlId="roleSelect">
+                            <Form.Label>Select Role</Form.Label>
+                            <Form.Control as="select" value={selectedRoleId} onChange={(e) => setSelectedRoleId(e.target.value)} required>
+                                <option value="">Select a role</option>
+                                {roles.map((role) => (
+                                    <option key={role.id} value={role.id}>{role.role}</option>
+                                ))}
+                            </Form.Control>
+                        </Form.Group>
+                        <Button variant="primary" type="submit" className="mt-3">
+                            Add Role
+                        </Button>
+                    </Form>
                 </Modal.Body>
             </Modal>
         </>
