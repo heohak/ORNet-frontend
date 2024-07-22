@@ -8,6 +8,7 @@ import ClientDevices from "./ClientDevices";
 import ClientWorker from "./ClientWorker";
 import SoftwareDetails from "./SoftwareDetails";
 import ClientTickets from "./ClientTickets";
+import ClientThirdPartyIT from "./ClientThirdPartyIT";
 
 function OneClient() {
     const { clientId } = useParams();
@@ -89,7 +90,14 @@ function OneClient() {
                     />
                 </Col>
             </Row>
-            <SoftwareDetails softwareList={softwareList} />
+            <Row>
+                <Col md={6}>
+                    <ClientThirdPartyIT clientId={clientId} />
+                </Col>
+                <Col md={6}>
+                    <SoftwareDetails softwareList={softwareList} />
+                </Col>
+            </Row>
             <ClientTickets tickets={tickets} />
         </Container>
     );
