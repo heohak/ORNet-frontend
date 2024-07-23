@@ -13,6 +13,22 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setRefresh })
     const [showWrittenOffModal, setShowWrittenOffModal] = useState(false);
     const [writtenOffDate, setWrittenOffDate] = useState(device?.writtenOffDate || "");
 
+    const defaultFields = [
+        'deviceName',
+        'introducedDate',
+        'version',
+        'versionUpdateDate',
+        'firstIPAddress',
+        'secondIPAddress',
+        'subnetMask',
+        'softwareKey',
+        'writtenOffDate',
+        'department',
+        'room',
+        'serialNumber',
+        'licenseNumber'
+    ];
+
     useEffect(() => {
         if (localDevice) {
             const storedVisibleFields = localStorage.getItem(`deviceVisibleFields_${localDevice.id}`);
@@ -39,31 +55,20 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setRefresh })
     const initializeVisibleFields = (data) => {
         const deviceSpecificKey = `deviceVisibleFields_${data.id}`;
         const storedVisibleFields = localStorage.getItem(deviceSpecificKey);
-        const defaultFields = {
-            deviceName: true,
-            introducedDate: true,
-            version: true,
-            versionUpdateDate: true,
-            firstIPAddress: true,
-            secondIPAddress: true,
-            subnetMask: true,
-            softwareKey: true,
-            writtenOffDate: true,
-        };
-
-        let initialVisibleFields = defaultFields;
+        const initialVisibleFields = defaultFields.reduce((acc, key) => {
+            if (key in data) {
+                acc[key] = true;
+            }
+            return acc;
+        }, {});
 
         if (storedVisibleFields) {
-            initialVisibleFields = { ...defaultFields, ...JSON.parse(storedVisibleFields) };
-        } else {
-            initialVisibleFields = {
-                ...defaultFields,
-                ...Object.keys(data).reduce((acc, key) => {
-                    acc[key] = true;
-                    return acc;
-                }, {}),
-                ...data.attributes,
-            };
+            const storedFields = JSON.parse(storedVisibleFields);
+            Object.keys(storedFields).forEach(key => {
+                if (storedFields[key]) {
+                    initialVisibleFields[key] = true;
+                }
+            });
         }
 
         const globalFields = JSON.parse(localStorage.getItem('globalVisibleFields') || '{}');
