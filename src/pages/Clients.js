@@ -10,19 +10,26 @@ function Clients() {
     const [error, setError] = useState(null);
     const [deleteError, setDeleteError] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [clientType, setClientType] = useState('');
+    const [clientTypes, setClientTypes] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
         fetchClients();
     }, []);
 
-    const fetchClients = async (query = '') => {
+    const fetchClients = async (query = '', type = '') => {
         setLoading(true);
         setError(null);
         try {
-            const response = query
-                ? await axios.get(`${config.API_BASE_URL}/client/search?q=${query}`)
-                : await axios.get(`${config.API_BASE_URL}/client/all`);
+            let response;
+            if (query) {
+                response = await axios.get(`${config.API_BASE_URL}/client/search?q=${query}`);
+            } else if (type) {
+                response = await axios.get(`${config.API_BASE_URL}/client/byType?clientType=${type}`);
+            } else {
+                response = await axios.get(`${config.API_BASE_URL}/client/all`);
+            }
             setClients(response.data);
         } catch (error) {
             setError(error.message);
@@ -49,9 +56,14 @@ function Clients() {
         setSearchQuery(e.target.value);
     };
 
+    const handleFilterChange = (e) => {
+        setClientType(e.target.value);
+        fetchClients('', e.target.value);
+    };
+
     const handleSearchSubmit = (e) => {
         e.preventDefault();
-        fetchClients(searchQuery);
+        fetchClients(searchQuery, clientType);
     };
 
     if (loading) {
@@ -93,15 +105,27 @@ function Clients() {
                 <Button variant="success" onClick={handleAddClient}>Add Client</Button>
             </div>
             <Form className="mb-4" onSubmit={handleSearchSubmit}>
-                <InputGroup className="w-50 mx-auto">
-                    <Form.Control
-                        type="text"
-                        placeholder="Search clients..."
-                        value={searchQuery}
-                        onChange={handleSearchChange}
-                    />
-                    <Button variant="primary" type="submit">Search</Button>
-                </InputGroup>
+                <Row>
+                    <Col md={8}>
+                        <InputGroup>
+                            <Form.Control
+                                type="text"
+                                placeholder="Search clients..."
+                                value={searchQuery}
+                                onChange={handleSearchChange}
+                            />
+                            <Button variant="primary" type="submit">Search</Button>
+                        </InputGroup>
+                    </Col>
+                    <Col md={4}>
+                        <Form.Select value={clientType} onChange={handleFilterChange}>
+                            <option value="">Filter by Type</option>
+                            <option value="pathology">Pathology</option>
+                            <option value="surgery">Surgery</option>
+                            <option value="editor">Editor</option>
+                        </Form.Select>
+                    </Col>
+                </Row>
             </Form>
             <Row>
                 {clients.map((client) => (
