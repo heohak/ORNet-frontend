@@ -3,13 +3,16 @@ import { Card, Button, Modal, Form, Alert } from 'react-bootstrap';
 import { FaPlus } from 'react-icons/fa';
 import axios from 'axios';
 import config from "../../config/config";
+import FileUploadModal from "../../modals/FileUploadModal";
 
-function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
+function DeviceDetails({ device, navigate, onUploadSuccess }) {
     const [showDeviceFieldModal, setShowDeviceFieldModal] = useState(false);
     const [visibleFields, setVisibleFields] = useState({});
     const [newField, setNewField] = useState({ key: '', value: '', addToAll: false });
     const [showAddFieldForm, setShowAddFieldForm] = useState(false);
     const [localDevice, setLocalDevice] = useState(device);
+    const [showUploadModal, setShowUploadModal] = useState(false);
+
 
     useEffect(() => {
         const storedVisibleFields = localStorage.getItem('deviceVisibleFields');
@@ -113,6 +116,7 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
         setShowAddFieldForm(false);
     };
 
+
     return (
         <>
             <Button onClick={() => navigate(-1)}>Back</Button>
@@ -128,7 +132,7 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
                             ...Object.fromEntries(Object.entries(localDevice).filter(([key]) => key !== 'attributes')),
                             ...localDevice.attributes
                         })}
-                        <Button className="me-2" onClick={() => setShowFileUploadModal(true)}>Upload Files</Button>
+                        <Button className="me-2" onClick={() => setShowUploadModal(true)}>Upload Files</Button>
                     </Card.Body>
                 </Card>
             ) : (
@@ -189,6 +193,12 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
                     <Button variant="secondary" onClick={() => setShowDeviceFieldModal(false)}>Close</Button>
                 </Modal.Footer>
             </Modal>
+            <FileUploadModal
+                show={showUploadModal}
+                handleClose={() => setShowUploadModal(false)}
+                uploadEndpoint={`${config.API_BASE_URL}/device/upload/${device.id}`}
+                onUploadSuccess={onUploadSuccess}
+            />
         </>
     );
 }

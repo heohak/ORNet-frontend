@@ -14,6 +14,7 @@ function AddTicket() {
     const clientIdParam = queryParams.get('clientId');
 
     const [formData, setFormData] = useState({
+        title: '',
         description: '',
         rootCause: '',
         clientId: clientIdParam || '',
@@ -94,6 +95,15 @@ function AddTicket() {
             <h1 className="mb-4">Add Ticket</h1>
             {error && <Alert variant="danger">{error}</Alert>}
             <Form onSubmit={handleSubmit}>
+                <Form.Group controlId="title" className="mb-3">
+                    <Form.Label>Title</Form.Label>
+                    <Form.Control
+                        type="text"
+                        value={formData.title}
+                        onChange={handleChange}
+                        required
+                    />
+                </Form.Group>
                 <Form.Group controlId="description" className="mb-3">
                     <Form.Label>Description</Form.Label>
                     <Form.Control
@@ -120,7 +130,6 @@ function AddTicket() {
                         onChange={(date) => handleDateTimeChange(date, 'endDateTime')}
                         dateFormat="YYYY-MM-DD"
                         timeFormat="HH:mm"
-                        required
                     />
                 </Form.Group>
                 <Form.Group controlId="responseDateTime" className="mb-3">
@@ -130,7 +139,6 @@ function AddTicket() {
                         onChange={(date) => handleDateTimeChange(date, 'responseDateTime')}
                         dateFormat="YYYY-MM-DD"
                         timeFormat="HH:mm"
-                        required
                     />
                 </Form.Group>
                 <Form.Group controlId="crisis" className="mb-3">
@@ -164,7 +172,6 @@ function AddTicket() {
                         type="text"
                         value={formData.rootCause}
                         onChange={handleChange}
-                        required
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
@@ -224,6 +231,7 @@ function AddTicket() {
                         value={formData.statusId}
                         onChange={handleChange}
                         id="statusId"
+                        required
                     >
                         <option value="">Select Status</option>
                         {statuses.map(status => (

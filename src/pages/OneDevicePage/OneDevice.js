@@ -107,11 +107,11 @@ function OneDevice() {
 
     return (
         <Container className="mt-5">
-
             <DeviceDetails
                 device={device}
                 navigate={navigate}
                 setShowFileUploadModal={setShowFileUploadModal}
+                onUploadSuccess={handleUploadSuccess}
             />
             <MaintenanceInfo
                 maintenanceInfo={maintenanceInfo}
@@ -132,12 +132,6 @@ function OneDevice() {
                 handleLinkDevice={handleLinkDevice}
                 deviceId={deviceId} // Pass deviceId as a prop
                 setLinkedDevices={setLinkedDevices} // Pass setLinkedDevices as a prop
-            />
-            <FileUploadModal
-                show={showFileUploadModal}
-                handleClose={() => setShowFileUploadModal(false)}
-                deviceId={deviceId}
-                onUploadSuccess={handleUploadSuccess} // Pass callback to trigger refresh
             />
         </Container>
     );
