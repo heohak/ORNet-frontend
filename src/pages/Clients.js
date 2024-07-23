@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Card, Button, Spinner, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Spinner, Alert, Form, InputGroup } from 'react-bootstrap';
 import config from "../config/config";
 
 function Clients() {
@@ -9,22 +9,27 @@ function Clients() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [deleteError, setDeleteError] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchClients = async () => {
-            try {
-                const response = await axios.get(`${config.API_BASE_URL}/client/all`);
-                setClients(response.data);
-            } catch (error) {
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchClients();
     }, []);
+
+    const fetchClients = async (query = '') => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = query
+                ? await axios.get(`${config.API_BASE_URL}/client/search?q=${query}`)
+                : await axios.get(`${config.API_BASE_URL}/client/all`);
+            setClients(response.data);
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleDeleteClient = async (clientId) => {
         setDeleteError(null);
@@ -40,6 +45,14 @@ function Clients() {
         navigate('/add-client');
     };
 
+    const handleSearchChange = (e) => {
+        setSearchQuery(e.target.value);
+    };
+
+    const handleSearchSubmit = (e) => {
+        e.preventDefault();
+        fetchClients(searchQuery);
+    };
 
     if (loading) {
         return (
@@ -73,13 +86,23 @@ function Clients() {
         );
     }
 
-
     return (
         <Container className="mt-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h1>Clients</h1>
                 <Button variant="success" onClick={handleAddClient}>Add Client</Button>
             </div>
+            <Form className="mb-4" onSubmit={handleSearchSubmit}>
+                <InputGroup className="w-50 mx-auto">
+                    <Form.Control
+                        type="text"
+                        placeholder="Search clients..."
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                    />
+                    <Button variant="primary" type="submit">Search</Button>
+                </InputGroup>
+            </Form>
             <Row>
                 {clients.map((client) => (
                     <Col md={4} key={client.id} className="mb-4">
@@ -91,7 +114,7 @@ function Clients() {
                             >
                                 Delete
                             </Button>
-                            <Card.Body style={{cursor: "pointer"}} onClick={() => navigate(`/client/${client.id}`)} className="d-flex flex-column">
+                            <Card.Body style={{ cursor: "pointer" }} onClick={() => navigate(`/client/${client.id}`)} className="d-flex flex-column">
                                 <div className="mb-4">
                                     <Card.Title>{client.shortName}</Card.Title>
                                     <Card.Text>
