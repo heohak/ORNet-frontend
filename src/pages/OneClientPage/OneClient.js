@@ -8,6 +8,8 @@ import ClientDevices from "./ClientDevices";
 import ClientWorker from "./ClientWorker";
 import SoftwareDetails from "./SoftwareDetails";
 import ClientTickets from "./ClientTickets";
+import ClientThirdPartyIT from "./ClientThirdPartyIT";
+import ClientMaintenances from "./ClientMaintenances";
 
 function OneClient() {
     const { clientId } = useParams();
@@ -16,6 +18,7 @@ function OneClient() {
     const [workers, setWorkers] = useState([]);
     const [softwareList, setSoftwareList] = useState([]);
     const [tickets, setTickets] = useState([]);
+    const [maintenances, setMaintenances] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [refresh, setRefresh] = useState(false); // State to trigger refresh
@@ -25,18 +28,20 @@ function OneClient() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [clientRes, deviceRes, workerRes, softwareRes, ticketsRes] = await Promise.all([
+                const [clientRes, deviceRes, workerRes, softwareRes, ticketsRes, maintenanceRes] = await Promise.all([
                     axios.get(`${config.API_BASE_URL}/client/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/device/client/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/worker/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/software/client/${clientId}`),
-                    axios.get(`${config.API_BASE_URL}/ticket/client/${clientId}`)
+                    axios.get(`${config.API_BASE_URL}/ticket/client/${clientId}`),
+                    axios.get(`${config.API_BASE_URL}/client/maintenance/${clientId}`)
                 ]);
                 setClient(clientRes.data);
                 setDevices(deviceRes.data);
                 setWorkers(workerRes.data);
                 setSoftwareList(softwareRes.data);
                 setTickets(ticketsRes.data);
+                setMaintenances(maintenanceRes.data);
             } catch (error) {
                 setError(error.message);
             } finally {
@@ -89,7 +94,23 @@ function OneClient() {
                     />
                 </Col>
             </Row>
-            <SoftwareDetails softwareList={softwareList} />
+            <Row>
+                <Col md={6}>
+                    <ClientThirdPartyIT clientId={clientId} />
+                </Col>
+                <Col md={6}>
+                    <ClientMaintenances
+                        maintenances={maintenances}
+                        clientId={clientId}
+                        setRefresh={setRefresh}
+                    />
+                </Col>
+                <Col md={6}>
+                    <SoftwareDetails softwareList={softwareList}
+                                     clientId={clientId}
+                    setRefresh={setRefresh}/>
+                </Col>
+            </Row>
             <ClientTickets tickets={tickets} />
         </Container>
     );
