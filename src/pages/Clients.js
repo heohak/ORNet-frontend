@@ -23,10 +23,8 @@ function Clients() {
         setError(null);
         try {
             let response;
-            if (query) {
-                response = await axios.get(`${config.API_BASE_URL}/client/search?q=${query}`);
-            } else if (type) {
-                response = await axios.get(`${config.API_BASE_URL}/client/byType?clientType=${type}`);
+            if (query || type) {
+                response = await axios.get(`${config.API_BASE_URL}/client/search/byType?q=${query}&clientType=${type}`);
             } else {
                 response = await axios.get(`${config.API_BASE_URL}/client/all`);
             }
@@ -37,6 +35,7 @@ function Clients() {
             setLoading(false);
         }
     };
+
 
     const handleDeleteClient = async (clientId) => {
         setDeleteError(null);
@@ -58,13 +57,15 @@ function Clients() {
 
     const handleFilterChange = (e) => {
         setClientType(e.target.value);
-        fetchClients('', e.target.value);
+        fetchClients(searchQuery, e.target.value);
     };
+
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
         fetchClients(searchQuery, clientType);
     };
+
 
     if (loading) {
         return (

@@ -4,12 +4,14 @@ import { FaPlus } from 'react-icons/fa';
 import axios from 'axios';
 import config from "../../config/config";
 
-function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
+function DeviceDetails({ device, navigate, setShowFileUploadModal, setRefresh }) {
     const [showDeviceFieldModal, setShowDeviceFieldModal] = useState(false);
     const [visibleFields, setVisibleFields] = useState({});
     const [newField, setNewField] = useState({ key: '', value: '', addToAll: false });
     const [showAddFieldForm, setShowAddFieldForm] = useState(false);
     const [localDevice, setLocalDevice] = useState(device);
+    const [showWrittenOffModal, setShowWrittenOffModal] = useState(false);
+    const [writtenOffDate, setWrittenOffDate] = useState(device?.writtenOffDate || "");
 
     useEffect(() => {
         const storedVisibleFields = localStorage.getItem('deviceVisibleFields');
@@ -113,6 +115,16 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
         setShowAddFieldForm(false);
     };
 
+    const handleAddWrittenOffDate = async () => {
+        try {
+            await axios.put(`${config.API_BASE_URL}/device/written-off/${device.id}`, { writtenOffDate });
+            setRefresh(prev => !prev); // Refresh data
+            setShowWrittenOffModal(false); // Close modal
+        } catch (error) {
+            console.error('Error updating written off date:', error);
+        }
+    };
+
     return (
         <>
             <Button onClick={() => navigate(-1)}>Back</Button>
@@ -120,6 +132,12 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
                 {device ? `${device.deviceName} Details` : 'Device Details'}
                 <Button variant="link" className="float-end" onClick={() => setShowDeviceFieldModal(true)}>Edit Fields</Button>
             </h1>
+            {device && device.introducedDate && writtenOffDate && (
+                <div className="mt-3">
+                    <strong>Service Duration: </strong>
+                    {Math.floor((new Date(writtenOffDate) - new Date(device.introducedDate)) / (1000 * 60 * 60 * 24))} days
+                </div>
+            )}
             {localDevice ? (
                 <Card className="mb-4">
                     <Card.Body>
@@ -129,6 +147,7 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
                             ...localDevice.attributes
                         })}
                         <Button className="me-2" onClick={() => setShowFileUploadModal(true)}>Upload Files</Button>
+                        <Button variant="warning" onClick={() => setShowWrittenOffModal(true)}>Write Off</Button>
                     </Card.Body>
                 </Card>
             ) : (
@@ -189,6 +208,30 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
                     <Button variant="secondary" onClick={() => setShowDeviceFieldModal(false)}>Close</Button>
                 </Modal.Footer>
             </Modal>
+
+            <Modal show={showWrittenOffModal} onHide={() => setShowWrittenOffModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Add Written Off Date</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group controlId="writtenOffDate">
+                            <Form.Label>Written Off Date</Form.Label>
+                            <Form.Control
+                                type="date"
+                                value={writtenOffDate}
+                                onChange={(e) => setWrittenOffDate(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowWrittenOffModal(false)}>Close</Button>
+                    <Button variant="primary" onClick={handleAddWrittenOffDate}>Save</Button>
+                </Modal.Footer>
+            </Modal>
+
+
         </>
     );
 }

@@ -20,7 +20,6 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
     const [deviceClassificatorId, setDeviceClassificatorId] = useState(''); // New state for device classificator
     const [softwareKey, setSoftwareKey] = useState('');
     const [introducedDate, setIntroducedDate] = useState('');
-    const [writtenOffDate, setWrittenOffDate] = useState('');
     const [comment, setComment] = useState('');
     const [error, setError] = useState(null);
     const [locations, setLocations] = useState([]);
@@ -72,14 +71,13 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                 versionUpdateDate,
                 firstIPAddress,
                 secondIPAddress,
-                subnetMask, // Include subnet mask in the request
+                subnetMask,
                 softwareKey,
                 introducedDate,
-                writtenOffDate,
                 comment,
             });
 
-            const deviceId = deviceResponse.data.token // Assuming the response contains the new device's ID
+            const deviceId = deviceResponse.data.token
             console.log(deviceResponse.data)
 
             if (deviceClassificatorId) {
@@ -216,14 +214,6 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                         type="date"
                         value={introducedDate}
                         onChange={(e) => setIntroducedDate(e.target.value)}
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Written Off Date</Form.Label>
-                    <Form.Control
-                        type="date"
-                        value={writtenOffDate}
-                        onChange={(e) => setWrittenOffDate(e.target.value)}
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">

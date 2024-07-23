@@ -112,6 +112,7 @@ function OneDevice() {
                 device={device}
                 navigate={navigate}
                 setShowFileUploadModal={setShowFileUploadModal}
+                setRefresh={setRefresh}
             />
             <MaintenanceInfo
                 maintenanceInfo={maintenanceInfo}
