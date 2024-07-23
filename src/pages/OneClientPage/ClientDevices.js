@@ -1,11 +1,47 @@
-import React, { useState } from 'react';
-import { Card, ListGroup, Alert, Button, Modal } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Card, ListGroup, Alert, Button, Modal, Form } from 'react-bootstrap';
 import AddClientDevice from '../../components/AddClientDevice';
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import config from "../../config/config"; // Import axios for making HTTP requests
 
-function ClientDevices({ devices,client, clientId, setRefresh }) {
+function ClientDevices({ devices, client, clientId, setRefresh }) {
     const [showAddDeviceModal, setShowAddDeviceModal] = useState(false);
+    const [classificators, setClassificators] = useState([]);
+    const [selectedClassificatorId, setSelectedClassificatorId] = useState('');
+    const [filteredDevices, setFilteredDevices] = useState(devices);
+
     const navigate = useNavigate();
+
+    useEffect(() => {
+        fetchClassificators();
+    }, []);
+
+    useEffect(() => {
+        filterDevices();
+    }, [selectedClassificatorId]);
+
+    const fetchClassificators = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/device/classificator/all`);
+            setClassificators(response.data);
+        } catch (error) {
+            console.error('Error fetching classificators:', error);
+        }
+    };
+
+    const filterDevices = async () => {
+        if (selectedClassificatorId) {
+            try {
+                const response = await axios.get(`${config.API_BASE_URL}/device/filter/${clientId}/${selectedClassificatorId}`);
+                setFilteredDevices(response.data);
+            } catch (error) {
+                console.error('Error filtering devices:', error);
+            }
+        } else {
+            setFilteredDevices(devices);
+        }
+    };
 
     return (
         <>
@@ -13,13 +49,22 @@ function ClientDevices({ devices,client, clientId, setRefresh }) {
                 {client ? `${client.shortName} Devices` : 'Client Devices'}
             </h2>
             <Button variant="primary" onClick={() => setShowAddDeviceModal(true)}>Add Device</Button>
-            {devices.length > 0 ? (
+            <Form.Group controlId="classificatorFilter" className="mt-3">
+                <Form.Label>Filter by Classificator</Form.Label>
+                <Form.Control as="select" value={selectedClassificatorId} onChange={(e) => setSelectedClassificatorId(e.target.value)}>
+                    <option value="">All Classificators</option>
+                    {classificators.map((classificator) => (
+                        <option key={classificator.id} value={classificator.id}>{classificator.name}</option>
+                    ))}
+                </Form.Control>
+            </Form.Group>
+            {filteredDevices.length > 0 ? (
                 <ListGroup className="mt-3">
-                    {devices.map((device) => (
+                    {filteredDevices.map((device) => (
                         <ListGroup.Item key={device.id}>
                             <Card>
                                 <Card.Body>
-                                    <Card.Title style={{cursor: "pointer", color: "#0000EE"}} onClick={() => navigate(`/device/${device.id}`)}>{device.deviceName}</Card.Title>
+                                    <Card.Title style={{ cursor: "pointer", color: "#0000EE" }} onClick={() => navigate(`/device/${device.id}`)}>{device.deviceName}</Card.Title>
                                 </Card.Body>
                             </Card>
                         </ListGroup.Item>

@@ -12,6 +12,7 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
     const [selectedWorkerId, setSelectedWorkerId] = useState(null);
     const [roles, setRoles] = useState([]);
     const [selectedRoleId, setSelectedRoleId] = useState('');
+    const [filteredWorkers, setFilteredWorkers] = useState(workers);
 
     useEffect(() => {
         fetchRoles();
@@ -20,6 +21,10 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
     useEffect(() => {
         fetchWorkerLocations();
     }, [workers]);
+
+    useEffect(() => {
+        filterWorkers();
+    }, [selectedRoleId]);
 
     const fetchWorkerLocations = async () => {
         try {
@@ -77,15 +82,37 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
         }
     };
 
+    const filterWorkers = async () => {
+        if (selectedRoleId) {
+            try {
+                const response = await axios.get(`${config.API_BASE_URL}/worker/filter/${clientId}/${selectedRoleId}`);
+                setFilteredWorkers(response.data);
+            } catch (error) {
+                console.error('Error filtering workers:', error);
+            }
+        } else {
+            setFilteredWorkers(workers);
+        }
+    };
+
     return (
         <>
             <h2 className="mb-4">
                 {client ? `${client.shortName} Workers` : 'Client Workers'}
             </h2>
             <Button variant="primary" onClick={() => setShowAddWorkerModal(true)}>Add Worker</Button>
-            {workers.length > 0 ? (
+            <Form.Group controlId="roleFilter" className="mt-3">
+                <Form.Label>Filter by Role</Form.Label>
+                <Form.Control as="select" value={selectedRoleId} onChange={(e) => setSelectedRoleId(e.target.value)}>
+                    <option value="">All Roles</option>
+                    {roles.map((role) => (
+                        <option key={role.id} value={role.id}>{role.role}</option>
+                    ))}
+                </Form.Control>
+            </Form.Group>
+            {filteredWorkers.length > 0 ? (
                 <ListGroup className="mt-3">
-                    {workers.map((worker) => (
+                    {filteredWorkers.map((worker) => (
                         <ListGroup.Item key={worker.id}>
                             <Card>
                                 <Card.Body>
