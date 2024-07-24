@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Button, Modal, Form, Alert, ListGroup } from 'react-bootstrap';
+import axios from 'axios';
+import config from "../../config/config";
 
 function MaintenanceInfo({
                              maintenanceInfo,
@@ -9,11 +11,13 @@ function MaintenanceInfo({
                              setMaintenanceName,
                              setMaintenanceDate,
                              setMaintenanceComment,
-                             setFiles // Add setFiles prop
+                             setFiles
                          }) {
     const [visibleMaintenanceFields, setVisibleMaintenanceFields] = useState({});
     const [showMaintenanceFieldModal, setShowMaintenanceFieldModal] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState([]);
+    const [showFileUploadModal, setShowFileUploadModal] = useState(false);
+    const [selectedMaintenanceId, setSelectedMaintenanceId] = useState(null);
 
     useEffect(() => {
         if (maintenanceInfo.length > 0) {
@@ -70,6 +74,28 @@ function MaintenanceInfo({
         setFiles(updatedFiles);
     };
 
+    const handleFileUpload = async () => {
+        if (selectedFiles.length === 0 || !selectedMaintenanceId) {
+            return;
+        }
+
+        const formData = new FormData();
+        selectedFiles.forEach(file => formData.append('files', file));
+
+        try {
+            await axios.put(`${config.API_BASE_URL}/maintenance/upload/${selectedMaintenanceId}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+            setSelectedFiles([]);
+            setShowFileUploadModal(false);
+        } catch (error) {
+            console.error('Error uploading files:', error);
+        }
+    };
+
     return (
         <>
             <h2 className="mb-4">
@@ -83,6 +109,10 @@ function MaintenanceInfo({
                         <Card.Body>
                             <Card.Title>Maintenance Details</Card.Title>
                             {renderFields(maintenance)}
+                            <Button variant="secondary" onClick={() => {
+                                setSelectedMaintenanceId(maintenance.id);
+                                setShowFileUploadModal(true);
+                            }}>Add Files</Button>
                         </Card.Body>
                     </Card>
                 ))
@@ -165,6 +195,40 @@ function MaintenanceInfo({
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowMaintenanceFieldModal(false)}>Close</Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showFileUploadModal} onHide={() => setShowFileUploadModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Upload Files</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form.Group controlId="formFile">
+                        <Form.Control
+                            type="file"
+                            multiple
+                            onChange={handleFileChange}
+                        />
+                    </Form.Group>
+                    <ListGroup className="mt-3">
+                        {selectedFiles.map(file => (
+                            <ListGroup.Item style={{ display: "flex", justifyContent: "space-between" }} key={file.name}>
+                                {file.name}
+                                <Button
+                                    variant="danger"
+                                    size="sm"
+                                    className="ms-3"
+                                    onClick={() => handleFileRemove(file.name)}
+                                >
+                                    &times;
+                                </Button>
+                            </ListGroup.Item>
+                        ))}
+                    </ListGroup>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowFileUploadModal(false)}>Cancel</Button>
+                    <Button variant="primary" onClick={handleFileUpload}>Upload</Button>
                 </Modal.Footer>
             </Modal>
         </>
