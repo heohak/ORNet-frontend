@@ -4,7 +4,6 @@ import axios from 'axios';
 import { Alert, Button, Container, Spinner } from "react-bootstrap";
 import config from "../../config/config";
 import TicketDetails from './TicketDetails';
-import FileUploadModal from "../../modals/FileUploadModal";
 
 function OneTicket() {
     const { ticketId } = useParams();
@@ -19,7 +18,6 @@ function OneTicket() {
     const [expandedSections, setExpandedSections] = useState({});
     const [editFields, setEditFields] = useState({});
     const [refresh, setRefresh] = useState(false);
-    const [showFileUploadModal, setShowFileUploadModal] = useState(false);
     const navigate = useNavigate();
 
     const ticketRefs = useRef({});
@@ -161,7 +159,6 @@ function OneTicket() {
                             setEditFields={setEditFields}
                             handleSave={handleSave}
                             ticketRefs={ticketRefs}
-                            setShowFileUploadModal={setShowFileUploadModal}
                             onUploadSuccess={handleUploadSuccess}
                         />
                     ))}

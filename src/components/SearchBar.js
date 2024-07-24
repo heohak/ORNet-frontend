@@ -1,6 +1,6 @@
 // SearchBar.js
 import React, { useEffect, useRef } from 'react';
-import { Button, FormControl, InputGroup, DropdownButton, Dropdown, Form } from 'react-bootstrap';
+import {  FormControl, InputGroup, DropdownButton, Dropdown, Form } from 'react-bootstrap';
 
 const SearchBar = ({ searchQuery, onSearchChange, onFilterChange, onCrisisChange, filter, crisis, statuses }) => {
     const searchInputRef = useRef(null);

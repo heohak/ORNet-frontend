@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Accordion, Card, Button, Row, Col, Form } from 'react-bootstrap';
+import axios from 'axios';
 import FileUploadModal from "../../modals/FileUploadModal";
 import config from "../../config/config";
 
@@ -17,6 +18,8 @@ const TicketDetails = ({
                        }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [showUploadModal, setShowUploadModal] = useState(false);
+    const [comments, setComments] = useState([]);
+    const [newComment, setNewComment] = useState('');
 
     useEffect(() => {
         if (isEditing) {
@@ -44,6 +47,35 @@ const TicketDetails = ({
         }
     }, [isEditing, ticket]);
 
+    useEffect(() => {
+        if (expandedTickets.has(ticket.id.toString())) {
+            fetchComments(ticket.id);
+        }
+    }, [expandedTickets]);
+
+    const fetchComments = async (ticketId) => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/comment/${ticketId}`);
+            setComments(response.data);
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+        }
+    };
+
+    const handleAddComment = async () => {
+        try {
+            await axios.put(`${config.API_BASE_URL}/ticket/comment/${ticket.id}`, null, {
+                params: {
+                    comment: newComment
+                }
+            });
+            setNewComment('');
+            fetchComments(ticket.id); // Refresh comments
+        } catch (error) {
+            console.error('Error adding comment:', error);
+        }
+    };
+
     const handleChange = (e, ticketId) => {
         const { name, value } = e.target;
         setEditFields((prevFields) => ({
@@ -58,7 +90,6 @@ const TicketDetails = ({
     const toggleEdit = () => {
         setIsEditing(!isEditing);
     };
-
 
     return (
         <Accordion key={ticket.id} activeKey={expandedTickets.has(ticket.id.toString()) ? ticket.id.toString() : null}>
@@ -276,6 +307,33 @@ const TicketDetails = ({
                                     </Card.Body>
                                 </Card>
                             )}
+                            <Card.Title className="mt-4">Comments</Card.Title>
+                            <Card className="mb-4 mt-1">
+                                <Card.Body>
+                                    {comments.length === 0 ? (
+                                        <Card.Text>No comments yet.</Card.Text>
+                                    ) : (
+                                        comments.map((comment, index) => (
+                                            <Card key={index} className="mb-3">
+                                                <Card.Body>
+                                                    <Card.Text>{comment.comment}</Card.Text>
+                                                    <small className="text-muted">{new Date(comment.timestamp).toLocaleString()}</small>
+                                                </Card.Body>
+                                            </Card>
+                                        ))
+                                    )}
+                                </Card.Body>
+                            </Card>
+                            <Form.Group className="mb-3">
+                                <Form.Control
+                                    as="textarea"
+                                    rows={2}
+                                    placeholder="Write a comment..."
+                                    value={newComment}
+                                    onChange={(e) => setNewComment(e.target.value)}
+                                />
+                                <Button variant="primary" onClick={handleAddComment} className="mt-2">Add Comment</Button>
+                            </Form.Group>
                             <p><strong>File Ids:</strong> {ticket.fileIds}</p>
                             {!isEditing && (
                                 <>
