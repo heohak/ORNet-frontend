@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Accordion, Card, Button, Row, Col, Form } from 'react-bootstrap';
 import axios from 'axios';
 import FileUploadModal from "../../modals/FileUploadModal";
+import ClientWorkersModal from "../../modals/ClientWorkersModal"; // Import the new modal
 import config from "../../config/config";
 
 const TicketDetails = ({
@@ -18,8 +19,10 @@ const TicketDetails = ({
                        }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [showUploadModal, setShowUploadModal] = useState(false);
+    const [showWorkersModal, setShowWorkersModal] = useState(false); // Add state for showing workers modal
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
+    const [contacts, setContacts] = useState([]);
 
     useEffect(() => {
         if (isEditing) {
@@ -41,7 +44,8 @@ const TicketDetails = ({
                     description: ticket.description || '',
                     response: ticket.response || '',
                     insideInfo: ticket.insideInfo || '',
-                    fileIds: ticket.fileIds || ''
+                    fileIds: ticket.fileIds || '',
+                    clientWorkers: ticket.clientWorkers || [] // Add client workers field
                 }
             }));
         }
@@ -50,6 +54,7 @@ const TicketDetails = ({
     useEffect(() => {
         if (expandedTickets.has(ticket.id.toString())) {
             fetchComments(ticket.id);
+            fetchContacts(ticket.id);
         }
     }, [expandedTickets]);
 
@@ -61,6 +66,15 @@ const TicketDetails = ({
             console.error('Error fetching comments:', error);
         }
     };
+
+    const fetchContacts = async (ticketId) => {
+        try{
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/contacts/${ticketId}`);
+            setContacts(response.data);
+        } catch (error) {
+            console.error('Error fetching contacts:', error);
+        }
+    }
 
     const handleAddComment = async () => {
         try {
@@ -89,6 +103,16 @@ const TicketDetails = ({
 
     const toggleEdit = () => {
         setIsEditing(!isEditing);
+    };
+
+    const handleWorkersSave = (selectedWorkers) => {
+        setEditFields((prevFields) => ({
+            ...prevFields,
+            [ticket.id]: {
+                ...prevFields[ticket.id],
+                clientWorkers: selectedWorkers
+            }
+        }));
     };
 
     return (
@@ -193,6 +217,9 @@ const TicketDetails = ({
                                                                 onChange={(e) => handleChange(e, ticket.id)}
                                                             />
                                                         </Form.Group>
+                                                        <Button variant="outline-primary" onClick={() => setShowWorkersModal(true)}>
+                                                            Manage Client Workers
+                                                        </Button>
                                                     </>
                                                 ) : (
                                                     <>
@@ -200,6 +227,7 @@ const TicketDetails = ({
                                                         <p><strong>Remote:</strong> {ticket.remote ? 'True' : 'False'}</p>
                                                         <p><strong>Work Type:</strong> {ticket.workType}</p>
                                                         <p><strong>Responsible ID:</strong> {ticket.baitWorkerId}</p>
+                                                        <p><strong>Client Workers:</strong> {contacts?.join(', ')}</p>
                                                     </>
                                                 )}
                                             </Col>
@@ -359,6 +387,13 @@ const TicketDetails = ({
                     </Accordion.Body>
                 </Accordion.Item>
             </Card>
+            <ClientWorkersModal
+                show={showWorkersModal}
+                handleClose={() => setShowWorkersModal(false)}
+                clientId={ticket.clientId}
+                selectedWorkers={editFields[ticket.id]?.clientWorkers || []}
+                onSave={handleWorkersSave}
+            />
         </Accordion>
     );
 };
