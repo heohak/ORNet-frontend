@@ -3,6 +3,7 @@ import { Card, Button, Modal, Form, ListGroup, Alert } from 'react-bootstrap';
 import { FaPlus } from 'react-icons/fa';
 import axios from 'axios';
 import config from "../../config/config";
+import CommentsModal from "../../modals/CommentsModal";
 
 function LinkedDevices({
                            linkedDevices,
@@ -28,6 +29,8 @@ function LinkedDevices({
     const [newField, setNewField] = useState({ key: '', value: '' });
     const [showAddFieldForm, setShowAddFieldForm] = useState(false);
     const [currentDeviceId, setCurrentDeviceId] = useState(null);
+    const [showCommentsModal, setShowCommentsModal] = useState(false); // State for comments modal
+    const [commentsDeviceId, setCommentsDeviceId] = useState(null); // State for current device ID for comments
 
     useEffect(() => {
         const storedVisibleFields = localStorage.getItem('visibleFields');
@@ -136,6 +139,11 @@ function LinkedDevices({
         setShowFieldModal(true);
     };
 
+    const openCommentsModal = (deviceId) => {
+        setCommentsDeviceId(deviceId);
+        setShowCommentsModal(true);
+    };
+
     return (
         <>
             <h2 className="mb-4">
@@ -162,6 +170,7 @@ function LinkedDevices({
                                         ...Object.fromEntries(Object.entries(linkedDevice).filter(([key]) => key !== 'attributes')),
                                         ...linkedDevice.attributes
                                     })}
+                                    <Button variant="info" onClick={() => openCommentsModal(linkedDevice.id)}>View Comments</Button>
                                 </Card.Body>
                             </Card>
                         </ListGroup.Item>
@@ -307,6 +316,13 @@ function LinkedDevices({
                     <Button variant="secondary" onClick={() => setShowFieldModal(false)}>Close</Button>
                 </Modal.Footer>
             </Modal>
+
+            <CommentsModal
+                show={showCommentsModal}
+                handleClose={() => setShowCommentsModal(false)}
+                deviceId={commentsDeviceId}
+                isLinkedDevice={true} // Pass flag to indicate it's a linked device
+            />
         </>
     );
 }

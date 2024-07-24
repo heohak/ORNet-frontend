@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Spinner, Alert } from 'react-bootstrap';
+import { Container, Spinner, Alert, Button } from 'react-bootstrap';
 import config from "../../config/config";
 import DeviceDetails from "./DeviceDetails";
 import MaintenanceInfo from "./MaintenanceInfo";
 import LinkedDevices from "./LinkedDevices";
 import FileUploadModal from "../../modals/FileUploadModal";
+import CommentsModal from "../../modals/CommentsModal";
 
 function OneDevice() {
     const { deviceId } = useParams();
@@ -24,6 +25,7 @@ function OneDevice() {
     const [maintenanceComment, setMaintenanceComment] = useState("");
     const [files, setFiles] = useState([]);
     const [showFileUploadModal, setShowFileUploadModal] = useState(false);
+    const [showCommentsModal, setShowCommentsModal] = useState(false);
     const [refresh, setRefresh] = useState(false);
 
     const navigate = useNavigate();
@@ -125,6 +127,7 @@ function OneDevice() {
                 device={device}
                 navigate={navigate}
                 setShowFileUploadModal={setShowFileUploadModal}
+                setShowCommentsModal={setShowCommentsModal}
                 setRefresh={setRefresh}
             />
             <MaintenanceInfo
@@ -153,6 +156,11 @@ function OneDevice() {
                 handleClose={() => setShowFileUploadModal(false)}
                 deviceId={deviceId}
                 onUploadSuccess={handleUploadSuccess} // Pass callback to trigger refresh
+            />
+            <CommentsModal
+                show={showCommentsModal}
+                handleClose={() => setShowCommentsModal(false)}
+                deviceId={deviceId} // Pass deviceId to CommentsModal
             />
         </Container>
     );
