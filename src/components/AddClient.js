@@ -40,6 +40,11 @@ function AddClient() {
         e.preventDefault();
         setError(null);
 
+        if (new Date(nextMaintenance) < new Date(lastMaintenance)) {
+            setError('Next maintenance date cannot be before the last maintenance date.');
+            return;
+        }
+
         try {
             const clientResponse = await axios.post(`${config.API_BASE_URL}/client/add`, {
                 fullName,
