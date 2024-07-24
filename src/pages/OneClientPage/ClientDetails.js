@@ -1,5 +1,10 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Button, Modal, Form, Alert } from 'react-bootstrap';
+
+// Define specific fields to display
+const specificFields = [
+    'fullName', 'shortName', 'pathologyClient', 'surgeryClient', 'editorClient', 'otherMedicalInformation', 'lastMaintenance', 'nextMaintenance'
+];
 
 function ClientDetails({ client, navigate }) {
     const [showClientFieldModal, setShowClientFieldModal] = useState(false);
@@ -16,8 +21,10 @@ function ClientDetails({ client, navigate }) {
         if (savedVisibilityState) {
             setVisibleDeviceFields(JSON.parse(savedVisibilityState));
         } else {
-            const initialVisibleFields = Object.keys(data).reduce((acc, key) => {
-                acc[key] = true;
+            const initialVisibleFields = specificFields.reduce((acc, key) => {
+                if (key in data) {
+                    acc[key] = true;
+                }
                 return acc;
             }, {});
             setVisibleDeviceFields(initialVisibleFields);
@@ -36,7 +43,7 @@ function ClientDetails({ client, navigate }) {
     };
 
     const renderFields = (data) => {
-        return Object.keys(data).map(key => {
+        return specificFields.map(key => {
             if (data[key] !== null && visibleDeviceFields[key]) {
                 return (
                     <Card.Text key={key} className="mb-1">
@@ -61,20 +68,18 @@ function ClientDetails({ client, navigate }) {
                     <Card.Body>
                         <Card.Title>{client.name}</Card.Title>
                         {renderFields(client)}
-
                     </Card.Body>
                 </Card>
-
             ) : (
                 <Alert variant="info">No client details available.</Alert>
             )}
             <Modal show={showClientFieldModal} onHide={() => setShowClientFieldModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Edit Visible Client Fields</Modal.Title>
+                    <Modal.Title>Edit Visible Fields for {client.shortName}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        {client && Object.keys(client).map(key => (
+                        {specificFields.map(key => (
                             <Form.Check
                                 key={key}
                                 type="checkbox"

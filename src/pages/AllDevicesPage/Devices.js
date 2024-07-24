@@ -4,6 +4,7 @@ import axios from "axios";
 import { Alert, Button, Card, Col, Container, Row, Spinner } from "react-bootstrap";
 import config from "../../config/config";
 import AddDeviceModal from './AddDeviceModal';
+import DeviceSearchFilter from './DeviceSearchFilter';
 
 function Devices() {
     const [devices, setDevices] = useState([]);
@@ -52,11 +53,12 @@ function Devices() {
     return (
         <Container className="mt-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
-            <h1 className="mb-0">Devices</h1>
-            <Button variant="primary" className="mb-4" onClick={() => setShowAddDeviceModal(true)}>
-                Add Device
-            </Button>
+                <h1 className="mb-0">Devices</h1>
+                <Button variant="primary" className="mb-4" onClick={() => setShowAddDeviceModal(true)}>
+                    Add Device
+                </Button>
             </div>
+            <DeviceSearchFilter setDevices={setDevices} />
             <Row>
                 {devices.map((device) => (
                     <Col md={4} key={device.id} className="mb-4">

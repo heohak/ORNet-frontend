@@ -11,7 +11,6 @@ function Clients() {
     const [deleteError, setDeleteError] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [clientType, setClientType] = useState('');
-    const [clientTypes, setClientTypes] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -22,14 +21,9 @@ function Clients() {
         setLoading(true);
         setError(null);
         try {
-            let response;
-            if (query) {
-                response = await axios.get(`${config.API_BASE_URL}/client/search?q=${query}`);
-            } else if (type) {
-                response = await axios.get(`${config.API_BASE_URL}/client/byType?clientType=${type}`);
-            } else {
-                response = await axios.get(`${config.API_BASE_URL}/client/all`);
-            }
+            const response = await axios.get(`${config.API_BASE_URL}/client/search`, {
+                params: { q: query, clientType: type }
+            });
             setClients(response.data);
         } catch (error) {
             setError(error.message);
@@ -58,7 +52,7 @@ function Clients() {
 
     const handleFilterChange = (e) => {
         setClientType(e.target.value);
-        fetchClients('', e.target.value);
+        fetchClients(searchQuery, e.target.value);
     };
 
     const handleSearchSubmit = (e) => {
