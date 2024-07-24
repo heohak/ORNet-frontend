@@ -77,7 +77,7 @@ function OneTicket() {
 
     const handleSave = async (ticketId) => {
         try {
-            await axios.put(`${config.API_BASE_URL}/ticket/update/${ticketId}`, {
+            await axios.put(`${config.API_BASE_URL}/ticket/update/whole/${ticketId}`, {
                 ...editFields[ticketId]
             });
             setError(null);

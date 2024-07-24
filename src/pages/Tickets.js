@@ -12,9 +12,24 @@ function Tickets() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [filter, setFilter] = useState('all');
+    const [crisis, setCrisis] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+    const [statuses, setStatuses] = useState([]);
     const navigate = useNavigate();
+
+    // Fetch status classifications
+    useEffect(() => {
+        const fetchStatuses = async () => {
+            try {
+                const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`);
+                setStatuses(response.data);
+            } catch (error) {
+                console.error("Error fetching statuses", error);
+            }
+        };
+        fetchStatuses();
+    }, []);
 
     // Debounce the search query input
     useEffect(() => {
@@ -31,14 +46,18 @@ function Tickets() {
             setLoading(true);
             setError(null);
             try {
-                let url = `${config.API_BASE_URL}/ticket/all`;
-                if (filter === 'open') {
-                    url = `${config.API_BASE_URL}/ticket/status/1`;
-                } else if (filter === 'closed') {
-                    url = `${config.API_BASE_URL}/ticket/status/2`;
-                } else if (debouncedSearchQuery.trim()) {
-                    url = `${config.API_BASE_URL}/ticket/search?q=${debouncedSearchQuery}`;
+                const params = new URLSearchParams();
+                if (debouncedSearchQuery.trim()) {
+                    params.append('searchTerm', debouncedSearchQuery);
                 }
+                if (filter !== 'all') {
+                    params.append('statusId', filter);
+                }
+                if (crisis) {
+                    params.append('crisis', crisis);
+                }
+
+                const url = `${config.API_BASE_URL}/ticket/search?${params.toString()}`;
                 const response = await axios.get(url);
                 setTickets(response.data);
             } catch (error) {
@@ -48,7 +67,7 @@ function Tickets() {
             }
         };
         fetchTickets();
-    }, [filter, debouncedSearchQuery]);
+    }, [filter, debouncedSearchQuery, crisis]);
 
     const handleNavigate = (ticketId) => {
         navigate(`/ticket/${ticketId}?scrollTo=${ticketId}`);
@@ -61,6 +80,10 @@ function Tickets() {
     const handleFilterChange = useCallback((newFilter) => {
         setFilter(newFilter);
         setSearchQuery(''); // Clear search query when filter changes
+    }, []);
+
+    const handleCrisisChange = useCallback(() => {
+        setCrisis((prevCrisis) => !prevCrisis);
     }, []);
 
     const handleAddTicket = () => {
@@ -77,13 +100,17 @@ function Tickets() {
                 searchQuery={searchQuery}
                 onSearchChange={handleSearchChange}
                 onFilterChange={handleFilterChange}
+                onCrisisChange={handleCrisisChange}
                 filter={filter}
+                crisis={crisis}
+                statuses={statuses}
             />
             <TicketsList
                 tickets={tickets}
                 loading={loading}
                 onNavigate={handleNavigate}
                 error={error}
+                statuses={statuses}
             />
         </Container>
     );

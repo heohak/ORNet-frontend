@@ -241,10 +241,12 @@ function AddTicket() {
                         ))}
                     </Form.Control>
                 </Form.Group>
-                <Button variant="success" type="submit">
-                    Submit
-                </Button>
-                <Button className="gy-5" onClick={() => navigate(-1)}>Back</Button>
+                <div className="mb-3">
+                    <Button variant="success" type="submit">
+                        Submit
+                    </Button>
+                    <Button className="gy-5" onClick={() => navigate(-1)}>Back</Button>
+                </div>
             </Form>
         </Container>
     );

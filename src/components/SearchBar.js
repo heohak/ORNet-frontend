@@ -1,8 +1,8 @@
 // SearchBar.js
-import React, { useState, useEffect, useRef } from 'react';
-import { Button, ButtonGroup, FormControl, InputGroup } from 'react-bootstrap';
+import React, { useEffect, useRef } from 'react';
+import { Button, FormControl, InputGroup, DropdownButton, Dropdown, Form } from 'react-bootstrap';
 
-const SearchBar = ({ searchQuery, onSearchChange, onFilterChange, filter }) => {
+const SearchBar = ({ searchQuery, onSearchChange, onFilterChange, onCrisisChange, filter, crisis, statuses }) => {
     const searchInputRef = useRef(null);
 
     useEffect(() => {
@@ -16,8 +16,8 @@ const SearchBar = ({ searchQuery, onSearchChange, onFilterChange, filter }) => {
         onSearchChange(value);
     };
 
-    const handleFilterChange = (newFilter) => {
-        onFilterChange(newFilter);
+    const handleFilterChange = (statusId) => {
+        onFilterChange(statusId);
     };
 
     return (
@@ -29,27 +29,28 @@ const SearchBar = ({ searchQuery, onSearchChange, onFilterChange, filter }) => {
                     value={searchQuery}
                     onChange={handleSearchChange}
                 />
+                <DropdownButton
+                    as={InputGroup.Append}
+                    variant="outline-secondary"
+                    title={statuses.find(status => status.id === parseInt(filter))?.status || 'All Statuses'}
+                    id="input-group-dropdown-2"
+                >
+                    <Dropdown.Item onClick={() => handleFilterChange('all')}>All Statuses</Dropdown.Item>
+                    {statuses.map(status => (
+                        <Dropdown.Item key={status.id} onClick={() => handleFilterChange(status.id)}>
+                            {status.status}
+                        </Dropdown.Item>
+                    ))}
+                </DropdownButton>
             </InputGroup>
-            <ButtonGroup className="mb-4">
-                <Button
-                    variant={filter === 'all' ? 'primary' : 'outline-primary'}
-                    onClick={() => handleFilterChange('all')}
-                >
-                    All Tickets
-                </Button>
-                <Button
-                    variant={filter === 'open' ? 'primary' : 'outline-primary'}
-                    onClick={() => handleFilterChange('open')}
-                >
-                    Open Tickets
-                </Button>
-                <Button
-                    variant={filter === 'closed' ? 'primary' : 'outline-primary'}
-                    onClick={() => handleFilterChange('closed')}
-                >
-                    Closed Tickets
-                </Button>
-            </ButtonGroup>
+            <Form.Check
+                type="switch"
+                id="crisis-switch"
+                label="Crisis"
+                checked={crisis}
+                onChange={onCrisisChange}
+                className="mb-4"
+            />
         </div>
     );
 };
