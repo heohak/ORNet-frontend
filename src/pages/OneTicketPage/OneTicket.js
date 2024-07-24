@@ -17,6 +17,7 @@ function OneTicket() {
     const [expandedTickets, setExpandedTickets] = useState(new Set());
     const [expandedSections, setExpandedSections] = useState({});
     const [editFields, setEditFields] = useState({});
+    const [refresh, setRefresh] = useState(false);
     const navigate = useNavigate();
 
     const ticketRefs = useRef({});
@@ -30,8 +31,16 @@ function OneTicket() {
                 const initialEditFields = {};
                 ticketsData.forEach(ticket => {
                     initialEditFields[ticket.id] = {
+                        title: ticket.title || '',
                         response: ticket.response || '',
-                        insideInfo: ticket.insideInfo || ''
+                        insideInfo: ticket.insideInfo || '',
+                        description: ticket.description || '',
+                        workType: ticket.workType || '',
+                        clientId: ticket.clientId || '',
+                        mainTicketId: ticket.mainTicketId || '',
+                        statusId: ticket.statusId || '',
+                        createdAt: ticket.createdAt || '',
+                        updatedAt: ticket.updatedAt || '',
                     };
                 });
                 setEditFields(initialEditFields);
@@ -47,7 +56,7 @@ function OneTicket() {
         };
 
         fetchTickets();
-    }, [ticketId, scrollToId]);
+    }, [ticketId, scrollToId, refresh]);
 
     useEffect(() => {
         if (!loading && scrollToId && ticketRefs.current[scrollToId]) {
@@ -66,9 +75,8 @@ function OneTicket() {
 
     const handleSave = async (ticketId) => {
         try {
-            await axios.put(`${config.API_BASE_URL}/ticket/update/${ticketId}`, {
-                response: editFields[ticketId].response,
-                insideInfo: editFields[ticketId].insideInfo
+            await axios.put(`${config.API_BASE_URL}/ticket/update/whole/${ticketId}`, {
+                ...editFields[ticketId]
             });
             setError(null);
             window.location.reload();
@@ -104,6 +112,10 @@ function OneTicket() {
                 [section]: !prevSections[ticketId][section]
             }
         }));
+    };
+
+    const handleUploadSuccess = () => {
+        setRefresh(!refresh); // Toggle refresh state to trigger re-fetch
     };
 
     if (loading) {
@@ -147,6 +159,7 @@ function OneTicket() {
                             setEditFields={setEditFields}
                             handleSave={handleSave}
                             ticketRefs={ticketRefs}
+                            onUploadSuccess={handleUploadSuccess}
                         />
                     ))}
                 </>

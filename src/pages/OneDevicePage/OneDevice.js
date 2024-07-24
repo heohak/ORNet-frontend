@@ -129,6 +129,7 @@ function OneDevice() {
                 setShowFileUploadModal={setShowFileUploadModal}
                 setShowCommentsModal={setShowCommentsModal}
                 setRefresh={setRefresh}
+                onUploadSuccess={handleUploadSuccess}
             />
             <MaintenanceInfo
                 maintenanceInfo={maintenanceInfo}

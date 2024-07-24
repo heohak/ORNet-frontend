@@ -3,8 +3,7 @@ import axios from 'axios';
 import { Button, Modal, Form, ListGroup } from 'react-bootstrap';
 import config from "../config/config";
 
-
-function FileUploadModal({ show, handleClose, deviceId, onUploadSuccess }) {
+function FileUploadModal({ show, handleClose, uploadEndpoint, onUploadSuccess }) {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [error, setError] = useState(null);
 
@@ -17,7 +16,6 @@ function FileUploadModal({ show, handleClose, deviceId, onUploadSuccess }) {
 
     const handleFileChange = (e) => {
         setSelectedFiles([...selectedFiles, ...Array.from(e.target.files)]);
-        //fileInputRef.current.value = null; // Clear the input field
     };
 
     const handleFileRemove = (fileName) => {
@@ -36,7 +34,7 @@ function FileUploadModal({ show, handleClose, deviceId, onUploadSuccess }) {
         });
 
         try {
-            await axios.put(`${config.API_BASE_URL}/device/upload/${deviceId}`, formData, {
+            await axios.put(uploadEndpoint, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
