@@ -22,6 +22,7 @@ function OneDevice() {
     const [maintenanceName, setMaintenanceName] = useState("");
     const [maintenanceDate, setMaintenanceDate] = useState("");
     const [maintenanceComment, setMaintenanceComment] = useState("");
+    const [files, setFiles] = useState([]);
     const [showFileUploadModal, setShowFileUploadModal] = useState(false);
     const [refresh, setRefresh] = useState(false);
 
@@ -72,17 +73,30 @@ function OneDevice() {
             const maintenanceId = maintenanceResponse.data.token;
 
             await axios.put(`${config.API_BASE_URL}/device/maintenance/${deviceId}/${maintenanceId}`);
+
+            if (files.length > 0) {
+                const formData = new FormData();
+                files.forEach(file => formData.append('files', file));
+                await axios.put(`${config.API_BASE_URL}/maintenance/upload/${maintenanceId}`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+            }
+
             const response = await axios.get(`${config.API_BASE_URL}/device/maintenances/${deviceId}`);
             setMaintenanceInfo(response.data);
             setShowMaintenanceModal(false);
+            setFiles([]); // Clear files after upload
         } catch (error) {
+            console.error('Error adding maintenance:', error);
             setError(error.message);
         }
     };
 
     const handleUploadSuccess = () => {
-        setRefresh(!refresh); //Toggle refresh state to trigger re-fetch
-    }
+        setRefresh(!refresh); // Toggle refresh state to trigger re-fetch
+    };
 
     if (loading) {
         return (
@@ -107,7 +121,6 @@ function OneDevice() {
 
     return (
         <Container className="mt-5">
-
             <DeviceDetails
                 device={device}
                 navigate={navigate}
@@ -122,6 +135,7 @@ function OneDevice() {
                 setMaintenanceName={setMaintenanceName}
                 setMaintenanceDate={setMaintenanceDate}
                 setMaintenanceComment={setMaintenanceComment}
+                setFiles={setFiles} // Pass setFiles to MaintenanceInfo
             />
             <LinkedDevices
                 linkedDevices={linkedDevices}

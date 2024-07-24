@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import { Card, Button, Modal, Form, Alert } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Card, Button, Modal, Form, Alert, ListGroup } from 'react-bootstrap';
 
 function MaintenanceInfo({
                              maintenanceInfo,
@@ -8,10 +8,12 @@ function MaintenanceInfo({
                              handleAddMaintenance,
                              setMaintenanceName,
                              setMaintenanceDate,
-                             setMaintenanceComment
+                             setMaintenanceComment,
+                             setFiles // Add setFiles prop
                          }) {
     const [visibleMaintenanceFields, setVisibleMaintenanceFields] = useState({});
     const [showMaintenanceFieldModal, setShowMaintenanceFieldModal] = useState(false);
+    const [selectedFiles, setSelectedFiles] = useState([]);
 
     useEffect(() => {
         if (maintenanceInfo.length > 0) {
@@ -54,6 +56,18 @@ function MaintenanceInfo({
             }
             return null;
         });
+    };
+
+    const handleFileChange = (e) => {
+        const files = Array.from(e.target.files);
+        setSelectedFiles([...selectedFiles, ...files]);
+        setFiles([...selectedFiles, ...files]);
+    };
+
+    const handleFileRemove = (fileName) => {
+        const updatedFiles = selectedFiles.filter(file => file.name !== fileName);
+        setSelectedFiles(updatedFiles);
+        setFiles(updatedFiles);
     };
 
     return (
@@ -102,6 +116,29 @@ function MaintenanceInfo({
                             onChange={(e) => setMaintenanceComment(e.target.value)}
                         />
                     </Form.Group>
+                    <Form.Group controlId="maintenanceFiles">
+                        <Form.Label>Upload Files</Form.Label>
+                        <Form.Control
+                            type="file"
+                            multiple
+                            onChange={handleFileChange}
+                        />
+                    </Form.Group>
+                    <ListGroup className="mt-3">
+                        {selectedFiles.map(file => (
+                            <ListGroup.Item style={{ display: "flex", justifyContent: "space-between" }} key={file.name}>
+                                {file.name}
+                                <Button
+                                    variant="danger"
+                                    size="sm"
+                                    className="ms-3"
+                                    onClick={() => handleFileRemove(file.name)}
+                                >
+                                    &times;
+                                </Button>
+                            </ListGroup.Item>
+                        ))}
+                    </ListGroup>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowMaintenanceModal(false)}>Cancel</Button>
