@@ -313,14 +313,16 @@ const TicketDetails = ({
                                     {comments.length === 0 ? (
                                         <Card.Text>No comments yet.</Card.Text>
                                     ) : (
-                                        comments.map((comment, index) => (
-                                            <Card key={index} className="mb-3">
-                                                <Card.Body>
-                                                    <Card.Text>{comment.comment}</Card.Text>
-                                                    <small className="text-muted">{new Date(comment.timestamp).toLocaleString()}</small>
-                                                </Card.Body>
-                                            </Card>
-                                        ))
+                                        comments
+                                            .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+                                            .map((comment, index) => (
+                                                <Card key={index} className="mb-3">
+                                                    <Card.Body>
+                                                        <Card.Text>{comment.comment}</Card.Text>
+                                                        <small className="text-muted">{new Date(comment.timestamp).toLocaleString()}</small>
+                                                    </Card.Body>
+                                                </Card>
+                                            ))
                                     )}
                                 </Card.Body>
                             </Card>
