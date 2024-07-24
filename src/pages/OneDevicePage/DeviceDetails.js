@@ -4,26 +4,46 @@ import { FaPlus } from 'react-icons/fa';
 import axios from 'axios';
 import config from "../../config/config";
 
-function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
+function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommentsModal, setRefresh }) {
     const [showDeviceFieldModal, setShowDeviceFieldModal] = useState(false);
     const [visibleFields, setVisibleFields] = useState({});
     const [newField, setNewField] = useState({ key: '', value: '', addToAll: false });
     const [showAddFieldForm, setShowAddFieldForm] = useState(false);
     const [localDevice, setLocalDevice] = useState(device);
+    const [showWrittenOffModal, setShowWrittenOffModal] = useState(false);
+    const [writtenOffDate, setWrittenOffDate] = useState(device?.writtenOffDate || "");
+
+    const defaultFields = [
+        'deviceName',
+        'introducedDate',
+        'version',
+        'versionUpdateDate',
+        'firstIPAddress',
+        'secondIPAddress',
+        'subnetMask',
+        'softwareKey',
+        'writtenOffDate',
+        'department',
+        'room',
+        'serialNumber',
+        'licenseNumber'
+    ];
 
     useEffect(() => {
-        const storedVisibleFields = localStorage.getItem('deviceVisibleFields');
-        if (storedVisibleFields) {
-            setVisibleFields(JSON.parse(storedVisibleFields));
-        } else if (localDevice) {
-            initializeVisibleFields(localDevice);
+        if (localDevice) {
+            const storedVisibleFields = localStorage.getItem(`deviceVisibleFields_${localDevice.id}`);
+            if (storedVisibleFields) {
+                setVisibleFields(JSON.parse(storedVisibleFields));
+            } else {
+                initializeVisibleFields(localDevice);
+            }
         }
     }, [localDevice]);
 
     useEffect(() => {
         if (device) {
             setLocalDevice(device);
-            const storedVisibleFields = localStorage.getItem('deviceVisibleFields');
+            const storedVisibleFields = localStorage.getItem(`deviceVisibleFields_${device.id}`);
             if (storedVisibleFields) {
                 setVisibleFields(JSON.parse(storedVisibleFields));
             } else {
@@ -33,29 +53,36 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
     }, [device]);
 
     const initializeVisibleFields = (data) => {
-        const allKeys = new Set();
-        Object.keys(data).forEach(key => allKeys.add(key));
-        if (data.attributes) {
-            Object.keys(data.attributes).forEach(key => allKeys.add(key));
+        const deviceSpecificKey = `deviceVisibleFields_${data.id}`;
+        const storedVisibleFields = localStorage.getItem(deviceSpecificKey);
+        const initialVisibleFields = defaultFields.reduce((acc, key) => {
+            if (key in data) {
+                acc[key] = true;
+            }
+            return acc;
+        }, {});
+
+        if (storedVisibleFields) {
+            const storedFields = JSON.parse(storedVisibleFields);
+            Object.keys(storedFields).forEach(key => {
+                if (storedFields[key]) {
+                    initialVisibleFields[key] = true;
+                }
+            });
         }
 
-        const initialVisibleFields = { ...visibleFields };
-        allKeys.forEach(key => {
-            if (!(key in initialVisibleFields)) {
-                initialVisibleFields[key] = true;
-            }
-        });
+        const globalFields = JSON.parse(localStorage.getItem('globalVisibleFields') || '{}');
+        const updatedVisibleFields = { ...initialVisibleFields, ...globalFields };
 
-        console.log("Initialized visible fields:", initialVisibleFields);
-        setVisibleFields(initialVisibleFields);
-        localStorage.setItem('deviceVisibleFields', JSON.stringify(initialVisibleFields));
+        setVisibleFields(updatedVisibleFields);
+        localStorage.setItem(deviceSpecificKey, JSON.stringify(updatedVisibleFields));
     };
 
     const handleFieldToggle = (field) => {
         setVisibleFields(prevVisibleFields => {
             const newVisibleFields = { ...prevVisibleFields, [field]: !prevVisibleFields[field] };
-            console.log("Updated visible fields:", newVisibleFields);
-            localStorage.setItem('deviceVisibleFields', JSON.stringify(newVisibleFields));
+            const deviceSpecificKey = `deviceVisibleFields_${localDevice.id}`;
+            localStorage.setItem(deviceSpecificKey, JSON.stringify(newVisibleFields));
             return newVisibleFields;
         });
     };
@@ -92,16 +119,31 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
             if (newField.addToAll) {
                 await axios.post(`${config.API_BASE_URL}/device/attributes/add-to-all`, attribute);
                 console.log('Field added to all devices');
+
+                // Update visibility for all devices
+                const globalVisibleFields = JSON.parse(localStorage.getItem('globalVisibleFields') || '{}');
+                globalVisibleFields[newField.key] = true;
+                localStorage.setItem('globalVisibleFields', JSON.stringify(globalVisibleFields));
+
+                // Update all stored devices visibility fields
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith('deviceVisibleFields_')) {
+                        const deviceFields = JSON.parse(localStorage.getItem(key));
+                        deviceFields[newField.key] = true;
+                        localStorage.setItem(key, JSON.stringify(deviceFields));
+                    }
+                }
                 window.location.reload();
             } else {
                 await axios.put(`${config.API_BASE_URL}/device/${device.id}/attributes`, attribute);
                 const updatedDevice = { ...localDevice, attributes: { ...localDevice.attributes, ...attribute } };
                 setLocalDevice(updatedDevice);
 
-                // Update visibility state to include the new field without enabling all fields
+                const deviceSpecificKey = `deviceVisibleFields_${localDevice.id}`;
                 setVisibleFields(prevFields => {
                     const newFields = { ...prevFields, [newField.key]: true };
-                    localStorage.setItem('deviceVisibleFields', JSON.stringify(newFields));
+                    localStorage.setItem(deviceSpecificKey, JSON.stringify(newFields));
                     return newFields;
                 });
             }
@@ -113,6 +155,16 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
         setShowAddFieldForm(false);
     };
 
+    const handleAddWrittenOffDate = async () => {
+        try {
+            await axios.put(`${config.API_BASE_URL}/device/written-off/${device.id}`, { writtenOffDate });
+            setRefresh(prev => !prev); // Refresh data
+            setShowWrittenOffModal(false); // Close modal
+        } catch (error) {
+            console.error('Error updating written off date:', error);
+        }
+    };
+
     return (
         <>
             <Button onClick={() => navigate(-1)}>Back</Button>
@@ -120,6 +172,12 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
                 {device ? `${device.deviceName} Details` : 'Device Details'}
                 <Button variant="link" className="float-end" onClick={() => setShowDeviceFieldModal(true)}>Edit Fields</Button>
             </h1>
+            {device && device.introducedDate && writtenOffDate && (
+                <div className="mt-3">
+                    <strong>Service Duration: </strong>
+                    {Math.floor((new Date(writtenOffDate) - new Date(device.introducedDate)) / (1000 * 60 * 60 * 24))} days
+                </div>
+            )}
             {localDevice ? (
                 <Card className="mb-4">
                     <Card.Body>
@@ -129,6 +187,8 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
                             ...localDevice.attributes
                         })}
                         <Button className="me-2" onClick={() => setShowFileUploadModal(true)}>Upload Files</Button>
+                        <Button variant="warning me-2" onClick={() => setShowWrittenOffModal(true)}>Write Off</Button>
+                        <Button variant="info" onClick={() => setShowCommentsModal(true)}>View Comments</Button>
                     </Card.Body>
                 </Card>
             ) : (
@@ -187,6 +247,28 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal }) {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowDeviceFieldModal(false)}>Close</Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showWrittenOffModal} onHide={() => setShowWrittenOffModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Add Written Off Date</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group controlId="writtenOffDate">
+                            <Form.Label>Written Off Date</Form.Label>
+                            <Form.Control
+                                type="date"
+                                value={writtenOffDate}
+                                onChange={(e) => setWrittenOffDate(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowWrittenOffModal(false)}>Close</Button>
+                    <Button variant="primary" onClick={handleAddWrittenOffDate}>Save</Button>
                 </Modal.Footer>
             </Modal>
         </>

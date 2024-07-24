@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Spinner, Alert } from 'react-bootstrap';
+import { Container, Spinner, Alert, Button } from 'react-bootstrap';
 import config from "../../config/config";
 import DeviceDetails from "./DeviceDetails";
 import MaintenanceInfo from "./MaintenanceInfo";
 import LinkedDevices from "./LinkedDevices";
 import FileUploadModal from "../../modals/FileUploadModal";
+import CommentsModal from "../../modals/CommentsModal";
 
 function OneDevice() {
     const { deviceId } = useParams();
@@ -22,7 +23,9 @@ function OneDevice() {
     const [maintenanceName, setMaintenanceName] = useState("");
     const [maintenanceDate, setMaintenanceDate] = useState("");
     const [maintenanceComment, setMaintenanceComment] = useState("");
+    const [files, setFiles] = useState([]);
     const [showFileUploadModal, setShowFileUploadModal] = useState(false);
+    const [showCommentsModal, setShowCommentsModal] = useState(false);
     const [refresh, setRefresh] = useState(false);
 
     const navigate = useNavigate();
@@ -72,17 +75,30 @@ function OneDevice() {
             const maintenanceId = maintenanceResponse.data.token;
 
             await axios.put(`${config.API_BASE_URL}/device/maintenance/${deviceId}/${maintenanceId}`);
+
+            if (files.length > 0) {
+                const formData = new FormData();
+                files.forEach(file => formData.append('files', file));
+                await axios.put(`${config.API_BASE_URL}/maintenance/upload/${maintenanceId}`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+            }
+
             const response = await axios.get(`${config.API_BASE_URL}/device/maintenances/${deviceId}`);
             setMaintenanceInfo(response.data);
             setShowMaintenanceModal(false);
+            setFiles([]); // Clear files after upload
         } catch (error) {
+            console.error('Error adding maintenance:', error);
             setError(error.message);
         }
     };
 
     const handleUploadSuccess = () => {
-        setRefresh(!refresh); //Toggle refresh state to trigger re-fetch
-    }
+        setRefresh(!refresh); // Toggle refresh state to trigger re-fetch
+    };
 
     if (loading) {
         return (
@@ -107,11 +123,12 @@ function OneDevice() {
 
     return (
         <Container className="mt-5">
-
             <DeviceDetails
                 device={device}
                 navigate={navigate}
                 setShowFileUploadModal={setShowFileUploadModal}
+                setShowCommentsModal={setShowCommentsModal}
+                setRefresh={setRefresh}
             />
             <MaintenanceInfo
                 maintenanceInfo={maintenanceInfo}
@@ -121,6 +138,7 @@ function OneDevice() {
                 setMaintenanceName={setMaintenanceName}
                 setMaintenanceDate={setMaintenanceDate}
                 setMaintenanceComment={setMaintenanceComment}
+                setFiles={setFiles} // Pass setFiles to MaintenanceInfo
             />
             <LinkedDevices
                 linkedDevices={linkedDevices}
@@ -138,6 +156,11 @@ function OneDevice() {
                 handleClose={() => setShowFileUploadModal(false)}
                 deviceId={deviceId}
                 onUploadSuccess={handleUploadSuccess} // Pass callback to trigger refresh
+            />
+            <CommentsModal
+                show={showCommentsModal}
+                handleClose={() => setShowCommentsModal(false)}
+                deviceId={deviceId} // Pass deviceId to CommentsModal
             />
         </Container>
     );
