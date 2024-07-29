@@ -95,6 +95,11 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
         }
     };
 
+    const handleAddWorkerSuccess = (newWorker) => {
+        setFilteredWorkers((prevWorkers) => [...prevWorkers, newWorker]);
+        setRefresh(prev => !prev);
+    };
+
     return (
         <>
             <h2 className="mb-4">
@@ -153,7 +158,7 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                     <Modal.Title>Add Worker to {client.shortName}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <AddWorker clientId={clientId} onClose={() => setShowAddWorkerModal(false)} setRefresh={setRefresh} />
+                    <AddWorker clientId={clientId} onClose={() => setShowAddWorkerModal(false)} onSuccess={handleAddWorkerSuccess} />
                 </Modal.Body>
             </Modal>
 

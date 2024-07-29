@@ -4,7 +4,7 @@ import { Container, Form, Button, Alert } from 'react-bootstrap';
 import config from "../../config/config";
 import Select from 'react-select';
 
-function AddClientWorker({ clientId, onClose, setRefresh }) {
+function AddClientWorker({ clientId, onClose, onSuccess }) {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
@@ -56,9 +56,21 @@ function AddClientWorker({ clientId, onClose, setRefresh }) {
                 for (const role of selectedRoles) {
                     await axios.put(`${config.API_BASE_URL}/worker/role/${workerId}/${role.value}`);
                 }
+
+                const newWorker = {
+                    id: workerId,
+                    firstName,
+                    lastName,
+                    email,
+                    phoneNumber,
+                    title,
+                    location: locations.find(loc => loc.id === locationId),
+                    roles: selectedRoles.map(role => role.label),
+                };
+
+                onSuccess(newWorker); // Call the onSuccess function with the new worker data
             }
 
-            setRefresh(prev => !prev); // Trigger refresh by toggling state
             onClose(); // Close the modal after adding the worker
         } catch (error) {
             setError(error.message);
