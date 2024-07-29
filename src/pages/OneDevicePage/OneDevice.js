@@ -156,6 +156,7 @@ function OneDevice() {
                 show={showFileUploadModal}
                 handleClose={() => setShowFileUploadModal(false)}
                 deviceId={deviceId}
+                uploadEndpoint={`${config.API_BASE_URL}/device/upload/${deviceId}`}
                 onUploadSuccess={handleUploadSuccess} // Pass callback to trigger refresh
             />
             <CommentsModal
