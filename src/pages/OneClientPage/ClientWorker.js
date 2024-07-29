@@ -51,6 +51,15 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
         }
     };
 
+    const fetchWorkers = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/worker/${clientId}`);
+            setFilteredWorkers(response.data);
+        } catch (error) {
+            console.error('Error fetching workers:', error);
+        }
+    };
+
     const toggleWorkerDetails = async (workerId) => {
         if (expandedWorkerId === workerId) {
             setExpandedWorkerId(null); // Collapse if already expanded
@@ -75,8 +84,8 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
         e.preventDefault();
         try {
             await axios.put(`${config.API_BASE_URL}/worker/role/${selectedWorkerId}/${selectedRoleId}`);
-            setRefresh(prev => !prev); // Trigger refresh by toggling state
             setShowAddRoleModal(false);
+            await fetchWorkers(); // Re-
         } catch (error) {
             console.error('Error adding role to worker:', error);
         }

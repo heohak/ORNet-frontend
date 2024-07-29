@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, ListGroup, Alert, Button, Modal, Form } from 'react-bootstrap';
+import { Card, ListGroup, Alert, Button, Modal, Form, InputGroup } from 'react-bootstrap';
 import AddClientDevice from './AddClientDevice';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -10,6 +10,7 @@ function ClientDevices({ devices, client, clientId, setRefresh }) {
     const [classificators, setClassificators] = useState([]);
     const [selectedClassificatorId, setSelectedClassificatorId] = useState('');
     const [filteredDevices, setFilteredDevices] = useState(devices);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const navigate = useNavigate();
 
@@ -19,7 +20,7 @@ function ClientDevices({ devices, client, clientId, setRefresh }) {
 
     useEffect(() => {
         filterDevices();
-    }, [selectedClassificatorId]);
+    }, [selectedClassificatorId, searchQuery]);
 
     const fetchClassificators = async () => {
         try {
@@ -31,16 +32,22 @@ function ClientDevices({ devices, client, clientId, setRefresh }) {
     };
 
     const filterDevices = async () => {
-        if (selectedClassificatorId) {
-            try {
-                const response = await axios.get(`${config.API_BASE_URL}/device/filter/${clientId}/${selectedClassificatorId}`);
-                setFilteredDevices(response.data);
-            } catch (error) {
-                console.error('Error filtering devices:', error);
-            }
-        } else {
-            setFilteredDevices(devices);
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/device/search`, {
+                params: {
+                    q: searchQuery,
+                    classificatorId: selectedClassificatorId || null,
+                    clientId: clientId
+                }
+            });
+            setFilteredDevices(response.data);
+        } catch (error) {
+            console.error('Error filtering devices:', error);
         }
+    };
+
+    const handleSearchChange = (e) => {
+        setSearchQuery(e.target.value);
     };
 
     return (
@@ -49,6 +56,15 @@ function ClientDevices({ devices, client, clientId, setRefresh }) {
                 {'Devices'}
             </h2>
             <Button variant="primary" onClick={() => setShowAddDeviceModal(true)}>Add Device</Button>
+            <Form.Group controlId="search" className="mt-3">
+                <Form.Label>Search</Form.Label>
+                <Form.Control
+                    type="text"
+                    placeholder="Search devices..."
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                />
+            </Form.Group>
             <Form.Group controlId="classificatorFilter" className="mt-3">
                 <Form.Label>Filter by Classificator</Form.Label>
                 <Form.Control as="select" value={selectedClassificatorId} onChange={(e) => setSelectedClassificatorId(e.target.value)}>
