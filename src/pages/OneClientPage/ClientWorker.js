@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Modal, ListGroup, Alert, Form } from 'react-bootstrap';
-import AddWorker from '../../components/AddWorker'; // Update the import path as necessary
+import AddWorker from './AddClientWorker'; // Update the import path as necessary
 import axios from 'axios';
 import config from "../../config/config"; // Import axios for making HTTP requests
 

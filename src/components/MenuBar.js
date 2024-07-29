@@ -1,9 +1,9 @@
-// src/Menubar.js
+
 import React from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 
-const Menubar = () => {
+const MenuBar = () => {
     return (
         <Navbar bg="light" expand="lg">
             <Container>
@@ -38,4 +38,4 @@ const Menubar = () => {
     );
 };
 
-export default Menubar;
+export default MenuBar;

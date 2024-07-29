@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Form, Button, Alert } from 'react-bootstrap';
-import config from "../config/config";
+import config from "../../config/config";
 import Select from 'react-select';
 
-function AddWorker({ clientId, onClose, setRefresh }) {
+function AddClientWorker({ clientId, onClose, setRefresh }) {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
@@ -153,4 +153,4 @@ function AddWorker({ clientId, onClose, setRefresh }) {
     );
 }
 
-export default AddWorker;
+export default AddClientWorker;
