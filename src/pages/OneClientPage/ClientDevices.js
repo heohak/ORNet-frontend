@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, ListGroup, Alert, Button, Modal, Form } from 'react-bootstrap';
-import AddClientDevice from '../../components/AddClientDevice';
+import AddClientDevice from './AddClientDevice';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import config from "../../config/config"; // Import axios for making HTTP requests

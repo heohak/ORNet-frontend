@@ -4,7 +4,7 @@ import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import MenuBar from './components/MenuBar';
 import Clients from './pages/ClientsPage/Clients';
-import Home from './pages/Home';
+import Home from './pages/HomePage/Home';
 import Chung from "./pages/Chung";
 import ClientDevices from "./pages/OneClientPage/ClientDevices";
 import Tickets from "./pages/Tickets";
@@ -13,7 +13,7 @@ import AddClient from "./pages/ClientsPage/AddClient";
 import AddClientWorker from "./pages/OneClientPage/AddClientWorker";
 import Devices from "./pages/AllDevicesPage/Devices" ;
 import OneDevice from "./pages/OneDevicePage/OneDevice"
-import AddClientDevice from "./components/AddClientDevice";
+import AddClientDevice from "./pages/OneClientPage/AddClientDevice";
 import AddTicket from "./components/AddTicket";
 import SoftwareDetails from "./pages/OneClientPage/SoftwareDetails";
 import OneClient from "./pages/OneClientPage/OneClient";
