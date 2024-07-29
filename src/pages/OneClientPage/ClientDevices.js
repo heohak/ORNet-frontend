@@ -46,7 +46,7 @@ function ClientDevices({ devices, client, clientId, setRefresh }) {
     return (
         <>
             <h2 className="mb-4">
-                {client ? `${client.shortName} Devices` : 'Client Devices'}
+                {'Devices'}
             </h2>
             <Button variant="primary" onClick={() => setShowAddDeviceModal(true)}>Add Device</Button>
             <Form.Group controlId="classificatorFilter" className="mt-3">

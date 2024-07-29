@@ -4,7 +4,7 @@ import axios from 'axios';
 import config from '../../config/config';
 import Select from 'react-select';
 
-function AddClientSoftware({ clientId, show, handleClose, setRefresh }) {
+function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) {
     const [softwareList, setSoftwareList] = useState([]);
     const [selectedSoftware, setSelectedSoftware] = useState(null);
     const [showAddNew, setShowAddNew] = useState(false);
@@ -79,7 +79,7 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh }) {
             console.log(response.data)
             if (response.data && response.data.token) {
                 await axios.put(`${config.API_BASE_URL}/software/add/client/${response.data.token}/${clientId}`);
-                setRefresh(prev => !prev); // Trigger refresh by toggling state
+                setRefresh(prev => !prev);
                 handleClose();
             }
         } catch (error) {
@@ -90,7 +90,7 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh }) {
     return (
         <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
-                <Modal.Title>Add Software</Modal.Title>
+                <Modal.Title>Add Software to {client.shortName}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Container>
