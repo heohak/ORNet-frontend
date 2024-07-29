@@ -76,11 +76,13 @@ function ClientDevices({ devices, client, clientId, setRefresh }) {
             </Form.Group>
             {filteredDevices.length > 0 ? (
                 <ListGroup className="mt-3">
-                    {filteredDevices.map((device) => (
+                    {filteredDevices.map((device, index) => (
                         <ListGroup.Item key={device.id}>
                             <Card>
                                 <Card.Body>
-                                    <Card.Title style={{ cursor: "pointer", color: "#0000EE" }} onClick={() => navigate(`/device/${device.id}`)}>{device.deviceName}</Card.Title>
+                                    <Card.Title style={{ cursor: "pointer", color: "#0000EE" }} onClick={() => navigate(`/device/${device.id}`)}>
+                                        {index + 1}. {device.deviceName}
+                                    </Card.Title>
                                 </Card.Body>
                             </Card>
                         </ListGroup.Item>
