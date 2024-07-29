@@ -23,6 +23,16 @@ const TicketDetails = ({
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [contacts, setContacts] = useState([]);
+    const [clients, setClients] = useState([]);
+    const [locations, setLocations] = useState([]);
+    const [statuses, setStatuses] = useState([]);
+    const [responsibleName, setResponsibleName] = useState('');
+    const [clientName, setClientName] = useState('');
+    const [locationName, setLocationName] = useState('');
+    const [statusName, setStatusName] = useState('');
+    const [workTypes, setWorkTypes] = useState([]);
+
+
 
     useEffect(() => {
         if (isEditing) {
@@ -45,6 +55,8 @@ const TicketDetails = ({
                     response: ticket.response || '',
                     insideInfo: ticket.insideInfo || '',
                     fileIds: ticket.fileIds || '',
+                    baitNumeration: ticket.baitNumeration || '',
+                    clientNumeration: ticket.clientNumeration || '',
                     clientWorkers: ticket.clientWorkers || [] // Add client workers field
                 }
             }));
@@ -55,8 +67,51 @@ const TicketDetails = ({
         if (expandedTickets.has(ticket.id.toString())) {
             fetchComments(ticket.id);
             fetchContacts(ticket.id);
+            fetchNames(ticket.baitWorkerId, ticket.clientId, ticket.locationId, ticket.statusId); // Fetch names
+            fetchWorkTypes(ticket.id); // Fetch work types
         }
     }, [expandedTickets]);
+
+    useEffect(() => {
+        const fetchClients = async () => {
+            try {
+                const response = await axios.get(`${config.API_BASE_URL}/client/all`);
+                setClients(response.data);
+            } catch (error) {
+                console.error('Error fetching clients:', error);
+            }
+        };
+
+        const fetchStatuses = async () => {
+            try {
+                const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`);
+                setStatuses(response.data);
+            } catch (error) {
+                console.error('Error fetching statuses:', error);
+            }
+        };
+
+        if (isEditing) {
+            fetchClients();
+            fetchStatuses();
+        }
+    }, [isEditing]);
+
+
+    useEffect(() => {
+        const fetchLocations = async (clientId) => {
+            try {
+                const response = await axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`);
+                setLocations(response.data);
+            } catch (error) {
+                console.error('Error fetching locations:', error);
+            }
+        };
+
+        if (editFields[ticket.id]?.clientId) {
+            fetchLocations(editFields[ticket.id]?.clientId);
+        }
+    }, [editFields[ticket.id]?.clientId]);
 
     const fetchComments = async (ticketId) => {
         try {
@@ -75,6 +130,34 @@ const TicketDetails = ({
             console.error('Error fetching contacts:', error);
         }
     }
+
+    const fetchNames = async (responsibleId, clientId, locationId, statusId) => {
+        try {
+            const [responsibleResponse, clientResponse, locationResponse, statusResponse] = await Promise.all([
+                axios.get(`${config.API_BASE_URL}/bait/worker/${responsibleId}`),
+                axios.get(`${config.API_BASE_URL}/client/${clientId}`),
+                axios.get(`${config.API_BASE_URL}/location/${locationId}`),
+                axios.get(`${config.API_BASE_URL}/ticket/classificator/${statusId}`)
+            ]);
+            const fullName = responsibleResponse.data.firstName + " " + responsibleResponse.data.lastName;
+            setResponsibleName(fullName);
+            setClientName(clientResponse.data.fullName);
+            console.log(clientName);
+            setLocationName(locationResponse.data.name);
+            setStatusName(statusResponse.data.status);
+        } catch (error) {
+            console.error('Error fetching names:', error);
+        }
+    };
+
+    const fetchWorkTypes = async (ticketId) => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/work-types/${ticketId}`);
+            setWorkTypes(response.data.map(workType => workType.workType)); // Assuming the response is an array of work type DTOs
+        } catch (error) {
+            console.error('Error fetching work types:', error);
+        }
+    };
 
     const handleAddComment = async () => {
         try {
@@ -180,6 +263,15 @@ const TicketDetails = ({
                                                 {isEditing ? (
                                                     <>
                                                         <Form.Group className="mb-3">
+                                                            <Form.Label>Numeration</Form.Label>
+                                                            <Form.Control
+                                                                type="text"
+                                                                name="baitNumeration"
+                                                                value={editFields[ticket.id]?.baitNumeration || ''}
+                                                                onChange={(e) => handleChange(e, ticket.id)}
+                                                            />
+                                                        </Form.Group>
+                                                        <Form.Group className="mb-3">
                                                             <Form.Label>Crisis</Form.Label>
                                                             <Form.Check
                                                                 type="checkbox"
@@ -223,11 +315,12 @@ const TicketDetails = ({
                                                     </>
                                                 ) : (
                                                     <>
+                                                        <p><strong>Numeration:</strong> {ticket.baitNumeration}</p>
                                                         <p><strong>Crisis:</strong> {ticket.crisis ? 'True' : 'False'}</p>
                                                         <p><strong>Remote:</strong> {ticket.remote ? 'True' : 'False'}</p>
-                                                        <p><strong>Work Type:</strong> {ticket.workType}</p>
-                                                        <p><strong>Responsible ID:</strong> {ticket.baitWorkerId}</p>
-                                                        <p><strong>Client Workers:</strong> {contacts?.join(', ')}</p>
+                                                        <p><strong>Work Types:</strong> {workTypes.join(', ')}</p>
+                                                        <p><strong>Responsible ID:</strong> {responsibleName}</p>
+                                                        <p><strong>Client Workers:</strong> {contacts.map(contact => `${contact.firstName} ${contact.lastName}`).join(', ')}</p>
                                                     </>
                                                 )}
                                             </Col>
@@ -235,31 +328,56 @@ const TicketDetails = ({
                                                 {isEditing ? (
                                                     <>
                                                         <Form.Group className="mb-3">
-                                                            <Form.Label>Client ID</Form.Label>
+                                                            <Form.Label>Client Numeration</Form.Label>
                                                             <Form.Control
                                                                 type="text"
+                                                                name="clientNumeration"
+                                                                value={editFields[ticket.id]?.clientNumeration || ''}
+                                                                onChange={(e) => handleChange(e, ticket.id)}
+                                                            />
+                                                        </Form.Group>
+                                                        <Form.Group className="mb-3">
+                                                            <Form.Label>Client</Form.Label>
+                                                            <Form.Control
+                                                                as="select"
                                                                 name="clientId"
                                                                 value={editFields[ticket.id]?.clientId || ''}
                                                                 onChange={(e) => handleChange(e, ticket.id)}
-                                                            />
+                                                            >
+                                                                <option value="">Select a client</option>
+                                                                {clients.map(client => (
+                                                                    <option key={client.id} value={client.id}>{client.fullName}</option>
+                                                                ))}
+                                                            </Form.Control>
                                                         </Form.Group>
                                                         <Form.Group className="mb-3">
-                                                            <Form.Label>Location ID</Form.Label>
+                                                            <Form.Label>Location</Form.Label>
                                                             <Form.Control
-                                                                type="text"
+                                                                as="select"
                                                                 name="locationId"
                                                                 value={editFields[ticket.id]?.locationId || ''}
                                                                 onChange={(e) => handleChange(e, ticket.id)}
-                                                            />
+                                                                disabled={!editFields[ticket.id]?.clientId}
+                                                            >
+                                                                <option value="">Select a location</option>
+                                                                {locations.map(location => (
+                                                                    <option key={location.id} value={location.id}>{location.name}</option>
+                                                                ))}
+                                                            </Form.Control>
                                                         </Form.Group>
                                                         <Form.Group className="mb-3">
-                                                            <Form.Label>Status ID</Form.Label>
+                                                            <Form.Label>Status</Form.Label>
                                                             <Form.Control
-                                                                type="text"
+                                                                as="select"
                                                                 name="statusId"
                                                                 value={editFields[ticket.id]?.statusId || ''}
                                                                 onChange={(e) => handleChange(e, ticket.id)}
-                                                            />
+                                                            >
+                                                                <option value="">Select a status</option>
+                                                                {statuses.map(status => (
+                                                                    <option key={status.id} value={status.id}>{status.status}</option>
+                                                                ))}
+                                                            </Form.Control>
                                                         </Form.Group>
                                                         <Form.Group className="mb-3">
                                                             <Form.Label>Root Cause</Form.Label>
@@ -273,9 +391,10 @@ const TicketDetails = ({
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <p><strong>Client ID:</strong> {ticket.clientId}</p>
-                                                        <p><strong>Location ID:</strong> {ticket.locationId}</p>
-                                                        <p><strong>Status ID:</strong> {ticket.statusId}</p>
+                                                        <p><strong>Client Numeration:</strong> {ticket.clientNumeration}</p>
+                                                        <p><strong>Client:</strong> {clientName}</p>
+                                                        <p><strong>Location:</strong> {locationName}</p>
+                                                        <p><strong>Status:</strong> {statusName}</p>
                                                         <p><strong>Root Cause:</strong> {ticket.rootCause}</p>
                                                     </>
                                                 )}
