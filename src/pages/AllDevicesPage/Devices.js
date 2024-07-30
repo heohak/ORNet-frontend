@@ -5,6 +5,7 @@ import { Alert, Button, Card, Col, Container, Row, Spinner } from "react-bootstr
 import config from "../../config/config";
 import AddDeviceModal from './AddDeviceModal';
 import DeviceSearchFilter from './DeviceSearchFilter';
+import SummaryModal from './SummaryModal';
 
 function Devices() {
     const [devices, setDevices] = useState([]);
@@ -12,6 +13,7 @@ function Devices() {
     const [error, setError] = useState(null);
     const [showAddDeviceModal, setShowAddDeviceModal] = useState(false);
     const [refresh, setRefresh] = useState(false); // State to trigger refresh
+    const [showSummaryModal, setShowSummaryModal] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -54,9 +56,14 @@ function Devices() {
         <Container className="mt-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h1 className="mb-0">Devices</h1>
-                <Button variant="primary" className="mb-4" onClick={() => setShowAddDeviceModal(true)}>
-                    Add Device
-                </Button>
+                <div>
+                    <Button variant="info" className="mb-4 me-2" onClick={() => setShowSummaryModal(true)}>
+                        Show Summary
+                    </Button>
+                    <Button variant="primary" className="mb-4" onClick={() => setShowAddDeviceModal(true)}>
+                        Add Device
+                    </Button>
+                </div>
             </div>
             <DeviceSearchFilter setDevices={setDevices} />
             <Row>
@@ -78,6 +85,10 @@ function Devices() {
                 show={showAddDeviceModal}
                 onHide={() => setShowAddDeviceModal(false)}
                 setRefresh={setRefresh}
+            />
+            <SummaryModal
+                show={showSummaryModal}
+                handleClose={() => setShowSummaryModal(false)}
             />
         </Container>
     );
