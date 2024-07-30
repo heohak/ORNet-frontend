@@ -3,9 +3,9 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Container, Button } from "react-bootstrap";
-import SearchBar from "../components/SearchBar";
-import TicketsList from "../components/TicketsList";
-import config from "../config/config";
+import SearchBar from "../../components/SearchBar";
+import TicketsList from "../../components/TicketsList";
+import config from "../../config/config";
 
 function Tickets() {
     const [tickets, setTickets] = useState([]);
