@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Container, Row, Col, Card, Button, Spinner, Alert, Modal, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import config from "../config/config";
+import config from "../../config/config";
 
 function Wiki() {
     const [wikis, setWikis] = useState([]);

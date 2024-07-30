@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Spinner, Alert, Card, Button } from 'react-bootstrap';
-import config from "../config/config";
+import config from "../../config/config";
 
 function WikiDetails() {
     const { wikiId } = useParams();

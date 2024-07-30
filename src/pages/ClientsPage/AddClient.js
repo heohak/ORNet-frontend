@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { Container, Form, Button, Alert } from 'react-bootstrap';
-import config from "../config/config";
+import { Form, Button, Alert } from 'react-bootstrap';
+import config from "../../config/config";
 
-function AddClient() {
+function AddClient({ onClose }) {
     const [fullName, setFullName] = useState('');
     const [shortName, setShortName] = useState('');
     const [pathologyClient, setPathologyClient] = useState(false);
@@ -18,15 +17,15 @@ function AddClient() {
     const [locations, setLocations] = useState([]);
     const [thirdParties, setThirdParties] = useState([]);
     const [error, setError] = useState(null);
-    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchLocationsAndThirdParties = async () => {
             try {
-                const locationsResponse = await axios.get(`${config.API_BASE_URL}/location/all`);
+                const [locationsResponse, thirdPartiesResponse] = await Promise.all([
+                    axios.get(`${config.API_BASE_URL}/location/all`),
+                    axios.get(`${config.API_BASE_URL}/third-party/all`)
+                ]);
                 setLocations(locationsResponse.data);
-
-                const thirdPartiesResponse = await axios.get(`${config.API_BASE_URL}/third-party/all`);
                 setThirdParties(thirdPartiesResponse.data);
             } catch (error) {
                 setError(error.message);
@@ -56,7 +55,6 @@ function AddClient() {
                 lastMaintenance,
                 nextMaintenance
             });
-            console.log(clientResponse)
             const clientId = clientResponse.data.token;
 
             await Promise.all([
@@ -64,15 +62,14 @@ function AddClient() {
                 ...thirdPartyIds.map(thirdPartyId => axios.put(`${config.API_BASE_URL}/client/third-party/${clientId}/${thirdPartyId}`))
             ]);
 
-            navigate('/clients');
+            onClose(); // Close the modal after adding the client
         } catch (error) {
             setError(error.message);
         }
     };
 
     return (
-        <Container className="mt-5">
-            <h1 className="mb-4">Add Client</h1>
+        <div>
             {error && (
                 <Alert variant="danger">
                     <Alert.Heading>Error</Alert.Heading>
@@ -176,14 +173,10 @@ function AddClient() {
                         ))}
                     </Form.Control>
                 </Form.Group>
-                <Button variant="success" type="submit">
-                    Add Client
-                </Button>
-                <Button variant="secondary" className="ms-3" onClick={() => navigate(-1)}>
-                    Back
-                </Button>
+                <Button variant="success" type="submit">Add Client</Button>
+                <Button variant="secondary" className="ms-3" onClick={onClose}>Cancel</Button>
             </Form>
-        </Container>
+        </div>
     );
 }
 

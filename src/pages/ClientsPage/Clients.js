@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState} from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Card, Button, Spinner, Alert, Form, InputGroup } from 'react-bootstrap';
-import config from "../config/config";
+import { Container, Row, Col, Card, Button, Spinner, Alert, Form, InputGroup, Modal } from 'react-bootstrap';
+import config from "../../config/config";
+import AddClient from "./AddClient";
 
 function Clients() {
     const [clients, setClients] = useState([]);
@@ -11,7 +11,7 @@ function Clients() {
     const [deleteError, setDeleteError] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [clientType, setClientType] = useState('');
-    const navigate = useNavigate();
+    const [showAddClientModal, setShowAddClientModal] = useState(false);
 
     useEffect(() => {
         fetchClients();
@@ -43,7 +43,7 @@ function Clients() {
     };
 
     const handleAddClient = () => {
-        navigate('/add-client');
+        setShowAddClientModal(true);
     };
 
     const handleSearchChange = (e) => {
@@ -58,6 +58,11 @@ function Clients() {
     const handleSearchSubmit = (e) => {
         e.preventDefault();
         fetchClients(searchQuery, clientType);
+    };
+
+    const handleCloseAddClientModal = () => {
+        setShowAddClientModal(false);
+        fetchClients(); // Refresh the clients list after adding a new client
     };
 
     if (loading) {
@@ -132,7 +137,7 @@ function Clients() {
                             >
                                 Delete
                             </Button>
-                            <Card.Body style={{ cursor: "pointer" }} onClick={() => navigate(`/client/${client.id}`)} className="d-flex flex-column">
+                            <Card.Body style={{ cursor: "pointer" }} onClick={() => window.location.href = `/client/${client.id}`} className="d-flex flex-column">
                                 <div className="mb-4">
                                     <Card.Title>{client.shortName}</Card.Title>
                                     <Card.Text>
@@ -144,6 +149,14 @@ function Clients() {
                     </Col>
                 ))}
             </Row>
+            <Modal show={showAddClientModal} onHide={() => setShowAddClientModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Add Client</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <AddClient onClose={handleCloseAddClientModal} />
+                </Modal.Body>
+            </Modal>
         </Container>
     );
 }

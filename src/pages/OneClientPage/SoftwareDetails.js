@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Container, Spinner, Table, Button, Card } from 'react-bootstrap';
 import AddClientSoftware from "./AddClientSoftware";
 
-function SoftwareDetails({ softwareList, clientId, setRefresh }) {
+function SoftwareDetails({ softwareList, clientId, setRefresh, client }) {
 
     // State to manage expanded state for each software item
     const [expandedSoftwareId, setExpandedSoftwareId] = useState(null);
@@ -25,7 +25,7 @@ function SoftwareDetails({ softwareList, clientId, setRefresh }) {
 
     return (
         <Container className="mt-5">
-            <h1 className="mb-4">Technical information</h1>
+            <h2 className="mb-4">Technical information</h2>
             <Button variant="primary" className="mb-4" onClick={() => setShowAddSoftwareModal(true)}>
                 Add Software
             </Button>
@@ -124,6 +124,7 @@ function SoftwareDetails({ softwareList, clientId, setRefresh }) {
                 show={showAddSoftwareModal}
                 handleClose={() => setShowAddSoftwareModal(false)}
                 setRefresh={setRefresh}
+                client={client}
             />
         </Container>
     );

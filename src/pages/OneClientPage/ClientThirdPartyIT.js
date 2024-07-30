@@ -4,7 +4,7 @@ import axios from 'axios';
 import config from "../../config/config";
 import AddThirdPartyIT from "./AddThirdPartyIT";
 
-function ClientThirdPartyIT({ clientId }) {
+function ClientThirdPartyIT({ clientId, client }) {
     const [thirdPartyITs, setThirdPartyITs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -64,7 +64,7 @@ function ClientThirdPartyIT({ clientId }) {
             )}
             <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Add Third-Party IT to {clientId}</Modal.Title>
+                    <Modal.Title>Add Third-Party IT to {client.shortName}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <AddThirdPartyIT clientId={clientId} onClose={() => setShowAddModal(false)} setRefresh={setRefresh} />

@@ -96,22 +96,26 @@ function OneClient() {
             </Row>
             <Row>
                 <Col md={6}>
-                    <ClientThirdPartyIT clientId={clientId} />
+                    <ClientThirdPartyIT clientId={clientId}
+                    client={client}/>
                 </Col>
                 <Col md={6}>
                     <ClientMaintenances
                         maintenances={maintenances}
                         clientId={clientId}
                         setRefresh={setRefresh}
+                        client={client}
                     />
                 </Col>
                 <Col md={6}>
                     <SoftwareDetails softwareList={softwareList}
                                      clientId={clientId}
-                    setRefresh={setRefresh}/>
+                    setRefresh={setRefresh}
+                    client={client}/>
                 </Col>
             </Row>
-            <ClientTickets tickets={tickets} />
+            <ClientTickets tickets={tickets}
+            client={client}/>
         </Container>
     );
 }

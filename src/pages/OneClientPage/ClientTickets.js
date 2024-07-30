@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, Alert, ListGroup, Badge } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
-function ClientTickets({ tickets }) {
+function ClientTickets({client,tickets}) {
     const navigate = useNavigate();
 
     const handleTicketClick = (ticketId) => {
@@ -11,7 +11,7 @@ function ClientTickets({ tickets }) {
 
     return (
         <Container className="mt-5">
-            <h2>Client Tickets</h2>
+            <h2>Tickets</h2>
             {tickets.length > 0 ? (
                 <ListGroup>
                     {tickets.map(ticket => (

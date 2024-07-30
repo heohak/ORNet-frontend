@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Modal, ListGroup, Alert, Form } from 'react-bootstrap';
-import AddWorker from '../../components/AddWorker'; // Update the import path as necessary
+import AddWorker from './AddClientWorker'; // Update the import path as necessary
 import axios from 'axios';
 import config from "../../config/config"; // Import axios for making HTTP requests
 
@@ -51,6 +51,15 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
         }
     };
 
+    const fetchWorkers = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/worker/${clientId}`);
+            setFilteredWorkers(response.data);
+        } catch (error) {
+            console.error('Error fetching workers:', error);
+        }
+    };
+
     const toggleWorkerDetails = async (workerId) => {
         if (expandedWorkerId === workerId) {
             setExpandedWorkerId(null); // Collapse if already expanded
@@ -75,8 +84,8 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
         e.preventDefault();
         try {
             await axios.put(`${config.API_BASE_URL}/worker/role/${selectedWorkerId}/${selectedRoleId}`);
-            setRefresh(prev => !prev); // Trigger refresh by toggling state
             setShowAddRoleModal(false);
+            await fetchWorkers(); // Re-
         } catch (error) {
             console.error('Error adding role to worker:', error);
         }
@@ -95,10 +104,15 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
         }
     };
 
+    const handleAddWorkerSuccess = (newWorker) => {
+        setFilteredWorkers((prevWorkers) => [...prevWorkers, newWorker]);
+        setRefresh(prev => !prev);
+    };
+
     return (
         <>
             <h2 className="mb-4">
-                {client ? `${client.shortName} Workers` : 'Client Workers'}
+                {'Workers'}
             </h2>
             <Button variant="primary" onClick={() => setShowAddWorkerModal(true)}>Add Worker</Button>
             <Form.Group controlId="roleFilter" className="mt-3">
@@ -153,7 +167,7 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                     <Modal.Title>Add Worker to {client.shortName}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <AddWorker clientId={clientId} onClose={() => setShowAddWorkerModal(false)} setRefresh={setRefresh} />
+                    <AddWorker clientId={clientId} onClose={() => setShowAddWorkerModal(false)} onSuccess={handleAddWorkerSuccess} />
                 </Modal.Body>
             </Modal>
 

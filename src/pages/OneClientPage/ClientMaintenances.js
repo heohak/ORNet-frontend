@@ -3,7 +3,7 @@ import { Card, Button, Modal, Form, ListGroup, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../config/config";
 
-function ClientMaintenances({ maintenances, clientId, setRefresh }) {
+function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
     const [showAddMaintenanceModal, setShowAddMaintenanceModal] = useState(false);
     const [maintenanceName, setMaintenanceName] = useState('');
     const [maintenanceDate, setMaintenanceDate] = useState('');
@@ -86,7 +86,7 @@ function ClientMaintenances({ maintenances, clientId, setRefresh }) {
 
             <Modal show={showAddMaintenanceModal} onHide={() => setShowAddMaintenanceModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Add Maintenance</Modal.Title>
+                    <Modal.Title>Add Maintenance to {client.shortName}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {error && (
