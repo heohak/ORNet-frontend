@@ -13,6 +13,7 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
     const [roles, setRoles] = useState([]);
     const [selectedRoleId, setSelectedRoleId] = useState('');
     const [filteredWorkers, setFilteredWorkers] = useState(workers);
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         fetchRoles();
@@ -24,7 +25,7 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
 
     useEffect(() => {
         filterWorkers();
-    }, [selectedRoleId]);
+    }, [selectedRoleId, searchQuery]);
 
     const fetchWorkerLocations = async () => {
         try {
@@ -85,23 +86,29 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
         try {
             await axios.put(`${config.API_BASE_URL}/worker/role/${selectedWorkerId}/${selectedRoleId}`);
             setShowAddRoleModal(false);
-            await fetchWorkers(); // Re-
+            await fetchWorkers(); // Re-fetch workers
         } catch (error) {
             console.error('Error adding role to worker:', error);
         }
     };
 
     const filterWorkers = async () => {
-        if (selectedRoleId) {
-            try {
-                const response = await axios.get(`${config.API_BASE_URL}/worker/filter/${clientId}/${selectedRoleId}`);
-                setFilteredWorkers(response.data);
-            } catch (error) {
-                console.error('Error filtering workers:', error);
-            }
-        } else {
-            setFilteredWorkers(workers);
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/worker/search`, {
+                params: {
+                    q: searchQuery,
+                    roleId: selectedRoleId || null,
+                    clientId: clientId
+                }
+            });
+            setFilteredWorkers(response.data);
+        } catch (error) {
+            console.error('Error filtering workers:', error);
         }
+    };
+
+    const handleSearchChange = (e) => {
+        setSearchQuery(e.target.value);
     };
 
     const handleAddWorkerSuccess = (newWorker) => {
@@ -115,6 +122,15 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                 {'Workers'}
             </h2>
             <Button variant="primary" onClick={() => setShowAddWorkerModal(true)}>Add Worker</Button>
+            <Form.Group controlId="search" className="mt-3">
+                <Form.Label>Search</Form.Label>
+                <Form.Control
+                    type="text"
+                    placeholder="Search workers..."
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                />
+            </Form.Group>
             <Form.Group controlId="roleFilter" className="mt-3">
                 <Form.Label>Filter by Role</Form.Label>
                 <Form.Control as="select" value={selectedRoleId} onChange={(e) => setSelectedRoleId(e.target.value)}>
