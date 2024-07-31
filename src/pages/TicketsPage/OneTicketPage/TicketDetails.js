@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Accordion, Card, Button, Row, Col, Form } from 'react-bootstrap';
 import axios from 'axios';
-import FileUploadModal from "../../modals/FileUploadModal";
-import ClientWorkersModal from "../../modals/ClientWorkersModal"; // Import the new modal
-import config from "../../config/config";
+import FileUploadModal from "../../../modals/FileUploadModal";
+import ClientWorkersModal from "../../../modals/ClientWorkersModal"; // Import the new modal
+import config from "../../../config/config";
 
 const TicketDetails = ({
                            ticket,
@@ -31,6 +31,8 @@ const TicketDetails = ({
     const [locationName, setLocationName] = useState('');
     const [statusName, setStatusName] = useState('');
     const [workTypes, setWorkTypes] = useState([]);
+    const [baitWorkers, setBaitWorkers] = useState([]);
+
 
 
 
@@ -54,10 +56,10 @@ const TicketDetails = ({
                     description: ticket.description || '',
                     response: ticket.response || '',
                     insideInfo: ticket.insideInfo || '',
+                    contactIds: ticket.contactIds || [],
                     fileIds: ticket.fileIds || '',
                     baitNumeration: ticket.baitNumeration || '',
-                    clientNumeration: ticket.clientNumeration || '',
-                    clientWorkers: ticket.clientWorkers || [] // Add client workers field
+                    clientNumeration: ticket.clientNumeration || ''
                 }
             }));
         }
@@ -96,6 +98,22 @@ const TicketDetails = ({
             fetchStatuses();
         }
     }, [isEditing]);
+
+    useEffect(() => {
+        const fetchBaitWorkers = async () => {
+            try {
+                const response = await axios.get(`${config.API_BASE_URL}/bait/worker/all`);
+                setBaitWorkers(response.data);
+            } catch (error) {
+                console.error('Error fetching bait workers:', error);
+            }
+        };
+
+        if (isEditing) {
+            fetchBaitWorkers();
+        }
+    }, [isEditing]);
+
 
 
     useEffect(() => {
@@ -153,7 +171,7 @@ const TicketDetails = ({
     const fetchWorkTypes = async (ticketId) => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/ticket/work-types/${ticketId}`);
-            setWorkTypes(response.data.map(workType => workType.workType)); // Assuming the response is an array of work type DTOs
+            setWorkTypes(response.data);
         } catch (error) {
             console.error('Error fetching work types:', error);
         }
@@ -193,7 +211,7 @@ const TicketDetails = ({
             ...prevFields,
             [ticket.id]: {
                 ...prevFields[ticket.id],
-                clientWorkers: selectedWorkers
+                contactIds: selectedWorkers
             }
         }));
     };
@@ -294,20 +312,30 @@ const TicketDetails = ({
                                                         <Form.Group className="mb-3">
                                                             <Form.Label>Work Type</Form.Label>
                                                             <Form.Control
-                                                                type="text"
+                                                                as="select"
                                                                 name="workType"
                                                                 value={editFields[ticket.id]?.workType || ''}
                                                                 onChange={(e) => handleChange(e, ticket.id)}
-                                                            />
+                                                            >
+                                                                <option value="">Select work type</option>
+                                                                {workTypes.map(workType => (
+                                                                    <option key={workType.id} value={workType.id}>{workType.workType}</option>
+                                                                ))}
+                                                            </Form.Control>
                                                         </Form.Group>
                                                         <Form.Group className="mb-3">
-                                                            <Form.Label>Responsible ID</Form.Label>
+                                                            <Form.Label>Responsible Worker</Form.Label>
                                                             <Form.Control
-                                                                type="text"
+                                                                as="select"
                                                                 name="baitWorkerId"
                                                                 value={editFields[ticket.id]?.baitWorkerId || ''}
                                                                 onChange={(e) => handleChange(e, ticket.id)}
-                                                            />
+                                                            >
+                                                                <option value="">Select a worker</option>
+                                                                {baitWorkers.map(worker => (
+                                                                    <option key={worker.id} value={worker.id}>{worker.firstName} {worker.lastName}</option>
+                                                                ))}
+                                                            </Form.Control>
                                                         </Form.Group>
                                                         <Button variant="outline-primary" onClick={() => setShowWorkersModal(true)}>
                                                             Manage Client Workers
@@ -318,8 +346,8 @@ const TicketDetails = ({
                                                         <p><strong>Numeration:</strong> {ticket.baitNumeration}</p>
                                                         <p><strong>Crisis:</strong> {ticket.crisis ? 'True' : 'False'}</p>
                                                         <p><strong>Remote:</strong> {ticket.remote ? 'True' : 'False'}</p>
-                                                        <p><strong>Work Types:</strong> {workTypes.join(', ')}</p>
-                                                        <p><strong>Responsible ID:</strong> {responsibleName}</p>
+                                                        <p><strong>Work Type:</strong> {workTypes.map(workType => `${workType.workType}`).join(', ')}</p>
+                                                        <p><strong>Responsible Worker:</strong> {responsibleName}</p>
                                                         <p><strong>Client Workers:</strong> {contacts.map(contact => `${contact.firstName} ${contact.lastName}`).join(', ')}</p>
                                                     </>
                                                 )}
@@ -510,7 +538,7 @@ const TicketDetails = ({
                 show={showWorkersModal}
                 handleClose={() => setShowWorkersModal(false)}
                 clientId={ticket.clientId}
-                selectedWorkers={editFields[ticket.id]?.clientWorkers || []}
+                selectedWorkers={editFields[ticket.id]?.contactIds || []}
                 onSave={handleWorkersSave}
             />
         </Accordion>

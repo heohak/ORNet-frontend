@@ -1,9 +1,42 @@
-// TicketsList.js
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Row, Col, Card, Button, Spinner, Alert } from 'react-bootstrap';
+import axios from 'axios';
+import config from "../config/config";
 
 const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
-    if (loading) {
+    const [clientDetails, setClientDetails] = useState({});
+    const [clientLoading, setClientLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchClientDetails = async () => {
+            try {
+                const clientIds = tickets.map(ticket => ticket.clientId);
+                const uniqueClientIds = [...new Set(clientIds)];
+
+                const clientDetailsResponses = await Promise.all(uniqueClientIds.map(clientId =>
+                    axios.get(`${config.API_BASE_URL}/client/${clientId}`)
+                ));
+
+                const clientDetailsMap = {};
+                clientDetailsResponses.forEach(response => {
+                    const client = response.data;
+                    clientDetailsMap[client.id] = client.fullName;
+                });
+
+                setClientDetails(clientDetailsMap);
+                setClientLoading(false);
+            } catch (error) {
+                console.error('Error fetching client details:', error);
+                setClientLoading(false);
+            }
+        };
+
+        if (tickets.length > 0) {
+            fetchClientDetails();
+        }
+    }, [tickets]);
+
+    if (loading || clientLoading) {
         return (
             <div className="text-center mt-5">
                 <Spinner animation="border" role="status">
@@ -28,6 +61,8 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
         <Row>
             {tickets.map((ticket) => {
                 const statusName = statuses.find(status => status.id === ticket.statusId)?.status || 'Unknown Status';
+                const clientName = clientDetails[ticket.clientId] || 'Unknown Client';
+
                 return (
                     <Col md={4} key={ticket.id} className="mb-4">
                         <Card>
@@ -43,8 +78,7 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
                                 </div>
                                 <Card.Title>{ticket.title}</Card.Title>
                                 <Card.Text>
-                                    <strong>Client ID:</strong> {ticket.clientId}<br />
-                                    <strong>Main Ticket ID:</strong> {ticket.mainTicketId}
+                                    <strong>Client:</strong> {clientName}<br />
                                 </Card.Text>
                                 <Button onClick={() => onNavigate(ticket.id)}>View Ticket</Button>
                             </Card.Body>
