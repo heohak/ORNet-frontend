@@ -191,6 +191,9 @@ const TicketDetails = ({
 
 
     const handleAddComment = async () => {
+        if (newComment.trim() === "") {
+            return;
+        }
         try {
             await axios.put(`${config.API_BASE_URL}/ticket/comment/${ticket.id}`, null, {
                 params: {
