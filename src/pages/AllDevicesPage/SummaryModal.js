@@ -1,0 +1,64 @@
+import React, { useState, useEffect } from 'react';
+import { Modal, Button, Spinner, Alert, ListGroup } from 'react-bootstrap';
+import axios from 'axios';
+import config from '../../config/config';
+
+function SummaryModal({ show, handleClose }) {
+    const [summary, setSummary] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        if (show) {
+            fetchSummary();
+        }
+    }, [show]);
+
+    const fetchSummary = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/device/summary`);
+            setSummary(response.data);
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <Modal show={show} onHide={handleClose}>
+            <Modal.Header closeButton>
+                <Modal.Title>Device Summary</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                {loading ? (
+                    <Spinner animation="border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </Spinner>
+                ) : error ? (
+                    <Alert variant="danger">
+                        <Alert.Heading>Error</Alert.Heading>
+                        <p>{error}</p>
+                    </Alert>
+                ) : (
+                    <ListGroup>
+                        {Object.entries(summary).map(([key, value]) => (
+                            <ListGroup.Item key={key}>
+                                {key}: {value}
+                            </ListGroup.Item>
+                        ))}
+                    </ListGroup>
+                )}
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={handleClose}>
+                    Close
+                </Button>
+            </Modal.Footer>
+        </Modal>
+    );
+}
+
+export default SummaryModal;
