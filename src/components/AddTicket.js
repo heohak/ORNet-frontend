@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { Button, Form, Container, Alert } from 'react-bootstrap';
-import Datetime from 'react-datetime';
+import { Button, Form, Container, Alert, Badge, Row, Stack, Col } from 'react-bootstrap';
 import moment from 'moment';
-import 'react-datetime/css/react-datetime.css';
 import config from "../config/config";
 
 function AddTicket() {
@@ -19,37 +17,49 @@ function AddTicket() {
         rootCause: '',
         clientId: clientIdParam || '',
         startDateTime: '',
-        endDateTime: '',
-        responseDateTime: '',
         crisis: false,
         remote: false,
-        workType: '',
+        workTypeIds: [], // Changed from workType to workTypeIds
         baitWorkerId: '',
         locationId: '',
         statusId: ''
     });
 
+
     const [clients, setClients] = useState([]);
     const [locations, setLocations] = useState([]);
     const [baitWorkers, setBaitWorkers] = useState([]);
     const [statuses, setStatuses] = useState([]);
+    const [workTypes, setWorkTypes] = useState([]);
     const [error, setError] = useState(null);
+    const [clientName, setClientName] = useState('');
+    const [selectedOptions, setSelectedOptions] = useState([]);
+    const [availableOptions, setAvailableOptions] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [locationRes, statusRes, baitWorkerRes, clientRes] = await Promise.all([
+                const [locationRes, statusRes, baitWorkerRes, clientRes, workTypeRes] = await Promise.all([
                     axios.get(`${config.API_BASE_URL}/location/all`),
                     axios.get(`${config.API_BASE_URL}/ticket/classificator/all`),
                     axios.get(`${config.API_BASE_URL}/bait/worker/all`),
-                    !clientIdParam && axios.get(`${config.API_BASE_URL}/client/all`)
+                    !clientIdParam && axios.get(`${config.API_BASE_URL}/client/all`),
+                    axios.get(`${config.API_BASE_URL}/work-type/classificator/all`)
                 ]);
 
                 setLocations(locationRes.data);
                 setStatuses(statusRes.data);
                 setBaitWorkers(baitWorkerRes.data);
+                const fetchedWorkTypes = workTypeRes.data;
+                setWorkTypes(fetchedWorkTypes);
+                setAvailableOptions(fetchedWorkTypes); // Set available options initially
                 if (clientRes) setClients(clientRes.data);
+
+                if (clientIdParam) {
+                    const clientResponse = await axios.get(`${config.API_BASE_URL}/client/${clientIdParam}`);
+                    setClientName(clientResponse.data.fullName);
+                }
             } catch (error) {
                 setError(error.message);
             }
@@ -58,28 +68,47 @@ function AddTicket() {
         fetchData();
     }, [clientIdParam]);
 
+
     const handleChange = (e) => {
         const { id, value, type, checked } = e.target;
-        setFormData((prevData) => ({
+        setFormData(prevData => ({
             ...prevData,
             [id]: type === 'checkbox' ? checked : value
         }));
     };
 
-    const handleDateTimeChange = (date, id) => {
-        setFormData((prevData) => ({
-            ...prevData,
-            [id]: moment(date).format('YYYY-MM-DDTHH:mm:ss')
-        }));
+    const handleSelection = (e) => {
+        const selectedValue = parseInt(e.target.value, 10);
+        if (selectedValue) {
+            const selectedWorkType = workTypes.find(type => type.id === selectedValue);
+            if (selectedWorkType) {
+                setSelectedOptions(prev => [...prev, selectedWorkType]);
+                setAvailableOptions(prev => prev.filter(option => option.id !== selectedValue));
+            }
+            e.target.value = ''; // Reset dropdown selection
+        }
     };
+
+    const removeBubble = (workTypeId) => {
+        setSelectedOptions(prev => prev.filter(option => option.id !== workTypeId));
+        setAvailableOptions(prev => [
+            ...prev,
+            workTypes.find(option => option.id === workTypeId)
+        ].sort((a, b) => a.id - b.id)); // Sort if needed
+    };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
         try {
+            const localDateTime = moment().format('YYYY-MM-DDTHH:mm:ss');
+
             const newTicket = {
                 ...formData,
-                clientId: formData.clientId || clients.find(client => client.id === formData.clientId).id,
+                startDateTime: localDateTime,
+                clientId: formData.clientId || clients.find(client => client.id === formData.clientId)?.id,
+                workTypeIds: selectedOptions.map(option => option.id), // Map selected work type objects to IDs
                 ...(mainTicketId && { mainTicketId })
             };
 
@@ -90,9 +119,10 @@ function AddTicket() {
         }
     };
 
+
     return (
         <Container className="mt-5">
-            <h1 className="mb-4">Add Ticket</h1>
+            <h1 className="mb-4">{clientIdParam ? `Add Ticket for ${clientName}` : "Add a New Ticket"}</h1>
             {error && <Alert variant="danger">{error}</Alert>}
             <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="title" className="mb-3">
@@ -113,34 +143,6 @@ function AddTicket() {
                         required
                     />
                 </Form.Group>
-                <Form.Group controlId="startDateTime" className="mb-3">
-                    <Form.Label>Start Date Time</Form.Label>
-                    <Datetime
-                        value={formData.startDateTime}
-                        onChange={(date) => handleDateTimeChange(date, 'startDateTime')}
-                        dateFormat="YYYY-MM-DD"
-                        timeFormat="HH:mm"
-                        required
-                    />
-                </Form.Group>
-                <Form.Group controlId="endDateTime" className="mb-3">
-                    <Form.Label>End Date Time</Form.Label>
-                    <Datetime
-                        value={formData.endDateTime}
-                        onChange={(date) => handleDateTimeChange(date, 'endDateTime')}
-                        dateFormat="YYYY-MM-DD"
-                        timeFormat="HH:mm"
-                    />
-                </Form.Group>
-                <Form.Group controlId="responseDateTime" className="mb-3">
-                    <Form.Label>Response Date Time</Form.Label>
-                    <Datetime
-                        value={formData.responseDateTime}
-                        onChange={(date) => handleDateTimeChange(date, 'responseDateTime')}
-                        dateFormat="YYYY-MM-DD"
-                        timeFormat="HH:mm"
-                    />
-                </Form.Group>
                 <Form.Group controlId="crisis" className="mb-3">
                     <Form.Check
                         type="checkbox"
@@ -157,15 +159,45 @@ function AddTicket() {
                         onChange={handleChange}
                     />
                 </Form.Group>
-                <Form.Group controlId="workType" className="mb-3">
-                    <Form.Label>Work Type</Form.Label>
-                    <Form.Control
-                        type="text"
-                        value={formData.workType}
-                        onChange={handleChange}
-                        required
-                    />
+                <Form.Group as={Row} className="mb-3">
+                    <div>
+                        <Form.Label column sm={2}>
+                            Select Work Type
+                        </Form.Label>
+                    </div>
+                    <Col sm={10}>
+                        <Form.Control as="select" onChange={handleSelection}>
+                            <option value="">Select an option</option>
+                            {availableOptions.map(workType => (
+                                <option key={workType.id} value={workType.id}>
+                                    {workType.workType}
+                                </option>
+                            ))}
+                        </Form.Control>
+                    </Col>
                 </Form.Group>
+
+                <Stack direction="horizontal" gap={2} className="flex-wrap mb-3">
+                    {selectedOptions.map(workType => (
+                        <Badge
+                            key={workType.id}
+                            pill
+                            bg="primary"
+                            className="position-relative d-flex align-items-center"
+                        >
+                            {workType.workType}
+                            <Button
+                                variant="outline-light"
+                                className="position-absolute top-0 end-0 ms-2"
+                                size="sm"
+                                onClick={() => removeBubble(workType.id)}
+                            >
+                                &times;
+                            </Button>
+                        </Badge>
+                    ))}
+                </Stack>
+
                 <Form.Group controlId="rootCause" className="mb-3">
                     <Form.Label>Root Cause</Form.Label>
                     <Form.Control
@@ -198,8 +230,9 @@ function AddTicket() {
                             value={formData.clientId}
                             onChange={handleChange}
                             id="clientId"
+                            required
                         >
-                            <option value="">Select Client</option>
+                            {clients.length > 0 && <option value="">Select Client</option>}
                             {clients.map(client => (
                                 <option key={client.id} value={client.id}>
                                     {client.fullName}

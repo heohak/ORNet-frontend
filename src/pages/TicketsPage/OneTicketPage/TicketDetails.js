@@ -3,7 +3,11 @@ import { Accordion, Card, Button, Row, Col, Form } from 'react-bootstrap';
 import axios from 'axios';
 import FileUploadModal from "../../../modals/FileUploadModal";
 import ClientWorkersModal from "../../../modals/ClientWorkersModal"; // Import the new modal
+import WorkTypeModal from "../../../modals/WorkTypeModal";
 import config from "../../../config/config";
+import 'react-datetime/css/react-datetime.css';
+import Datetime from "react-datetime";
+import moment from 'moment';
 
 const TicketDetails = ({
                            ticket,
@@ -27,11 +31,12 @@ const TicketDetails = ({
     const [locations, setLocations] = useState([]);
     const [statuses, setStatuses] = useState([]);
     const [responsibleName, setResponsibleName] = useState('');
-    const [clientName, setClientName] = useState('');
     const [locationName, setLocationName] = useState('');
     const [statusName, setStatusName] = useState('');
     const [workTypes, setWorkTypes] = useState([]);
     const [baitWorkers, setBaitWorkers] = useState([]);
+    const [showWorkTypeModal, setShowWorkTypeModal] = useState(false);
+
 
 
 
@@ -44,10 +49,10 @@ const TicketDetails = ({
                     startDateTime: ticket.startDateTime || '',
                     endDateTime: ticket.endDateTime || '',
                     responseDateTime: ticket.responseDateTime || '',
-                    update_time: ticket.update_time || '',
+                    updateDateTime: ticket.updateDateTime || '',
                     crisis: ticket.crisis || false,
                     remote: ticket.remote || false,
-                    workType: ticket.workType || '',
+                    workTypeIds: ticket.workTypeIds || [],
                     baitWorkerId: ticket.baitWorkerId || '',
                     clientId: ticket.clientId || '',
                     locationId: ticket.locationId || '',
@@ -149,18 +154,15 @@ const TicketDetails = ({
         }
     }
 
-    const fetchNames = async (responsibleId, clientId, locationId, statusId) => {
+    const fetchNames = async (responsibleId, locationId, statusId) => {
         try {
-            const [responsibleResponse, clientResponse, locationResponse, statusResponse] = await Promise.all([
+            const [responsibleResponse, , locationResponse, statusResponse] = await Promise.all([
                 axios.get(`${config.API_BASE_URL}/bait/worker/${responsibleId}`),
-                axios.get(`${config.API_BASE_URL}/client/${clientId}`),
                 axios.get(`${config.API_BASE_URL}/location/${locationId}`),
                 axios.get(`${config.API_BASE_URL}/ticket/classificator/${statusId}`)
             ]);
             const fullName = responsibleResponse.data.firstName + " " + responsibleResponse.data.lastName;
             setResponsibleName(fullName);
-            setClientName(clientResponse.data.fullName);
-            console.log(clientName);
             setLocationName(locationResponse.data.name);
             setStatusName(statusResponse.data.status);
         } catch (error) {
@@ -177,6 +179,17 @@ const TicketDetails = ({
         }
     };
 
+    const handleWorkTypesSave = (selectedWorkTypes) => {
+        setEditFields((prevFields) => ({
+            ...prevFields,
+            [ticket.id]: {
+                ...prevFields[ticket.id],
+                workTypeIds: selectedWorkTypes
+            }
+        }));
+    };
+
+
     const handleAddComment = async () => {
         try {
             await axios.put(`${config.API_BASE_URL}/ticket/comment/${ticket.id}`, null, {
@@ -190,6 +203,18 @@ const TicketDetails = ({
             console.error('Error adding comment:', error);
         }
     };
+
+    const handleDatetimeChange = (date, ticketId, field) => {
+        setEditFields((prevFields) => ({
+            ...prevFields,
+            [ticketId]: {
+                ...prevFields[ticketId],
+                [field]: moment(date).format('YYYY-MM-DDTHH:mm:ss')
+            }
+        }));
+    };
+
+
 
     const handleChange = (e, ticketId) => {
         const { name, value } = e.target;
@@ -242,29 +267,21 @@ const TicketDetails = ({
                                                         <p><strong>End Date Time:</strong> {ticket.endDateTime}</p>
                                                         <Form.Group className="mb-3">
                                                             <Form.Label>Response Date Time</Form.Label>
-                                                            <Form.Control
-                                                                type="datetime-local"
-                                                                name="responseDateTime"
+                                                            <Datetime
                                                                 value={editFields[ticket.id]?.responseDateTime || ''}
-                                                                onChange={(e) => handleChange(e, ticket.id)}
+                                                                onChange={(date) => handleDatetimeChange(date, ticket.id, 'responseDateTime')}
+                                                                dateFormat="YYYY-MM-DD"
+                                                                timeFormat="HH:mm"
                                                             />
                                                         </Form.Group>
-                                                        <Form.Group className="mb-3">
-                                                            <Form.Label>Update Time</Form.Label>
-                                                            <Form.Control
-                                                                type="datetime-local"
-                                                                name="update_time"
-                                                                value={editFields[ticket.id]?.update_time || ''}
-                                                                onChange={(e) => handleChange(e, ticket.id)}
-                                                            />
-                                                        </Form.Group>
+                                                        <p><strong>Update Time:</strong> {ticket.updateDateTime}</p>
                                                     </>
                                                 ) : (
                                                     <>
                                                         <p><strong>Start Date Time:</strong> {ticket.startDateTime}</p>
                                                         <p><strong>End Date Time:</strong> {ticket.endDateTime}</p>
                                                         <p><strong>Response Date Time:</strong> {ticket.responseDateTime}</p>
-                                                        <p><strong>Update Time:</strong> {ticket.update_time}</p>
+                                                        <p><strong>Update Time:</strong> {ticket.updateDateTime}</p>
                                                     </>
                                                 )}
                                             </Col>
@@ -310,19 +327,15 @@ const TicketDetails = ({
                                                             />
                                                         </Form.Group>
                                                         <Form.Group className="mb-3">
-                                                            <Form.Label>Work Type</Form.Label>
-                                                            <Form.Control
-                                                                as="select"
-                                                                name="workType"
-                                                                value={editFields[ticket.id]?.workType || ''}
-                                                                onChange={(e) => handleChange(e, ticket.id)}
-                                                            >
-                                                                <option value="">Select work type</option>
-                                                                {workTypes.map(workType => (
-                                                                    <option key={workType.id} value={workType.id}>{workType.workType}</option>
-                                                                ))}
-                                                            </Form.Control>
+                                                            <div>
+                                                                <Form.Label>Work Type</Form.Label>
+                                                            </div>
+                                                            <Button variant="outline-primary" onClick={() => setShowWorkTypeModal(true)}>
+                                                                Select Work Types
+                                                            </Button>
+
                                                         </Form.Group>
+
                                                         <Form.Group className="mb-3">
                                                             <Form.Label>Responsible Worker</Form.Label>
                                                             <Form.Control
@@ -337,9 +350,14 @@ const TicketDetails = ({
                                                                 ))}
                                                             </Form.Control>
                                                         </Form.Group>
-                                                        <Button variant="outline-primary" onClick={() => setShowWorkersModal(true)}>
-                                                            Manage Client Workers
-                                                        </Button>
+                                                        <Form.Group className="mb-3">
+                                                            <div>
+                                                                <Form.Label>Contacts</Form.Label>
+                                                            </div>
+                                                            <Button variant="outline-primary" onClick={() => setShowWorkersModal(true)}>
+                                                                Select Contacts
+                                                            </Button>
+                                                        </Form.Group>
                                                     </>
                                                 ) : (
                                                     <>
@@ -420,7 +438,7 @@ const TicketDetails = ({
                                                 ) : (
                                                     <>
                                                         <p><strong>Client Numeration:</strong> {ticket.clientNumeration}</p>
-                                                        <p><strong>Client:</strong> {clientName}</p>
+                                                        <p><strong>Client:</strong> {ticket.clientName}</p>
                                                         <p><strong>Location:</strong> {locationName}</p>
                                                         <p><strong>Status:</strong> {statusName}</p>
                                                         <p><strong>Root Cause:</strong> {ticket.rootCause}</p>
@@ -540,6 +558,12 @@ const TicketDetails = ({
                 clientId={ticket.clientId}
                 selectedWorkers={editFields[ticket.id]?.contactIds || []}
                 onSave={handleWorkersSave}
+            />
+            <WorkTypeModal
+                show={showWorkTypeModal}
+                handleClose={() => setShowWorkTypeModal(false)}
+                selectedWorkTypes={editFields[ticket.id]?.workTypeIds || []}
+                onSave={handleWorkTypesSave}
             />
         </Accordion>
     );

@@ -18,6 +18,7 @@ function OneTicket() {
     const [expandedSections, setExpandedSections] = useState({});
     const [editFields, setEditFields] = useState({});
     const [refresh, setRefresh] = useState(false);
+    const [clientName, setClientName] = useState(null);
     const navigate = useNavigate();
 
     const ticketRefs = useRef({});
@@ -27,6 +28,9 @@ function OneTicket() {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/ticket/main/${ticketId}`);
                 const ticketsData = response.data;
+                if (ticketsData.length > 0) {
+                    fetchClientName(ticketsData[0].clientId);
+                }
                 setTickets(ticketsData);
                 const initialEditFields = {};
                 ticketsData.forEach(ticket => {
@@ -64,10 +68,19 @@ function OneTicket() {
         }
     }, [loading, scrollToId]);
 
+    const fetchClientName = async (clientId) => {
+        try {
+            const clientResponse = await axios.get(`${config.API_BASE_URL}/client/${clientId}`);
+            setClientName(clientResponse.data.fullName);
+        } catch (error) {
+            console.error('Error fetching names:', error);
+        }
+    };
+
     const handleAddTicket = () => {
         const currentTicket = tickets.find(ticket => ticket.id === parseInt(ticketId));
         if (currentTicket) {
-            navigate(`/add-ticket/${ticketId}?clientId=${currentTicket.clientId}`);
+            navigate(`/add-ticket/${ticketId}?clientId=${currentTicket.clientId}`); // Passes along the client id
         } else {
             navigate(`/add-ticket/${ticketId}`);
         }
@@ -142,7 +155,7 @@ function OneTicket() {
     return (
         <Container className="mt-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1 className="mb-4">Ticket Details</h1>
+                <h1 className="mb-4">{clientName} - Ticket Details</h1>
                 <Button variant="success" onClick={handleAddTicket} className="mb-4">Add Ticket</Button>
             </div>
             {tickets.length > 0 ? (

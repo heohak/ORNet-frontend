@@ -11,7 +11,7 @@ function Tickets() {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [filter, setFilter] = useState('all');
+    const [filter, setFilter] = useState(1);
     const [crisis, setCrisis] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
@@ -24,6 +24,12 @@ function Tickets() {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`);
                 setStatuses(response.data);
+
+                // Check if "open" status exists and set the filter accordingly
+                const openStatus = response.data.find(status => status.status.toLowerCase() === 'open');
+                if (openStatus) {
+                    setFilter(openStatus.id);
+                }
             } catch (error) {
                 console.error("Error fetching statuses", error);
             }
