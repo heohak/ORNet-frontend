@@ -13,11 +13,17 @@ function MaintenanceInfo({
                              setMaintenanceComment,
                              setFiles
                          }) {
-    const [visibleMaintenanceFields, setVisibleMaintenanceFields] = useState({});
+    const [visibleFields, setVisibleFields] = useState({});
     const [showMaintenanceFieldModal, setShowMaintenanceFieldModal] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [showFileUploadModal, setShowFileUploadModal] = useState(false);
     const [selectedMaintenanceId, setSelectedMaintenanceId] = useState(null);
+
+    const defaultFields = [
+        'maintenanceName',
+        'maintenanceDate',
+        'comment'
+    ];
 
     useEffect(() => {
         if (maintenanceInfo.length > 0) {
@@ -26,24 +32,25 @@ function MaintenanceInfo({
     }, [maintenanceInfo]);
 
     const initializeVisibleFields = (data) => {
+        const initialVisibleFields = defaultFields.reduce((acc, key) => {
+            if (key in data) {
+                acc[key] = true;
+            }
+            return acc;
+        }, {});
+
         const savedVisibilityState = localStorage.getItem('maintenanceVisibilityState');
         if (savedVisibilityState) {
-            setVisibleMaintenanceFields(JSON.parse(savedVisibilityState));
+            const savedFields = JSON.parse(savedVisibilityState);
+            setVisibleFields({ ...initialVisibleFields, ...savedFields });
         } else {
-            const initialVisibleFields = Object.keys(data).reduce((acc, key) => {
-                acc[key] = true;
-                return acc;
-            }, {});
-            setVisibleMaintenanceFields(initialVisibleFields);
+            setVisibleFields(initialVisibleFields);
         }
     };
 
     const handleFieldToggle = (field) => {
-        setVisibleMaintenanceFields(prevVisibleFields => {
-            const newVisibleFields = {
-                ...prevVisibleFields,
-                [field]: !prevVisibleFields[field]
-            };
+        setVisibleFields(prevVisibleFields => {
+            const newVisibleFields = { ...prevVisibleFields, [field]: !prevVisibleFields[field] };
             localStorage.setItem('maintenanceVisibilityState', JSON.stringify(newVisibleFields));
             return newVisibleFields;
         });
@@ -51,7 +58,7 @@ function MaintenanceInfo({
 
     const renderFields = (data) => {
         return Object.keys(data).map(key => {
-            if (data[key] !== null && visibleMaintenanceFields[key]) {
+            if (visibleFields[key] && data[key] !== null) {
                 return (
                     <Card.Text key={key} className="mb-1">
                         <strong>{key.replace(/([A-Z])/g, ' $1')}: </strong> {data[key]}
@@ -182,12 +189,12 @@ function MaintenanceInfo({
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        {maintenanceInfo[0] && Object.keys(maintenanceInfo[0]).map(key => (
+                        {Object.keys(visibleFields).map(key => (
                             <Form.Check
                                 key={key}
                                 type="checkbox"
                                 label={key.replace(/([A-Z])/g, ' $1')}
-                                checked={visibleMaintenanceFields[key]}
+                                checked={visibleFields[key]}
                                 onChange={() => handleFieldToggle(key)}
                             />
                         ))}
