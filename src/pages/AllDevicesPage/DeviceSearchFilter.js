@@ -10,6 +10,7 @@ function DeviceSearchFilter({ setDevices }) {
     const [classificators, setClassificators] = useState([]);
     const [clients, setClients] = useState([]);
     const [error, setError] = useState(null);
+    const [typingTimeout, setTypingTimeout] = useState(null);
 
     useEffect(() => {
         const fetchClassificators = async () => {
@@ -51,6 +52,15 @@ function DeviceSearchFilter({ setDevices }) {
             setError(error.message);
         }
     };
+
+    useEffect(() => {
+        if (typingTimeout) clearTimeout(typingTimeout);
+        const timeout = setTimeout(() => {
+            handleSearchAndFilter();
+        }, 300);
+        setTypingTimeout(timeout);
+        return () => clearTimeout(timeout);
+    }, [searchQuery, classificatorId, clientId]);
 
     return (
         <>
@@ -100,9 +110,6 @@ function DeviceSearchFilter({ setDevices }) {
                             </option>
                         ))}
                     </Form.Control>
-                </Col>
-                <Col>
-                    <Button variant="primary" onClick={handleSearchAndFilter}>Search</Button>
                 </Col>
             </Row>
         </>

@@ -32,33 +32,39 @@ function LinkedDevices({
     const [showCommentsModal, setShowCommentsModal] = useState(false); // State for comments modal
     const [commentsDeviceId, setCommentsDeviceId] = useState(null); // State for current device ID for comments
 
+    const defaultFields = [
+        'name',
+        'manufacturer',
+        'productCode',
+        'serialNumber',
+        'comment'
+        // Add other fields you want to be visible by default
+    ];
+
     useEffect(() => {
-        const storedVisibleFields = localStorage.getItem('visibleFields');
-        if (storedVisibleFields) {
-            setVisibleFields(JSON.parse(storedVisibleFields));
-        } else if (linkedDevices.length > 0) {
+        if (linkedDevices.length > 0) {
             initializeVisibleFields(linkedDevices);
         }
     }, [linkedDevices]);
 
     const initializeVisibleFields = (devices) => {
-        const allKeys = new Set();
-        devices.forEach(device => {
-            Object.keys(device).forEach(key => allKeys.add(key));
-            if (device.attributes) {
-                Object.keys(device.attributes).forEach(key => allKeys.add(key));
-            }
-        });
-
         const initialVisibleFields = {};
         devices.forEach(device => {
-            initialVisibleFields[device.id] = {};
-            allKeys.forEach(key => initialVisibleFields[device.id][key] = true);
+            initialVisibleFields[device.id] = defaultFields.reduce((acc, key) => {
+                if (key in device || (device.attributes && key in device.attributes)) {
+                    acc[key] = true;
+                }
+                return acc;
+            }, {});
         });
 
-        console.log("Initialized visible fields:", initialVisibleFields);
-        setVisibleFields(initialVisibleFields);
-        localStorage.setItem('visibleFields', JSON.stringify(initialVisibleFields));
+        const storedVisibleFields = localStorage.getItem('linkedDeviceVisibilityState');
+        if (storedVisibleFields) {
+            const storedFields = JSON.parse(storedVisibleFields);
+            setVisibleFields({ ...initialVisibleFields, ...storedFields });
+        } else {
+            setVisibleFields(initialVisibleFields);
+        }
     };
 
     const handleFieldToggle = (deviceId, field) => {
@@ -70,14 +76,12 @@ function LinkedDevices({
                     [field]: !prevVisibleFields[deviceId][field]
                 }
             };
-            console.log("Updated visible fields:", newVisibleFields);
-            localStorage.setItem('visibleFields', JSON.stringify(newVisibleFields));
+            localStorage.setItem('linkedDeviceVisibilityState', JSON.stringify(newVisibleFields));
             return newVisibleFields;
         });
     };
 
     const renderFields = (deviceId, data) => {
-        console.log('Rendering fields for device:', deviceId, data);
         return Object.keys(data).map(key => {
             if (visibleFields[deviceId] && visibleFields[deviceId][key] && data[key] !== null) {
                 if (typeof data[key] === 'object' && !Array.isArray(data[key])) {
@@ -99,7 +103,6 @@ function LinkedDevices({
 
     const handleAddNewLinkedDevice = async () => {
         try {
-            console.log("Adding new linked device:", newLinkedDevice);
             const response = await axios.post(`${config.API_BASE_URL}/linked/device/add`, newLinkedDevice);
             const newDeviceId = response.data.token;
 
@@ -126,6 +129,20 @@ function LinkedDevices({
             const updatedLinkedDevices = await axios.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
             setLinkedDevices(updatedLinkedDevices.data);
             initializeVisibleFields(updatedLinkedDevices.data);
+
+            // Ensure the new field is visible after adding it
+            setVisibleFields(prevVisibleFields => {
+                const newVisibleFields = {
+                    ...prevVisibleFields,
+                    [currentDeviceId]: {
+                        ...prevVisibleFields[currentDeviceId],
+                        [newField.key]: true
+                    }
+                };
+                localStorage.setItem('linkedDeviceVisibilityState', JSON.stringify(newVisibleFields));
+                return newVisibleFields;
+            });
+
         } catch (error) {
             console.error('Error adding new field:', error);
         }

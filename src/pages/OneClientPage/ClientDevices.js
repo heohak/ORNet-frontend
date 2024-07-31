@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, ListGroup, Alert, Button, Modal, Form, InputGroup } from 'react-bootstrap';
+import { Card, ListGroup, Alert, Button, Modal, Form,Spinner, InputGroup, Container, Row, Col } from 'react-bootstrap';
 import AddClientDevice from './AddClientDevice';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -11,11 +11,15 @@ function ClientDevices({ devices, client, clientId, setRefresh }) {
     const [selectedClassificatorId, setSelectedClassificatorId] = useState('');
     const [filteredDevices, setFilteredDevices] = useState(devices);
     const [searchQuery, setSearchQuery] = useState('');
+    const [deviceSummary, setDeviceSummary] = useState({});
+    const [loadingSummary, setLoadingSummary] = useState(true);
+    const [errorSummary, setErrorSummary] = useState(null);
 
     const navigate = useNavigate();
 
     useEffect(() => {
         fetchClassificators();
+        fetchDeviceSummary();
     }, []);
 
     useEffect(() => {
@@ -28,6 +32,18 @@ function ClientDevices({ devices, client, clientId, setRefresh }) {
             setClassificators(response.data);
         } catch (error) {
             console.error('Error fetching classificators:', error);
+        }
+    };
+
+    const fetchDeviceSummary = async () => {
+        setLoadingSummary(true);
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/device/client/summary/${clientId}`);
+            setDeviceSummary(response.data);
+        } catch (error) {
+            setErrorSummary(error.message);
+        } finally {
+            setLoadingSummary(false);
         }
     };
 
@@ -56,6 +72,7 @@ function ClientDevices({ devices, client, clientId, setRefresh }) {
                 {'Devices'}
             </h2>
             <Button variant="primary" onClick={() => setShowAddDeviceModal(true)}>Add Device</Button>
+
             <Form.Group controlId="search" className="mt-3">
                 <Form.Label>Search</Form.Label>
                 <Form.Control
@@ -74,6 +91,9 @@ function ClientDevices({ devices, client, clientId, setRefresh }) {
                     ))}
                 </Form.Control>
             </Form.Group>
+
+
+
             {filteredDevices.length > 0 ? (
                 <ListGroup className="mt-3">
                     {filteredDevices.map((device, index) => (
@@ -90,6 +110,26 @@ function ClientDevices({ devices, client, clientId, setRefresh }) {
                 </ListGroup>
             ) : (
                 <Alert className="mt-3" variant="info">No devices available.</Alert>
+            )}
+
+            <h3 className="mt-4">Device Summary</h3>
+            {loadingSummary ? (
+                <Spinner animation="border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </Spinner>
+            ) : errorSummary ? (
+                <Alert variant="danger">
+                    <Alert.Heading>Error</Alert.Heading>
+                    <p>{errorSummary}</p>
+                </Alert>
+            ) : (
+                <ListGroup className="mt-3">
+                    {Object.keys(deviceSummary).map(key => (
+                        <ListGroup.Item key={key}>
+                            {key}: {deviceSummary[key]}
+                        </ListGroup.Item>
+                    ))}
+                </ListGroup>
             )}
 
             <Modal show={showAddDeviceModal} onHide={() => setShowAddDeviceModal(false)}>
