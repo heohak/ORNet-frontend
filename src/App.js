@@ -30,6 +30,7 @@ import ViewClientWorkerRoles from "./pages/SettingsPage/ViewClientWorkerRoles";
 import ViewClientWorkers from "./pages/SettingsPage/ViewClientWorkers";
 import ViewSoftware from "./pages/SettingsPage/ViewSoftware";
 import ViewFiles from "./pages/SettingsPage/ViewFiles";
+import ViewWorkTypes from "./pages/SettingsPage/ViewWorkTypes";
 
 function App() {
     return (
@@ -64,6 +65,7 @@ function App() {
                 <Route path="/settings/client-workers" element={<ViewClientWorkers />} />
                 <Route path="/settings/software" element={<ViewSoftware />} />
                 <Route path="/settings/files" element={<ViewFiles />} />
+                <Route path="/settings/work-types" element={<ViewWorkTypes />} />
             </Routes>
         </Router>
     );

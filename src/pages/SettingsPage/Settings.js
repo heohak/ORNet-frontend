@@ -107,7 +107,7 @@ function Settings() {
                     </Button>
                 </Col>
             </Row>
-            <Row>
+            <Row className="mb-3">
                 <Col md={6}>
                     <Button
                         variant="primary"
@@ -118,6 +118,18 @@ function Settings() {
                     </Button>
                 </Col>
             </Row>
+            <Row >
+                <Col md={6}>
+                    <Button
+                        variant="primary"
+                        onClick={() => navigate('/settings/work-types')}
+                        className="w-50"
+                    >
+                        View Work Types
+                    </Button>
+                </Col>
+            </Row>
+
         </Container>
     );
 }
