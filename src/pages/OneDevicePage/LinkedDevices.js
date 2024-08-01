@@ -259,16 +259,6 @@ function LinkedDevices({
                                     placeholder="Enter serial number"
                                 />
                             </Form.Group>
-                            <Form.Group controlId="newDeviceComment">
-                                <Form.Label>Comment</Form.Label>
-                                <Form.Control
-                                    as="textarea"
-                                    rows={3}
-                                    value={newLinkedDevice.comment}
-                                    onChange={(e) => setNewLinkedDevice({ ...newLinkedDevice, comment: e.target.value })}
-                                    placeholder="Enter comment"
-                                />
-                            </Form.Group>
                             <Button variant="link" onClick={() => setShowAddNewDeviceForm(false)}>
                                 Back to select existing device
                             </Button>
