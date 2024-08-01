@@ -36,6 +36,7 @@ const TicketDetails = ({
     const [workTypes, setWorkTypes] = useState([]);
     const [baitWorkers, setBaitWorkers] = useState([]);
     const [showWorkTypeModal, setShowWorkTypeModal] = useState(false);
+    const [paidInfo, setPaidInfo] = useState({});
 
 
 
@@ -64,7 +65,8 @@ const TicketDetails = ({
                     contactIds: ticket.contactIds || [],
                     fileIds: ticket.fileIds || '',
                     baitNumeration: ticket.baitNumeration || '',
-                    clientNumeration: ticket.clientNumeration || ''
+                    clientNumeration: ticket.clientNumeration || '',
+                    paidWorkId: ticket.paidWorkId || ''
                 }
             }));
         }
@@ -76,6 +78,9 @@ const TicketDetails = ({
             fetchContacts(ticket.id);
             fetchNames(ticket.baitWorkerId, ticket.locationId, ticket.statusId); // Fetch names
             fetchWorkTypes(ticket.id); // Fetch work types
+            if (ticket.paidWorkId) {
+                fetchPaidInfo(ticket.id);
+            }
         }
     }, [expandedTickets]);
 
@@ -243,6 +248,36 @@ const TicketDetails = ({
             }
         }));
     };
+
+    const handleMakePaid = async (ticketId) => {
+        try {
+            await axios.put(`${config.API_BASE_URL}/ticket/add/paid-work/${ticketId}`);
+        } catch (error) {
+            console.error('Error making ticket paid:', error);
+        }
+    };
+
+    const fetchPaidInfo = async (ticketId) => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/paid-work/${ticketId}`);
+            setPaidInfo(prevState => ({ ...prevState, [ticketId]: response.data }));
+        } catch (error) {
+            console.error('Error fetching paid info:', error);
+        }
+    };
+
+    const renderPaidInfo = (ticketId) => {
+        const info = paidInfo[ticketId];
+        if (!info) return null;
+
+        return (
+            <div>
+                <p>Paid Start Time: {info.startTime}</p>
+                <p>Paid Time Spent: {info.timeSpent}</p>
+            </div>
+        );
+    };
+
 
     return (
         <Accordion key={ticket.id} activeKey={expandedTickets.has(ticket.id.toString()) ? ticket.id.toString() : null}>
@@ -445,13 +480,35 @@ const TicketDetails = ({
                                                         <p><strong>Location:</strong> {locationName}</p>
                                                         <p><strong>Status:</strong> {statusName}</p>
                                                         <p><strong>Root Cause:</strong> {ticket.rootCause}</p>
-                                                    </>
+                                                        {!ticket.paidWorkId ? (
+                                                            <Button onClick={() => handleMakePaid(ticket.id)}>Make Paid</Button>
+                                                        ) : null}                                                    </>
                                                 )}
                                             </Col>
                                         </Row>
                                     </Accordion.Body>
                                 </Accordion.Item>
                             </Accordion>
+
+                            {/* Paid Info Section */}
+                            {ticket.paidWorkId ? (
+                                <Accordion activeKey={expandedSections[ticket.id]?.paid ? "2" : null}>
+                                    <Accordion.Item eventKey="2">
+                                        <Accordion.Header onClick={() => toggleSectionExpansion(ticket.id, 'paid')}>
+                                            Paid Info
+                                        </Accordion.Header>
+                                        <Accordion.Body>
+                                            {ticket.paidWorkId ? (
+                                                <>
+                                                    {expandedSections[ticket.id]?.paid && renderPaidInfo(ticket.id)}
+                                                </>
+                                            ): null}
+                                        </Accordion.Body>
+                                    </Accordion.Item>
+                                </Accordion>
+                            ) : (
+                                <div></div>
+                            )}
                             <Card.Title className="mt-4">Description</Card.Title>
                             {isEditing ? (
                                 <Form.Control
