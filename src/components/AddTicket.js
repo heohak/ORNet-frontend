@@ -19,10 +19,12 @@ function AddTicket() {
         startDateTime: '',
         crisis: false,
         remote: false,
-        workTypeIds: [], // Changed from workType to workTypeIds
+        workTypeIds: [],
         baitWorkerId: '',
         locationId: '',
-        statusId: ''
+        statusId: '',
+        baitNumeration: '',
+        clientNumeration: ''
     });
 
 
@@ -141,6 +143,22 @@ function AddTicket() {
                         value={formData.description}
                         onChange={handleChange}
                         required
+                    />
+                </Form.Group>
+                <Form.Group controlId="baitNumeration" className="mb-3">
+                    <Form.Label>Our Numeration</Form.Label>
+                    <Form.Control
+                        type="text"
+                        value={formData.baitNumeration}
+                        onChange={handleChange}
+                    />
+                </Form.Group>
+                <Form.Group controlId="clientNumeration" className="mb-3">
+                    <Form.Label>Client Numeration</Form.Label>
+                    <Form.Control
+                        type="text"
+                        value={formData.clientNumeration}
+                        onChange={handleChange}
                     />
                 </Form.Group>
                 <Form.Group controlId="crisis" className="mb-3">

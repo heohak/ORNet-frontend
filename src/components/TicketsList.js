@@ -79,6 +79,7 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
                                 <Card.Title>{ticket.title}</Card.Title>
                                 <Card.Text>
                                     <strong>Client:</strong> {clientName}<br />
+                                    <strong>Start Time:</strong> {ticket.startDateTime}<br />
                                 </Card.Text>
                                 <Button onClick={() => onNavigate(ticket.id)}>View Ticket</Button>
                             </Card.Body>
