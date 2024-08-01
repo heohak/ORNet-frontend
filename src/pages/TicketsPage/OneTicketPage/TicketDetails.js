@@ -74,7 +74,7 @@ const TicketDetails = ({
         if (expandedTickets.has(ticket.id.toString())) {
             fetchComments(ticket.id);
             fetchContacts(ticket.id);
-            fetchNames(ticket.baitWorkerId, ticket.clientId, ticket.locationId, ticket.statusId); // Fetch names
+            fetchNames(ticket.baitWorkerId, ticket.locationId, ticket.statusId); // Fetch names
             fetchWorkTypes(ticket.id); // Fetch work types
         }
     }, [expandedTickets]);
@@ -156,7 +156,7 @@ const TicketDetails = ({
 
     const fetchNames = async (responsibleId, locationId, statusId) => {
         try {
-            const [responsibleResponse, , locationResponse, statusResponse] = await Promise.all([
+            const [responsibleResponse, locationResponse, statusResponse] = await Promise.all([
                 axios.get(`${config.API_BASE_URL}/bait/worker/${responsibleId}`),
                 axios.get(`${config.API_BASE_URL}/location/${locationId}`),
                 axios.get(`${config.API_BASE_URL}/ticket/classificator/${statusId}`)
