@@ -217,7 +217,7 @@ function AddTicket() {
                 <Form.Group as={Row} className="mb-3">
                     <div>
                         <Form.Label column sm={2}>
-                            Select Work Type
+                            Work Types
                         </Form.Label>
                         <Button
                             variant="link"
