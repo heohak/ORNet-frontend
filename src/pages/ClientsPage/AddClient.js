@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Form, Button, Alert, Modal } from 'react-bootstrap';
+import Select from 'react-select';
 import config from "../../config/config";
 
 function AddClient({ onClose }) {
@@ -12,17 +13,17 @@ function AddClient({ onClose }) {
     const [otherMedicalInformation, setOtherMedicalInformation] = useState('');
     const [lastMaintenance, setLastMaintenance] = useState('');
     const [nextMaintenance, setNextMaintenance] = useState('');
-    const [locationIds, setLocationIds] = useState([]);
-    const [thirdPartyIds, setThirdPartyIds] = useState([]);
-    const [locations, setLocations] = useState([]);
-    const [thirdParties, setThirdParties] = useState([]);
+    const [locationOptions, setLocationOptions] = useState([]);
+    const [thirdPartyOptions, setThirdPartyOptions] = useState([]);
+    const [selectedLocations, setSelectedLocations] = useState([]);
+    const [selectedThirdParties, setSelectedThirdParties] = useState([]);
     const [error, setError] = useState(null);
 
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [newLocation, setNewLocation] = useState({ name: '', address: '', phone: '' });
 
     const [showThirdPartyModal, setShowThirdPartyModal] = useState(false);
-    const [newThirdParty, setNewThirdParty] = useState({ name: '', contactInfo: '' });
+    const [newThirdParty, setNewThirdParty] = useState({ name: '', email: '', phone: '' });
 
     useEffect(() => {
         const fetchLocationsAndThirdParties = async () => {
@@ -31,8 +32,8 @@ function AddClient({ onClose }) {
                     axios.get(`${config.API_BASE_URL}/location/all`),
                     axios.get(`${config.API_BASE_URL}/third-party/all`)
                 ]);
-                setLocations(locationsResponse.data);
-                setThirdParties(thirdPartiesResponse.data);
+                setLocationOptions(locationsResponse.data.map(loc => ({ value: loc.id, label: loc.name })));
+                setThirdPartyOptions(thirdPartiesResponse.data.map(tp => ({ value: tp.id, label: tp.name })));
             } catch (error) {
                 setError(error.message);
             }
@@ -64,8 +65,8 @@ function AddClient({ onClose }) {
             const clientId = clientResponse.data.token;
 
             await Promise.all([
-                ...locationIds.map(locationId => axios.put(`${config.API_BASE_URL}/client/${clientId}/${locationId}`)),
-                ...thirdPartyIds.map(thirdPartyId => axios.put(`${config.API_BASE_URL}/client/third-party/${clientId}/${thirdPartyId}`))
+                ...selectedLocations.map(location => axios.put(`${config.API_BASE_URL}/client/${clientId}/${location.value}`)),
+                ...selectedThirdParties.map(tp => axios.put(`${config.API_BASE_URL}/client/third-party/${clientId}/${tp.value}`))
             ]);
 
             onClose(); // Close the modal after adding the client
@@ -90,8 +91,9 @@ function AddClient({ onClose }) {
             });
 
             const addedLocation = response.data;
-            setLocations(prevLocations => [...prevLocations, addedLocation]);
-            setLocationIds(prevIds => [...prevIds, addedLocation.id]); // Automatically select the new location
+            const newLocationOption = { value: addedLocation.id, label: addedLocation.name };
+            setLocationOptions(prevLocations => [...prevLocations, newLocationOption]);
+            setSelectedLocations(prevSelected => [...prevSelected, newLocationOption]); // Automatically select the new location
             setNewLocation({ name: '', address: '', phone: '' });
             setShowLocationModal(false);
         } catch (error) {
@@ -100,11 +102,10 @@ function AddClient({ onClose }) {
         }
     };
 
-
     const handleAddThirdParty = async () => {
-        const { name, contactInfo } = newThirdParty;
+        const { name, email, phone } = newThirdParty;
 
-        if (!name.trim() || !contactInfo.trim()) {
+        if (!name.trim() || !email.trim() || !phone.trim()) {
             setError('Please fill in all fields for the new third-party IT.');
             return;
         }
@@ -112,36 +113,20 @@ function AddClient({ onClose }) {
         try {
             const response = await axios.post(`${config.API_BASE_URL}/third-party/add`, {
                 name,
-                contactInfo,
+                email,
+                phone,
             });
 
             const addedThirdParty = response.data;
-            setThirdParties(prevThirdParties => [...prevThirdParties, addedThirdParty]);
-            setThirdPartyIds(prevIds => [...prevIds, addedThirdParty.id]); // Automatically select the new third-party IT
-            setNewThirdParty({ name: '', contactInfo: '' });
+            const newThirdPartyOption = { value: addedThirdParty.id, label: addedThirdParty.name };
+            setThirdPartyOptions(prevThirdParties => [...prevThirdParties, newThirdPartyOption]);
+            setSelectedThirdParties(prevSelected => [...prevSelected, newThirdPartyOption]); // Automatically select the new third-party IT
+            setNewThirdParty({ name: '', email: '', phone: '' });
             setShowThirdPartyModal(false);
         } catch (error) {
             setError('Error adding third-party IT.');
             console.error('Error adding third-party IT:', error);
         }
-    };
-
-    const renderDropdownOptions = (items, selectedIds) => {
-        return items.map(item => (
-            <option key={item.id} value={item.id} selected={selectedIds.includes(item.id)}>
-                {item.name}
-            </option>
-        ));
-    };
-
-    const handleLocationChange = (e) => {
-        const options = [...e.target.selectedOptions].map(option => option.value);
-        setLocationIds(options);
-    };
-
-    const handleThirdPartyChange = (e) => {
-        const options = [...e.target.selectedOptions].map(option => option.value);
-        setThirdPartyIds(options);
     };
 
     return (
@@ -221,28 +206,24 @@ function AddClient({ onClose }) {
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Locations</Form.Label>
-                    <Form.Control
-                        as="select"
-                        multiple
-                        value={locationIds}
-                        onChange={handleLocationChange}
-                    >
-                        {renderDropdownOptions(locations, locationIds)}
-                    </Form.Control>
+                    <Select
+                        isMulti
+                        options={locationOptions}
+                        value={selectedLocations}
+                        onChange={setSelectedLocations}
+                    />
                     <Form.Text className="text-muted">
                         Can't find the location? <Button variant="link" onClick={() => setShowLocationModal(true)}>Add New</Button>
                     </Form.Text>
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Third Party ITs</Form.Label>
-                    <Form.Control
-                        as="select"
-                        multiple
-                        value={thirdPartyIds}
-                        onChange={handleThirdPartyChange}
-                    >
-                        {renderDropdownOptions(thirdParties, thirdPartyIds)}
-                    </Form.Control>
+                    <Select
+                        isMulti
+                        options={thirdPartyOptions}
+                        value={selectedThirdParties}
+                        onChange={setSelectedThirdParties}
+                    />
                     <Form.Text className="text-muted">
                         Can't find the third-party IT? <Button variant="link" onClick={() => setShowThirdPartyModal(true)}>Add New</Button>
                     </Form.Text>
@@ -307,11 +288,20 @@ function AddClient({ onClose }) {
                         />
                     </Form.Group>
                     <Form.Group className="mb-3">
-                        <Form.Label>Contact Info</Form.Label>
+                        <Form.Label>Email</Form.Label>
+                        <Form.Control
+                            type="email"
+                            value={newThirdParty.email}
+                            onChange={(e) => setNewThirdParty({ ...newThirdParty, email: e.target.value })}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Phone</Form.Label>
                         <Form.Control
                             type="text"
-                            value={newThirdParty.contactInfo}
-                            onChange={(e) => setNewThirdParty({ ...newThirdParty, contactInfo: e.target.value })}
+                            value={newThirdParty.phone}
+                            onChange={(e) => setNewThirdParty({ ...newThirdParty, phone: e.target.value })}
                             required
                         />
                     </Form.Group>
