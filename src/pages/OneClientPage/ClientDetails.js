@@ -45,9 +45,13 @@ function ClientDetails({ client, navigate }) {
     const renderFields = (data) => {
         return specificFields.map(key => {
             if (data[key] !== null && visibleDeviceFields[key]) {
+                let displayValue = data[key];
+                if (typeof data[key] === 'boolean') {
+                    displayValue = data[key] ? 'Yes' : 'No';
+                }
                 return (
                     <Card.Text key={key} className="mb-1">
-                        <strong>{key.replace(/([A-Z])/g, ' $1')}: </strong> {data[key]}
+                        <strong>{key.replace(/([A-Z])/g, ' $1')}: </strong> {displayValue}
                     </Card.Text>
                 );
             }
