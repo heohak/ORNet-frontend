@@ -3,7 +3,9 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Button, Form, Container, Alert, Badge, Row, Stack, Col } from 'react-bootstrap';
 import moment from 'moment';
-import config from "../config/config";
+import config from "../../../config/config";
+import AddWorkTypeModal from './AddWorkTypeModal';
+import AddLocationModal from "./AddLocationModal";
 
 function AddTicket() {
     const { mainTicketId } = useParams();
@@ -27,7 +29,6 @@ function AddTicket() {
         clientNumeration: ''
     });
 
-
     const [clients, setClients] = useState([]);
     const [locations, setLocations] = useState([]);
     const [baitWorkers, setBaitWorkers] = useState([]);
@@ -37,20 +38,20 @@ function AddTicket() {
     const [clientName, setClientName] = useState('');
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [availableOptions, setAvailableOptions] = useState([]);
+    const [showWorkTypeModal, setShowWorkTypeModal] = useState(false); // State for modal visibility
+    const [showLocationModal, setShowLocationModal] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [locationRes, statusRes, baitWorkerRes, clientRes, workTypeRes] = await Promise.all([
-                    axios.get(`${config.API_BASE_URL}/location/all`),
+                const [statusRes, baitWorkerRes, clientRes, workTypeRes] = await Promise.all([
                     axios.get(`${config.API_BASE_URL}/ticket/classificator/all`),
                     axios.get(`${config.API_BASE_URL}/bait/worker/all`),
                     !clientIdParam && axios.get(`${config.API_BASE_URL}/client/all`),
                     axios.get(`${config.API_BASE_URL}/work-type/classificator/all`)
                 ]);
 
-                setLocations(locationRes.data);
                 setStatuses(statusRes.data);
                 setBaitWorkers(baitWorkerRes.data);
                 const fetchedWorkTypes = workTypeRes.data;
@@ -70,6 +71,20 @@ function AddTicket() {
         fetchData();
     }, [clientIdParam]);
 
+    useEffect(() => {
+        const fetchLocations = async () => {
+            if (formData.clientId) {
+                try {
+                    const response = await axios.get(`${config.API_BASE_URL}/client/locations/${formData.clientId}`);
+                    setLocations(response.data);
+                } catch (error) {
+                    console.error('Error fetching locations:', error);
+                }
+            }
+        };
+
+        fetchLocations();
+    }, [formData.clientId]);
 
     const handleChange = (e) => {
         const { id, value, type, checked } = e.target;
@@ -99,7 +114,6 @@ function AddTicket() {
         ].sort((a, b) => a.id - b.id)); // Sort if needed
     };
 
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
@@ -121,6 +135,29 @@ function AddTicket() {
         }
     };
 
+    const handleWorkTypeAdded = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/work-type/classificator/all`);
+            const fetchedWorkTypes = response.data;
+            setWorkTypes(fetchedWorkTypes);
+            setAvailableOptions(fetchedWorkTypes);
+        } catch (error) {
+            console.error('Error fetching work types:', error);
+        }
+    };
+
+    const handleLocationAdded = async () => {
+        if (formData.clientId) {
+            try {
+                const response = await axios.get(`${config.API_BASE_URL}/client/locations/${formData.clientId}`);
+                const fetchedLocations = response.data;
+                setLocations(fetchedLocations);
+                setAvailableOptions(fetchedLocations);
+            } catch (error) {
+                console.error('Error fetching work types:', error);
+            }
+        }
+    };
 
     return (
         <Container className="mt-5">
@@ -182,6 +219,13 @@ function AddTicket() {
                         <Form.Label column sm={2}>
                             Select Work Type
                         </Form.Label>
+                        <Button
+                            variant="link"
+                            onClick={() => setShowWorkTypeModal(true)}
+                            className="text-primary"
+                        >
+                            Add New Work Type
+                        </Button>
                     </div>
                     <Col sm={10}>
                         <Form.Control as="select" onChange={handleSelection}>
@@ -260,19 +304,35 @@ function AddTicket() {
                     </Form.Group>
                 )}
                 <Form.Group className="mb-3">
-                    <Form.Label>Location</Form.Label>
+                    <Form.Label column sm={2}>Location</Form.Label>
+                    {formData.clientId ? (
+                    <Button
+                        variant="link"
+                        onClick={() => setShowLocationModal(true)}
+                        className="text-primary"
+                    >
+                        Add New Location
+                    </Button>
+                        ) : null}
                     <Form.Control
                         as="select"
                         value={formData.locationId}
                         onChange={handleChange}
                         id="locationId"
+                        disabled={!formData.clientId} // Disable if no client is selected
                     >
-                        <option value="">Select Location</option>
-                        {locations.map(location => (
-                            <option key={location.id} value={location.id}>
-                                {location.name}
-                            </option>
-                        ))}
+                        {!formData.clientId ? (
+                            <option value="">Pick a client before picking a location</option>
+                        ) : (
+                            <>
+                                <option value="">Select Location</option>
+                                {locations.map(location => (
+                                    <option key={location.id} value={location.id}>
+                                        {location.name}
+                                    </option>
+                                ))}
+                            </>
+                        )}
                     </Form.Control>
                 </Form.Group>
                 <Form.Group className="mb-3">
@@ -299,6 +359,17 @@ function AddTicket() {
                     <Button className="gy-5" onClick={() => navigate(-1)}>Back</Button>
                 </div>
             </Form>
+            <AddWorkTypeModal
+                show={showWorkTypeModal}
+                handleClose={() => setShowWorkTypeModal(false)}
+                onAdd={handleWorkTypeAdded}
+            />
+            <AddLocationModal
+                show={showLocationModal}
+                handleClose={() => setShowLocationModal(false)}
+                onAdd={handleLocationAdded}
+                clientId={formData.clientId}
+            />
         </Container>
     );
 }

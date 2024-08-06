@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, ListGroup, Form } from 'react-bootstrap';
 import axios from 'axios';
-import config from "../config/config";
+import config from "../../../../config/config";
 
-const ClientWorkersModal = ({ show, handleClose, clientId, selectedWorkers, onSave }) => {
+const ClientWorkersModal = ({ show, handleClose, clientId, selectedWorkers, onSave, ticketId }) => {
     const [clientWorkers, setClientWorkers] = useState([]);
     const [selectedWorkerIds, setSelectedWorkerIds] = useState([]);
 
@@ -32,7 +32,14 @@ const ClientWorkersModal = ({ show, handleClose, clientId, selectedWorkers, onSa
         );
     };
 
-    const handleSave = () => {
+    const handleSave = async(ticketId) => {
+        try {
+            await axios.put(`${config.API_BASE_URL}/ticket/update/whole/${ticketId}`, {
+                contactIds: selectedWorkerIds,
+            });
+        } catch (error) {
+            console.error('Error fetching work types:', error);
+        }
         onSave(selectedWorkerIds);
         handleClose();
     };
@@ -66,7 +73,7 @@ const ClientWorkersModal = ({ show, handleClose, clientId, selectedWorkers, onSa
                 <Button variant="secondary" onClick={handleClose}>
                     Cancel
                 </Button>
-                <Button variant="primary" onClick={handleSave}>
+                <Button variant="primary" onClick={()=> handleSave(ticketId)}>
                     Save
                 </Button>
             </Modal.Footer>

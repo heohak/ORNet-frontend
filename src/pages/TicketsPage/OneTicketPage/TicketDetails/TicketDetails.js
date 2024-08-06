@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Accordion, Card, Button, Row, Col, Form } from 'react-bootstrap';
 import axios from 'axios';
-import FileUploadModal from "../../../modals/FileUploadModal";
-import ClientWorkersModal from "../../../modals/ClientWorkersModal"; // Import the new modal
-import WorkTypeModal from "../../../modals/WorkTypeModal";
-import config from "../../../config/config";
+import FileUploadModal from "../../../../modals/FileUploadModal";
+import ClientWorkersModal from "./ClientWorkersModal";
+import WorkTypeModal from "./WorkTypeModal";
+import config from "../../../../config/config";
 import 'react-datetime/css/react-datetime.css';
 import Datetime from "react-datetime";
 import moment from 'moment';
@@ -185,14 +185,9 @@ const TicketDetails = ({
         }
     };
 
-    const handleWorkTypesSave = (selectedWorkTypes) => {
-        setEditFields((prevFields) => ({
-            ...prevFields,
-            [ticket.id]: {
-                ...prevFields[ticket.id],
-                workTypeIds: selectedWorkTypes
-            }
-        }));
+    const handleWorkTypeAndContactFetch = async (ticketId) => {
+        fetchWorkTypes(ticketId);
+        fetchContacts(ticketId);
     };
 
 
@@ -289,7 +284,8 @@ const TicketDetails = ({
                 },
             });
             console.log('Time added:', response.data);
-            window.location.reload();  //refresh
+            fetchPaidInfo(ticketId);
+            renderPaidInfo(ticketId);  //render new info
         } catch (error) {
             console.error('Error adding time:', error);
         }
@@ -449,9 +445,7 @@ const TicketDetails = ({
                                                             <Button variant="outline-primary" onClick={() => setShowWorkTypeModal(true)}>
                                                                 Select Work Types
                                                             </Button>
-
                                                         </Form.Group>
-
                                                         <Form.Group className="mb-3">
                                                             <Form.Label>Responsible Worker</Form.Label>
                                                             <Form.Control
@@ -695,13 +689,15 @@ const TicketDetails = ({
                 handleClose={() => setShowWorkersModal(false)}
                 clientId={ticket.clientId}
                 selectedWorkers={editFields[ticket.id]?.contactIds || []}
-                onSave={handleWorkersSave}
+                onSave={()=> handleWorkTypeAndContactFetch(ticket.id)}
+                ticketId={ticket.id}
             />
             <WorkTypeModal
                 show={showWorkTypeModal}
                 handleClose={() => setShowWorkTypeModal(false)}
                 selectedWorkTypes={editFields[ticket.id]?.workTypeIds || []}
-                onSave={handleWorkTypesSave}
+                onSave={()=> handleWorkTypeAndContactFetch(ticket.id)}
+                ticketId={ticket.id}
             />
         </Accordion>
     );

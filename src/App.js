@@ -14,7 +14,7 @@ import AddClientWorker from "./pages/OneClientPage/AddClientWorker";
 import Devices from "./pages/AllDevicesPage/Devices" ;
 import OneDevice from "./pages/OneDevicePage/OneDevice"
 import AddClientDevice from "./pages/OneClientPage/AddClientDevice";
-import AddTicket from "./components/AddTicket";
+import AddTicket from "./pages/TicketsPage/AddTicketPage/AddTicket";
 import SoftwareDetails from "./pages/OneClientPage/SoftwareDetails";
 import OneClient from "./pages/OneClientPage/OneClient";
 import Wiki from "./pages/WikiPage/Wiki";

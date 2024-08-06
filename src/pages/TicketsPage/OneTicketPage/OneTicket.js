@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Alert, Button, Container, Spinner } from "react-bootstrap";
 import config from "../../../config/config";
-import TicketDetails from './TicketDetails';
+import TicketDetails from "./TicketDetails/TicketDetails";
 
 function OneTicket() {
     const { ticketId } = useParams();
