@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { Container, Form, Button, Alert } from 'react-bootstrap';
+import { Container, Form, Button, Alert, Modal } from 'react-bootstrap';
 import config from "../../config/config";
 
 function AddClientDevice({ clientId, onClose, setRefresh }) {
-    const navigate = useNavigate();
 
     const [deviceName, setDeviceName] = useState('');
     const [department, setDepartment] = useState('');
@@ -16,38 +14,35 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
     const [versionUpdateDate, setVersionUpdateDate] = useState('');
     const [firstIPAddress, setFirstIPAddress] = useState('');
     const [secondIPAddress, setSecondIPAddress] = useState('');
-    const [subnetMask, setSubnetMask] = useState(''); // New state for subnet mask
-    const [deviceClassificatorId, setDeviceClassificatorId] = useState(''); // New state for device classificator
+    const [subnetMask, setSubnetMask] = useState('');
+    const [deviceClassificatorId, setDeviceClassificatorId] = useState('');
     const [softwareKey, setSoftwareKey] = useState('');
     const [introducedDate, setIntroducedDate] = useState('');
     const [comment, setComment] = useState('');
     const [error, setError] = useState(null);
     const [locations, setLocations] = useState([]);
     const [locationId, setLocationId] = useState('');
-    const [classificators, setClassificators] = useState([]); // New state for classificators
+    const [classificators, setClassificators] = useState([]);
+    const [showClassificatorModal, setShowClassificatorModal] = useState(false);
+    const [newClassificator, setNewClassificator] = useState('');
 
     useEffect(() => {
-        const fetchLocations = async () => {
-            try {
-                const response = await axios.get(`${config.API_BASE_URL}/location/all`);
-                setLocations(response.data);
-            } catch (error) {
-                setError(error.message);
-            }
-        };
-
-        const fetchClassificators = async () => {
-            try {
-                const response = await axios.get(`${config.API_BASE_URL}/device/classificator/all`);
-                setClassificators(response.data);
-            } catch (error) {
-                setError(error.message);
-            }
-        };
-
-        fetchLocations();
-        fetchClassificators();
+        fetchData();
     }, []);
+
+    const fetchData = async () => {
+        try {
+            const [locationsRes, classificatorsRes] = await Promise.all([
+                axios.get(`${config.API_BASE_URL}/location/all`),
+                axios.get(`${config.API_BASE_URL}/device/classificator/all`)
+            ]);
+
+            setLocations(locationsRes.data);
+            setClassificators(classificatorsRes.data);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -77,17 +72,45 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                 comment,
             });
 
-            const deviceId = deviceResponse.data.token
-            console.log(deviceResponse.data)
+            const deviceId = deviceResponse.data.token;
 
             if (deviceClassificatorId) {
                 await axios.put(`${config.API_BASE_URL}/device/classificator/${deviceId}/${deviceClassificatorId}`);
             }
 
-            setRefresh(prev => !prev); // Trigger refresh by toggling state
-            onClose(); // Close the modal after adding the device
+            setRefresh(prev => !prev);
+            onClose();
+
+            window.location.reload();
         } catch (error) {
             setError(error.message);
+        }
+    };
+
+    const handleAddClassificator = async () => {
+        if (newClassificator.trim() === '') {
+            setError('Please enter a valid classificator name.');
+            return;
+        }
+
+        try {
+            const response = await axios.post(`${config.API_BASE_URL}/device/classificator/add`, {
+                name: newClassificator,
+            });
+
+            const addedClassificator = response.data;
+
+            // Update the classificators state instantly and select the new classificator
+            setClassificators(prevClassificators => [...prevClassificators, addedClassificator]);
+            setDeviceClassificatorId(addedClassificator.id);
+            setNewClassificator('');
+
+            // Perform a silent refresh to ensure all data is up-to-date
+            await fetchData();
+            setShowClassificatorModal(false);
+        } catch (error) {
+            setError('Error adding classificator.');
+            console.error('Error adding classificator:', error);
         }
     };
 
@@ -199,7 +222,11 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                             </option>
                         ))}
                     </Form.Control>
+                    <Form.Text className="text-muted">
+                        Can't find the classificator? <Button variant="link" onClick={() => setShowClassificatorModal(true)}>Add New</Button>
+                    </Form.Text>
                 </Form.Group>
+
                 <Form.Group className="mb-3">
                     <Form.Label>Software Key</Form.Label>
                     <Form.Control
@@ -241,10 +268,32 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                         ))}
                     </Form.Control>
                 </Form.Group>
+
                 <Button variant="success" type="submit">
                     Add Device
                 </Button>
             </Form>
+
+            <Modal show={showClassificatorModal} onHide={() => setShowClassificatorModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Add New Classificator</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Classificator Name</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newClassificator}
+                            onChange={(e) => setNewClassificator(e.target.value)}
+                            required
+                        />
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowClassificatorModal(false)}>Cancel</Button>
+                    <Button variant="primary" onClick={handleAddClassificator}>Add Classificator</Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 }

@@ -5,7 +5,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import MenuBar from './components/MenuBar';
 import Clients from './pages/ClientsPage/Clients';
 import Home from './pages/HomePage/Home';
-import Chung from "./pages/Chung";
 import ClientDevices from "./pages/OneClientPage/ClientDevices";
 import Tickets from "./pages/TicketsPage/Tickets";
 import OneTicket from "./pages/TicketsPage/OneTicketPage/OneTicket";
@@ -40,7 +39,6 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/clients" element={<Clients />} />
                 <Route path="/clients/:clientId/devices" element={<ClientDevices />} />
-                <Route path="/chung" element={<Chung />} />
                 <Route path="/tickets" element={<Tickets />} />
                 <Route path="/ticket/:ticketId" element={<OneTicket />} />
                 <Route path="/add-client" element={<AddClient />} />
