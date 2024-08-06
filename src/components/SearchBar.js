@@ -1,8 +1,8 @@
 // SearchBar.js
 import React, { useEffect, useRef } from 'react';
-import {  FormControl, InputGroup, DropdownButton, Dropdown, Form } from 'react-bootstrap';
+import { FormControl, InputGroup, DropdownButton, Dropdown, Form } from 'react-bootstrap';
 
-const SearchBar = ({ searchQuery, onSearchChange, onFilterChange, onCrisisChange, filter, crisis, statuses }) => {
+const SearchBar = ({ searchQuery, onSearchChange, onFilterChange, onCrisisChange, onPaidChange, filter, crisis, paid, statuses }) => {
     const searchInputRef = useRef(null);
 
     useEffect(() => {
@@ -49,6 +49,14 @@ const SearchBar = ({ searchQuery, onSearchChange, onFilterChange, onCrisisChange
                 label="Crisis"
                 checked={crisis}
                 onChange={onCrisisChange}
+                className="mb-4"
+            />
+            <Form.Check
+                type="switch"
+                id="paid-switch" // New switch for Paid
+                label="Paid"
+                checked={paid}
+                onChange={onPaidChange}
                 className="mb-4"
             />
         </div>
