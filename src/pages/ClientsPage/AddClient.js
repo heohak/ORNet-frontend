@@ -20,7 +20,8 @@ function AddClient({ onClose }) {
     const [error, setError] = useState(null);
 
     const [showLocationModal, setShowLocationModal] = useState(false);
-    const [newLocation, setNewLocation] = useState({ name: '', address: '', phone: '' });
+    const [newLocation, setNewLocation] = useState({ name: '', country: '', district: '', postalCode: '', streetAddress: '', city: '', phone: '' });
+
 
     const [showThirdPartyModal, setShowThirdPartyModal] = useState(false);
     const [newThirdParty, setNewThirdParty] = useState({ name: '', email: '', phone: '' });
@@ -76,17 +77,19 @@ function AddClient({ onClose }) {
     };
 
     const handleAddLocation = async () => {
-        const { name, address, phone } = newLocation;
+        const { name, country, district, postalCode, streetAddress, city, phone } = newLocation;
 
-        if (!name.trim() || !address.trim() || !phone.trim()) {
+        if (!name.trim() || !country.trim() || !district.trim() || !postalCode.trim() || !streetAddress.trim() || !city.trim() || !phone.trim()) {
             setError('Please fill in all fields for the new location.');
             return;
         }
 
+        const combinedAddress = `${streetAddress}, ${city}, ${district}, ${postalCode}, ${country}`;
+
         try {
             const response = await axios.post(`${config.API_BASE_URL}/location/add`, {
                 name,
-                address,
+                address: combinedAddress,
                 phone,
             });
 
@@ -94,13 +97,14 @@ function AddClient({ onClose }) {
             const newLocationOption = { value: addedLocation.id, label: addedLocation.name };
             setLocationOptions(prevLocations => [...prevLocations, newLocationOption]);
             setSelectedLocations(prevSelected => [...prevSelected, newLocationOption]); // Automatically select the new location
-            setNewLocation({ name: '', address: '', phone: '' });
+            setNewLocation({ name: '', country: '', district: '', postalCode: '', streetAddress: '', city: '', phone: '' });
             setShowLocationModal(false);
         } catch (error) {
             setError('Error adding location.');
             console.error('Error adding location:', error);
         }
     };
+
 
     const handleAddThirdParty = async () => {
         const { name, email, phone } = newThirdParty;
@@ -239,7 +243,7 @@ function AddClient({ onClose }) {
                 </Modal.Header>
                 <Modal.Body>
                     <Form.Group className="mb-3">
-                        <Form.Label>Location Name</Form.Label>
+                        <Form.Label>Name</Form.Label>
                         <Form.Control
                             type="text"
                             value={newLocation.name}
@@ -248,11 +252,47 @@ function AddClient({ onClose }) {
                         />
                     </Form.Group>
                     <Form.Group className="mb-3">
-                        <Form.Label>Address</Form.Label>
+                        <Form.Label>Country</Form.Label>
                         <Form.Control
                             type="text"
-                            value={newLocation.address}
-                            onChange={(e) => setNewLocation({ ...newLocation, address: e.target.value })}
+                            value={newLocation.country}
+                            onChange={(e) => setNewLocation({ ...newLocation, country: e.target.value })}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>City</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.city}
+                            onChange={(e) => setNewLocation({ ...newLocation, city: e.target.value })}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>District</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.district}
+                            onChange={(e) => setNewLocation({ ...newLocation, district: e.target.value })}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Postal Code</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.postalCode}
+                            onChange={(e) => setNewLocation({ ...newLocation, postalCode: e.target.value })}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Street Address</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.streetAddress}
+                            onChange={(e) => setNewLocation({ ...newLocation, streetAddress: e.target.value })}
                             required
                         />
                     </Form.Group>

@@ -1,5 +1,3 @@
-// src/pages/ViewLocations.js
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Container, Row, Col, Card, Button, Spinner, Alert, Modal, Form } from 'react-bootstrap';
@@ -12,7 +10,11 @@ function ViewLocations() {
     const [error, setError] = useState(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [name, setName] = useState('');
-    const [address, setAddress] = useState('');
+    const [city, setCity] = useState('');
+    const [country, setCountry] = useState('');
+    const [district, setDistrict] = useState('');
+    const [postalCode, setPostalCode] = useState('');
+    const [streetAddress, setStreetAddress] = useState('');
     const [phone, setPhone] = useState('');
     const navigate = useNavigate();
 
@@ -33,12 +35,22 @@ function ViewLocations() {
 
     const handleAddLocation = async () => {
         try {
-            await axios.post(`${config.API_BASE_URL}/location/add`, { name, address, phone });
+            const combinedAddress = `${streetAddress}, ${district}, ${city}, ${postalCode}, ${country}`;
+            await axios.post(`${config.API_BASE_URL}/location/add`, {
+                name,
+                address: combinedAddress,
+                phone
+            });
             const response = await axios.get(`${config.API_BASE_URL}/location/all`);
             setLocations(response.data);
             setShowAddModal(false);
+            // Clear the form fields
             setName('');
-            setAddress('');
+            setCity('');
+            setCountry('');
+            setDistrict('');
+            setPostalCode('');
+            setStreetAddress('');
             setPhone('');
         } catch (error) {
             setError(error.message);
@@ -108,15 +120,57 @@ function ViewLocations() {
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="Enter name"
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="formAddress" className="mt-3">
-                            <Form.Label>Address</Form.Label>
+                        <Form.Group controlId="formCity" className="mt-3">
+                            <Form.Label>City</Form.Label>
                             <Form.Control
                                 type="text"
-                                value={address}
-                                onChange={(e) => setAddress(e.target.value)}
-                                placeholder="Enter address"
+                                value={city}
+                                onChange={(e) => setCity(e.target.value)}
+                                placeholder="Enter city"
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formCountry" className="mt-3">
+                            <Form.Label>Country</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={country}
+                                onChange={(e) => setCountry(e.target.value)}
+                                placeholder="Enter country"
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formDistrict" className="mt-3">
+                            <Form.Label>District</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={district}
+                                onChange={(e) => setDistrict(e.target.value)}
+                                placeholder="Enter district"
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formPostalCode" className="mt-3">
+                            <Form.Label>Postal Code</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={postalCode}
+                                onChange={(e) => setPostalCode(e.target.value)}
+                                placeholder="Enter postal code"
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formStreetAddress" className="mt-3">
+                            <Form.Label>Street Address</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={streetAddress}
+                                onChange={(e) => setStreetAddress(e.target.value)}
+                                placeholder="Enter street address"
+                                required
                             />
                         </Form.Group>
                         <Form.Group controlId="formPhone" className="mt-3">
@@ -126,6 +180,7 @@ function ViewLocations() {
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
                                 placeholder="Enter phone number"
+                                required
                             />
                         </Form.Group>
                     </Form>
