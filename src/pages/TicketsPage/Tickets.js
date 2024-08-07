@@ -13,6 +13,7 @@ function Tickets() {
     const [error, setError] = useState(null);
     const [filter, setFilter] = useState(1);
     const [crisis, setCrisis] = useState(false);
+    const [paid, setPaid] = useState(false); // New state for Paid
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const [statuses, setStatuses] = useState([]);
@@ -24,12 +25,6 @@ function Tickets() {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`);
                 setStatuses(response.data);
-
-                // Check if "open" status exists and set the filter accordingly
-                const openStatus = response.data.find(status => status.status.toLowerCase() === 'open');
-                if (openStatus) {
-                    setFilter(openStatus.id);
-                }
             } catch (error) {
                 console.error("Error fetching statuses", error);
             }
@@ -62,6 +57,9 @@ function Tickets() {
                 if (crisis) {
                     params.append('crisis', crisis);
                 }
+                if (paid) { // Append Paid parameter
+                    params.append('paidWork', paid);
+                }
 
                 const url = `${config.API_BASE_URL}/ticket/search?${params.toString()}`;
                 const response = await axios.get(url);
@@ -73,7 +71,7 @@ function Tickets() {
             }
         };
         fetchTickets();
-    }, [filter, debouncedSearchQuery, crisis]);
+    }, [filter, debouncedSearchQuery, crisis, paid]); // Include Paid in dependencies
 
     const handleNavigate = (ticketId) => {
         navigate(`/ticket/${ticketId}?scrollTo=${ticketId}`);
@@ -92,6 +90,10 @@ function Tickets() {
         setCrisis((prevCrisis) => !prevCrisis);
     }, []);
 
+    const handlePaidChange = useCallback(() => { // New handler for Paid
+        setPaid((prevPaid) => !prevPaid);
+    }, []);
+
     const handleAddTicket = () => {
         navigate('/add-ticket', { state: { from: 'tickets' } });
     };
@@ -107,8 +109,10 @@ function Tickets() {
                 onSearchChange={handleSearchChange}
                 onFilterChange={handleFilterChange}
                 onCrisisChange={handleCrisisChange}
+                onPaidChange={handlePaidChange} // Pass handler to SearchBar
                 filter={filter}
                 crisis={crisis}
+                paid={paid} // Pass state to SearchBar
                 statuses={statuses}
             />
             <TicketsList

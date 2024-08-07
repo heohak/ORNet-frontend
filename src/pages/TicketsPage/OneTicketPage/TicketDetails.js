@@ -37,6 +37,7 @@ const TicketDetails = ({
     const [baitWorkers, setBaitWorkers] = useState([]);
     const [showWorkTypeModal, setShowWorkTypeModal] = useState(false);
     const [paidInfo, setPaidInfo] = useState({});
+    const [timeInputs, setTimeInputs] = useState({});
 
 
 
@@ -252,6 +253,7 @@ const TicketDetails = ({
     const handleMakePaid = async (ticketId) => {
         try {
             await axios.put(`${config.API_BASE_URL}/ticket/add/paid-work/${ticketId}`);
+            window.location.reload();
         } catch (error) {
             console.error('Error making ticket paid:', error);
         }
@@ -266,6 +268,33 @@ const TicketDetails = ({
         }
     };
 
+    const handleTimeInputChange = (ticketId, field, value) => {
+        setTimeInputs({
+            ...timeInputs,
+            [ticketId]: {
+                ...timeInputs[ticketId],
+                [field]: value,
+            },
+        });
+    };
+
+    const handleAddTime = async (ticketId) => {
+        const { hours, minutes } = timeInputs[ticketId] || {};
+
+        try {
+            const response = await axios.put(`${config.API_BASE_URL}/ticket/add/time/${ticketId}`, null, {
+                params: {
+                    hours: hours || 0,
+                    minutes: minutes || 0,
+                },
+            });
+            console.log('Time added:', response.data);
+            window.location.reload();  //refresh
+        } catch (error) {
+            console.error('Error adding time:', error);
+        }
+    };
+
     const renderPaidInfo = (ticketId) => {
         const info = paidInfo[ticketId];
         if (!info) return null;
@@ -274,10 +303,58 @@ const TicketDetails = ({
             <div>
                 <p>Paid Start Time: {info.startTime}</p>
                 <p>Paid Time Spent: {info.timeSpent}</p>
+                <div className="d-flex align-items-center">
+                    <Form.Group className="me-2">
+                        <Form.Control
+                            type="number"
+                            value={timeInputs[ticketId]?.hours || ''}
+                            onChange={(e) => handleTimeInputChange(ticketId, 'hours', e.target.value)}
+                            style={{ width: '80px' }}
+                        />
+                    </Form.Group>
+                    <p className="me-4" style={{margin: 0}}>h</p>
+                    <Form.Group className="me-2">
+                        <Form.Control
+                            type="number"
+                            value={timeInputs[ticketId]?.minutes || ''}
+                            onChange={(e) => handleTimeInputChange(ticketId, 'minutes', e.target.value)}
+                            style={{ width: '80px' }}
+                        />
+                    </Form.Group>
+                    <p className="me-4" style={{margin: 0}}>min</p>
+                    <Button onClick={() => handleAddTime(ticketId)} >Add</Button>
+                </div>
+                {info.settled ? (
+                    <p>Settled</p>
+                    ):(
+                <Button className="mt-4" onClick={() => handleSettle(ticketId)} >Settle ticket</Button>
+                    )}
             </div>
         );
     };
 
+    const handleSettle = async (ticketId) => {
+        try {
+            await axios.put(`${config.API_BASE_URL}/ticket/settle/${ticketId}`);
+            window.location.reload();
+        } catch (error) {
+            console.error("error settling ticket", error);
+        }
+    };
+
+    const handleCloseTicket = async (ticketId) => {
+        const info = paidInfo[ticketId];
+        if (!info || info.settled) {  //Peaks küsima pop upi
+            try {
+                await axios.put(`${config.API_BASE_URL}/ticket/status/${ticketId}/2`); //2 is the close classificator id
+                window.location.reload();
+            } catch (error) {
+                console.log("Error closing the ticket", error);
+            }
+        } else {
+            return null;
+        }
+    };
 
     return (
         <Accordion key={ticket.id} activeKey={expandedTickets.has(ticket.id.toString()) ? ticket.id.toString() : null}>
@@ -292,6 +369,7 @@ const TicketDetails = ({
                         </div>
                     </Accordion.Header>
                     <Accordion.Body>
+                        <Button variant="danger" onClick={() => handleCloseTicket(ticket.id)}>Close Ticket</Button>
                         <Card.Body>
                             <Accordion activeKey={expandedSections[ticket.id]?.dates ? "0" : null}>
                                 <Accordion.Item eventKey="0">
