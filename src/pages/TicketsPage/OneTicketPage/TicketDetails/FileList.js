@@ -1,8 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import axios from "axios";
 import config from "../../../../config/config";
-import {Button} from "react-bootstrap";
-
 
 const FileList = ({ ticketId }) => {
     const [files, setFiles] = useState([]);

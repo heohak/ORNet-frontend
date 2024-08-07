@@ -39,7 +39,7 @@ const TicketDetails = ({
     const [showWorkTypeModal, setShowWorkTypeModal] = useState(false);
     const [paidInfo, setPaidInfo] = useState({});
     const [timeInputs, setTimeInputs] = useState({});
-
+    const [maintenances, setMaintenances] = useState ([]);
 
 
 
@@ -80,6 +80,7 @@ const TicketDetails = ({
             fetchContacts(ticket.id);
             fetchNames(ticket.baitWorkerId, ticket.locationId, ticket.statusId); // Fetch names
             fetchWorkTypes(ticket.id); // Fetch work types
+            fetchMaintenances(ticket.id);
             if (ticket.paidWorkId) {
                 fetchPaidInfo(ticket.id);
             }
@@ -151,6 +152,16 @@ const TicketDetails = ({
             console.error('Error fetching comments:', error);
         }
     };
+
+    const fetchMaintenances = async (ticketId) => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/maintenance/${ticketId}`);
+            setMaintenances(response.data);
+            console.log(response.data)
+        } catch (error) {
+            console.error ('Error fetching maintenances', error);
+        }
+    }
 
     const fetchContacts = async (ticketId) => {
         try{
@@ -236,15 +247,6 @@ const TicketDetails = ({
         setIsEditing(!isEditing);
     };
 
-    const handleWorkersSave = (selectedWorkers) => {
-        setEditFields((prevFields) => ({
-            ...prevFields,
-            [ticket.id]: {
-                ...prevFields[ticket.id],
-                contactIds: selectedWorkers
-            }
-        }));
-    };
 
     const handleMakePaid = async (ticketId) => {
         try {
@@ -634,6 +636,28 @@ const TicketDetails = ({
                                     </Card.Body>
                                 </Card>
                             )}
+                            <Accordion activeKey={expandedSections[ticket.id]?.maintenance ? "3" : null}>
+                                <Accordion.Item eventKey="3">
+                                    <Accordion.Header onClick={() => toggleSectionExpansion(ticket.id, 'maintenance')}>
+                                        Maintenances
+                                    </Accordion.Header>
+                                    <Accordion.Body>
+                                        {maintenances.length > 0 ? (
+                                            maintenances.map((maintenance, index) => (
+                                                <Card key={index} className="mb-3">
+                                                    <Card.Body>
+                                                        <Card.Text>{maintenance.maintenanceName}</Card.Text>
+                                                        <Card.Text>Date: {maintenance.maintenanceDate}</Card.Text>
+                                                        <Card.Text>Comment: {maintenance.comment}</Card.Text>
+                                                    </Card.Body>
+                                                </Card>
+                                            ))
+                                        ) : (
+                                            <p>No maintenances available</p>
+                                        )}
+                                    </Accordion.Body>
+                                </Accordion.Item>
+                            </Accordion>
                             <Card.Title className="mt-4">Comments</Card.Title>
                             <Card className="mb-4 mt-1">
                                 <Card.Body>

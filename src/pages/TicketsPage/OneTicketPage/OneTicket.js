@@ -114,6 +114,8 @@ function OneTicket() {
                 dates: expandedTickets.has(id) ? !expandedSections[id]?.dates : true,
                 details: expandedTickets.has(id) ? !expandedSections[id]?.details : true,
                 paid: expandedTickets.has(id) ? !expandedSections[id]?.paid : true,
+                maintenance: expandedTickets.has(id) ? !expandedSections[id]?.maintenance : true,
+
 
             }
         }));
