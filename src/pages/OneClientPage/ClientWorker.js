@@ -3,6 +3,7 @@ import { Card, Button, Modal, ListGroup, Alert, Form } from 'react-bootstrap';
 import AddWorker from './AddClientWorker';
 import axios from 'axios';
 import config from "../../config/config";
+import Select from 'react-select';
 
 function ClientWorker({ workers, client, clientId, setRefresh }) {
     const [showAddWorkerModal, setShowAddWorkerModal] = useState(false);
@@ -11,7 +12,8 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
     const [workerLocations, setWorkerLocations] = useState({});
     const [selectedWorkerId, setSelectedWorkerId] = useState(null);
     const [roles, setRoles] = useState([]);
-    const [selectedRoleId, setSelectedRoleId] = useState('');
+    const [selectedFilterRoleId, setSelectedFilterRoleId] = useState(''); // State for filtering
+    const [selectedRoles, setSelectedRoles] = useState([]); // State for adding roles in modal
     const [filteredWorkers, setFilteredWorkers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -26,7 +28,7 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
 
     useEffect(() => {
         filterWorkers();
-    }, [selectedRoleId, searchQuery]);
+    }, [selectedFilterRoleId, searchQuery]);
 
     const fetchWorkerLocations = async () => {
         try {
@@ -37,6 +39,7 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
             const locations = {};
             locationResponses.forEach((response, index) => {
                 const workerId = filteredWorkers[index].id;
+                console.log(`Worker ${workerId} Location:`, response.data); // Debug line
                 locations[workerId] = response.data;
             });
             setWorkerLocations(locations);
@@ -48,7 +51,8 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
     const fetchRoles = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/worker/classificator/all`);
-            setRoles(response.data);
+            console.log('Roles:', response.data); // Debug line
+            setRoles(response.data.map(role => ({ value: role.id, label: role.role })));
         } catch (error) {
             console.error('Error fetching roles:', error);
         }
@@ -57,8 +61,11 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
     const fetchWorkers = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/worker/${clientId}`);
+            console.log('Workers:', response.data); // Debug line
+
             const workersWithRolesPromises = response.data.map(async (worker) => {
                 const rolesResponse = await axios.get(`${config.API_BASE_URL}/worker/role/${worker.id}`);
+                console.log(`Worker ${worker.id} Roles:`, rolesResponse.data); // Debug line
                 return { ...worker, roles: rolesResponse.data };
             });
             const workersWithRoles = await Promise.all(workersWithRolesPromises);
@@ -76,6 +83,7 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
             if (!workerLocations[workerId]) {
                 try {
                     const response = await axios.get(`${config.API_BASE_URL}/worker/location/${workerId}`);
+                    console.log(`Location for worker ${workerId}:`, response.data); // Debug line
                     const location = response.data;
                     setWorkerLocations(prevLocations => ({
                         ...prevLocations,
@@ -91,26 +99,42 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
     const handleAddRole = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(`${config.API_BASE_URL}/worker/role/${selectedWorkerId}/${selectedRoleId}`);
+            // Fetch current roles of the selected worker
+            const currentRolesResponse = await axios.get(`${config.API_BASE_URL}/worker/role/${selectedWorkerId}`);
+            const currentRoles = currentRolesResponse.data.map(role => role.id);
+
+            // Combine current roles with the newly selected roles
+            const roleIds = [...new Set([...currentRoles, ...selectedRoles.map(role => role.value)])];
+
+            console.log(`Adding roles to worker ${selectedWorkerId}:`, roleIds); // Debug line
+
+            // Send the combined list of role IDs to the backend
+            await axios.put(`${config.API_BASE_URL}/worker/role/${selectedWorkerId}`, { roleIds });
+
             setShowAddRoleModal(false);
-            await fetchWorkers();
+            setSelectedRoles([]); // Clear selected roles after submission
+            await fetchWorkers(); // Refresh the workers to reflect the updated roles
         } catch (error) {
-            console.error('Error adding role to worker:', error);
+            console.error('Error adding roles to worker:', error);
         }
     };
 
+
     const filterWorkers = async () => {
         try {
+            console.log('Filtering with query:', searchQuery, 'and role:', selectedFilterRoleId); // Debug line
             const response = await axios.get(`${config.API_BASE_URL}/worker/search`, {
                 params: {
                     q: searchQuery,
-                    roleId: selectedRoleId || null,
+                    roleId: selectedFilterRoleId || null,
                     clientId: clientId
                 }
             });
+            console.log('Filtered Workers:', response.data); // Debug line
 
             const workersWithRoles = await Promise.all(response.data.map(async worker => {
                 const rolesResponse = await axios.get(`${config.API_BASE_URL}/worker/role/${worker.id}`);
+                console.log(`Worker ${worker.id} Roles after filter:`, rolesResponse.data); // Debug line
                 return {
                     ...worker,
                     roles: rolesResponse.data
@@ -123,32 +147,27 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
         }
     };
 
-
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
     };
 
     const handleAddWorkerSuccess = async (newWorker) => {
         try {
-            // Optimistically update the state with the new worker
             setFilteredWorkers((prevWorkers) => [...prevWorkers, newWorker]);
 
-            // Fetch roles for the newly added worker immediately
             const rolesResponse = await axios.get(`${config.API_BASE_URL}/worker/role/${newWorker.id}`);
+            console.log(`Roles for newly added worker ${newWorker.id}:`, rolesResponse.data); // Debug line
             const updatedWorker = { ...newWorker, roles: rolesResponse.data };
 
-            // Update the state with the worker and their roles
             setFilteredWorkers((prevWorkers) =>
                 prevWorkers.map(worker => worker.id === updatedWorker.id ? updatedWorker : worker)
             );
 
-            // Trigger a refresh or any other necessary action
             setRefresh(prev => !prev);
         } catch (error) {
             console.error('Error fetching roles for the new worker:', error);
         }
     };
-
 
     return (
         <>
@@ -165,10 +184,10 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
             </Form.Group>
             <Form.Group controlId="roleFilter" className="mt-3">
                 <Form.Label>Filter by Role</Form.Label>
-                <Form.Control as="select" value={selectedRoleId} onChange={(e) => setSelectedRoleId(e.target.value)}>
+                <Form.Control as="select" value={selectedFilterRoleId} onChange={(e) => setSelectedFilterRoleId(e.target.value)}>
                     <option value="">All Roles</option>
                     {roles.map((role) => (
-                        <option key={role.id} value={role.id}>{role.role}</option>
+                        <option key={role.value} value={role.value}>{role.label}</option>
                     ))}
                 </Form.Control>
             </Form.Group>
@@ -232,15 +251,16 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                     <Form onSubmit={handleAddRole}>
                         <Form.Group controlId="roleSelect">
                             <Form.Label>Select Role</Form.Label>
-                            <Form.Control as="select" value={selectedRoleId} onChange={(e) => setSelectedRoleId(e.target.value)} required>
-                                <option value="">Select a role</option>
-                                {roles.map((role) => (
-                                    <option key={role.id} value={role.id}>{role.role}</option>
-                                ))}
-                            </Form.Control>
+                            <Select
+                                isMulti
+                                options={roles}
+                                value={selectedRoles}
+                                onChange={setSelectedRoles}
+                                placeholder="Select roles"
+                            />
                         </Form.Group>
                         <Button variant="primary" type="submit" className="mt-3">
-                            Add Role
+                            Add Roles
                         </Button>
                     </Form>
                 </Modal.Body>
