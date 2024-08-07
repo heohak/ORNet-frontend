@@ -9,7 +9,7 @@ const AddLocationModal = ({ show, handleClose, onAdd, clientId }) => {
     const [phone, setPhone] = useState('');
 
 
-    const handleAddWorkType = async () => {
+    const handleAddLocation = async () => {
         try {
             const response = await axios.post(`${config.API_BASE_URL}/location/add`, {
                 name,
@@ -59,7 +59,7 @@ const AddLocationModal = ({ show, handleClose, onAdd, clientId }) => {
                 <Button variant="secondary" onClick={handleClose}>
                     Close
                 </Button>
-                <Button variant="primary" onClick={handleAddWorkType}>
+                <Button variant="primary" onClick={handleAddLocation}>
                     Add Location
                 </Button>
             </Modal.Footer>

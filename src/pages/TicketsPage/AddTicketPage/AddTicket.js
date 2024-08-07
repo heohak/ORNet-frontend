@@ -6,6 +6,7 @@ import moment from 'moment';
 import config from "../../../config/config";
 import AddWorkTypeModal from './AddWorkTypeModal';
 import AddLocationModal from "./AddLocationModal";
+import AddContactModal from "./AddContactModal";
 
 function AddTicket() {
     const { mainTicketId } = useParams();
@@ -26,11 +27,13 @@ function AddTicket() {
         locationId: '',
         statusId: '',
         baitNumeration: '',
-        clientNumeration: ''
+        clientNumeration: '',
+        contactIds: []
     });
 
     const [clients, setClients] = useState([]);
     const [locations, setLocations] = useState([]);
+    const [contacts, setContacts] = useState([]);
     const [baitWorkers, setBaitWorkers] = useState([]);
     const [statuses, setStatuses] = useState([]);
     const [workTypes, setWorkTypes] = useState([]);
@@ -40,6 +43,8 @@ function AddTicket() {
     const [availableOptions, setAvailableOptions] = useState([]);
     const [showWorkTypeModal, setShowWorkTypeModal] = useState(false); // State for modal visibility
     const [showLocationModal, setShowLocationModal] = useState(false);
+    const [showContactModal, setShowContactModal] = useState(false);
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -72,27 +77,32 @@ function AddTicket() {
     }, [clientIdParam]);
 
     useEffect(() => {
-        const fetchLocations = async () => {
+        const fetchLocationsAndContacts = async () => {
             if (formData.clientId) {
                 try {
-                    const response = await axios.get(`${config.API_BASE_URL}/client/locations/${formData.clientId}`);
-                    setLocations(response.data);
+                    const locationRes = await axios.get(`${config.API_BASE_URL}/client/locations/${formData.clientId}`);
+                    const contactRes = await axios.get(`${config.API_BASE_URL}/worker/${formData.clientId}`)
+                    setLocations(locationRes.data);
+                    setContacts(contactRes.data);
                 } catch (error) {
-                    console.error('Error fetching locations:', error);
+                    console.error('Error fetching locations or contacts:', error);
                 }
             }
         };
 
-        fetchLocations();
+        fetchLocationsAndContacts();
     }, [formData.clientId]);
+
+
 
     const handleChange = (e) => {
         const { id, value, type, checked } = e.target;
         setFormData(prevData => ({
             ...prevData,
-            [id]: type === 'checkbox' ? checked : value
+            [id]: id === 'contactIds' ? [value] : (type === 'checkbox' ? checked : value)
         }));
     };
+
 
     const handleSelection = (e) => {
         const selectedValue = parseInt(e.target.value, 10);
@@ -152,7 +162,18 @@ function AddTicket() {
                 const response = await axios.get(`${config.API_BASE_URL}/client/locations/${formData.clientId}`);
                 const fetchedLocations = response.data;
                 setLocations(fetchedLocations);
-                setAvailableOptions(fetchedLocations);
+            } catch (error) {
+                console.error('Error fetching work types:', error);
+            }
+        }
+    };
+
+    const handleContactAdded = async () => {
+        if (formData.clientId) {
+            try {
+                const response = await axios.get(`${config.API_BASE_URL}/worker/${formData.clientId}`)
+                const fetchedContacts = response.data;
+                setContacts(fetchedContacts);
             } catch (error) {
                 console.error('Error fetching work types:', error);
             }
@@ -173,15 +194,25 @@ function AddTicket() {
                         required
                     />
                 </Form.Group>
-                <Form.Group controlId="description" className="mb-3">
-                    <Form.Label>Description</Form.Label>
-                    <Form.Control
-                        type="text"
-                        value={formData.description}
-                        onChange={handleChange}
-                        required
-                    />
-                </Form.Group>
+                {!clientIdParam && (
+                    <Form.Group controlId="clientId" className="mb-3">
+                        <Form.Label>Client</Form.Label>
+                        <Form.Control
+                            as="select"
+                            value={formData.clientId}
+                            onChange={handleChange}
+                            id="clientId"
+                            required
+                        >
+                            {clients.length > 0 && <option value="">Select Client</option>}
+                            {clients.map(client => (
+                                <option key={client.id} value={client.id}>
+                                    {client.fullName}
+                                </option>
+                            ))}
+                        </Form.Control>
+                    </Form.Group>
+                )}
                 <Form.Group controlId="baitNumeration" className="mb-3">
                     <Form.Label>Our Numeration</Form.Label>
                     <Form.Control
@@ -196,6 +227,15 @@ function AddTicket() {
                         type="text"
                         value={formData.clientNumeration}
                         onChange={handleChange}
+                    />
+                </Form.Group>
+                <Form.Group controlId="description" className="mb-3">
+                    <Form.Label>Description</Form.Label>
+                    <Form.Control
+                        type="text"
+                        value={formData.description}
+                        onChange={handleChange}
+                        required
                     />
                 </Form.Group>
                 <Form.Group controlId="crisis" className="mb-3">
@@ -284,25 +324,6 @@ function AddTicket() {
                         ))}
                     </Form.Control>
                 </Form.Group>
-                {!clientIdParam && (
-                    <Form.Group controlId="clientId" className="mb-3">
-                        <Form.Label>Client</Form.Label>
-                        <Form.Control
-                            as="select"
-                            value={formData.clientId}
-                            onChange={handleChange}
-                            id="clientId"
-                            required
-                        >
-                            {clients.length > 0 && <option value="">Select Client</option>}
-                            {clients.map(client => (
-                                <option key={client.id} value={client.id}>
-                                    {client.fullName}
-                                </option>
-                            ))}
-                        </Form.Control>
-                    </Form.Group>
-                )}
                 <Form.Group className="mb-3">
                     <Form.Label column sm={2}>Location</Form.Label>
                     {formData.clientId ? (
@@ -329,6 +350,38 @@ function AddTicket() {
                                 {locations.map(location => (
                                     <option key={location.id} value={location.id}>
                                         {location.name}
+                                    </option>
+                                ))}
+                            </>
+                        )}
+                    </Form.Control>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label column sm={2}>Contact</Form.Label>
+                    {formData.clientId ? (
+                        <Button
+                            variant="link"
+                            onClick={() => setShowContactModal(true)}
+                            className="text-primary"
+                        >
+                            Add A New Contact
+                        </Button>
+                    ) : null}
+                    <Form.Control
+                        as="select"
+                        value={formData.contactIds[0] || ""}
+                        onChange={handleChange}
+                        id="contactIds"
+                        disabled={!formData.clientId} // Disable if no client is selected
+                    >
+                        {!formData.clientId ? (
+                            <option value="">Pick a client before picking a contact</option>
+                        ) : (
+                            <>
+                                <option value="">Select a Contact</option>
+                                {contacts.map(contact => (
+                                    <option key={contact.id} value={contact.id}>
+                                        {contact.firstName + " " + contact.lastName}
                                     </option>
                                 ))}
                             </>
@@ -369,6 +422,14 @@ function AddTicket() {
                 handleClose={() => setShowLocationModal(false)}
                 onAdd={handleLocationAdded}
                 clientId={formData.clientId}
+            />
+            <AddContactModal
+                show={showContactModal}
+                handleClose={()=> setShowContactModal(false)}
+                onAdd={handleContactAdded}
+                clientId={formData.clientId}
+                locations={locations}
+
             />
         </Container>
     );
