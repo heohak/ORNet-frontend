@@ -4,6 +4,7 @@ import axios from 'axios';
 import FileUploadModal from "../../../../modals/FileUploadModal";
 import ClientWorkersModal from "./ClientWorkersModal";
 import WorkTypeModal from "./WorkTypeModal";
+import FileList from "./FileList";
 import config from "../../../../config/config";
 import 'react-datetime/css/react-datetime.css';
 import Datetime from "react-datetime";
@@ -499,6 +500,7 @@ const TicketDetails = ({
                                                                 name="clientId"
                                                                 value={editFields[ticket.id]?.clientId || ''}
                                                                 onChange={(e) => handleChange(e, ticket.id)}
+                                                                disabled
                                                             >
                                                                 <option value="">Select a client</option>
                                                                 {clients.map(client => (
@@ -661,7 +663,10 @@ const TicketDetails = ({
                                 />
                                 <Button variant="primary" onClick={handleAddComment} className="mt-2">Add Comment</Button>
                             </Form.Group>
-                            <p><strong>File Ids:</strong> {ticket.fileIds}</p>
+                            <div>
+                                <h1>File Management</h1>
+                                <FileList ticketId={ticket.id} />
+                            </div>
                             {!isEditing && (
                                 <>
                                     <Button variant="outline-primary" onClick={() => setShowUploadModal(true)}>
