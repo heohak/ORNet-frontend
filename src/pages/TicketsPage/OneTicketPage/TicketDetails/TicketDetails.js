@@ -5,6 +5,7 @@ import FileUploadModal from "../../../../modals/FileUploadModal";
 import ClientWorkersModal from "./ClientWorkersModal";
 import WorkTypeModal from "./WorkTypeModal";
 import FileList from "./FileList";
+import MaintenanceModal from "./MaintenanceModal";
 import config from "../../../../config/config";
 import 'react-datetime/css/react-datetime.css';
 import Datetime from "react-datetime";
@@ -40,7 +41,7 @@ const TicketDetails = ({
     const [paidInfo, setPaidInfo] = useState({});
     const [timeInputs, setTimeInputs] = useState({});
     const [maintenances, setMaintenances] = useState ([]);
-
+    const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
 
 
 
@@ -646,15 +647,17 @@ const TicketDetails = ({
                                             maintenances.map((maintenance, index) => (
                                                 <Card key={index} className="mb-3">
                                                     <Card.Body>
-                                                        <Card.Text>{maintenance.maintenanceName}</Card.Text>
+                                                        <Card.Text><h3>{maintenance.maintenanceName}</h3></Card.Text>
                                                         <Card.Text>Date: {maintenance.maintenanceDate}</Card.Text>
                                                         <Card.Text>Comment: {maintenance.comment}</Card.Text>
                                                     </Card.Body>
                                                 </Card>
                                             ))
+
                                         ) : (
                                             <p>No maintenances available</p>
                                         )}
+                                        <Button variant="outline-primary" onClick={() => setShowMaintenanceModal(true)}>Add Maintenance</Button>
                                     </Accordion.Body>
                                 </Accordion.Item>
                             </Accordion>
@@ -727,6 +730,12 @@ const TicketDetails = ({
                 selectedWorkTypes={editFields[ticket.id]?.workTypeIds || []}
                 onSave={()=> handleWorkTypeAndContactFetch(ticket.id)}
                 ticketId={ticket.id}
+            />
+            <MaintenanceModal
+            show={showMaintenanceModal}
+            handleClose={() => setShowMaintenanceModal(false)}
+            clientId={ticket.clientId}
+
             />
         </Accordion>
     );
