@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Modal, ListGroup, Alert, Form } from 'react-bootstrap';
-import AddWorker from './AddClientWorker'; // Update the import path as necessary
+import AddWorker from './AddClientWorker';
 import axios from 'axios';
-import config from "../../config/config"; // Import axios for making HTTP requests
+import config from "../../config/config";
 
 function ClientWorker({ workers, client, clientId, setRefresh }) {
     const [showAddWorkerModal, setShowAddWorkerModal] = useState(false);
@@ -12,16 +12,17 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
     const [selectedWorkerId, setSelectedWorkerId] = useState(null);
     const [roles, setRoles] = useState([]);
     const [selectedRoleId, setSelectedRoleId] = useState('');
-    const [filteredWorkers, setFilteredWorkers] = useState(workers);
+    const [filteredWorkers, setFilteredWorkers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         fetchRoles();
+        fetchWorkers();
     }, []);
 
     useEffect(() => {
         fetchWorkerLocations();
-    }, [workers]);
+    }, [filteredWorkers]);
 
     useEffect(() => {
         filterWorkers();
@@ -29,13 +30,14 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
 
     const fetchWorkerLocations = async () => {
         try {
-            const locationPromises = workers.map(worker =>
-                axios.get(`${config.API_BASE_URL}/worker/location/${worker.id}`));
+            const locationPromises = filteredWorkers.map(worker =>
+                axios.get(`${config.API_BASE_URL}/worker/location/${worker.id}`)
+            );
             const locationResponses = await Promise.all(locationPromises);
             const locations = {};
             locationResponses.forEach((response, index) => {
-                const workerId = workers[index].id;
-                locations[workerId] = response.data; // Assuming response.data is the location object
+                const workerId = filteredWorkers[index].id;
+                locations[workerId] = response.data;
             });
             setWorkerLocations(locations);
         } catch (error) {
@@ -55,7 +57,12 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
     const fetchWorkers = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/worker/${clientId}`);
-            setFilteredWorkers(response.data);
+            const workersWithRolesPromises = response.data.map(async (worker) => {
+                const rolesResponse = await axios.get(`${config.API_BASE_URL}/worker/role/${worker.id}`);
+                return { ...worker, roles: rolesResponse.data };
+            });
+            const workersWithRoles = await Promise.all(workersWithRolesPromises);
+            setFilteredWorkers(workersWithRoles);
         } catch (error) {
             console.error('Error fetching workers:', error);
         }
@@ -63,13 +70,13 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
 
     const toggleWorkerDetails = async (workerId) => {
         if (expandedWorkerId === workerId) {
-            setExpandedWorkerId(null); // Collapse if already expanded
+            setExpandedWorkerId(null);
         } else {
-            setExpandedWorkerId(workerId); // Expand the worker
+            setExpandedWorkerId(workerId);
             if (!workerLocations[workerId]) {
                 try {
                     const response = await axios.get(`${config.API_BASE_URL}/worker/location/${workerId}`);
-                    const location = response.data; // Assuming response.data is the location object
+                    const location = response.data;
                     setWorkerLocations(prevLocations => ({
                         ...prevLocations,
                         [workerId]: location
@@ -86,7 +93,7 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
         try {
             await axios.put(`${config.API_BASE_URL}/worker/role/${selectedWorkerId}/${selectedRoleId}`);
             setShowAddRoleModal(false);
-            await fetchWorkers(); // Re-fetch workers
+            await fetchWorkers();
         } catch (error) {
             console.error('Error adding role to worker:', error);
         }
@@ -101,26 +108,51 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                     clientId: clientId
                 }
             });
-            setFilteredWorkers(response.data);
+
+            const workersWithRoles = await Promise.all(response.data.map(async worker => {
+                const rolesResponse = await axios.get(`${config.API_BASE_URL}/worker/role/${worker.id}`);
+                return {
+                    ...worker,
+                    roles: rolesResponse.data
+                };
+            }));
+
+            setFilteredWorkers(workersWithRoles);
         } catch (error) {
             console.error('Error filtering workers:', error);
         }
     };
 
+
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
     };
 
-    const handleAddWorkerSuccess = (newWorker) => {
-        setFilteredWorkers((prevWorkers) => [...prevWorkers, newWorker]);
-        setRefresh(prev => !prev);
+    const handleAddWorkerSuccess = async (newWorker) => {
+        try {
+            // Optimistically update the state with the new worker
+            setFilteredWorkers((prevWorkers) => [...prevWorkers, newWorker]);
+
+            // Fetch roles for the newly added worker immediately
+            const rolesResponse = await axios.get(`${config.API_BASE_URL}/worker/role/${newWorker.id}`);
+            const updatedWorker = { ...newWorker, roles: rolesResponse.data };
+
+            // Update the state with the worker and their roles
+            setFilteredWorkers((prevWorkers) =>
+                prevWorkers.map(worker => worker.id === updatedWorker.id ? updatedWorker : worker)
+            );
+
+            // Trigger a refresh or any other necessary action
+            setRefresh(prev => !prev);
+        } catch (error) {
+            console.error('Error fetching roles for the new worker:', error);
+        }
     };
+
 
     return (
         <>
-            <h2 className="mb-4">
-                {'Workers'}
-            </h2>
+            <h2 className="mb-4">Workers</h2>
             <Button variant="primary" onClick={() => setShowAddWorkerModal(true)}>Add Worker</Button>
             <Form.Group controlId="search" className="mt-3">
                 <Form.Label>Search</Form.Label>
@@ -152,6 +184,11 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                                             <Card.Text>
                                                 <strong>Name: </strong>{worker.firstName + " " + worker.lastName}
                                             </Card.Text>
+                                            {worker.roles && worker.roles.length > 0 && (
+                                                <Card.Text>
+                                                    <strong>Roles: </strong>{worker.roles.map(role => role.role).join(', ')}
+                                                </Card.Text>
+                                            )}
                                         </div>
                                         <div>
                                             <Button variant="link" onClick={() => toggleWorkerDetails(worker.id)}>
