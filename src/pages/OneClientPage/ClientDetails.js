@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Modal, Form, Alert } from 'react-bootstrap';
+import { Card, Button, Modal, Form, Alert, Accordion } from 'react-bootstrap';
+import axios from 'axios';
+import config from "../../config/config";
 
 // Define specific fields to display
 const specificFields = [
@@ -9,10 +11,13 @@ const specificFields = [
 function ClientDetails({ client, navigate }) {
     const [showClientFieldModal, setShowClientFieldModal] = useState(false);
     const [visibleDeviceFields, setVisibleDeviceFields] = useState({});
+    const [clientLocations, setClientLocations] = useState([]);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         if (client) {
             initializeVisibleFields(client);
+            fetchClientLocations(client.id);
         }
     }, [client]);
 
@@ -28,6 +33,16 @@ function ClientDetails({ client, navigate }) {
                 return acc;
             }, {});
             setVisibleDeviceFields(initialVisibleFields);
+        }
+    };
+
+    const fetchClientLocations = async (clientId) => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`);
+            setClientLocations(response.data);
+        } catch (error) {
+            setError('Error fetching client locations');
+            console.error('Error fetching client locations:', error);
         }
     };
 
@@ -73,10 +88,33 @@ function ClientDetails({ client, navigate }) {
                         <Card.Title>{client.name}</Card.Title>
                         {renderFields(client)}
                     </Card.Body>
+                    <Accordion className="m-3">
+                        <Accordion.Item eventKey="0">
+                            <Accordion.Header>Locations</Accordion.Header>
+                            <Accordion.Body>
+                                {clientLocations.length > 0 ? (
+                                    clientLocations.map(location => (
+                                        <Card key={location.id} className="mb-2">
+                                            <Card.Body>
+                                                <Card.Title>{location.name}</Card.Title>
+                                                <Card.Text>
+                                                    <strong>Address: </strong>{location.address}<br />
+                                                    <strong>Phone: </strong>{location.phone}
+                                                </Card.Text>
+                                            </Card.Body>
+                                        </Card>
+                                    ))
+                                ) : (
+                                    <Alert variant="info">No locations available.</Alert>
+                                )}
+                            </Accordion.Body>
+                        </Accordion.Item>
+                    </Accordion>
                 </Card>
             ) : (
                 <Alert variant="info">No client details available.</Alert>
             )}
+
             <Modal show={showClientFieldModal} onHide={() => setShowClientFieldModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Visible Fields for {client.shortName}</Modal.Title>
