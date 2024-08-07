@@ -118,7 +118,7 @@ function Settings() {
                     </Button>
                 </Col>
             </Row>
-            <Row >
+            <Row className="mb-3">
                 <Col md={6}>
                     <Button
                         variant="primary"
