@@ -3,7 +3,7 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../../config/config";
 
-const AddContactModal = ({ show, handleClose, onAdd, locations, clientId }) => {
+const AddContactModal = ({ show, handleClose, onAdd, locations, clientId, handleCloseTicketDetails, classCheck }) => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
@@ -23,6 +23,10 @@ const AddContactModal = ({ show, handleClose, onAdd, locations, clientId }) => {
                 locationId,
                 title
             });
+            if (classCheck === "ticketDetails") { //Check whether this modal was called out from ClientWorkersModal or not
+                handleCloseTicketDetails();
+                return
+            }
             onAdd(response.data); // Pass the new contact back to the parent component
             setFirstName('');
             setLastName('');

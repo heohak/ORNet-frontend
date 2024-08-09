@@ -356,6 +356,7 @@ const TicketDetails = ({
         }
     };
 
+
     return (
         <Accordion key={ticket.id} activeKey={expandedTickets.has(ticket.id.toString()) ? ticket.id.toString() : null}>
             <Card ref={(el) => (ticketRefs.current[ticket.id] = el)} className="mb-4">
@@ -723,6 +724,7 @@ const TicketDetails = ({
                 selectedWorkers={editFields[ticket.id]?.contactIds || []}
                 onSave={()=> handleWorkTypeAndContactFetch(ticket.id)}
                 ticketId={ticket.id}
+                locations={locations}
             />
             <WorkTypeModal
                 show={showWorkTypeModal}
@@ -735,7 +737,8 @@ const TicketDetails = ({
             show={showMaintenanceModal}
             handleClose={() => setShowMaintenanceModal(false)}
             clientId={ticket.clientId}
-
+            ticketId={ticket.id}
+            onSave={()=> fetchMaintenances(ticket.id)}
             />
         </Accordion>
     );

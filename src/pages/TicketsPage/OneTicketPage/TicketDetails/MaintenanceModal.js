@@ -1,28 +1,46 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import axios from "axios";
 import config from "../../../../config/config";
 import Select from "react-select/async";
 
-const MaintenanceModal = ({ show, handleClose, clientId }) => {
-    const [name, setName] = useState('');
-    const [date, setDate] = useState('');
+const MaintenanceModal = ({ show, handleClose, clientId, ticketId, onSave }) => {
+    const [maintenanceName, setMaintenanceName] = useState('');
+    const [maintenanceDate, setMaintenanceDate] = useState('');
     const [comment, setComment] = useState('');
     const [selectedDevices, setSelectedDevices] = useState([]);
-
+    const [allDevices, setAllDevices] = useState([]); // Store all devices initially fetched
 
     useEffect(() => {
         if (show) {
-            fetchDevices();
+            fetchAllDevices();
         }
-    });
+    }, [show]); // Only fetch when the modal is shown
 
-    const fetchDevices = async (inputValue) => {
+    const fetchAllDevices = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/device/search`, {
-                params: {query: inputValue, clientId: clientId}
+                params: { clientId: clientId }
             });
-            console.log(response.data)
+            const devices = response.data.map(device => ({
+                label: device.deviceName,
+                value: device.id
+            }));
+            setAllDevices(devices); // Store the fetched devices
+        } catch (error) {
+            console.log('Error fetching devices', error);
+        }
+    };
+
+    const fetchDevices = async (inputValue) => {
+        if (!inputValue) {
+            // Return all devices if input is empty
+            return allDevices;
+        }
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/device/search`, {
+                params: { q: inputValue, clientId: clientId }
+            });
             return response.data.map(device => ({
                 label: device.deviceName,
                 value: device.id
@@ -33,24 +51,24 @@ const MaintenanceModal = ({ show, handleClose, clientId }) => {
         }
     };
 
-
     const handleSave = async () => {
         try {
             const maintenanceResponse = await axios.post(`${config.API_BASE_URL}/maintenance/add`, {
-                name,
-                date,
+                maintenanceName,
+                maintenanceDate,
                 comment
             });
 
-            const maintenanceId = maintenanceResponse.data.id;
+            const maintenanceId = maintenanceResponse.data.token;
 
+            await axios.put(`${config.API_BASE_URL}/ticket/maintenance/${ticketId}/${maintenanceId}`)
+            //assigns the maintenance to the respective ticket
+            console.log(selectedDevices)
             for (const device of selectedDevices) {
-                await axios.post(`${config.API_BASE_URL}/maintenance/assign`, {
-                    maintenanceId,
-                    deviceId: device.value
-                });
+                const deviceId = device.value
+                await axios.put(`${config.API_BASE_URL}/device/maintenance/${deviceId}/${maintenanceId}`)
             }
-
+            onSave();
             handleClose();
         } catch (error) {
             console.error('Error submitting maintenance', error);
@@ -67,14 +85,14 @@ const MaintenanceModal = ({ show, handleClose, clientId }) => {
                     <Form.Label>Maintenance Name</Form.Label>
                     <Form.Control
                         type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        value={maintenanceName}
+                        onChange={(e) => setMaintenanceName(e.target.value)}
                     />
                     <Form.Label>Maintenance Date</Form.Label>
                     <Form.Control
-                        type="text"
-                        value={date}
-                        onChange={(e) => setDate(e.target.value)}
+                        type="date"
+                        value={maintenanceDate}
+                        onChange={(e) => setMaintenanceDate(e.target.value)}
                     />
                     <Form.Label>Comment</Form.Label>
                     <Form.Control
@@ -86,6 +104,7 @@ const MaintenanceModal = ({ show, handleClose, clientId }) => {
                     <Select
                         isMulti
                         cacheOptions
+                        defaultOptions={allDevices} // Set the default options as all devices
                         loadOptions={fetchDevices}
                         onChange={setSelectedDevices}
                         value={selectedDevices}

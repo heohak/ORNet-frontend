@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Modal, Button, ListGroup, Form } from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../../../config/config";
+import AddContactModal from "../../AddTicketPage/AddContactModal";
 
-const ClientWorkersModal = ({ show, handleClose, clientId, selectedWorkers, onSave, ticketId }) => {
+const ClientWorkersModal = ({ show, handleClose, clientId, selectedWorkers, onSave, ticketId, locations }) => {
     const [clientWorkers, setClientWorkers] = useState([]);
     const [selectedWorkerIds, setSelectedWorkerIds] = useState([]);
+    const [showAddContactModal, setShowAddContactModal] = useState(false);
 
     useEffect(() => {
         if (show && clientId) {
@@ -44,6 +46,11 @@ const ClientWorkersModal = ({ show, handleClose, clientId, selectedWorkers, onSa
         handleClose();
     };
 
+    const handleAddContactClose = () => {
+        setShowAddContactModal(false);
+        fetchClientWorkers(clientId); // Refresh the client workers list after adding a new contact
+    };
+
     return (
         <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
@@ -69,6 +76,9 @@ const ClientWorkersModal = ({ show, handleClose, clientId, selectedWorkers, onSa
                     ))}
                 </ListGroup>
             </Modal.Body>
+            <Button variant="link" onClick={() => setShowAddContactModal(true)} style={{ marginRight: 'auto' }}>
+                Add a new contact
+            </Button>
             <Modal.Footer>
                 <Button variant="secondary" onClick={handleClose}>
                     Cancel
@@ -77,6 +87,13 @@ const ClientWorkersModal = ({ show, handleClose, clientId, selectedWorkers, onSa
                     Save
                 </Button>
             </Modal.Footer>
+            <AddContactModal
+                show={showAddContactModal}
+                handleCloseTicketDetails={handleAddContactClose}
+                clientId={clientId}
+                locations={locations}
+                classCheck="ticketDetails" //Just a check which class called out the modal
+            />
         </Modal>
     );
 };
