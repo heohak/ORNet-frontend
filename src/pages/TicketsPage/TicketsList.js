@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Card, Button, Spinner, Alert } from 'react-bootstrap';
 import axios from 'axios';
-import config from "../config/config";
+import config from "../../config/config";
 
 const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
     const [clientDetails, setClientDetails] = useState({});

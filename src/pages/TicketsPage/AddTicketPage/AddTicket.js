@@ -3,7 +3,10 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Button, Form, Container, Alert, Badge, Row, Stack, Col } from 'react-bootstrap';
 import moment from 'moment';
-import config from "../config/config";
+import config from "../../../config/config";
+import AddWorkTypeModal from './AddWorkTypeModal';
+import AddLocationModal from "./AddLocationModal";
+import AddContactModal from "./AddContactModal";
 
 function AddTicket() {
     const { mainTicketId } = useParams();
@@ -24,12 +27,13 @@ function AddTicket() {
         locationId: '',
         statusId: '',
         baitNumeration: '',
-        clientNumeration: ''
+        clientNumeration: '',
+        contactIds: []
     });
-
 
     const [clients, setClients] = useState([]);
     const [locations, setLocations] = useState([]);
+    const [contacts, setContacts] = useState([]);
     const [baitWorkers, setBaitWorkers] = useState([]);
     const [statuses, setStatuses] = useState([]);
     const [workTypes, setWorkTypes] = useState([]);
@@ -37,20 +41,22 @@ function AddTicket() {
     const [clientName, setClientName] = useState('');
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [availableOptions, setAvailableOptions] = useState([]);
+    const [showWorkTypeModal, setShowWorkTypeModal] = useState(false); // State for modal visibility
+    const [showLocationModal, setShowLocationModal] = useState(false);
+    const [showContactModal, setShowContactModal] = useState(false);
+
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [locationRes, statusRes, baitWorkerRes, clientRes, workTypeRes] = await Promise.all([
-                    axios.get(`${config.API_BASE_URL}/location/all`),
+                const [statusRes, baitWorkerRes, clientRes, workTypeRes] = await Promise.all([
                     axios.get(`${config.API_BASE_URL}/ticket/classificator/all`),
                     axios.get(`${config.API_BASE_URL}/bait/worker/all`),
                     !clientIdParam && axios.get(`${config.API_BASE_URL}/client/all`),
                     axios.get(`${config.API_BASE_URL}/work-type/classificator/all`)
                 ]);
 
-                setLocations(locationRes.data);
                 setStatuses(statusRes.data);
                 setBaitWorkers(baitWorkerRes.data);
                 const fetchedWorkTypes = workTypeRes.data;
@@ -70,14 +76,33 @@ function AddTicket() {
         fetchData();
     }, [clientIdParam]);
 
+    useEffect(() => {
+        const fetchLocationsAndContacts = async () => {
+            if (formData.clientId) {
+                try {
+                    const locationRes = await axios.get(`${config.API_BASE_URL}/client/locations/${formData.clientId}`);
+                    const contactRes = await axios.get(`${config.API_BASE_URL}/worker/${formData.clientId}`)
+                    setLocations(locationRes.data);
+                    setContacts(contactRes.data);
+                } catch (error) {
+                    console.error('Error fetching locations or contacts:', error);
+                }
+            }
+        };
+
+        fetchLocationsAndContacts();
+    }, [formData.clientId]);
+
+
 
     const handleChange = (e) => {
         const { id, value, type, checked } = e.target;
         setFormData(prevData => ({
             ...prevData,
-            [id]: type === 'checkbox' ? checked : value
+            [id]: id === 'contactIds' ? [value] : (type === 'checkbox' ? checked : value)
         }));
     };
+
 
     const handleSelection = (e) => {
         const selectedValue = parseInt(e.target.value, 10);
@@ -98,7 +123,6 @@ function AddTicket() {
             workTypes.find(option => option.id === workTypeId)
         ].sort((a, b) => a.id - b.id)); // Sort if needed
     };
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -121,6 +145,40 @@ function AddTicket() {
         }
     };
 
+    const handleWorkTypeAdded = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/work-type/classificator/all`);
+            const fetchedWorkTypes = response.data;
+            setWorkTypes(fetchedWorkTypes);
+            setAvailableOptions(fetchedWorkTypes);
+        } catch (error) {
+            console.error('Error fetching work types:', error);
+        }
+    };
+
+    const handleLocationAdded = async () => {
+        if (formData.clientId) {
+            try {
+                const response = await axios.get(`${config.API_BASE_URL}/client/locations/${formData.clientId}`);
+                const fetchedLocations = response.data;
+                setLocations(fetchedLocations);
+            } catch (error) {
+                console.error('Error fetching work types:', error);
+            }
+        }
+    };
+
+    const handleContactAdded = async () => {
+        if (formData.clientId) {
+            try {
+                const response = await axios.get(`${config.API_BASE_URL}/worker/${formData.clientId}`)
+                const fetchedContacts = response.data;
+                setContacts(fetchedContacts);
+            } catch (error) {
+                console.error('Error fetching work types:', error);
+            }
+        }
+    };
 
     return (
         <Container className="mt-5">
@@ -136,15 +194,25 @@ function AddTicket() {
                         required
                     />
                 </Form.Group>
-                <Form.Group controlId="description" className="mb-3">
-                    <Form.Label>Description</Form.Label>
-                    <Form.Control
-                        type="text"
-                        value={formData.description}
-                        onChange={handleChange}
-                        required
-                    />
-                </Form.Group>
+                {!clientIdParam && (
+                    <Form.Group controlId="clientId" className="mb-3">
+                        <Form.Label>Client</Form.Label>
+                        <Form.Control
+                            as="select"
+                            value={formData.clientId}
+                            onChange={handleChange}
+                            id="clientId"
+                            required
+                        >
+                            {clients.length > 0 && <option value="">Select Client</option>}
+                            {clients.map(client => (
+                                <option key={client.id} value={client.id}>
+                                    {client.fullName}
+                                </option>
+                            ))}
+                        </Form.Control>
+                    </Form.Group>
+                )}
                 <Form.Group controlId="baitNumeration" className="mb-3">
                     <Form.Label>Our Numeration</Form.Label>
                     <Form.Control
@@ -159,6 +227,15 @@ function AddTicket() {
                         type="text"
                         value={formData.clientNumeration}
                         onChange={handleChange}
+                    />
+                </Form.Group>
+                <Form.Group controlId="description" className="mb-3">
+                    <Form.Label>Description</Form.Label>
+                    <Form.Control
+                        type="text"
+                        value={formData.description}
+                        onChange={handleChange}
+                        required
                     />
                 </Form.Group>
                 <Form.Group controlId="crisis" className="mb-3">
@@ -180,8 +257,15 @@ function AddTicket() {
                 <Form.Group as={Row} className="mb-3">
                     <div>
                         <Form.Label column sm={2}>
-                            Select Work Type
+                            Work Types
                         </Form.Label>
+                        <Button
+                            variant="link"
+                            onClick={() => setShowWorkTypeModal(true)}
+                            className="text-primary"
+                        >
+                            Add New Work Type
+                        </Button>
                     </div>
                     <Col sm={10}>
                         <Form.Control as="select" onChange={handleSelection}>
@@ -240,39 +324,68 @@ function AddTicket() {
                         ))}
                     </Form.Control>
                 </Form.Group>
-                {!clientIdParam && (
-                    <Form.Group controlId="clientId" className="mb-3">
-                        <Form.Label>Client</Form.Label>
-                        <Form.Control
-                            as="select"
-                            value={formData.clientId}
-                            onChange={handleChange}
-                            id="clientId"
-                            required
-                        >
-                            {clients.length > 0 && <option value="">Select Client</option>}
-                            {clients.map(client => (
-                                <option key={client.id} value={client.id}>
-                                    {client.fullName}
-                                </option>
-                            ))}
-                        </Form.Control>
-                    </Form.Group>
-                )}
                 <Form.Group className="mb-3">
-                    <Form.Label>Location</Form.Label>
+                    <Form.Label column sm={2}>Location</Form.Label>
+                    {formData.clientId ? (
+                    <Button
+                        variant="link"
+                        onClick={() => setShowLocationModal(true)}
+                        className="text-primary"
+                    >
+                        Add New Location
+                    </Button>
+                        ) : null}
                     <Form.Control
                         as="select"
                         value={formData.locationId}
                         onChange={handleChange}
                         id="locationId"
+                        disabled={!formData.clientId} // Disable if no client is selected
                     >
-                        <option value="">Select Location</option>
-                        {locations.map(location => (
-                            <option key={location.id} value={location.id}>
-                                {location.name}
-                            </option>
-                        ))}
+                        {!formData.clientId ? (
+                            <option value="">Pick a client before picking a location</option>
+                        ) : (
+                            <>
+                                <option value="">Select Location</option>
+                                {locations.map(location => (
+                                    <option key={location.id} value={location.id}>
+                                        {location.name}
+                                    </option>
+                                ))}
+                            </>
+                        )}
+                    </Form.Control>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label column sm={2}>Contact</Form.Label>
+                    {formData.clientId ? (
+                        <Button
+                            variant="link"
+                            onClick={() => setShowContactModal(true)}
+                            className="text-primary"
+                        >
+                            Add A New Contact
+                        </Button>
+                    ) : null}
+                    <Form.Control
+                        as="select"
+                        value={formData.contactIds[0] || ""}
+                        onChange={handleChange}
+                        id="contactIds"
+                        disabled={!formData.clientId} // Disable if no client is selected
+                    >
+                        {!formData.clientId ? (
+                            <option value="">Pick a client before picking a contact</option>
+                        ) : (
+                            <>
+                                <option value="">Select a Contact</option>
+                                {contacts.map(contact => (
+                                    <option key={contact.id} value={contact.id}>
+                                        {contact.firstName + " " + contact.lastName}
+                                    </option>
+                                ))}
+                            </>
+                        )}
                     </Form.Control>
                 </Form.Group>
                 <Form.Group className="mb-3">
@@ -299,6 +412,25 @@ function AddTicket() {
                     <Button className="gy-5" onClick={() => navigate(-1)}>Back</Button>
                 </div>
             </Form>
+            <AddWorkTypeModal
+                show={showWorkTypeModal}
+                handleClose={() => setShowWorkTypeModal(false)}
+                onAdd={handleWorkTypeAdded}
+            />
+            <AddLocationModal
+                show={showLocationModal}
+                handleClose={() => setShowLocationModal(false)}
+                onAdd={handleLocationAdded}
+                clientId={formData.clientId}
+            />
+            <AddContactModal
+                show={showContactModal}
+                handleClose={()=> setShowContactModal(false)}
+                onAdd={handleContactAdded}
+                clientId={formData.clientId}
+                locations={locations}
+
+            />
         </Container>
     );
 }

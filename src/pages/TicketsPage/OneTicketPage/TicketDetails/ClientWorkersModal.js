@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, ListGroup, Form } from 'react-bootstrap';
 import axios from 'axios';
-import config from "../config/config";
+import config from "../../../../config/config";
+import AddContactModal from "../../AddTicketPage/AddContactModal";
 
-const ClientWorkersModal = ({ show, handleClose, clientId, selectedWorkers, onSave }) => {
+const ClientWorkersModal = ({ show, handleClose, clientId, selectedWorkers, onSave, ticketId, locations }) => {
     const [clientWorkers, setClientWorkers] = useState([]);
     const [selectedWorkerIds, setSelectedWorkerIds] = useState([]);
+    const [showAddContactModal, setShowAddContactModal] = useState(false);
 
     useEffect(() => {
         if (show && clientId) {
@@ -32,9 +34,21 @@ const ClientWorkersModal = ({ show, handleClose, clientId, selectedWorkers, onSa
         );
     };
 
-    const handleSave = () => {
+    const handleSave = async(ticketId) => {
+        try {
+            await axios.put(`${config.API_BASE_URL}/ticket/update/whole/${ticketId}`, {
+                contactIds: selectedWorkerIds,
+            });
+        } catch (error) {
+            console.error('Error fetching work types:', error);
+        }
         onSave(selectedWorkerIds);
         handleClose();
+    };
+
+    const handleAddContactClose = () => {
+        setShowAddContactModal(false);
+        fetchClientWorkers(clientId); // Refresh the client workers list after adding a new contact
     };
 
     return (
@@ -62,14 +76,24 @@ const ClientWorkersModal = ({ show, handleClose, clientId, selectedWorkers, onSa
                     ))}
                 </ListGroup>
             </Modal.Body>
+            <Button variant="link" onClick={() => setShowAddContactModal(true)} style={{ marginRight: 'auto' }}>
+                Add a new contact
+            </Button>
             <Modal.Footer>
                 <Button variant="secondary" onClick={handleClose}>
                     Cancel
                 </Button>
-                <Button variant="primary" onClick={handleSave}>
+                <Button variant="primary" onClick={()=> handleSave(ticketId)}>
                     Save
                 </Button>
             </Modal.Footer>
+            <AddContactModal
+                show={showAddContactModal}
+                handleCloseTicketDetails={handleAddContactClose}
+                clientId={clientId}
+                locations={locations}
+                classCheck="ticketDetails" //Just a check which class called out the modal
+            />
         </Modal>
     );
 };
