@@ -80,6 +80,20 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
             if (response.data && response.data.token) {
                 await axios.put(`${config.API_BASE_URL}/software/add/client/${response.data.token}/${clientId}`);
                 setRefresh(prev => !prev);
+                setName('');
+                setDbVersion('');
+                setHis({ vendorName: '', version: '', updateDate: '' });
+                setPacs({ vendorName: '', version: '', updateDate: '' });
+                setDicom({ vendorName: '', version: '', updateDate: '' });
+                setHl7({ vendorName: '', version: '', updateDate: '' });
+                setLis({ vendorName: '', version: '', updateDate: '' });
+                setReturnImagesToLIS({ toReturn: '', link: '', updateDate: '' });
+                setOrNetAPI({ version: '', updateDate: '' });
+                setTxtIntegrationDate('');
+                setCustomerAPI({ vendorName: '', version: '', updateDate: '' });
+                setOrNetAPIClient({ version: '', updateDate: '' });
+                setConsultationModule({ version: '', updateDate: '' });
+                setAiModule({ version: '', updateDate: '' });
                 handleClose();
             }
         } catch (error) {

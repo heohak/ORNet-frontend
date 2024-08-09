@@ -112,9 +112,71 @@ function SoftwareDetails({ softwareList, clientId, setRefresh, client }) {
                                     <td>PACS Version</td>
                                     <td>{software.pacs.version}</td>
                                 </tr>
+                                {/* Add the missing fields below */}
+                                <tr>
+                                    <td>Return Images to LIS - To Return</td>
+                                    <td>{software.returnImagesToLIS.toReturn}</td>
+                                </tr>
+                                <tr>
+                                    <td>Return Images to LIS - Link</td>
+                                    <td>{software.returnImagesToLIS.link}</td>
+                                </tr>
+                                <tr>
+                                    <td>Return Images to LIS - Update Date</td>
+                                    <td>{software.returnImagesToLIS.updateDate}</td>
+                                </tr>
+                                <tr>
+                                    <td>ORNetAPI Version</td>
+                                    <td>{software.orNetAPI.version}</td>
+                                </tr>
+                                <tr>
+                                    <td>ORNetAPI Update Date</td>
+                                    <td>{software.orNetAPI.updateDate}</td>
+                                </tr>
+                                <tr>
+                                    <td>Txt Integration Date</td>
+                                    <td>{software.txtIntegrationDate}</td>
+                                </tr>
+                                <tr>
+                                    <td>Customer API Vendor Name</td>
+                                    <td>{software.customerAPI.vendorName}</td>
+                                </tr>
+                                <tr>
+                                    <td>Customer API Version</td>
+                                    <td>{software.customerAPI.version}</td>
+                                </tr>
+                                <tr>
+                                    <td>Customer API Update Date</td>
+                                    <td>{software.customerAPI.updateDate}</td>
+                                </tr>
+                                <tr>
+                                    <td>ORNetAPIClient Version</td>
+                                    <td>{software.orNetAPIClient.version}</td>
+                                </tr>
+                                <tr>
+                                    <td>ORNetAPIClient Update Date</td>
+                                    <td>{software.orNetAPIClient.updateDate}</td>
+                                </tr>
+                                <tr>
+                                    <td>Consultation Module Version</td>
+                                    <td>{software.consultationModule.version}</td>
+                                </tr>
+                                <tr>
+                                    <td>Consultation Module Update Date</td>
+                                    <td>{software.consultationModule.updateDate}</td>
+                                </tr>
+                                <tr>
+                                    <td>AI Module Version</td>
+                                    <td>{software.aiModule.version}</td>
+                                </tr>
+                                <tr>
+                                    <td>AI Module Update Date</td>
+                                    <td>{software.aiModule.updateDate}</td>
+                                </tr>
                                 </tbody>
                             </Table>
                         )}
+
                     </Card.Body>
                 </Card>
             ))}
