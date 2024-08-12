@@ -85,6 +85,7 @@ function Settings() {
                     </Button>
                 </Col>
             </Row>
+            {/*
             <Row className="mb-3">
                 <Col md={6}>
                     <Button
@@ -96,6 +97,7 @@ function Settings() {
                     </Button>
                 </Col>
             </Row>
+            */}
             <Row className="mb-3">
                 <Col md={6}>
                     <Button
