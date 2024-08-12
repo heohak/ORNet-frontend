@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Accordion, Card, Button, Row, Col, Form } from 'react-bootstrap';
 import axios from 'axios';
-import FileUploadModal from "../../../../modals/FileUploadModal";
 import ClientWorkersModal from "./ClientWorkersModal";
 import WorkTypeModal from "./WorkTypeModal";
 import FileList from "./FileList";
@@ -21,10 +20,8 @@ const TicketDetails = ({
                            setEditFields,
                            handleSave,
                            ticketRefs,
-                           onUploadSuccess
                        }) => {
     const [isEditing, setIsEditing] = useState(false);
-    const [showUploadModal, setShowUploadModal] = useState(false);
     const [showWorkersModal, setShowWorkersModal] = useState(false); // Add state for showing workers modal
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
@@ -42,6 +39,7 @@ const TicketDetails = ({
     const [timeInputs, setTimeInputs] = useState({});
     const [maintenances, setMaintenances] = useState ([]);
     const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
+    const [notification, setNotification] = useState('');
 
 
 
@@ -302,14 +300,15 @@ const TicketDetails = ({
         return (
             <div>
                 <p>Paid Start Time: {info.startTime}</p>
-                <p>Paid Time Spent: {info.timeSpent}</p>
+                <p>Paid Time Spent: {info.timeSpent ? info.timeSpent : '--:--'}</p>
                 <div className="d-flex align-items-center">
                     <Form.Group className="me-2">
                         <Form.Control
                             type="number"
                             value={timeInputs[ticketId]?.hours || ''}
                             onChange={(e) => handleTimeInputChange(ticketId, 'hours', e.target.value)}
-                            style={{ width: '80px' }}
+                            style={{ width: '80px', appearance: 'textfield' }}
+                            disabled={info.settled} // Disable if info.settled is true
                         />
                     </Form.Group>
                     <p className="me-4" style={{margin: 0}}>h</p>
@@ -318,11 +317,17 @@ const TicketDetails = ({
                             type="number"
                             value={timeInputs[ticketId]?.minutes || ''}
                             onChange={(e) => handleTimeInputChange(ticketId, 'minutes', e.target.value)}
-                            style={{ width: '80px' }}
+                            style={{ width: '80px', appearance: 'textfield' }}
+                            disabled={info.settled}
                         />
                     </Form.Group>
                     <p className="me-4" style={{margin: 0}}>min</p>
-                    <Button onClick={() => handleAddTime(ticketId)} >Add</Button>
+                    <Button
+                        onClick={() => handleAddTime(ticketId)}
+                        disabled={info.settled}
+                    >
+                        Add
+                    </Button>
                 </div>
                 {info.settled ? (
                     <p>Settled</p>
@@ -352,8 +357,15 @@ const TicketDetails = ({
                 console.log("Error closing the ticket", error);
             }
         } else {
-            return null;
+            showNotification("Cannot close ticket before it's settled!");
         }
+    };
+
+    const showNotification = (message) => {
+        setNotification(message);
+        setTimeout(() => {
+            setNotification('');
+        }, 3000); // Hide notification after 3 seconds
     };
 
 
@@ -371,6 +383,21 @@ const TicketDetails = ({
                     </Accordion.Header>
                     <Accordion.Body>
                         <Button variant="danger" onClick={() => handleCloseTicket(ticket.id)}>Close Ticket</Button>
+                        {notification && (
+                            <div style={{
+                                position: 'absolute',
+                                background: 'rgba(0, 0, 0, 0.8)',
+                                color: 'red',
+                                padding: '10px',
+                                borderRadius: '5px',
+                                top: '45px', // Adjust based on where you want the message to appear
+
+                                transition: 'opacity 0.5s ease-in-out',
+                                opacity: notification ? 1 : 0
+                            }}>
+                                {notification}
+                            </div>
+                        )}
                         <Card.Body>
                             <Accordion activeKey={expandedSections[ticket.id]?.dates ? "0" : null}>
                                 <Accordion.Item eventKey="0">
@@ -381,7 +408,7 @@ const TicketDetails = ({
                                                 {isEditing ? (
                                                     <>
                                                         <p><strong>Start Date Time:</strong> {ticket.startDateTime}</p>
-                                                        <p><strong>End Date Time:</strong> {ticket.endDateTime}</p>
+                                                        <p><strong>End Date Time:</strong> {ticket.endDateTime ? ticket.endDateTime : '--:-- --:--'}</p>
                                                         <Form.Group className="mb-3">
                                                             <Form.Label>Response Date Time</Form.Label>
                                                             <Datetime
@@ -396,8 +423,8 @@ const TicketDetails = ({
                                                 ) : (
                                                     <>
                                                         <p><strong>Start Date Time:</strong> {ticket.startDateTime}</p>
-                                                        <p><strong>End Date Time:</strong> {ticket.endDateTime}</p>
-                                                        <p><strong>Response Date Time:</strong> {ticket.responseDateTime}</p>
+                                                        <p><strong>End Date Time:</strong> {ticket.endDateTime ? ticket.endDateTime : '--:-- --:--'}</p>
+                                                        <p><strong>Response Date Time:</strong> {ticket.responseDateTime ? ticket.responseDateTime : '--:-- --:--'}</p>
                                                         <p><strong>Update Time:</strong> {ticket.updateDateTime}</p>
                                                     </>
                                                 )}
@@ -691,23 +718,7 @@ const TicketDetails = ({
                                 />
                                 <Button variant="primary" onClick={handleAddComment} className="mt-2">Add Comment</Button>
                             </Form.Group>
-                            <div>
-                                <h1>File Management</h1>
-                                <FileList ticketId={ticket.id} />
-                            </div>
-                            {!isEditing && (
-                                <>
-                                    <Button variant="outline-primary" onClick={() => setShowUploadModal(true)}>
-                                        Upload Files
-                                    </Button>
-                                    <FileUploadModal
-                                        show={showUploadModal}
-                                        handleClose={() => setShowUploadModal(false)}
-                                        uploadEndpoint={`${config.API_BASE_URL}/ticket/upload/${ticket.id}`}
-                                        onUploadSuccess={onUploadSuccess}
-                                    />
-                                </>
-                            )}
+                            <FileList ticketId={ticket.id}/>  {/* Calls the FileList class */}
                             {isEditing && (
                                 <Button className="mt-3" variant="primary" onClick={() => { handleSave(ticket.id); toggleEdit(); }}>
                                     Save

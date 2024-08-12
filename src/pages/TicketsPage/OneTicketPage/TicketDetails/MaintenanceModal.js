@@ -100,7 +100,7 @@ const MaintenanceModal = ({ show, handleClose, clientId, ticketId, onSave }) => 
                         value={comment}
                         onChange={(e) => setComment(e.target.value)}
                     />
-                    <Form.Label>Devices</Form.Label>
+                    <Form.Label>Related Devices</Form.Label>
                     <Select
                         isMulti
                         cacheOptions

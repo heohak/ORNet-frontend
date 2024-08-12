@@ -50,7 +50,7 @@ function OneTicket() {
                 setEditFields(initialEditFields);
                 if (scrollToId) {
                     setExpandedTickets(new Set([scrollToId]));
-                    setExpandedSections({ [scrollToId]: { dates: true, details: true } });
+                    setExpandedSections({ [scrollToId]: { dates: true, details: true, paid: true, maintenance: true } });
                 }
             } catch (error) {
                 setError(error.message);
@@ -176,7 +176,6 @@ function OneTicket() {
                             setEditFields={setEditFields}
                             handleSave={handleSave}
                             ticketRefs={ticketRefs}
-                            onUploadSuccess={handleUploadSuccess}
                         />
                     ))}
                 </>
