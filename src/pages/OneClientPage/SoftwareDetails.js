@@ -115,7 +115,7 @@ function SoftwareDetails({ softwareList, clientId, setRefresh, client }) {
                                 {/* Add the missing fields below */}
                                 <tr>
                                     <td>Return Images to LIS - To Return</td>
-                                    <td>{software.returnImagesToLIS.toReturn}</td>
+                                    <td>{software.returnImagesToLIS.toReturn ? 'Yes' : 'No'}</td>
                                 </tr>
                                 <tr>
                                     <td>Return Images to LIS - Link</td>
