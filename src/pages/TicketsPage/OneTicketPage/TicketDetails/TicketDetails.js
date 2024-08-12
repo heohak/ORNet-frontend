@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Accordion, Card, Button, Row, Col, Form } from 'react-bootstrap';
 import axios from 'axios';
-import FileUploadModal from "../../../modals/FileUploadModal";
-import ClientWorkersModal from "../../../modals/ClientWorkersModal"; // Import the new modal
-import WorkTypeModal from "../../../modals/WorkTypeModal";
-import config from "../../../config/config";
+import FileUploadModal from "../../../../modals/FileUploadModal";
+import ClientWorkersModal from "./ClientWorkersModal";
+import WorkTypeModal from "./WorkTypeModal";
+import FileList from "./FileList";
+import MaintenanceModal from "./MaintenanceModal";
+import config from "../../../../config/config";
 import 'react-datetime/css/react-datetime.css';
 import Datetime from "react-datetime";
 import moment from 'moment';
@@ -38,8 +40,8 @@ const TicketDetails = ({
     const [showWorkTypeModal, setShowWorkTypeModal] = useState(false);
     const [paidInfo, setPaidInfo] = useState({});
     const [timeInputs, setTimeInputs] = useState({});
-
-
+    const [maintenances, setMaintenances] = useState ([]);
+    const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
 
 
 
@@ -79,6 +81,7 @@ const TicketDetails = ({
             fetchContacts(ticket.id);
             fetchNames(ticket.baitWorkerId, ticket.locationId, ticket.statusId); // Fetch names
             fetchWorkTypes(ticket.id); // Fetch work types
+            fetchMaintenances(ticket.id);
             if (ticket.paidWorkId) {
                 fetchPaidInfo(ticket.id);
             }
@@ -151,6 +154,16 @@ const TicketDetails = ({
         }
     };
 
+    const fetchMaintenances = async (ticketId) => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/maintenance/${ticketId}`);
+            setMaintenances(response.data);
+            console.log(response.data)
+        } catch (error) {
+            console.error ('Error fetching maintenances', error);
+        }
+    }
+
     const fetchContacts = async (ticketId) => {
         try{
             const response = await axios.get(`${config.API_BASE_URL}/ticket/contacts/${ticketId}`);
@@ -185,14 +198,9 @@ const TicketDetails = ({
         }
     };
 
-    const handleWorkTypesSave = (selectedWorkTypes) => {
-        setEditFields((prevFields) => ({
-            ...prevFields,
-            [ticket.id]: {
-                ...prevFields[ticket.id],
-                workTypeIds: selectedWorkTypes
-            }
-        }));
+    const handleWorkTypeAndContactFetch = async (ticketId) => {
+        fetchWorkTypes(ticketId);
+        fetchContacts(ticketId);
     };
 
 
@@ -240,15 +248,6 @@ const TicketDetails = ({
         setIsEditing(!isEditing);
     };
 
-    const handleWorkersSave = (selectedWorkers) => {
-        setEditFields((prevFields) => ({
-            ...prevFields,
-            [ticket.id]: {
-                ...prevFields[ticket.id],
-                contactIds: selectedWorkers
-            }
-        }));
-    };
 
     const handleMakePaid = async (ticketId) => {
         try {
@@ -289,7 +288,8 @@ const TicketDetails = ({
                 },
             });
             console.log('Time added:', response.data);
-            window.location.reload();  //refresh
+            fetchPaidInfo(ticketId);
+            renderPaidInfo(ticketId);  //render new info
         } catch (error) {
             console.error('Error adding time:', error);
         }
@@ -355,6 +355,7 @@ const TicketDetails = ({
             return null;
         }
     };
+
 
     return (
         <Accordion key={ticket.id} activeKey={expandedTickets.has(ticket.id.toString()) ? ticket.id.toString() : null}>
@@ -449,9 +450,7 @@ const TicketDetails = ({
                                                             <Button variant="outline-primary" onClick={() => setShowWorkTypeModal(true)}>
                                                                 Select Work Types
                                                             </Button>
-
                                                         </Form.Group>
-
                                                         <Form.Group className="mb-3">
                                                             <Form.Label>Responsible Worker</Form.Label>
                                                             <Form.Control
@@ -505,6 +504,7 @@ const TicketDetails = ({
                                                                 name="clientId"
                                                                 value={editFields[ticket.id]?.clientId || ''}
                                                                 onChange={(e) => handleChange(e, ticket.id)}
+                                                                disabled
                                                             >
                                                                 <option value="">Select a client</option>
                                                                 {clients.map(client => (
@@ -638,6 +638,30 @@ const TicketDetails = ({
                                     </Card.Body>
                                 </Card>
                             )}
+                            <Accordion activeKey={expandedSections[ticket.id]?.maintenance ? "3" : null}>
+                                <Accordion.Item eventKey="3">
+                                    <Accordion.Header onClick={() => toggleSectionExpansion(ticket.id, 'maintenance')}>
+                                        Maintenances
+                                    </Accordion.Header>
+                                    <Accordion.Body>
+                                        {maintenances.length > 0 ? (
+                                            maintenances.map((maintenance, index) => (
+                                                <Card key={index} className="mb-3">
+                                                    <Card.Body>
+                                                        <Card.Text><h3>{maintenance.maintenanceName}</h3></Card.Text>
+                                                        <Card.Text>Date: {maintenance.maintenanceDate}</Card.Text>
+                                                        <Card.Text>Comment: {maintenance.comment}</Card.Text>
+                                                    </Card.Body>
+                                                </Card>
+                                            ))
+
+                                        ) : (
+                                            <p>No maintenances available</p>
+                                        )}
+                                        <Button variant="outline-primary" onClick={() => setShowMaintenanceModal(true)}>Add Maintenance</Button>
+                                    </Accordion.Body>
+                                </Accordion.Item>
+                            </Accordion>
                             <Card.Title className="mt-4">Comments</Card.Title>
                             <Card className="mb-4 mt-1">
                                 <Card.Body>
@@ -667,7 +691,10 @@ const TicketDetails = ({
                                 />
                                 <Button variant="primary" onClick={handleAddComment} className="mt-2">Add Comment</Button>
                             </Form.Group>
-                            <p><strong>File Ids:</strong> {ticket.fileIds}</p>
+                            <div>
+                                <h1>File Management</h1>
+                                <FileList ticketId={ticket.id} />
+                            </div>
                             {!isEditing && (
                                 <>
                                     <Button variant="outline-primary" onClick={() => setShowUploadModal(true)}>
@@ -695,13 +722,23 @@ const TicketDetails = ({
                 handleClose={() => setShowWorkersModal(false)}
                 clientId={ticket.clientId}
                 selectedWorkers={editFields[ticket.id]?.contactIds || []}
-                onSave={handleWorkersSave}
+                onSave={()=> handleWorkTypeAndContactFetch(ticket.id)}
+                ticketId={ticket.id}
+                locations={locations}
             />
             <WorkTypeModal
                 show={showWorkTypeModal}
                 handleClose={() => setShowWorkTypeModal(false)}
                 selectedWorkTypes={editFields[ticket.id]?.workTypeIds || []}
-                onSave={handleWorkTypesSave}
+                onSave={()=> handleWorkTypeAndContactFetch(ticket.id)}
+                ticketId={ticket.id}
+            />
+            <MaintenanceModal
+            show={showMaintenanceModal}
+            handleClose={() => setShowMaintenanceModal(false)}
+            clientId={ticket.clientId}
+            ticketId={ticket.id}
+            onSave={()=> fetchMaintenances(ticket.id)}
             />
         </Accordion>
     );
