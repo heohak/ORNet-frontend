@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Form, Button, Alert } from 'react-bootstrap';
+import { Container, Form, Button, Alert, Modal } from 'react-bootstrap';
 import config from "../../config/config";
 import Select from 'react-select';
 
@@ -8,6 +8,9 @@ function AddThirdPartyIT({ clientId, onClose, setRefresh }) {
     const [thirdParties, setThirdParties] = useState([]);
     const [selectedThirdParty, setSelectedThirdParty] = useState(null);
     const [error, setError] = useState(null);
+
+    const [showThirdPartyModal, setShowThirdPartyModal] = useState(false);
+    const [newThirdParty, setNewThirdParty] = useState({ name: '', email: '', phone: '' });
 
     useEffect(() => {
         const fetchThirdParties = async () => {
@@ -40,6 +43,33 @@ function AddThirdPartyIT({ clientId, onClose, setRefresh }) {
         }
     };
 
+    const handleAddThirdParty = async () => {
+        const { name, email, phone } = newThirdParty;
+
+        if (!name.trim() || !email.trim() || !phone.trim()) {
+            setError('Please fill in all fields for the new third-party IT.');
+            return;
+        }
+
+        try {
+            const response = await axios.post(`${config.API_BASE_URL}/third-party/add`, {
+                name,
+                email,
+                phone,
+            });
+
+            const addedThirdParty = response.data;
+            const newThirdPartyOption = { value: addedThirdParty.id, label: addedThirdParty.name };
+            setThirdParties(prevThirdParties => [...prevThirdParties, newThirdPartyOption]);
+            setSelectedThirdParty(newThirdPartyOption); // Automatically select the new third-party IT
+            setNewThirdParty({ name: '', email: '', phone: '' });
+            setShowThirdPartyModal(false);
+        } catch (error) {
+            setError('Error adding third-party IT.');
+            console.error('Error adding third-party IT:', error);
+        }
+    };
+
     return (
         <Container>
             {error && (
@@ -57,11 +87,54 @@ function AddThirdPartyIT({ clientId, onClose, setRefresh }) {
                         onChange={setSelectedThirdParty}
                         placeholder="Select a third-party IT"
                     />
+                    <Form.Text className="text-muted">
+                        Can't find the third-party IT? <Button variant="link" onClick={() => setShowThirdPartyModal(true)}>Add New</Button>
+                    </Form.Text>
                 </Form.Group>
                 <Button variant="success" type="submit">
                     Add Third-Party IT
                 </Button>
             </Form>
+
+            {/* Modal for adding a new third-party IT */}
+            <Modal show={showThirdPartyModal} onHide={() => setShowThirdPartyModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Add New Third-Party IT</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Third-Party Name</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newThirdParty.name}
+                            onChange={(e) => setNewThirdParty({ ...newThirdParty, name: e.target.value })}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Email</Form.Label>
+                        <Form.Control
+                            type="email"
+                            value={newThirdParty.email}
+                            onChange={(e) => setNewThirdParty({ ...newThirdParty, email: e.target.value })}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Phone</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newThirdParty.phone}
+                            onChange={(e) => setNewThirdParty({ ...newThirdParty, phone: e.target.value })}
+                            required
+                        />
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowThirdPartyModal(false)}>Cancel</Button>
+                    <Button variant="primary" onClick={handleAddThirdParty}>Add Third-Party IT</Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 }

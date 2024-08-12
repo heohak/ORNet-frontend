@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Form, Button, Alert } from 'react-bootstrap';
-import config from "../../config/config";
+import { Container, Form, Button, Alert, Modal } from 'react-bootstrap';
 import Select from 'react-select';
+import config from "../../config/config";
 
 function AddClientWorker({ clientId, onClose, onSuccess }) {
     const [firstName, setFirstName] = useState('');
@@ -16,6 +16,12 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
     const [selectedRoles, setSelectedRoles] = useState([]);
     const [error, setError] = useState(null);
 
+    const [showLocationModal, setShowLocationModal] = useState(false);
+    const [newLocation, setNewLocation] = useState({ name: '', country: '', district: '', postalCode: '', streetAddress: '', city: '', phone: '' });
+
+    const [showRoleModal, setShowRoleModal] = useState(false);
+    const [newRole, setNewRole] = useState({ role: '' });
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -23,7 +29,7 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
                     axios.get(`${config.API_BASE_URL}/location/all`),
                     axios.get(`${config.API_BASE_URL}/worker/classificator/all`)
                 ]);
-                setLocations(locationsResponse.data);
+                setLocations(locationsResponse.data.map(loc => ({ value: loc.id, label: loc.name })));
                 setRoles(rolesResponse.data.map(role => ({ value: role.id, label: role.role })));
             } catch (error) {
                 setError(error.message);
@@ -64,7 +70,7 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
                     email,
                     phoneNumber,
                     title,
-                    location: locations.find(loc => loc.id === locationId),
+                    location: locations.find(loc => loc.value === locationId),
                     roles: selectedRoles.map(role => role.label),
                 };
 
@@ -76,6 +82,63 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
             setError(error.message);
         }
     };
+
+    const handleAddLocation = async () => {
+        const { name, country, district, postalCode, streetAddress, city, phone } = newLocation;
+
+        if (!name.trim() || !country.trim() || !district.trim() || !postalCode.trim() || !streetAddress.trim() || !city.trim() || !phone.trim()) {
+            setError('Please fill in all fields for the new location.');
+            return;
+        }
+
+        const combinedAddress = `${streetAddress}, ${city}, ${district}, ${postalCode}, ${country}`;
+
+        try {
+            const response = await axios.post(`${config.API_BASE_URL}/location/add`, {
+                name,
+                address: combinedAddress,
+                phone,
+            });
+
+            const addedLocation = response.data;
+            const newLocationOption = { value: addedLocation.id, label: addedLocation.name };
+            setLocations(prevLocations => [...prevLocations, newLocationOption]);
+            setLocationId(newLocationOption.value); // Automatically select the new location
+            setNewLocation({ name: '', country: '', district: '', postalCode: '', streetAddress: '', city: '', phone: '' });
+            setShowLocationModal(false);
+        } catch (error) {
+            setError('Error adding location.');
+            console.error('Error adding location:', error);
+        }
+    };
+
+    const handleAddRole = async () => {
+        const { role } = newRole;
+
+        if (!role.trim()) {
+            setError('Please enter a role name.');
+            return;
+        }
+
+        try {
+            const response = await axios.post(`${config.API_BASE_URL}/worker/classificator/add`, {
+                role,
+            });
+
+            const addedRole = response.data;
+            const newRoleOption = { value: addedRole.id, label: addedRole.role };
+
+            setRoles(prevRoles => [...prevRoles, newRoleOption]);
+            setSelectedRoles(prevSelected => [...prevSelected, newRoleOption]);
+            setNewRole({ role: '' });
+            setShowRoleModal(false);
+        } catch (error) {
+            setError('Error adding role.');
+            console.error('Error adding role:', error);
+        }
+    };
+
+
 
     return (
         <Container>
@@ -133,19 +196,14 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Location</Form.Label>
-                    <Form.Control
-                        as="select"
-                        value={locationId}
-                        onChange={(e) => setLocationId(e.target.value)}
-                        required
-                    >
-                        <option value="">Select a location</option>
-                        {locations.map((loc) => (
-                            <option key={loc.id} value={loc.id}>
-                                {loc.name}
-                            </option>
-                        ))}
-                    </Form.Control>
+                    <Select
+                        options={locations}
+                        value={locations.find(loc => loc.value === locationId)}
+                        onChange={selectedOption => setLocationId(selectedOption.value)}
+                    />
+                    <Form.Text className="text-muted">
+                        Can't find the location? <Button variant="link" onClick={() => setShowLocationModal(true)}>Add New</Button>
+                    </Form.Text>
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Roles</Form.Label>
@@ -156,11 +214,112 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
                         onChange={setSelectedRoles}
                         placeholder="Select roles"
                     />
+                    <Form.Text className="text-muted">
+                        Can't find the role? <Button variant="link" onClick={() => setShowRoleModal(true)}>Add New</Button>
+                    </Form.Text>
                 </Form.Group>
                 <Button variant="success" type="submit">
                     Add Worker
                 </Button>
             </Form>
+
+            {/* Modal for adding a new location */}
+            <Modal show={showLocationModal} onHide={() => setShowLocationModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Add New Location</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Name</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.name}
+                            onChange={(e) => setNewLocation({ ...newLocation, name: e.target.value })}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Country</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.country}
+                            onChange={(e) => setNewLocation({ ...newLocation, country: e.target.value })}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>City</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.city}
+                            onChange={(e) => setNewLocation({ ...newLocation, city: e.target.value })}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>District</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.district}
+                            onChange={(e) => setNewLocation({ ...newLocation, district: e.target.value })}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Postal Code</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.postalCode}
+                            onChange={(e) => setNewLocation({ ...newLocation, postalCode: e.target.value })}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Street Address</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.streetAddress}
+                            onChange={(e) => setNewLocation({ ...newLocation, streetAddress: e.target.value })}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Phone</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.phone}
+                            onChange={(e) => setNewLocation({ ...newLocation, phone: e.target.value })}
+                            required
+                        />
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowLocationModal(false)}>Cancel</Button>
+                    <Button variant="primary" onClick={handleAddLocation}>Add Location</Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Modal for adding a new role */}
+            <Modal show={showRoleModal} onHide={() => setShowRoleModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Add New Role</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Role</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newRole.role}
+                            onChange={(e) => setNewRole({ ...newRole, role: e.target.value })}
+                            required
+                        />
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowRoleModal(false)}>Cancel</Button>
+                    <Button variant="primary" onClick={handleAddRole}>Add Role</Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 }

@@ -31,6 +31,7 @@ import ViewClientWorkers from './pages/SettingsPage/ViewClientWorkers';
 import ViewSoftware from './pages/SettingsPage/ViewSoftware';
 import ViewFiles from './pages/SettingsPage/ViewFiles';
 import ViewWorkTypes from './pages/SettingsPage/ViewWorkTypes';
+import EditClient from "./pages/OneClientPage/EditClient";
 
 function App() {
     return (
@@ -67,6 +68,7 @@ function App() {
                         <Route path="/settings/software" element={<ViewSoftware />} />
                         <Route path="/settings/files" element={<ViewFiles />} />
                         <Route path="/settings/work-types" element={<ViewWorkTypes />} />
+                        <Route path="/client/edit/:clientId" element={<EditClient />} />
                     </Routes>
                 </main>
                 <Footer />
