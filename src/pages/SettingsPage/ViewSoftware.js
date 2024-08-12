@@ -69,6 +69,7 @@ function ViewSoftware() {
                 setRefresh(prev => !prev); // Trigger refresh by toggling state
                 setShowAddModal(false); // Close the modal after adding the software
             }
+            window.location.reload()
         } catch (error) {
             setError(error.message);
         }
