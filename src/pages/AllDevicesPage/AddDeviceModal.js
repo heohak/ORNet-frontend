@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Modal, Form, Button, Alert, Container } from 'react-bootstrap';
+import { Modal, Form, Button, Alert } from 'react-bootstrap';
 import config from "../../config/config";
 
 function AddDeviceModal({ show, onHide, setRefresh }) {
@@ -113,6 +113,23 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                     </Alert>
                 )}
                 <Form onSubmit={handleSubmit}>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Client</Form.Label>
+                        <Form.Control
+                            as="select"
+                            value={clientId}
+                            onChange={(e) => setClientId(e.target.value)}
+                            required
+                        >
+                            <option value="">Select Client</option>
+                            {clients.map(client => (
+
+                                <option key={client.id} value={client.id}>
+                                    {client.shortName}
+                                </option>
+                            ))}
+                        </Form.Control>
+                    </Form.Group>
                     <Form.Group className="mb-3">
                         <Form.Label>Device Name</Form.Label>
                         <Form.Control
@@ -258,23 +275,6 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                             {locations.map(location => (
                                 <option key={location.id} value={location.id}>
                                     {location.name}
-                                </option>
-                            ))}
-                        </Form.Control>
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Client</Form.Label>
-                        <Form.Control
-                            as="select"
-                            value={clientId}
-                            onChange={(e) => setClientId(e.target.value)}
-                            required
-                        >
-                            <option value="">Select Client</option>
-                            {clients.map(client => (
-
-                                <option key={client.id} value={client.id}>
-                                    {client.shortName}
                                 </option>
                             ))}
                         </Form.Control>

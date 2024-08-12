@@ -33,6 +33,8 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
 
         if (tickets.length > 0) {
             fetchClientDetails();
+        } else {
+            setClientLoading(false); // No tickets to fetch, stop loading
         }
     }, [tickets]);
 
@@ -52,6 +54,16 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
                 <Alert variant="danger">
                     <Alert.Heading>Error</Alert.Heading>
                     <p>{error}</p>
+                </Alert>
+            </div>
+        );
+    }
+
+    if (tickets.length === 0) {
+        return (
+            <div className="mt-5">
+                <Alert variant="info">
+                    No tickets found.
                 </Alert>
             </div>
         );
