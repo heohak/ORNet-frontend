@@ -79,7 +79,12 @@ function ClientDetails({ client, navigate }) {
             <h1 className="mb-4" style={{display: "flex", justifyContent: "space-between"}}>
                 <Button onClick={() => navigate(-1)}>Back</Button>
                 {client ? `${client.shortName} Details` : 'Client Details'}
-                <Button variant="link" className="float-end" onClick={() => setShowClientFieldModal(true)}>Edit Fields</Button>
+                <div>
+                    <Button variant="primary" onClick={() => navigate(`/client/edit/${client.id}`)}>
+                        Edit Client
+                    </Button>
+                    <Button variant="link" className="float-end" onClick={() => setShowClientFieldModal(true)}>Edit Fields</Button>
+                </div>
             </h1>
 
             {client ? (
