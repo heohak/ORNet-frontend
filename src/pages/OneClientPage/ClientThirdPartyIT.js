@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, ListGroup, Alert, Button, Modal } from 'react-bootstrap';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import config from "../../config/config";
 import AddThirdPartyIT from "./AddThirdPartyIT";
 
@@ -10,6 +11,7 @@ function ClientThirdPartyIT({ clientId, client }) {
     const [error, setError] = useState(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [refresh, setRefresh] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchThirdPartyITs = async () => {
@@ -54,6 +56,12 @@ function ClientThirdPartyIT({ clientId, client }) {
                                         <strong>Email: </strong>{thirdParty.email}<br />
                                         <strong>Phone: </strong>{thirdParty.phone}
                                     </Card.Text>
+                                    <Button
+                                        variant="secondary"
+                                        onClick={() => navigate(`/settings/third-party-its/edit/${thirdParty.id}`, { state: { thirdParty } })}
+                                    >
+                                        Edit
+                                    </Button>
                                 </Card.Body>
                             </Card>
                         </ListGroup.Item>

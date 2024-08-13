@@ -8,6 +8,9 @@ function Settings() {
     return (
         <Container className="mt-5">
             <h1 className="mb-4">Settings</h1>
+            <p style={{ color: 'red', fontWeight: 'bold' }}>
+                Note: If you encounter a 500 error when trying to remove an object, it means that the object is linked to something else. This issue will be resolved as soon as possible.
+            </p>
             <Row className="mb-3">
                 <Col md={6}>
                     <Button

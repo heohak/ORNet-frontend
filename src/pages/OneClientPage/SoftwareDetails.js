@@ -2,12 +2,16 @@ import React, { useState } from 'react';
 
 import { Container, Spinner, Table, Button, Card } from 'react-bootstrap';
 import AddClientSoftware from "./AddClientSoftware";
+import { useNavigate } from 'react-router-dom';
+
 
 function SoftwareDetails({ softwareList, clientId, setRefresh, client }) {
 
     // State to manage expanded state for each software item
     const [expandedSoftwareId, setExpandedSoftwareId] = useState(null);
     const [showAddSoftwareModal, setShowAddSoftwareModal] = useState(false);
+    const navigate = useNavigate();
+
 
     const toggleTechnicalInfo = (softwareId) => {
         setExpandedSoftwareId(expandedSoftwareId === softwareId ? null : softwareId);
@@ -37,9 +41,14 @@ function SoftwareDetails({ softwareList, clientId, setRefresh, client }) {
                             <div>
                                 <Card.Title>Name: {software.name}</Card.Title>
                             </div>
-                            <Button variant="link" onClick={() => toggleTechnicalInfo(software.id)}>
-                                {expandedSoftwareId === software.id ? '▲' : '▼'}
-                            </Button>
+                            <div>
+                                <Button variant="secondary" onClick={() => navigate(`/settings/software/edit/${software.id}`, { state: { software } })}>
+                                    Edit
+                                </Button>
+                                <Button variant="link" onClick={() => toggleTechnicalInfo(software.id)}>
+                                    {expandedSoftwareId === software.id ? '▲' : '▼'}
+                                </Button>
+                            </div>
                         </div>
                         {expandedSoftwareId === software.id && (
                             <Table striped bordered hover className="mt-3">
