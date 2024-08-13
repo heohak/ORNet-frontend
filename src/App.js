@@ -39,6 +39,8 @@ import EditTicketStatusClassificator from "./pages/SettingsPage/EditTicketStatus
 import EditDevice from "./pages/OneDevicePage/EditDevice";
 import EditThirdPartyIT from "./pages/SettingsPage/EditThirdPartyIT";
 import EditLinkedDevice from "./pages/SettingsPage/EditLinkedDevice";
+import EditClientWorkerRole from "./pages/SettingsPage/EditClientWorkerRole";
+import EditSoftware from "./pages/SettingsPage/EditSoftware";
 
 function App() {
     return (
@@ -83,6 +85,8 @@ function App() {
                         <Route path="/device/edit/:deviceId" element={<EditDevice />} />
                         <Route path="/settings/third-party-its/edit/:id" element={<EditThirdPartyIT />} />
                         <Route path="/settings/linked-devices/edit/:id" element={<EditLinkedDevice />} />
+                        <Route path="/settings/client-worker-roles/edit/:id" element={<EditClientWorkerRole />} />
+                        <Route path="/settings/software/edit/:id" element={<EditSoftware />} />
                     </Routes>
                 </main>
                 <Footer />

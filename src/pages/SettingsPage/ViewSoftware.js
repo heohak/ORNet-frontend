@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Container, Row, Col, Card, Button, Spinner, Alert, Modal, Form } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import config from '../../config/config';
 
 function ViewSoftware() {
@@ -25,6 +26,8 @@ function ViewSoftware() {
     const [orNetAPIClient, setOrNetAPIClient] = useState({ version: '', updateDate: '' });
     const [consultationModule, setConsultationModule] = useState({ version: '', updateDate: '' });
     const [aiModule, setAiModule] = useState({ version: '', updateDate: '' });
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -63,7 +66,7 @@ function ViewSoftware() {
                 aiModule
             });
 
-            if (response.data && response.data.token) {
+            if (response.data) {
                 setRefresh(prev => !prev); // Trigger refresh by toggling state
                 setShowAddModal(false); // Close the modal after adding the software
 
@@ -86,6 +89,10 @@ function ViewSoftware() {
         } catch (error) {
             setError(error.message);
         }
+    };
+
+    const handleEdit = (software) => {
+        navigate(`/settings/software/edit/${software.id}`, { state: { software } });
     };
 
     if (loading) {
@@ -124,6 +131,7 @@ function ViewSoftware() {
                                 <Card.Text>
                                     <strong>DB Version:</strong> {software.dbVersion}<br />
                                 </Card.Text>
+                                <Button variant="secondary" onClick={() => handleEdit(software)}>Edit</Button>
                             </Card.Body>
                         </Card>
                     </Col>

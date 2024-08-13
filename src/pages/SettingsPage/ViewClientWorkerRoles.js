@@ -41,6 +41,10 @@ function ViewClientWorkerRoles() {
         }
     };
 
+    const handleEdit = (role) => {
+        navigate(`/settings/client-worker-roles/edit/${role.id}`, { state: { role } });
+    };
+
     if (loading) {
         return (
             <Container className="text-center mt-5">
@@ -74,6 +78,7 @@ function ViewClientWorkerRoles() {
                         <Card>
                             <Card.Body>
                                 <Card.Title>{role.role}</Card.Title>
+                                <Button variant="secondary" onClick={() => handleEdit(role)}>Edit</Button>
                             </Card.Body>
                         </Card>
                     </Col>
@@ -101,7 +106,7 @@ function ViewClientWorkerRoles() {
                     <Button variant="primary" onClick={handleAddRole}>Add Role</Button>
                 </Modal.Footer>
             </Modal>
-            <Button onClick={() => navigate(-1)}>Back</Button>
+            <Button onClick={() => navigate('/settings')}>Back</Button>
         </Container>
     );
 }
