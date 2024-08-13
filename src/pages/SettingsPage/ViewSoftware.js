@@ -137,6 +137,7 @@ function ViewSoftware() {
                     </Col>
                 ))}
             </Row>
+            <Button onClick={() => navigate('/settings')}>Back</Button>
             <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add Software</Modal.Title>

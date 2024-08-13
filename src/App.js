@@ -41,6 +41,7 @@ import EditThirdPartyIT from "./pages/SettingsPage/EditThirdPartyIT";
 import EditLinkedDevice from "./pages/SettingsPage/EditLinkedDevice";
 import EditClientWorkerRole from "./pages/SettingsPage/EditClientWorkerRole";
 import EditSoftware from "./pages/SettingsPage/EditSoftware";
+import EditWorkType from "./pages/SettingsPage/EditWorkType";
 
 function App() {
     return (
@@ -87,6 +88,7 @@ function App() {
                         <Route path="/settings/linked-devices/edit/:id" element={<EditLinkedDevice />} />
                         <Route path="/settings/client-worker-roles/edit/:id" element={<EditClientWorkerRole />} />
                         <Route path="/settings/software/edit/:id" element={<EditSoftware />} />
+                        <Route path="/settings/work-types/edit/:id" element={<EditWorkType />} />
                     </Routes>
                 </main>
                 <Footer />

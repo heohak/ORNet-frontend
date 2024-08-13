@@ -41,6 +41,10 @@ function ViewWorkTypes() {
         }
     };
 
+    const handleEdit = (workType) => {
+        navigate(`/settings/work-types/edit/${workType.id}`, { state: { workType } });
+    };
+
     if (loading) {
         return (
             <Container className="text-center mt-5">
@@ -74,6 +78,7 @@ function ViewWorkTypes() {
                         <Card>
                             <Card.Body>
                                 <Card.Title>{workType.workType}</Card.Title>
+                                <Button variant="secondary" onClick={() => handleEdit(workType)} className="me-2">Edit</Button>
                             </Card.Body>
                         </Card>
                     </Col>
@@ -101,7 +106,7 @@ function ViewWorkTypes() {
                     <Button variant="primary" onClick={handleAddWorkType}>Add Work Type</Button>
                 </Modal.Footer>
             </Modal>
-            <Button onClick={() => navigate(-1)}>Back</Button>
+            <Button onClick={() => navigate('/settings')}>Back</Button>
         </Container>
     );
 }
