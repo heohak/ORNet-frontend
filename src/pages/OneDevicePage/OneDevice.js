@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Spinner, Alert, Button } from 'react-bootstrap';
+import { Container, Spinner, Alert } from 'react-bootstrap';
 import config from "../../config/config";
 import DeviceDetails from "./DeviceDetails";
 import MaintenanceInfo from "./MaintenanceInfo";
