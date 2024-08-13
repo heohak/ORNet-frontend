@@ -32,6 +32,9 @@ import ViewSoftware from './pages/SettingsPage/ViewSoftware';
 import ViewFiles from './pages/SettingsPage/ViewFiles';
 import ViewWorkTypes from './pages/SettingsPage/ViewWorkTypes';
 import EditClient from "./pages/OneClientPage/EditClient";
+import EditBaitWorker from "./pages/SettingsPage/EditBaitWorker";
+import EditLocation from "./pages/SettingsPage/EditLocation";
+import EditDeviceClassificator from "./pages/SettingsPage/EditDeviceClassificator";
 
 function App() {
     return (
@@ -69,6 +72,9 @@ function App() {
                         <Route path="/settings/files" element={<ViewFiles />} />
                         <Route path="/settings/work-types" element={<ViewWorkTypes />} />
                         <Route path="/client/edit/:clientId" element={<EditClient />} />
+                        <Route path="/edit-bait-worker/:baitWorkerId" element={<EditBaitWorker />} />
+                        <Route path="/edit-location/:locationId" element={<EditLocation />} />
+                        <Route path="/settings/device-classificators/edit/:classificatorId" element={<EditDeviceClassificator />} />
                     </Routes>
                 </main>
                 <Footer />

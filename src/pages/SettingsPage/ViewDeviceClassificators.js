@@ -29,18 +29,19 @@ function ViewDeviceClassificators() {
 
     const handleAddClassificator = async () => {
         try {
-            await axios.post(`${config.API_BASE_URL}/device/classificator/add`, {
-                name,
-            });
+            await axios.post(`${config.API_BASE_URL}/device/classificator/add`, { name });
             const response = await axios.get(`${config.API_BASE_URL}/device/classificator/all`);
             setClassificators(response.data);
             setShowAddModal(false);
             setName('');
         } catch (error) {
-            setError(error.message);
+            setError('Error adding device classificator');
         }
     };
 
+    const handleEdit = (classificator) => {
+        navigate(`/settings/device-classificators/edit/${classificator.id}`, { state: { classificator } });
+    };
 
     if (loading) {
         return (
@@ -65,6 +66,7 @@ function ViewDeviceClassificators() {
 
     return (
         <Container className="mt-5">
+
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h1>Device Classificators</h1>
                 <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Classificator</Button>
@@ -75,14 +77,20 @@ function ViewDeviceClassificators() {
                         <Card>
                             <Card.Body>
                                 <Card.Title>{classificator.name}</Card.Title>
+                                <Button variant="secondary" onClick={() => handleEdit(classificator)}>
+                                    Edit
+                                </Button>
                             </Card.Body>
                         </Card>
                     </Col>
                 ))}
             </Row>
+            <Button onClick={() => navigate('/settings')}>Back</Button>
+
+            {/* Add Classificator Modal */}
             <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Add Classificator</Modal.Title>
+                    <Modal.Title>Add Device Classificator</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
@@ -93,6 +101,7 @@ function ViewDeviceClassificators() {
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="Enter name"
+                                required
                             />
                         </Form.Group>
                     </Form>
@@ -102,7 +111,6 @@ function ViewDeviceClassificators() {
                     <Button variant="primary" onClick={handleAddClassificator}>Add Classificator</Button>
                 </Modal.Footer>
             </Modal>
-            <Button onClick={() => navigate(-1)}>Back</Button>
         </Container>
     );
 }

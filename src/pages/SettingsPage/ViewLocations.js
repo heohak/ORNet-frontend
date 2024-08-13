@@ -57,16 +57,6 @@ function ViewLocations() {
         }
     };
 
-    const handleDeleteLocation = async (id) => {
-        try {
-            await axios.delete(`${config.API_BASE_URL}/location/${id}`);
-            const response = await axios.get(`${config.API_BASE_URL}/location/all`);
-            setLocations(response.data);
-        } catch (error) {
-            setError(error.message);
-        }
-    };
-
     return (
         <Container className="mt-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
@@ -98,14 +88,20 @@ function ViewLocations() {
                                         <br />
                                         Phone: {location.phone}
                                     </Card.Text>
-                                    <Button variant="danger" onClick={() => handleDeleteLocation(location.id)}>Delete</Button>
+                                    <Button
+                                        variant="secondary"
+                                        className="me-2"
+                                        onClick={() => navigate(`/edit-location/${location.id}`)}
+                                    >
+                                        Edit
+                                    </Button>
                                 </Card.Body>
                             </Card>
                         </Col>
                     ))}
                 </Row>
             )}
-            <Button onClick={() => navigate(-1)}>Back</Button>
+            <Button onClick={() => navigate('/settings')}>Back</Button>
 
             <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
                 <Modal.Header closeButton>
