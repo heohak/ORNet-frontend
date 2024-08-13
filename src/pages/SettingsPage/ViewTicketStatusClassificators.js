@@ -29,16 +29,18 @@ function ViewTicketStatusClassificators() {
 
     const handleAddClassificator = async () => {
         try {
-            await axios.post(`${config.API_BASE_URL}/ticket/classificator/add`, {
-                status,
-            });
+            await axios.post(`${config.API_BASE_URL}/ticket/classificator/add`, { status });
             const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`);
             setClassificators(response.data);
             setShowAddModal(false);
             setStatus('');
         } catch (error) {
-            setError(error.message);
+            setError('Error adding ticket status classificator');
         }
+    };
+
+    const handleEdit = (classificator) => {
+        navigate(`/settings/ticket-status-classificators/edit/${classificator.id}`, { state: { classificator } });
     };
 
     if (loading) {
@@ -74,6 +76,7 @@ function ViewTicketStatusClassificators() {
                         <Card>
                             <Card.Body>
                                 <Card.Title>{classificator.status}</Card.Title>
+                                <Button variant="secondary" onClick={() => handleEdit(classificator)}>Edit</Button>
                             </Card.Body>
                         </Card>
                     </Col>
@@ -92,6 +95,7 @@ function ViewTicketStatusClassificators() {
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value)}
                                 placeholder="Enter status"
+                                required
                             />
                         </Form.Group>
                     </Form>
@@ -101,7 +105,7 @@ function ViewTicketStatusClassificators() {
                     <Button variant="primary" onClick={handleAddClassificator}>Add Classificator</Button>
                 </Modal.Footer>
             </Modal>
-            <Button onClick={() => navigate(-1)}>Back</Button>
+            <Button onClick={() => navigate('/settings')}>Back</Button>
         </Container>
     );
 }

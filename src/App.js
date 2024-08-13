@@ -35,6 +35,7 @@ import EditClient from "./pages/OneClientPage/EditClient";
 import EditBaitWorker from "./pages/SettingsPage/EditBaitWorker";
 import EditLocation from "./pages/SettingsPage/EditLocation";
 import EditDeviceClassificator from "./pages/SettingsPage/EditDeviceClassificator";
+import EditTicketStatusClassificator from "./pages/SettingsPage/EditTicketStatusClassificator";
 
 function App() {
     return (
@@ -75,6 +76,7 @@ function App() {
                         <Route path="/edit-bait-worker/:baitWorkerId" element={<EditBaitWorker />} />
                         <Route path="/edit-location/:locationId" element={<EditLocation />} />
                         <Route path="/settings/device-classificators/edit/:classificatorId" element={<EditDeviceClassificator />} />
+                        <Route path="/settings/ticket-status-classificators/edit/:id" element={<EditTicketStatusClassificator />} />
                     </Routes>
                 </main>
                 <Footer />
