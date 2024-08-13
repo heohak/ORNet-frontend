@@ -80,45 +80,49 @@ const MaintenanceModal = ({ show, handleClose, clientId, ticketId, onSave }) => 
             <Modal.Header closeButton>
                 <Modal.Title>Add Maintenance</Modal.Title>
             </Modal.Header>
-            <Modal.Body>
-                <Form.Group controlId="newContact">
-                    <Form.Label>Maintenance Name</Form.Label>
-                    <Form.Control
-                        type="text"
-                        value={maintenanceName}
-                        onChange={(e) => setMaintenanceName(e.target.value)}
-                    />
-                    <Form.Label>Maintenance Date</Form.Label>
-                    <Form.Control
-                        type="date"
-                        value={maintenanceDate}
-                        onChange={(e) => setMaintenanceDate(e.target.value)}
-                    />
-                    <Form.Label>Comment</Form.Label>
-                    <Form.Control
-                        type="text"
-                        value={comment}
-                        onChange={(e) => setComment(e.target.value)}
-                    />
-                    <Form.Label>Related Devices</Form.Label>
-                    <Select
-                        isMulti
-                        cacheOptions
-                        defaultOptions={allDevices} // Set the default options as all devices
-                        loadOptions={fetchDevices}
-                        onChange={setSelectedDevices}
-                        value={selectedDevices}
-                    />
-                </Form.Group>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
-                    Close
-                </Button>
-                <Button variant="primary" onClick={handleSave}>
-                    Save Changes
-                </Button>
-            </Modal.Footer>
+            <Form onSubmit={handleSave}>
+                <Modal.Body>
+                    <Form.Group controlId="newContact">
+                        <Form.Label>Maintenance Name</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={maintenanceName}
+                            onChange={(e) => setMaintenanceName(e.target.value)}
+                            required
+                        />
+                        <Form.Label>Maintenance Date</Form.Label>
+                        <Form.Control
+                            type="date"
+                            value={maintenanceDate}
+                            onChange={(e) => setMaintenanceDate(e.target.value)}
+                            required
+                        />
+                        <Form.Label>Comment</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                        />
+                        <Form.Label>Related Devices</Form.Label>
+                        <Select
+                            isMulti
+                            cacheOptions
+                            defaultOptions={allDevices} // Set the default options as all devices
+                            loadOptions={fetchDevices}
+                            onChange={setSelectedDevices}
+                            value={selectedDevices}
+                        />
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Close
+                    </Button>
+                    <Button variant="primary" type="submit">
+                        Save Changes
+                    </Button>
+                </Modal.Footer>
+            </Form>
         </Modal>
     );
 };
