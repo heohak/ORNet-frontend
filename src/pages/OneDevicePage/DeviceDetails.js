@@ -3,6 +3,7 @@ import { Card, Button, Modal, Form, Alert } from 'react-bootstrap';
 import { FaPlus } from 'react-icons/fa';
 import axios from 'axios';
 import config from "../../config/config";
+import DeviceFileList from "./DeviceFileList";
 
 function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommentsModal, setRefresh }) {
     const [showDeviceFieldModal, setShowDeviceFieldModal] = useState(false);
@@ -194,7 +195,7 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
                             ...Object.fromEntries(Object.entries(localDevice).filter(([key]) => key !== 'attributes')),
                             ...localDevice.attributes
                         })}
-                        <Button className="me-2" onClick={() => setShowFileUploadModal(true)}>Upload Files</Button>
+                        <DeviceFileList deviceId={localDevice.id}/>  {/* Calls the FileList class */}
                         <Button variant="warning me-2" onClick={() => setShowWrittenOffModal(true)}>Write Off</Button>
                         <Button variant="info" onClick={() => setShowCommentsModal(true)}>View Comments</Button>
                     </Card.Body>
