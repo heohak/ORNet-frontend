@@ -18,6 +18,7 @@ function MaintenanceInfo({
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [showFileUploadModal, setShowFileUploadModal] = useState(false);
     const [selectedMaintenanceId, setSelectedMaintenanceId] = useState(null);
+    const [maintenanceFiles, setMaintenanceFiles] = useState({});
 
     const defaultFields = [
         'maintenanceName',
@@ -28,6 +29,7 @@ function MaintenanceInfo({
     useEffect(() => {
         if (maintenanceInfo.length > 0) {
             initializeVisibleFields(maintenanceInfo[0]);
+            fetchAllMaintenanceFiles();
         }
     }, [maintenanceInfo]);
 
@@ -56,6 +58,19 @@ function MaintenanceInfo({
         });
     };
 
+    const fetchAllMaintenanceFiles = async () => {
+        try {
+            const filesData = {};
+            for (let maintenance of maintenanceInfo) {
+                const response = await axios.get(`${config.API_BASE_URL}/maintenance/files/${maintenance.id}`);
+                filesData[maintenance.id] = response.data;
+            }
+            setMaintenanceFiles(filesData);
+        } catch (error) {
+            console.error('Error fetching maintenance files:', error);
+        }
+    };
+
     const renderFields = (data) => {
         return Object.keys(data).map(key => {
             if (visibleFields[key] && data[key] !== null) {
@@ -67,6 +82,34 @@ function MaintenanceInfo({
             }
             return null;
         });
+    };
+
+    const renderFiles = (maintenanceId) => {
+        const files = maintenanceFiles[maintenanceId] || [];
+        return (
+            <>
+                <Card.Text>
+                    <strong>Files:</strong>
+                </Card.Text>
+                <ul>
+                    {files.length > 0 ? (
+                        files.map((file) => (
+                            <li key={file.id}>
+                                <a
+                                    href={`${config.API_BASE_URL}/file/download/${file.id}`}
+                                    download
+                                    className="file-link"
+                                >
+                                    {file.fileName}
+                                </a>
+                            </li>
+                        ))
+                    ) : (
+                        <li>No files available</li>
+                    )}
+                </ul>
+            </>
+        );
     };
 
     const handleFileChange = (e) => {
@@ -98,6 +141,7 @@ function MaintenanceInfo({
 
             setSelectedFiles([]);
             setShowFileUploadModal(false);
+            fetchAllMaintenanceFiles(); // Refresh file list after upload
         } catch (error) {
             console.error('Error uploading files:', error);
         }
@@ -116,6 +160,7 @@ function MaintenanceInfo({
                         <Card.Body>
                             <Card.Title>Maintenance Details</Card.Title>
                             {renderFields(maintenance)}
+                            {renderFiles(maintenance.id)}
                             <Button variant="secondary" onClick={() => {
                                 setSelectedMaintenanceId(maintenance.id);
                                 setShowFileUploadModal(true);

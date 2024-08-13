@@ -48,6 +48,9 @@ const ClientWorkersModal = ({ show, handleClose, clientId, selectedWorkers, onSa
 
     const handleAddContactClose = () => {
         setShowAddContactModal(false);
+    };
+
+    const handleAdd = () => {
         fetchClientWorkers(clientId); // Refresh the client workers list after adding a new contact
     };
 
@@ -89,10 +92,10 @@ const ClientWorkersModal = ({ show, handleClose, clientId, selectedWorkers, onSa
             </Modal.Footer>
             <AddContactModal
                 show={showAddContactModal}
-                handleCloseTicketDetails={handleAddContactClose}
+                handleClose={handleAddContactClose}
                 clientId={clientId}
                 locations={locations}
-                classCheck="ticketDetails" //Just a check which class called out the modal
+                onAdd={handleAdd}
             />
         </Modal>
     );
