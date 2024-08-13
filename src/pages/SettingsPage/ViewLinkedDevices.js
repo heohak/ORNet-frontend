@@ -13,7 +13,6 @@ function ViewLinkedDevices() {
     const [manufacturer, setManufacturer] = useState('');
     const [productCode, setProductCode] = useState('');
     const [serialNumber, setSerialNumber] = useState('');
-    const [comment, setComment] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -38,7 +37,6 @@ function ViewLinkedDevices() {
                 manufacturer,
                 productCode,
                 serialNumber,
-                comment,
             });
             const response = await axios.get(`${config.API_BASE_URL}/linked/device/all`);
             setLinkedDevices(response.data);
@@ -47,10 +45,13 @@ function ViewLinkedDevices() {
             setManufacturer('');
             setProductCode('');
             setSerialNumber('');
-            setComment('');
         } catch (error) {
             setError(error.message);
         }
+    };
+
+    const handleEdit = (linkedDevice) => {
+        navigate(`/settings/linked-devices/edit/${linkedDevice.id}`, { state: { linkedDevice } });
     };
 
     if (loading) {
@@ -89,9 +90,9 @@ function ViewLinkedDevices() {
                                 <Card.Text>
                                     <strong>Manufacturer:</strong> {linkedDevice.manufacturer}<br />
                                     <strong>Product Code:</strong> {linkedDevice.productCode}<br />
-                                    <strong>Serial Number:</strong> {linkedDevice.serialNumber}<br />
-                                    <strong>Comment:</strong> {linkedDevice.comment}
+                                    <strong>Serial Number:</strong> {linkedDevice.serialNumber}
                                 </Card.Text>
+                                <Button variant="secondary" onClick={() => handleEdit(linkedDevice)}>Edit</Button>
                             </Card.Body>
                         </Card>
                     </Col>
@@ -139,16 +140,6 @@ function ViewLinkedDevices() {
                                 placeholder="Enter serial number"
                             />
                         </Form.Group>
-                        <Form.Group controlId="formComment">
-                            <Form.Label>Comment</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                rows={3}
-                                value={comment}
-                                onChange={(e) => setComment(e.target.value)}
-                                placeholder="Enter comment"
-                            />
-                        </Form.Group>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
@@ -156,7 +147,7 @@ function ViewLinkedDevices() {
                     <Button variant="primary" onClick={handleAddLinkedDevice}>Add Linked Device</Button>
                 </Modal.Footer>
             </Modal>
-            <Button onClick={() => navigate(-1)}>Back</Button>
+            <Button onClick={() => navigate('/settings')}>Back</Button>
         </Container>
     );
 }

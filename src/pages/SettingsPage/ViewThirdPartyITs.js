@@ -47,6 +47,11 @@ function ViewThirdPartyITs() {
         }
     };
 
+    const handleEdit = (thirdParty) => {
+        navigate(`/settings/third-party-its/edit/${thirdParty.id}`, { state: { thirdParty } });
+    };
+
+
     if (loading) {
         return (
             <Container className="text-center mt-5">
@@ -84,6 +89,7 @@ function ViewThirdPartyITs() {
                                     <strong>Email:</strong> {thirdParty.email}<br />
                                     <strong>Phone:</strong> {thirdParty.phone}
                                 </Card.Text>
+                                <Button variant="secondary" onClick={() => handleEdit(thirdParty)}>Edit</Button>
                             </Card.Body>
                         </Card>
                     </Col>
@@ -129,7 +135,7 @@ function ViewThirdPartyITs() {
                     <Button variant="primary" onClick={handleAddThirdPartyIT}>Add Third Party IT</Button>
                 </Modal.Footer>
             </Modal>
-            <Button onClick={() => navigate(-1)}>Back</Button>
+            <Button onClick={() => navigate('/settings')}>Back</Button>
         </Container>
     );
 }

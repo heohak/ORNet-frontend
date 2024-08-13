@@ -37,6 +37,8 @@ import EditLocation from "./pages/SettingsPage/EditLocation";
 import EditDeviceClassificator from "./pages/SettingsPage/EditDeviceClassificator";
 import EditTicketStatusClassificator from "./pages/SettingsPage/EditTicketStatusClassificator";
 import EditDevice from "./pages/OneDevicePage/EditDevice";
+import EditThirdPartyIT from "./pages/SettingsPage/EditThirdPartyIT";
+import EditLinkedDevice from "./pages/SettingsPage/EditLinkedDevice";
 
 function App() {
     return (
@@ -79,6 +81,8 @@ function App() {
                         <Route path="/settings/device-classificators/edit/:classificatorId" element={<EditDeviceClassificator />} />
                         <Route path="/settings/ticket-status-classificators/edit/:id" element={<EditTicketStatusClassificator />} />
                         <Route path="/device/edit/:deviceId" element={<EditDevice />} />
+                        <Route path="/settings/third-party-its/edit/:id" element={<EditThirdPartyIT />} />
+                        <Route path="/settings/linked-devices/edit/:id" element={<EditLinkedDevice />} />
                     </Routes>
                 </main>
                 <Footer />
