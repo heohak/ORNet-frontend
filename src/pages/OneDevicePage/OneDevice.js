@@ -40,17 +40,31 @@ function OneDevice() {
                     axios.get(`${config.API_BASE_URL}/device/maintenances/${deviceId}`)
                 ]);
 
-                setDevice(deviceRes.data);
+                const fetchedDevice = deviceRes.data;
                 setLinkedDevices(linkedDevicesRes.data);
                 setAvailableLinkedDevices(availableLinkedDevicesRes.data);
                 setMaintenanceInfo(maintenanceInfoRes.data);
+                const clientId = fetchedDevice.clientId;
+                const locationId = fetchedDevice.locationId;
+                const classificatorId = fetchedDevice.classificatorId;
+                const [clientRes, locationRes, classificatorRes] = await Promise.all([
+                    axios.get(`${config.API_BASE_URL}/client/${clientId}`),
+                    axios.get(`${config.API_BASE_URL}/location/${locationId}`),
+                    axios.get(`${config.API_BASE_URL}/device/classificator/${classificatorId}`)
+                ]);
+                const enhancedDeviceData = {
+                    ...fetchedDevice,
+                    clientName: clientRes.data.fullName,
+                    locationName: locationRes.data.name,
+                    classificatorName: classificatorRes.data.name
+                };
+                setDevice(enhancedDeviceData);
             } catch (error) {
                 setError(error.message);
             } finally {
                 setLoading(false);
             }
         };
-
         fetchData();
     }, [deviceId, refresh]);
 
