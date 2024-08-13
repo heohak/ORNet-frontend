@@ -15,6 +15,9 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
 
     const defaultFields = [
         'deviceName',
+        'clientName',
+        'locationName',
+        'classificatorName',
         'introducedDate',
         'version',
         'versionUpdateDate',
@@ -181,7 +184,12 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
             {localDevice ? (
                 <Card className="mb-4">
                     <Card.Body>
-                        <Card.Title>{localDevice.deviceName}</Card.Title>
+                        <div style={{justifyContent: "space-between", display: "flex"}}>
+                            <Card.Title>{localDevice.deviceName}</Card.Title>
+                            <Button variant="primary" onClick={() => navigate(`/device/edit/${localDevice.id}`)}>
+                                Edit Device
+                            </Button>
+                        </div>
                         {renderFields({
                             ...Object.fromEntries(Object.entries(localDevice).filter(([key]) => key !== 'attributes')),
                             ...localDevice.attributes
