@@ -3,6 +3,7 @@ import { Container, Form, Button, Alert } from 'react-bootstrap';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import config from '../../config/config';
+import EditDeviceModal from "../../modals/EditDeviceModal";
 
 function EditDeviceClassificator() {
     const navigate = useNavigate();
@@ -11,6 +12,8 @@ function EditDeviceClassificator() {
 
     const [name, setName] = useState(classificator.name);
     const [error, setError] = useState(null);
+    const [deviceList, setDeviceList] = useState([]);
+    const [showModal, setShowModal] = useState(false);
 
     const handleUpdateClassificator = async (e) => {
         e.preventDefault();
@@ -27,12 +30,23 @@ function EditDeviceClassificator() {
     };
 
     const handleDeleteClassificator = async () => {
-            try {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/device/search`, {
+                params: {
+                    classificatorId: classificator.id
+                }
+            });
+            setDeviceList(response.data);
+            console.log(response.data);
+            if (!response.data) {
                 await axios.delete(`${config.API_BASE_URL}/device/classificator/${classificator.id}`);
                 navigate('/settings/device-classificators'); // Redirect to the classificators list after deleting
-            } catch (error) {
-                setError(error.message);
+            } else {
+                setShowModal(true);
             }
+        } catch (error) {
+            setError(error.message);
+        }
 
     };
 
@@ -66,7 +80,13 @@ function EditDeviceClassificator() {
                     Cancel
                 </Button>
             </Form>
+            <EditDeviceModal
+                show={showModal}
+                handleClose={() => setShowModal(false)}
+                deviceList={deviceList}
+            />
         </Container>
+
     );
 }
 
