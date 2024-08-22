@@ -16,6 +16,7 @@ function EditWorkType() {
     const [ticketList, setTicketList] = useState([]);
     const [showEditTicketStatusModal, setShowEditTicketStatusModal] = useState(false);
     const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
+    const historyEndpoint = "work-type/classificator/history"
 
     const handleUpdate = async (e) => {
         e.preventDefault();
@@ -58,9 +59,22 @@ function EditWorkType() {
         }
     }
 
+    const handleNavigate = () => {
+        if (workType && workType.id) {
+            navigate('/history', { state: { endpoint: `${historyEndpoint}/${workType.id}` } });
+        } else {
+            console.error("workType or workType.id is undefined");
+        }
+    };
+
     return (
         <Container className="mt-5">
-            <h1>Edit Work Type</h1>
+            <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                <h1>Edit Work Type</h1>
+                <Button variant="secondary" onClick={handleNavigate} className="mt-3 ms-3">
+                    See history
+                </Button>
+            </div>
             {error && (
                 <Alert variant="danger">
                     <Alert.Heading>Error</Alert.Heading>

@@ -66,10 +66,15 @@ function ViewWorkTypes() {
         );
     }
 
+    const handleNavigate = () => {
+        navigate('/history', { state: { endpoint: `work-type/classificator/deleted` } });
+    }
+
     return (
         <Container className="mt-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h1>Work Types</h1>
+                <Button variant="primary" onClick={handleNavigate}>See deleted</Button>
                 <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Work Type</Button>
             </div>
             <Row>

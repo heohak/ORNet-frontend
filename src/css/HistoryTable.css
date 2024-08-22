@@ -1,0 +1,12 @@
+.table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table-fixed thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
