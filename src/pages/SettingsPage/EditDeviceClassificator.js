@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import config from '../../config/config';
 import EditDeviceModal from "../../modals/EditDeviceModal";
+import DeleteConfirmationModal from "../../modals/DeleteConfirmationModal";
 
 function EditDeviceClassificator() {
     const navigate = useNavigate();
@@ -13,7 +14,8 @@ function EditDeviceClassificator() {
     const [name, setName] = useState(classificator.name);
     const [error, setError] = useState(null);
     const [deviceList, setDeviceList] = useState([]);
-    const [showModal, setShowModal] = useState(false);
+    const [showEditDeviceModal, setShowEditDeviceModal] = useState(false);
+    const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
 
     const handleUpdateClassificator = async (e) => {
         e.preventDefault();
@@ -38,17 +40,25 @@ function EditDeviceClassificator() {
             });
             setDeviceList(response.data);
             console.log(response.data);
-            if (!response.data) {
-                await axios.delete(`${config.API_BASE_URL}/device/classificator/${classificator.id}`);
-                navigate('/settings/device-classificators'); // Redirect to the classificators list after deleting
+            if (response.data.length < 1) {
+                setShowDeleteConfirmationModal(true);
             } else {
-                setShowModal(true);
+                setShowEditDeviceModal(true);
             }
         } catch (error) {
             setError(error.message);
         }
 
     };
+
+    const deleteClassificator = async() => {
+        try {
+            await axios.delete(`${config.API_BASE_URL}/device/classificator/${classificator.id}`);
+            navigate('/settings/device-classificators'); // Redirect to the classificators list after deleting
+        } catch (error) {
+            setError(error.message)
+        }
+    }
 
     return (
         <Container className="mt-5">
@@ -81,9 +91,14 @@ function EditDeviceClassificator() {
                 </Button>
             </Form>
             <EditDeviceModal
-                show={showModal}
-                handleClose={() => setShowModal(false)}
+                show={showEditDeviceModal}
+                handleClose={() => setShowEditDeviceModal(false)}
                 deviceList={deviceList}
+            />
+            <DeleteConfirmationModal
+            show={showDeleteConfirmationModal}
+            handleClose={() => setShowDeleteConfirmationModal(false)}
+            handleDelete={deleteClassificator}
             />
         </Container>
 

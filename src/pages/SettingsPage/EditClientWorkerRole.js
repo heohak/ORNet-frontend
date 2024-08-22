@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Container, Form, Button, Alert } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
 import config from '../../config/config';
+import DeleteConfirmationModal from "../../modals/DeleteConfirmationModal";
+import EditWorkerRoleModal from "../../modals/EditWorkerRoleModal";
 
 function EditClientWorkerRole() {
     const location = useLocation();
@@ -11,6 +13,10 @@ function EditClientWorkerRole() {
 
     const [roleName, setRoleName] = useState(role?.role || '');
     const [error, setError] = useState(null);
+
+    const [workerList, setWorkerList] = useState([]);
+    const [showEditWorkerRoleModal, setShowEditWorkerRoleModal] = useState(false);
+    const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
 
     const handleUpdateRole = async () => {
         try {
@@ -23,14 +29,49 @@ function EditClientWorkerRole() {
         }
     };
 
+
     const handleDeleteRole = async () => {
         try {
-            await axios.delete(`${config.API_BASE_URL}/worker/classificator/${role.id}`);
-            navigate('/settings/client-worker-roles');
+            const response = await axios.get(`${config.API_BASE_URL}/worker/search`, {
+                params: {
+                    roleId: role.id
+                }
+            });
+            const workers = response.data;
+
+            if (workers.length < 1) {
+                setShowDeleteConfirmationModal(true);
+            } else {
+                // Fetch employer data for each worker
+                const workerListWithEmployer = await Promise.all(workers.map(async (worker) => {
+                    try {
+                        const employerResponse = await axios.get(`${config.API_BASE_URL}/worker/employer/${worker.id}`);
+                        return {
+                            ...worker,
+                            employerFullName: employerResponse.data.fullName,  // Add employer's full name to worker data
+                        };
+                    } catch (error) {
+                        console.error('Error fetching employer data:', error);
+                        return worker;  // Return worker without employer data if error occurs
+                    }
+                }));
+
+                setWorkerList(workerListWithEmployer);
+                setShowEditWorkerRoleModal(true);
+            }
         } catch (error) {
             setError(error.message);
         }
     };
+
+    const deleteClassificator = async() => {
+        try {
+            await axios.delete(`${config.API_BASE_URL}/worker/classificator/${role.id}`);
+            navigate('/settings/client-worker-roles');
+        } catch (error) {
+            setError(error.message)
+        }
+    }
 
     return (
         <Container className="mt-5">
@@ -61,6 +102,16 @@ function EditClientWorkerRole() {
                     Cancel
                 </Button>
             </Form>
+            <EditWorkerRoleModal
+                show={showEditWorkerRoleModal}
+                handleClose={() => setShowEditWorkerRoleModal(false)}
+                workerList={workerList}
+            />
+            <DeleteConfirmationModal
+                show={showDeleteConfirmationModal}
+                handleClose={() => setShowDeleteConfirmationModal(false)}
+                handleDelete={deleteClassificator}
+            />
         </Container>
     );
 }
