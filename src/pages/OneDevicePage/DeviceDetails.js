@@ -168,10 +168,20 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
             console.error('Error updating written off date:', error);
         }
     };
+    const handleNavigate = () => {
+        if (device && device.id) {
+            navigate('/history', { state: { endpoint: `device/history/${device.id}` } })
+        } else {
+            console.error("Device or device id is undefined")
+        }
+    }
 
     return (
         <>
             <Button onClick={() => navigate(-1)}>Back</Button>
+            <Button onClick={handleNavigate} variant='secondary'>
+                See device history
+            </Button>
             <h1 className="mb-4 mt-4">
                 {device ? `${device.deviceName} Details` : 'Device Details'}
                 <Button variant="link" className="float-end" onClick={() => setShowDeviceFieldModal(true)}>Edit Fields</Button>
