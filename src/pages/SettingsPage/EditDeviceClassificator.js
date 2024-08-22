@@ -60,9 +60,22 @@ function EditDeviceClassificator() {
         }
     }
 
+    const handleNavigate = () => {
+        if (classificator && classificator.id) {
+            navigate('/history', { state: { endpoint: `device/classificator/history/${classificator.id}`}})
+        } else {
+            console.error("Classificator or its id is undefined");
+        }
+    }
+
     return (
         <Container className="mt-5">
-            <h1>Edit Device Classificator</h1>
+            <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                <h1>Edit Device Classificator</h1>
+                <Button variant='secondary' onClick={handleNavigate} className="mt-3 ms-3">
+                    See history
+                </Button>
+            </div>
             {error && (
                 <Alert variant="danger">
                     <Alert.Heading>Error</Alert.Heading>

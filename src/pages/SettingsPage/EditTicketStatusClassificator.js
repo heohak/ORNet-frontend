@@ -65,9 +65,23 @@ function EditTicketStatusClassificator() {
         }
     }
 
+    const handleNavigate = () => {
+        if (id) {
+            navigate('/history', { state: { endpoint: `ticket/classificator/history/${id}` } });
+        } else {
+            console.error("Classificator id is undefined");
+
+        }
+    }
+
     return (
         <Container className="mt-5">
-            <h1>Edit Ticket Status Classificator</h1>
+            <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                <h1>Edit Ticket Status Classificator</h1>
+                <Button variant='secondary' onClick={handleNavigate} className="mt-3 ms-3">
+                    See history
+                </Button>
+            </div>
             {error && (
                 <Alert variant="danger">
                     <Alert.Heading>Error</Alert.Heading>

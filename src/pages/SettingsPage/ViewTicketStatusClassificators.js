@@ -64,10 +64,17 @@ function ViewTicketStatusClassificators() {
         );
     }
 
+    const handleNavigate = () => {
+        navigate('/history', { state: { endpoint: `ticket/classificator/deleted` } });
+    }
+
     return (
         <Container className="mt-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h1>Ticket Status Classificators</h1>
+                <Button variant='secondary' onClick={handleNavigate}>
+                    See deleted
+                </Button>
                 <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Classificator</Button>
             </div>
             <Row>

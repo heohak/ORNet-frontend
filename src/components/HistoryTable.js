@@ -5,7 +5,7 @@ import config from "../config/config";
 import '../css/HistoryTable.css';
 import {useLocation} from "react-router-dom";
 
-function HistoryTable({}) {
+function HistoryTable() {
     const location = useLocation();
     const endpoint = location.state?.endpoint;
     const [data, setData] = useState([]);

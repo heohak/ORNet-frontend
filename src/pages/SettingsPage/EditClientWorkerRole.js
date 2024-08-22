@@ -73,9 +73,22 @@ function EditClientWorkerRole() {
         }
     }
 
+    const handleNavigate = () => {
+        if (role && role.id) {
+            navigate('/history', { state: { endpoint: `worker/classificator/history/${role.id}`}})
+        } else {
+            console.error("Role or role id is not defined")
+        }
+    }
+
     return (
         <Container className="mt-5">
-            <h1>Edit Client Worker Role</h1>
+            <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                <h1>Edit Client Worker Role</h1>
+                <Button variant="secondary" onClick={handleNavigate} className="mt-3 ms-3">
+                    See history
+                </Button>
+            </div>
             {error && (
                 <Alert variant="danger">
                     <Alert.Heading>Error</Alert.Heading>
