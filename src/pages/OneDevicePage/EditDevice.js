@@ -22,6 +22,7 @@ function EditDevice() {
         subnetMask: '',
         softwareKey: '',
         introducedDate: '',
+        attributes: {} // Initialize attributes here
     });
     const [clients, setClients] = useState([]);
     const [locations, setLocations] = useState([]);
@@ -78,8 +79,17 @@ function EditDevice() {
         });
     };
 
-
-
+    // Handle change for attributes
+    const handleAttributeChange = (e) => {
+        const { name, value } = e.target;
+        setDeviceData(prevState => ({
+            ...prevState,
+            attributes: {
+                ...prevState.attributes,
+                [name]: value
+            }
+        }));
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -250,6 +260,20 @@ function EditDevice() {
                         onChange={handleInputChange}
                     />
                 </Form.Group>
+
+                {/* Dynamic Fields for Attributes */}
+                {Object.keys(deviceData.attributes).map((attrKey) => (
+                    <Form.Group className="mb-3" key={attrKey}>
+                        <Form.Label>{attrKey}</Form.Label>
+                        <Form.Control
+                            type="text"
+                            name={attrKey}
+                            value={deviceData.attributes[attrKey]}
+                            onChange={handleAttributeChange}
+                        />
+                    </Form.Group>
+                ))}
+
                 <Button variant="success" type="submit">Save Changes</Button>
                 <Button variant="secondary" className="ms-3" onClick={() => navigate(`/device/${deviceId}`)}>Cancel</Button>
             </Form>
