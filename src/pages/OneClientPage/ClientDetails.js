@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Modal, Form, Alert, Accordion } from 'react-bootstrap';
+import { Card, Button, Modal, Form, Alert, Accordion, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../config/config";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCog } from '@fortawesome/free-solid-svg-icons';
 
 // Define specific fields to display
 const specificFields = [
@@ -76,22 +78,27 @@ function ClientDetails({ client, navigate }) {
 
     return (
         <>
-            <h1 className="mb-4" style={{display: "flex", justifyContent: "space-between"}}>
-                <Button onClick={() => navigate(-1)}>Back</Button>
-                {client ? `${client.shortName} Details` : 'Client Details'}
-                <div>
-                    <Button variant="primary" onClick={() => navigate(`/client/edit/${client.id}`)}>
-                        Edit Client
-                    </Button>
-                    <Button variant="link" className="float-end" onClick={() => setShowClientFieldModal(true)}>Edit Fields</Button>
-                </div>
-            </h1>
-
+            <div className="mb-4" style={{display: "flex", justifyContent: "space-between"}}>
+                <Button style={{width: '9%'}} className='mt-2 mb-2' onClick={() => navigate(-1)}>Back</Button>
+                <h1>{client ? `${client.shortName} Details` : 'Client Details'}</h1>
+                <Button style={{width: '9%'}} className='mt-2 mb-2'>See History</Button>
+            </div>
             {client ? (
                 <Card className="mb-4">
                     <Card.Body>
-                        <Card.Title>{client.name}</Card.Title>
-                        {renderFields(client)}
+                        <Row>
+                            <Col>
+                                {renderFields(client)}
+                            </Col>
+                            <Col className='col-md-auto'>
+                                <Button variant="primary" onClick={() => navigate(`/client/edit/${client.id}`)}>
+                                    Edit Client
+                                </Button>
+                                <Button variant="link" className="float-end" onClick={() => setShowClientFieldModal(true)}>
+                                    <FontAwesomeIcon icon={faCog} />
+                                </Button>
+                            </Col>
+                        </Row>
                     </Card.Body>
                     <Accordion className="m-3">
                         <Accordion.Item eventKey="0">

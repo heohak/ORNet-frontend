@@ -18,6 +18,7 @@ function EditClient() {
         nextMaintenance: '',
     });
     const [error, setError] = useState(null);
+    const [locations, setLocations] = useState([]);
 
     useEffect(() => {
         const fetchClientData = async () => {
