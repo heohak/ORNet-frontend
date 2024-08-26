@@ -77,7 +77,7 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
 
                 return (
                     <Col md={4} key={ticket.id} className="mb-4">
-                        <Card>
+                        <Card style={{cursor: 'pointer'}} onClick={() => onNavigate(ticket.id)}>
                             <Card.Body>
                                 <div className="position-absolute top-0 end-0 m-2">
                                     <Button
@@ -93,7 +93,6 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
                                     <strong>Client:</strong> {clientName}<br />
                                     <strong>Start Time:</strong> {ticket.startDateTime}<br />
                                 </Card.Text>
-                                <Button onClick={() => onNavigate(ticket.id)}>View Ticket</Button>
                             </Card.Body>
                         </Card>
                     </Col>

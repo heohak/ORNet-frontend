@@ -32,15 +32,6 @@ function Clients() {
         }
     };
 
-    const handleDeleteClient = async (clientId) => {
-        setDeleteError(null);
-        try {
-            await axios.delete(`${config.API_BASE_URL}/client/delete/${clientId}`);
-            setClients(clients.filter(client => client.id !== clientId));
-        } catch (error) {
-            setDeleteError(error.message);
-        }
-    };
 
     const handleAddClient = () => {
         setShowAddClientModal(true);
@@ -130,16 +121,9 @@ function Clients() {
                 {clients.map((client) => (
                     <Col md={4} key={client.id} className="mb-4">
                         <Card className="h-100 position-relative">
-                            <Button
-                                variant="danger"
-                                className="position-absolute top-0 end-0 m-2"
-                                onClick={() => handleDeleteClient(client.id)}
-                            >
-                                Delete
-                            </Button>
                             <Card.Body style={{ cursor: "pointer" }} onClick={() => window.location.href = `/client/${client.id}`} className="d-flex flex-column">
                                 <div className="mb-4">
-                                    <Card.Title>{client.shortName}</Card.Title>
+                                    <Card.Title>Name: {client.shortName}</Card.Title>
                                     <Card.Text>
                                         <strong>Full name:</strong> {client.fullName}
                                     </Card.Text>
