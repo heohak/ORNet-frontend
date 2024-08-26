@@ -8,7 +8,6 @@ function Clients() {
     const [clients, setClients] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [deleteError, setDeleteError] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [clientType, setClientType] = useState('');
     const [showAddClientModal, setShowAddClientModal] = useState(false);
@@ -77,16 +76,6 @@ function Clients() {
         );
     }
 
-    if (deleteError) {
-        return (
-            <Container className="mt-5">
-                <Alert variant="danger">
-                    <Alert.Heading>Error</Alert.Heading>
-                    <p>{deleteError}</p>
-                </Alert>
-            </Container>
-        );
-    }
 
     return (
         <Container className="mt-5">
