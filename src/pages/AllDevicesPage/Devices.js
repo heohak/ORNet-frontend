@@ -85,10 +85,10 @@ function Devices() {
             <Row>
                 {devices.map((device) => (
                     <Col md={4} key={device.id} className="mb-4">
-                        <Card style={{cursor: 'pointer'}} onClick={() => navigate(`/device/${device.id}`)}>
-                            <Card.Body>
-                                <Card.Title><strong>Device Name: </strong>{device.deviceName}</Card.Title>
-                                <Card.Text>
+                        <Card className='all-page-card' onClick={() => navigate(`/device/${device.id}`)}>
+                            <Card.Body className='all-page-cardBody'>
+                                <Card.Title className='all-page-cardTitle'><strong>Device Name: </strong>{device.deviceName}</Card.Title>
+                                <Card.Text className='all-page-cardText'>
                                     <strong>Serial Number: </strong>{device.serialNumber}<br />
                                     <strong>Type: </strong>{classificators[device.classificatorId] || "Unknown type"}
                                 </Card.Text>

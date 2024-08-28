@@ -77,8 +77,8 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
 
                 return (
                     <Col md={4} key={ticket.id} className="mb-4">
-                        <Card style={{cursor: 'pointer'}} onClick={() => onNavigate(ticket.id)}>
-                            <Card.Body>
+                        <Card className='all-page-card' onClick={() => onNavigate(ticket.id)}>
+                            <Card.Body className='all-page-cardBody'>
                                 <div className="position-absolute top-0 end-0 m-2">
                                     <Button
                                         variant={ticket.statusId === 1 ? "success" : "danger"}
@@ -88,8 +88,8 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
                                         {statusName}
                                     </Button>
                                 </div>
-                                <Card.Title>{ticket.title}</Card.Title>
-                                <Card.Text>
+                                <Card.Title className='all-page-cardTitle'>{ticket.title}</Card.Title>
+                                <Card.Text className='all-page-cardText'>
                                     <strong>Client:</strong> {clientName}<br />
                                     <strong>Start Time:</strong> {ticket.startDateTime}<br />
                                 </Card.Text>

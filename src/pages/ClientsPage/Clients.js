@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Container, Row, Col, Card, Button, Spinner, Alert, Form, InputGroup, Modal } from 'react-bootstrap';
 import config from "../../config/config";
 import AddClient from "./AddClient";
+import '../../css/Clients.css';
 
 function Clients() {
     const [clients, setClients] = useState([]);
@@ -109,11 +110,11 @@ function Clients() {
             <Row>
                 {clients.map((client) => (
                     <Col md={4} key={client.id} className="mb-4">
-                        <Card className="h-100 position-relative">
-                            <Card.Body style={{ cursor: "pointer" }} onClick={() => window.location.href = `/client/${client.id}`} className="d-flex flex-column">
+                        <Card className="h-100 position-relative all-page-card">
+                            <Card.Body onClick={() => window.location.href = `/client/${client.id}`} className="d-flex flex-column all-page-cardBody">
                                 <div className="mb-4">
-                                    <Card.Title>Name: {client.shortName}</Card.Title>
-                                    <Card.Text>
+                                    <Card.Title className='all-page-cardTitle'>Name: {client.shortName}</Card.Title>
+                                    <Card.Text className='all-page-cardText'>
                                         <strong>Full name:</strong> {client.fullName}
                                     </Card.Text>
                                 </div>
