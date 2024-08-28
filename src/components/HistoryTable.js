@@ -18,6 +18,7 @@ function HistoryTable() {
     const [maintenanceNames, setMaintenanceNames] = useState({});
     const [fileNames, setFileNames] = useState({});
     const [comments, setComments] = useState({});
+    const [thirdPartyNames, setThirdPartyNames] = useState({});
 
     useEffect(() => {
         const fetchData = async () => {
@@ -35,7 +36,7 @@ function HistoryTable() {
                 });
                 setAttributeKeys(Array.from(attributesKeysSet));
 
-                // Fetch client, classificator, location, maintenance, and file names
+                // Fetch client, classificator, location, maintenance, file, comment, and third-party names
                 await fetchNames(fetchedData);
 
                 setLoading(false);
@@ -52,15 +53,18 @@ function HistoryTable() {
             const maintenanceIds = new Set();
             const fileIds = new Set();
             const commentIds = new Set();
+            const thirdPartyIds = new Set(); // New Set for third-party IDs
 
-            // Collect all unique IDs for clients, classificators, locations, maintenance, comments and files
+            // Collect all unique IDs for clients, classificators, locations, maintenance, comments, files, and third-party IDs
             fetchedData.forEach(item => {
                 if (item.clientId) clientIds.add(item.clientId);
                 if (item.classificatorId) classificatorIds.add(item.classificatorId);
                 if (item.locationId) locationIds.add(item.locationId);
+                if (item.locationIds) item.locationIds.forEach(id => locationIds.add(id));
                 if (item.maintenanceIds) item.maintenanceIds.forEach(id => maintenanceIds.add(id));
                 if (item.fileIds) item.fileIds.forEach(id => fileIds.add(id));
                 if (item.commentIds) item.commentIds.forEach(id => commentIds.add(id));
+                if (item.thirdPartyIds) item.thirdPartyIds.forEach(id => thirdPartyIds.add(id)); // Collect third-party IDs
             });
 
             // Fetch names for clientIds
@@ -128,6 +132,17 @@ function HistoryTable() {
                 return acc;
             }, {});
             setComments(commentsMap);
+
+            // Fetch names for thirdPartyIds (new)
+            const thirdPartyNamesResponse = await Promise.all(
+                Array.from(thirdPartyIds).map(id => axios.get(`${config.API_BASE_URL}/third-party/${id}`))
+            );
+            const thirdPartyNamesMap = thirdPartyNamesResponse.reduce((acc, response) => {
+                const { id, name } = response.data;
+                acc[id] = name;
+                return acc;
+            }, {});
+            setThirdPartyNames(thirdPartyNamesMap);
         };
 
         fetchData();
@@ -141,10 +156,11 @@ function HistoryTable() {
     // Extract keys from the first object to create table headers (excluding attributes)
     const baseHeaders = Object.keys(data[0]).filter(key => key !== 'attributes');
 
-    baseHeaders.splice(0,1) //removes the id field, it is always the first
+    baseHeaders.splice(0, 1); // Removes the id field, it is always the first
 
     // Combine base headers with dynamic attribute keys
     const allHeaders = [...baseHeaders, ...attributeKeys];
+    const booleanHeaders = ['surgeryClient', 'editorClient', 'pathologyClient']
 
     return (
         <Container fluid className="mt-4 table-wrapper">
@@ -152,11 +168,10 @@ function HistoryTable() {
                 <thead>
                 <tr>
                     {allHeaders.map((header, index) => (
-                            <th key={index}>
-                                {header.replace(/$|Id/, '')} {/* Remove 'Id' or 'Ids' suffix */}
-                            </th>
-                        ))
-                    }
+                        <th key={index}>
+                            {header.replace(/$|Id/, '')} {/* Remove 'Id' or 'Ids' suffix */}
+                        </th>
+                    ))}
                 </tr>
                 </thead>
                 <tbody>
@@ -171,7 +186,11 @@ function HistoryTable() {
                                             header === 'maintenanceIds' ? item[header].map(id => maintenanceNames[id] || id).join(', ') :
                                                 header === 'fileIds' ? item[header].map(id => fileNames[id] || id).join(', ') :
                                                     header === 'commentIds' ? item[header].map(id => comments[id] || id).join(', ') :
-                                                    item[header]}
+                                                        header === 'locationIds' ? item[header].map(id => locationNames[id] || id).join(', ') :
+                                                            header === 'thirdPartyIds' ? item[header].map(id => thirdPartyNames[id] || id).join(', ') :
+                                                                booleanHeaders.includes(header) && item[header] ? 'Yes' :
+                                                                    booleanHeaders.includes(header) ? 'No' :
+                                                            item[header]}
                             </td>
                         ))}
                         {attributeKeys.map((attrKey, index) => (
@@ -179,6 +198,7 @@ function HistoryTable() {
                                 {item.attributes && item.attributes[attrKey] ? item.attributes[attrKey] : ''}
                             </td>
                         ))}
+                        {/* New columns for ThirdPartyIds and boolean fields */}
                     </tr>
                 ))}
                 </tbody>

@@ -6,7 +6,6 @@ import config from "../../config/config";
 
 function EditBaitWorker() {
     const { baitWorkerId } = useParams();
-    const [worker, setWorker] = useState(null);
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
@@ -21,7 +20,6 @@ function EditBaitWorker() {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/bait/worker/${baitWorkerId}`);
                 const workerData = response.data;
-                setWorker(workerData);
                 setFirstName(workerData.firstName);
                 setLastName(workerData.lastName);
                 setEmail(workerData.email);

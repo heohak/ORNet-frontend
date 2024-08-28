@@ -37,6 +37,11 @@ const WorkTypeModal = ({ show, handleClose, selectedWorkTypes, onSave, ticketId 
         handleClose();
     };
 
+    const handleCancel = () => {
+        setSelectedWorkTypeIds(selectedWorkTypes); // Reset to initial selection
+        handleClose(); // Close the modal
+    };
+
     const handleWorkTypeToggle = (workTypeId) => {
         setSelectedWorkTypeIds(prev =>
             prev.includes(workTypeId) ? prev.filter(id => id !== workTypeId) : [...prev, workTypeId]
@@ -60,7 +65,7 @@ const WorkTypeModal = ({ show, handleClose, selectedWorkTypes, onSave, ticketId 
     };
 
     return (
-        <Modal show={show} onHide={handleClose}>
+        <Modal show={show} onHide={handleCancel}>
             <Modal.Header closeButton>
                 <Modal.Title>Select Work Types</Modal.Title>
             </Modal.Header>
@@ -92,7 +97,7 @@ const WorkTypeModal = ({ show, handleClose, selectedWorkTypes, onSave, ticketId 
                 </Form>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
+                <Button variant="secondary" onClick={handleCancel}>
                     Close
                 </Button>
                 <Button variant="primary" onClick={()=> handleSave(ticketId)}>

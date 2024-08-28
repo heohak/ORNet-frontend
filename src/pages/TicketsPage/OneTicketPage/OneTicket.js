@@ -17,7 +17,6 @@ function OneTicket() {
     const [expandedTickets, setExpandedTickets] = useState(new Set());
     const [expandedSections, setExpandedSections] = useState({});
     const [editFields, setEditFields] = useState({});
-    const [refresh, setRefresh] = useState(false);
     const [clientName, setClientName] = useState(null);
     const navigate = useNavigate();
 
@@ -60,7 +59,7 @@ function OneTicket() {
         };
 
         fetchTickets();
-    }, [ticketId, scrollToId, refresh]);
+    }, [ticketId, scrollToId]);
 
     useEffect(() => {
         if (!loading && scrollToId && ticketRefs.current[scrollToId]) {
@@ -129,10 +128,6 @@ function OneTicket() {
                 [section]: !prevSections[ticketId][section]
             }
         }));
-    };
-
-    const handleUploadSuccess = () => {
-        setRefresh(!refresh); // Toggle refresh state to trigger re-fetch
     };
 
     if (loading) {

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button, Modal, Form, ListGroup } from 'react-bootstrap';
-import config from "../config/config";
 
 function FileUploadModal({ show, handleClose, uploadEndpoint, onUploadSuccess }) {
     const [selectedFiles, setSelectedFiles] = useState([]);
