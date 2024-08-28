@@ -1,0 +1,138 @@
+/* TicketDetails.css */
+
+.ticket-container {
+    padding: 20px;
+    background-color: #f8f9fa; /* Light background */
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    margin-bottom: 20px;
+}
+
+.ticket-header {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #343a40;
+    margin-bottom: 15px;
+
+}
+
+.ticket-section {
+    background-color: #ffffff; /* White background for sections */
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.ticket-section h5 {
+    font-size: 1.25rem;
+    color: #007bff; /* Bootstrap primary color */
+    margin-bottom: 10px;
+}
+
+.ticket-accordion p {
+    font-size: 1rem;
+    color: #495057;
+}
+
+.ticket-button {
+    background-color: #28a745; /* Green button */
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.ticket-button:hover {
+    background-color: #218838; /* Darker green on hover */
+}
+
+.ticket-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.ticket-form-control {
+    border-radius: 0.25rem;
+    border: 1px solid #ced4da;
+
+}
+
+.ticket-form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+}
+
+.ticket-modal {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.ticket-accordion {
+    margin-bottom: 20px;
+}
+
+
+.ticket-accordion .card {
+    border-radius: 10px;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.ticket-accordion .card-header {
+    background-color: #007bff;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.ticket-accordion .card-body {
+    background-color: #ffffff;
+    border-radius: 20px;
+
+}
+
+
+.notification {
+    position: absolute;
+    background: rgba(255, 69, 58, 0.9); /* A soft red with opacity for the warning */
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    top: 45px;
+    left: 50%;
+    transform: translateX(-50%); /* Center the notification */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Soft shadow for depth */
+    font-size: 1rem;
+    font-weight: bold;
+    z-index: 1000; /* Ensure it's on top of other elements */
+    animation: fadeOut 4s ease-in-out 1s forwards; /* Delay the fade-out and make it smooth */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80%; /* Responsive width */
+    max-width: 500px;
+}
+
+/* Add a fade-out animation */
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-20px); /* Slide up as it fades out */
+    }
+}
+
+/* Icon for additional visual cue */
+.notification::before {
+    content: "\26A0"; /* Warning icon */
+    margin-right: 10px;
+    font-size: 1.5rem;
+    color: yellow; /* Yellow for visibility */
+}
+

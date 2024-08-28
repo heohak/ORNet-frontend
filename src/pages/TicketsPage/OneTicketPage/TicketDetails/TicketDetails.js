@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Accordion, Card, Button, Row, Col, Form } from 'react-bootstrap';
+import { Accordion, Container, Card, Button, Row, Col, Form } from 'react-bootstrap';
 import axios from 'axios';
 import ClientWorkersModal from "./ClientWorkersModal";
 import WorkTypeModal from "./WorkTypeModal";
@@ -7,6 +7,7 @@ import FileList from "./FileList";
 import MaintenanceModal from "./MaintenanceModal";
 import config from "../../../../config/config";
 import 'react-datetime/css/react-datetime.css';
+import "../../../../css/TicketDetails.css"
 import Datetime from "react-datetime";
 import moment from 'moment';
 
@@ -156,7 +157,6 @@ const TicketDetails = ({
         try {
             const response = await axios.get(`${config.API_BASE_URL}/ticket/maintenance/${ticketId}`);
             setMaintenances(response.data);
-            console.log(response.data)
         } catch (error) {
             console.error ('Error fetching maintenances', error);
         }
@@ -285,12 +285,36 @@ const TicketDetails = ({
                     minutes: minutes || 0,
                 },
             });
-            console.log('Time added:', response.data);
             fetchPaidInfo(ticketId);
             renderPaidInfo(ticketId);  //render new info
         } catch (error) {
             console.error('Error adding time:', error);
         }
+    };
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+
+        // Options for formatting
+        const options = {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false // Use 24-hour time
+        };
+
+        return date.toLocaleString('en-GB', options); // en-GB for "dd MMM yyyy, HH:mm"
+    };
+
+    const formatTime = (timeString) => {
+        // Assuming timeString is in ISO 8601 duration format like "PT1H1M"
+        const match = timeString.match(/PT(\d+H)?(\d+M)?/);
+        const hours = match[1] ? match[1].replace('H', '') : '0';
+        const minutes = match[2] ? match[2].replace('M', '') : '0';
+
+        return `${hours}H ${minutes}M`;
     };
 
     const renderPaidInfo = (ticketId) => {
@@ -299,9 +323,9 @@ const TicketDetails = ({
 
         return (
             <div>
-                <p>Paid Start Time: {info.startTime}</p>
-                <p>Paid Time Spent: {info.timeSpent ? info.timeSpent : '--:--'}</p>
-                <div className="d-flex align-items-center">
+                <p>Paid Start Time: {formatDate(info.startTime)}</p>
+                <p>Paid Time Spent: {info.timeSpent ? formatTime(info.timeSpent) : '--:--'}</p>
+                <div  style={{display: 'flex'}} >
                     <Form.Group className="me-2">
                         <Form.Control
                             type="number"
@@ -311,7 +335,7 @@ const TicketDetails = ({
                             disabled={info.settled} // Disable if info.settled is true
                         />
                     </Form.Group>
-                    <p className="me-4" style={{margin: 0}}>h</p>
+                    <p className="me-4" style={{margin: 0, alignContent: 'center'}}>h</p>
                     <Form.Group className="me-2">
                         <Form.Control
                             type="number"
@@ -321,7 +345,7 @@ const TicketDetails = ({
                             disabled={info.settled}
                         />
                     </Form.Group>
-                    <p className="me-4" style={{margin: 0}}>min</p>
+                    <p className="me-4" style={{margin: 0, alignContent: 'center'}}>min</p>
                     <Button
                         onClick={() => handleAddTime(ticketId)}
                         disabled={info.settled}
@@ -370,12 +394,13 @@ const TicketDetails = ({
 
 
     return (
-        <Accordion key={ticket.id} activeKey={expandedTickets.has(ticket.id.toString()) ? ticket.id.toString() : null}>
+        <Container className="ticket-container">
+        <Accordion className="ticket-accordion" key={ticket.id} activeKey={expandedTickets.has(ticket.id.toString()) ? ticket.id.toString() : null}>
             <Card ref={(el) => (ticketRefs.current[ticket.id] = el)} className="mb-4">
                 <Accordion.Item eventKey={ticket.id.toString()}>
                     <Accordion.Header onClick={() => toggleTicketExpansion(ticket.id.toString())}>
-                        <div className="d-flex justify-content-between align-items-center w-100">
-                            <span>Title: {ticket.title}</span>
+                        <div style={{display: 'flex'}} className="justify-content-between w-100">
+                            <span style={{alignContent: 'center'}}>Title: {ticket.title}</span>
                             <Button variant="outline-primary" onClick={(e) => { e.stopPropagation(); toggleEdit(); }}>
                                 {isEditing ? 'Cancel' : 'Edit'}
                             </Button>
@@ -384,22 +409,12 @@ const TicketDetails = ({
                     <Accordion.Body>
                         <Button variant="danger" onClick={() => handleCloseTicket(ticket.id)}>Close Ticket</Button>
                         {notification && (
-                            <div style={{
-                                position: 'absolute',
-                                background: 'rgba(0, 0, 0, 0.8)',
-                                color: 'red',
-                                padding: '10px',
-                                borderRadius: '5px',
-                                top: '45px', // Adjust based on where you want the message to appear
-
-                                transition: 'opacity 0.5s ease-in-out',
-                                opacity: notification ? 1 : 0
-                            }}>
+                            <div className='notification'>
                                 {notification}
                             </div>
                         )}
-                        <Card.Body>
-                            <Accordion activeKey={expandedSections[ticket.id]?.dates ? "0" : null}>
+                        <Card.Body style={{backgroundColor: '#f8f9fa'}}>
+                            <Accordion className="ticket-accordion" activeKey={expandedSections[ticket.id]?.dates ? "0" : null}>
                                 <Accordion.Item eventKey="0">
                                     <Accordion.Header onClick={() => toggleSectionExpansion(ticket.id, 'dates')}>Dates</Accordion.Header>
                                     <Accordion.Body>
@@ -407,8 +422,8 @@ const TicketDetails = ({
                                             <Col>
                                                 {isEditing ? (
                                                     <>
-                                                        <p><strong>Start Date Time:</strong> {ticket.startDateTime}</p>
-                                                        <p><strong>End Date Time:</strong> {ticket.endDateTime ? ticket.endDateTime : '--:-- --:--'}</p>
+                                                        <p><strong>Start Date Time:</strong> {formatDate(ticket.startDateTime)}</p>
+                                                        <p><strong>End Date Time:</strong> {ticket.endDateTime ? formatDate(ticket.endDateTime) : '--:-- --:--'}</p>
                                                         <Form.Group className="mb-3">
                                                             <Form.Label>Response Date Time</Form.Label>
                                                             <Datetime
@@ -418,14 +433,14 @@ const TicketDetails = ({
                                                                 timeFormat="HH:mm"
                                                             />
                                                         </Form.Group>
-                                                        <p><strong>Update Time:</strong> {ticket.updateDateTime}</p>
+                                                        <p><strong>Update Time:</strong> {formatDate(ticket.updateDateTime)}</p>
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <p><strong>Start Date Time:</strong> {ticket.startDateTime}</p>
-                                                        <p><strong>End Date Time:</strong> {ticket.endDateTime ? ticket.endDateTime : '--:-- --:--'}</p>
-                                                        <p><strong>Response Date Time:</strong> {ticket.responseDateTime ? ticket.responseDateTime : '--:-- --:--'}</p>
-                                                        <p><strong>Update Time:</strong> {ticket.updateDateTime}</p>
+                                                        <p><strong>Start Date Time:</strong> {formatDate(ticket.startDateTime)}</p>
+                                                        <p><strong>End Date Time:</strong> {ticket.endDateTime ? formatDate(ticket.endDateTime) : '--:-- --:--'}</p>
+                                                        <p><strong>Response Date Time:</strong> {ticket.responseDateTime ? formatDate(ticket.responseDateTime) : '--:-- --:--'}</p>
+                                                        <p><strong>Update Time:</strong> {formatDate(ticket.updateDateTime)}</p>
                                                     </>
                                                 )}
                                             </Col>
@@ -433,7 +448,7 @@ const TicketDetails = ({
                                     </Accordion.Body>
                                 </Accordion.Item>
                             </Accordion>
-                            <Accordion activeKey={expandedSections[ticket.id]?.details ? "1" : null}>
+                            <Accordion className="ticket-accordion" activeKey={expandedSections[ticket.id]?.details ? "1" : null}>
                                 <Accordion.Item eventKey="1">
                                     <Accordion.Header onClick={() => toggleSectionExpansion(ticket.id, 'details')}>Details</Accordion.Header>
                                     <Accordion.Body>
@@ -617,6 +632,7 @@ const TicketDetails = ({
                             <Card.Title className="mt-4">Description</Card.Title>
                             {isEditing ? (
                                 <Form.Control
+                                    className='ticket-form-control'
                                     as="textarea"
                                     rows={3}
                                     name="description"
@@ -651,6 +667,7 @@ const TicketDetails = ({
                             <Card.Title className="mt-4">Inside Info</Card.Title>
                             {isEditing ? (
                                 <Form.Control
+                                    className='ticket-form-control mb-4'
                                     as="textarea"
                                     rows={3}
                                     name="insideInfo"
@@ -689,26 +706,22 @@ const TicketDetails = ({
                                     </Accordion.Body>
                                 </Accordion.Item>
                             </Accordion>
-                            <Card.Title className="mt-4">Comments</Card.Title>
-                            <Card className="mb-4 mt-1">
-                                <Card.Body>
-                                    {comments.length === 0 ? (
-                                        <Card.Text>No comments yet.</Card.Text>
-                                    ) : (
-                                        comments
-                                            .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
-                                            .map((comment, index) => (
-                                                <Card key={index} className="mb-3">
-                                                    <Card.Body>
-                                                        <Card.Text>{comment.comment}</Card.Text>
-                                                        <small className="text-muted">{new Date(comment.timestamp).toLocaleString()}</small>
-                                                    </Card.Body>
-                                                </Card>
-                                            ))
-                                    )}
-                                </Card.Body>
-                            </Card>
-                            <Form.Group className="mb-3">
+                            <Card.Title className="mt-5 mb-4">Comments</Card.Title>
+                            {comments.length === 0 ? (
+                                <Card.Text>No comments yet.</Card.Text>
+                            ) : (
+                                comments
+                                    .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+                                    .map((comment, index) => (
+                                        <Card key={index} className="mb-3" style={{borderRadius: '20px'}}>
+                                            <Card.Body>
+                                                <Card.Text>{comment.comment}</Card.Text>
+                                                <small className="text-muted">{new Date(comment.timestamp).toLocaleString()}</small>
+                                            </Card.Body>
+                                        </Card>
+                                    ))
+                            )}
+                            <Form.Group className="mt-5">
                                 <Form.Control
                                     as="textarea"
                                     rows={2}
@@ -752,6 +765,7 @@ const TicketDetails = ({
             onSave={()=> fetchMaintenances(ticket.id)}
             />
         </Accordion>
+        </Container>
     );
 };
 

@@ -111,7 +111,7 @@ function Clients() {
                 {clients.map((client) => (
                     <Col md={4} key={client.id} className="mb-4">
                         <Card className="h-100 position-relative all-page-card">
-                            <Card.Body onClick={() => window.location.href = `/client/${client.id}`} className="d-flex flex-column all-page-cardBody">
+                            <Card.Body onClick={() => window.location.href = `/client/${client.id}`} className="all-page-cardBody">
                                 <div className="mb-4">
                                     <Card.Title className='all-page-cardTitle'>Name: {client.shortName}</Card.Title>
                                     <Card.Text className='all-page-cardText'>
