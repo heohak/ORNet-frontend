@@ -279,7 +279,7 @@ const TicketDetails = ({
         const { hours, minutes } = timeInputs[ticketId] || {};
 
         try {
-            const response = await axios.put(`${config.API_BASE_URL}/ticket/add/time/${ticketId}`, null, {
+            await axios.put(`${config.API_BASE_URL}/ticket/add/time/${ticketId}`, null, {
                 params: {
                     hours: hours || 0,
                     minutes: minutes || 0,
