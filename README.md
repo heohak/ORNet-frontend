@@ -1,6 +1,6 @@
 # PROJECT FRONTEND
 
-This frontend web application is designed to provide a user interface for interacting with the backend services of [Project Name]. It is built using HTML, CSS, and JavaScript, with React for the UI and FontAwesome for icons. The app fetches data from a backend API and displays it dynamically on the page.
+This frontend web application is designed to provide a user interface for interacting with the backend services of [Project Name]. It is built using HTML, CSS, and JavaScript, with React for the UI and Bootstrap for the responsiveness of the web components. The app fetches data from a backend API and displays it dynamically on the page.
 
 ## Requirements
 
