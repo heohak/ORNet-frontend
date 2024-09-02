@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, ListGroup, Alert, Button, Modal, Form,Spinner, InputGroup, Container, Row, Col } from 'react-bootstrap';
+import { Card, ListGroup, Alert, Button, Modal, Form,Spinner } from 'react-bootstrap';
 import AddClientDevice from './AddClientDevice';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';

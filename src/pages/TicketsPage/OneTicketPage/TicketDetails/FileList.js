@@ -24,7 +24,7 @@ const FileList = ({ ticketId }) => {
 
     return (
         <>
-            <div>
+            <div className="mt-4">
                 <h1>File Management</h1>
             </div>
             <Button variant="outline-primary" onClick={() => setShowUploadModal(true)}>

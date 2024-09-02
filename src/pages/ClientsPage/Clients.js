@@ -3,12 +3,12 @@ import axios from 'axios';
 import { Container, Row, Col, Card, Button, Spinner, Alert, Form, InputGroup, Modal } from 'react-bootstrap';
 import config from "../../config/config";
 import AddClient from "./AddClient";
+import '../../css/Clients.css';
 
 function Clients() {
     const [clients, setClients] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [deleteError, setDeleteError] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [clientType, setClientType] = useState('');
     const [showAddClientModal, setShowAddClientModal] = useState(false);
@@ -32,15 +32,6 @@ function Clients() {
         }
     };
 
-    const handleDeleteClient = async (clientId) => {
-        setDeleteError(null);
-        try {
-            await axios.delete(`${config.API_BASE_URL}/client/delete/${clientId}`);
-            setClients(clients.filter(client => client.id !== clientId));
-        } catch (error) {
-            setDeleteError(error.message);
-        }
-    };
 
     const handleAddClient = () => {
         setShowAddClientModal(true);
@@ -86,16 +77,6 @@ function Clients() {
         );
     }
 
-    if (deleteError) {
-        return (
-            <Container className="mt-5">
-                <Alert variant="danger">
-                    <Alert.Heading>Error</Alert.Heading>
-                    <p>{deleteError}</p>
-                </Alert>
-            </Container>
-        );
-    }
 
     return (
         <Container className="mt-5">
@@ -129,18 +110,11 @@ function Clients() {
             <Row>
                 {clients.map((client) => (
                     <Col md={4} key={client.id} className="mb-4">
-                        <Card className="h-100 position-relative">
-                            <Button
-                                variant="danger"
-                                className="position-absolute top-0 end-0 m-2"
-                                onClick={() => handleDeleteClient(client.id)}
-                            >
-                                Delete
-                            </Button>
-                            <Card.Body style={{ cursor: "pointer" }} onClick={() => window.location.href = `/client/${client.id}`} className="d-flex flex-column">
+                        <Card className="h-100 position-relative all-page-card">
+                            <Card.Body onClick={() => window.location.href = `/client/${client.id}`} className="all-page-cardBody">
                                 <div className="mb-4">
-                                    <Card.Title>{client.shortName}</Card.Title>
-                                    <Card.Text>
+                                    <Card.Title className='all-page-cardTitle'>Name: {client.shortName}</Card.Title>
+                                    <Card.Text className='all-page-cardText'>
                                         <strong>Full name:</strong> {client.fullName}
                                     </Card.Text>
                                 </div>

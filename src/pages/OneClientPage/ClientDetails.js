@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Modal, Form, Alert, Accordion } from 'react-bootstrap';
+import {Card, Button, Modal, Form, Alert, Accordion, Row, Col, Container} from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../config/config";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCog } from '@fortawesome/free-solid-svg-icons';
 
 // Define specific fields to display
 const specificFields = [
@@ -42,7 +44,6 @@ function ClientDetails({ client, navigate }) {
             setClientLocations(response.data);
         } catch (error) {
             setError('Error fetching client locations');
-            console.error('Error fetching client locations:', error);
         }
     };
 
@@ -74,24 +75,48 @@ function ClientDetails({ client, navigate }) {
         });
     };
 
+    const handleNavigate = () => {
+        if (client && client.id) {
+            navigate('/history', { state: { endpoint: `client/history/${client.id}` } })
+        } else {
+            setError("Client or client id is undefined")
+        }
+    }
+
+    if (error) {
+        return (
+            <Container className="mt-5">
+                <Alert variant="danger">
+                    <Alert.Heading>Error</Alert.Heading>
+                    <p>{error}</p>
+                </Alert>
+            </Container>
+        );
+    }
+
     return (
         <>
-            <h1 className="mb-4" style={{display: "flex", justifyContent: "space-between"}}>
-                <Button onClick={() => navigate(-1)}>Back</Button>
-                {client ? `${client.shortName} Details` : 'Client Details'}
-                <div>
-                    <Button variant="primary" onClick={() => navigate(`/client/edit/${client.id}`)}>
-                        Edit Client
-                    </Button>
-                    <Button variant="link" className="float-end" onClick={() => setShowClientFieldModal(true)}>Edit Fields</Button>
-                </div>
-            </h1>
-
+            <div className="mb-4" style={{display: "flex", justifyContent: "space-between"}}>
+                <Button style={{width: '9%'}} className='mt-2 mb-2' onClick={() => navigate(-1)}>Back</Button>
+                <h1>{client ? `${client.shortName} Details` : 'Client Details'}</h1>
+                <Button onClick={handleNavigate} style={{width: '9%'}} className='mt-2 mb-2'>See History</Button>
+            </div>
             {client ? (
                 <Card className="mb-4">
                     <Card.Body>
-                        <Card.Title>{client.name}</Card.Title>
-                        {renderFields(client)}
+                        <Row>
+                            <Col>
+                                {renderFields(client)}
+                            </Col>
+                            <Col className='col-md-auto'>
+                                <Button variant="primary" onClick={() => navigate(`/client/edit/${client.id}`)}>
+                                    Edit Client
+                                </Button>
+                                <Button variant="link" className="float-end" onClick={() => setShowClientFieldModal(true)}>
+                                    <FontAwesomeIcon icon={faCog} />
+                                </Button>
+                            </Col>
+                        </Row>
                     </Card.Body>
                     <Accordion className="m-3">
                         <Accordion.Item eventKey="0">

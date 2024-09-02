@@ -1,70 +1,120 @@
-# Getting Started with Create React App
+# PROJECT FRONTEND
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This frontend web application is designed to provide a user interface for interacting with the backend services of [Project Name]. It is built using HTML, CSS, and JavaScript, with React for the UI and Bootstrap for the responsiveness of the web components. The app fetches data from a backend API and displays it dynamically on the page.
 
-## Available Scripts
+## Requirements
 
-In the project directory, you can run:
+For development, you will only need Node.js installed on your environment.
+And please use the appropriate [Editorconfig](http://editorconfig.org/) plugin for your Editor (not mandatory).
 
-### `npm start`
+### Node
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+[Node](http://nodejs.org/) is really easy to install & now includes [NPM](https://npmjs.org/).
+You should be able to run the following command after the installation procedure
+below.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+    $ node --version
+    v0.10.24
 
-### `npm test`
+    $ npm --version
+    1.3.21
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+#### Node installation on OS X
 
-### `npm run build`
+You will need to use a Terminal. On OS X, you can find the default terminal in
+`/Applications/Utilities/Terminal.app`.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Please install [Homebrew](http://brew.sh/) if it's not already done with the following command.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+    $ ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+If everything went fine, you should run
 
-### `npm run eject`
+    brew install node
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+#### Node installation on Linux
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+    sudo apt-get install python-software-properties
+    sudo add-apt-repository ppa:chris-lea/node.js
+    sudo apt-get update
+    sudo apt-get install nodejs
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+#### Node installation on Windows
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Just go on [official Node.js website](http://nodejs.org/) & grab the installer.
+Also, be sure to have `git` available in your PATH, `npm` might need it.
 
-## Learn More
+## Install
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+    $ git clone https://github.com/heohak/ORNet-frontend.git
+    $ cd PROJECT
+    $ npm install
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Configure app
 
-### Code Splitting
+Edit `config.js` if needed:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- backend API - `http://localhost:8080` when run on your own computer,
+  or `http://*(IP)*:8080` if using a different IP.
 
-### Analyzing the Bundle Size
+## Start & watch
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+    $ npm start
 
-### Making a Progressive Web App
+## Simple build for production
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+    $ npm run build
 
-### Advanced Configuration
+## Update sources
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Some packages usages might change so you should run `npm prune` & `npm install` often.
+A common way to update is by doing:
 
-### Deployment
+    $ git pull
+    $ npm prune
+    $ npm install
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+To run those 3 commands you can just do:
 
-### `npm run build` fails to minify
+    $ npm run pull
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+**Note:** Unix users can just link the `git-hooks/post-merge`.
+
+## Project Structure
+
+- `src/`: Contains the source code for the frontend app.
+    - `components/`: React components used throughout the app.
+    - `css/`: CSS files for styling the app.
+    - `config.js`: Configuration file for the API endpoint.
+
+
+## Languages & tools
+
+### HTML
+
+
+### JavaScript
+
+- [React](https://react.dev/) is used for UI.
+
+### CSS
+
+- [Fontawesome](https://fontawesome.com/) is used for some icons
+- [Bootstrap](https://getbootstrap.com/) for responsive design
+
+## Dependencies
+
+
+- React: A JavaScript library for building user interfaces (^18.3.1).
+- React DOM: Provides DOM-specific methods for React (^18.3.1).
+- React Router DOM: Handles routing in the application (^6.24.0).
+- React Bootstrap: A React implementation of the Bootstrap framework (^2.10.4).
+- Bootstrap: CSS framework for responsive web design (^5.3.3).
+- Axios: A promise-based HTTP client for making requests (^1.7.2).
+- React Select: A flexible select input control (^5.8.0).
+- React Datetime: A date and time picker component (^3.2.0).
+- FontAwesome & React FontAwesome: Icon toolkit and React components for icons (^6.6.0, ^0.2.2).
+- React Icons: Popular icons as React components (^5.2.1).
+- Moment.js: Date manipulation library (^2.30.1).
+- Cors: Middleware for handling cross-origin resource sharing (^2.8.5).
+- Testing Libraries: Utilities for testing React components, including DOM and user events (^13.4.0, ^5.17.0, ^13.5.0).

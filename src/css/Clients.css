@@ -1,0 +1,103 @@
+/* General Container Styles */
+
+/* Title and Add Client Button */
+.d-flex {
+    /* margin-bottom: 2rem;*/
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #343a40;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+/* Form Styles */
+.form-control {
+    border-radius: 0.25rem;
+}
+
+.input-group {
+    border-radius: 0.25rem;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.form-select {
+    border-radius: 0.25rem;
+}
+
+/* Card Styles */
+.all-page-card {
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.all-page-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+.all-page-cardBody {
+    padding: 1.25rem;
+}
+
+.all-page-cardTitle {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.all-page-cardText {
+    font-size: 1rem;
+    color: #495057;
+}
+
+
+/* Modal Styles */
+.modal-content {
+    border-radius: 0.25rem;
+}
+
+.modal-header {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Spinner and Alert Styles */
+.spinner-border {
+    color: #007bff;
+}
+
+.alert {
+    border-radius: 0.25rem;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .d-flex {
+        flex-direction: column;
+
+    }
+
+    .btn-success {
+        margin-top: 1rem;
+    }
+
+    .form-select {
+        margin-top: 1rem;
+    }
+}

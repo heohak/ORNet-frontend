@@ -14,6 +14,7 @@ function Devices() {
     const [showAddDeviceModal, setShowAddDeviceModal] = useState(false);
     const [refresh, setRefresh] = useState(false); // State to trigger refresh
     const [showSummaryModal, setShowSummaryModal] = useState(false);
+    const [classificators, setClassificators] = useState({});
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -28,7 +29,22 @@ function Devices() {
             }
         };
 
+        const fetchClassificators = async() => {
+            try {
+                const response = await axios.get(`${config.API_BASE_URL}/device/classificator/all`)
+
+                const classificators = {};
+                response.data.forEach(classificator => {
+                    classificators[classificator.id] = classificator.name;
+                });
+                setClassificators(classificators)
+            } catch (error) {
+                console.error("Couldn't fetch device classificators", error);
+            }
+        }
+
         fetchDevices();
+        fetchClassificators();
     }, [refresh]);
 
     if (loading) {
@@ -69,13 +85,13 @@ function Devices() {
             <Row>
                 {devices.map((device) => (
                     <Col md={4} key={device.id} className="mb-4">
-                        <Card>
-                            <Card.Body>
-                                <Card.Title>{device.name}</Card.Title>
-                                <Card.Text>
-                                    <strong>Device Name:</strong> {device.deviceName}<br />
+                        <Card className='all-page-card' onClick={() => navigate(`/device/${device.id}`)}>
+                            <Card.Body className='all-page-cardBody'>
+                                <Card.Title className='all-page-cardTitle'><strong>Device Name: </strong>{device.deviceName}</Card.Title>
+                                <Card.Text className='all-page-cardText'>
+                                    <strong>Serial Number: </strong>{device.serialNumber}<br />
+                                    <strong>Type: </strong>{classificators[device.classificatorId] || "Unknown type"}
                                 </Card.Text>
-                                <Button onClick={() => navigate(`/device/${device.id}`)}>View Device</Button>
                             </Card.Body>
                         </Card>
                     </Col>

@@ -43,7 +43,12 @@ const ClientWorkersModal = ({ show, handleClose, clientId, selectedWorkers, onSa
             console.error('Error fetching work types:', error);
         }
         onSave(selectedWorkerIds);
-        handleClose();
+        handleClose(); // This will reset the selected workers
+    };
+
+    const handleCancel = () => {
+        setSelectedWorkerIds(selectedWorkers); // Reset to initial selection
+        handleClose(); // Close the modal
     };
 
     const handleAddContactClose = () => {
@@ -55,7 +60,7 @@ const ClientWorkersModal = ({ show, handleClose, clientId, selectedWorkers, onSa
     };
 
     return (
-        <Modal show={show} onHide={handleClose}>
+        <Modal show={show} onHide={handleCancel}> {/* Use handleCancel instead of handleClose */}
             <Modal.Header closeButton>
                 <Modal.Title>Select Client Workers</Modal.Title>
             </Modal.Header>
@@ -83,7 +88,7 @@ const ClientWorkersModal = ({ show, handleClose, clientId, selectedWorkers, onSa
                 Add a new contact
             </Button>
             <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
+                <Button variant="secondary" onClick={handleCancel}> {/* Use handleCancel */}
                     Cancel
                 </Button>
                 <Button variant="primary" onClick={()=> handleSave(ticketId)}>

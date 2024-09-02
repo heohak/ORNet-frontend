@@ -20,7 +20,6 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
     const [deviceClassificatorId, setDeviceClassificatorId] = useState('');
     const [softwareKey, setSoftwareKey] = useState('');
     const [introducedDate, setIntroducedDate] = useState('');
-    const [comment, setComment] = useState('');
     const [error, setError] = useState(null);
     const [locations, setLocations] = useState([]);
     const [locationId, setLocationId] = useState('');
@@ -82,7 +81,6 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                 subnetMask,
                 softwareKey,
                 introducedDate,
-                comment,
             });
 
             const deviceId = deviceResponse.data.token;

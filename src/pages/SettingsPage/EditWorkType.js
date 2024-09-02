@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Container, Form, Button, Alert } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
 import config from '../../config/config';
+import EditTicketStatusAndWorkTypeModal from "../../modals/EditTicketStatusAndWorkTypeModal";
+import DeleteConfirmationModal from "../../modals/DeleteConfirmationModal";
 
 function EditWorkType() {
     const location = useLocation();
@@ -10,6 +12,11 @@ function EditWorkType() {
     const { workType } = location.state || {}; // Get the workType passed from the previous page
     const [editedWorkType, setEditedWorkType] = useState(workType.workType);
     const [error, setError] = useState(null);
+
+    const [ticketList, setTicketList] = useState([]);
+    const [showEditTicketStatusModal, setShowEditTicketStatusModal] = useState(false);
+    const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
+    const historyEndpoint = "work-type/classificator/history"
 
     const handleUpdate = async (e) => {
         e.preventDefault();
@@ -23,18 +30,51 @@ function EditWorkType() {
         }
     };
 
+
     const handleDelete = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/search`, {
+                params: {
+                    workTypeId: workType.id
+                }
+            });
+            setTicketList(response.data);
+            if (response.data.length < 1) {
+                setShowDeleteConfirmationModal(true);
+            } else {
+                setShowEditTicketStatusModal(true);
+            }
+        } catch (error) {
+            setError(error.message);
+        }
+
+    };
+
+    const deleteClassificator = async() => {
         try {
             await axios.delete(`${config.API_BASE_URL}/work-type/classificator/${workType.id}`);
             navigate('/settings/work-types');
         } catch (error) {
-            setError(error.message);
+            setError(error.message)
+        }
+    }
+
+    const handleNavigate = () => {
+        if (workType && workType.id) {
+            navigate('/history', { state: { endpoint: `${historyEndpoint}/${workType.id}` } });
+        } else {
+            console.error("workType or workType.id is undefined");
         }
     };
 
     return (
         <Container className="mt-5">
-            <h1>Edit Work Type</h1>
+            <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                <h1>Edit Work Type</h1>
+                <Button variant="secondary" onClick={handleNavigate} className="mt-3 ms-3">
+                    See history
+                </Button>
+            </div>
             {error && (
                 <Alert variant="danger">
                     <Alert.Heading>Error</Alert.Heading>
@@ -62,6 +102,16 @@ function EditWorkType() {
                     Cancel
                 </Button>
             </Form>
+            <EditTicketStatusAndWorkTypeModal
+                show={showEditTicketStatusModal}
+                handleClose={() => setShowEditTicketStatusModal(false)}
+                ticketList={ticketList}
+            />
+            <DeleteConfirmationModal
+                show={showDeleteConfirmationModal}
+                handleClose={() => setShowDeleteConfirmationModal(false)}
+                handleDelete={deleteClassificator}
+            />
         </Container>
     );
 }
