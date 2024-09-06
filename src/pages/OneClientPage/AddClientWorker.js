@@ -71,7 +71,9 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
                     phoneNumber,
                     title,
                     location: locations.find(loc => loc.value === locationId),
+                    locationId: locationId,
                     roles: selectedRoles.map(role => role.label),
+                    roleIds: selectedRoles.map(role => role.value)
                 };
 
                 onSuccess(newWorker); // Call the onSuccess function with the new worker data
@@ -126,7 +128,9 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
             });
 
             const addedRole = response.data;
-            const newRoleOption = { value: addedRole.id, label: addedRole.role };
+            const id = parseInt(addedRole.token);  // Backend returns the id of a role as a string
+            const newRoleOption = { value: id, label: role };
+            console.log(newRoleOption);
 
             setRoles(prevRoles => [...prevRoles, newRoleOption]);
             setSelectedRoles(prevSelected => [...prevSelected, newRoleOption]);
