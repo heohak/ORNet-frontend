@@ -14,6 +14,7 @@ function ViewBaitWorkers() {
     const [email, setEmail] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [title, setTitle] = useState('');
+    const [phoneNumberError, setPhoneNumberError] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -31,7 +32,19 @@ function ViewBaitWorkers() {
         fetchWorkers();
     }, []);
 
-    const handleAddWorker = async () => {
+    const handleAddWorker = async (e) => {
+        e.preventDefault();
+        setError(null);
+        const trimmedPhoneNumber = phoneNumber.trim();
+        // Check if the phone number contains only digits
+        if (!/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
+            setPhoneNumberError('Phone number must contain only numbers and spaces, and may start with a +.');
+            return;
+        }
+        // Reset the error message if validation passes
+        setPhoneNumberError('');
+        setPhoneNumber(trimmedPhoneNumber);
+
         try {
             await axios.post(`${config.API_BASE_URL}/bait/worker/add`, {
                 firstName,
@@ -112,8 +125,8 @@ function ViewBaitWorkers() {
                 <Modal.Header closeButton>
                     <Modal.Title>Add Worker</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
-                    <Form>
+                <Form onSubmit={handleAddWorker}>
+                    <Modal.Body>
                         <Form.Group controlId="formFirstName">
                             <Form.Label>First Name</Form.Label>
                             <Form.Control
@@ -121,6 +134,7 @@ function ViewBaitWorkers() {
                                 value={firstName}
                                 onChange={(e) => setFirstName(e.target.value)}
                                 placeholder="Enter first name"
+                                required
                             />
                         </Form.Group>
                         <Form.Group controlId="formLastName" className="mt-3">
@@ -130,6 +144,7 @@ function ViewBaitWorkers() {
                                 value={lastName}
                                 onChange={(e) => setLastName(e.target.value)}
                                 placeholder="Enter last name"
+                                required
                             />
                         </Form.Group>
                         <Form.Group controlId="formEmail" className="mt-3">
@@ -139,6 +154,7 @@ function ViewBaitWorkers() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="Enter email"
+                                required
                             />
                         </Form.Group>
                         <Form.Group controlId="formPhoneNumber" className="mt-3">
@@ -148,7 +164,12 @@ function ViewBaitWorkers() {
                                 value={phoneNumber}
                                 onChange={(e) => setPhoneNumber(e.target.value)}
                                 placeholder="Enter phone number"
+                                required
+                                isInvalid={!!phoneNumberError} // Display error styling if there's an error
                             />
+                            <Form.Control.Feedback type="invalid">
+                                {phoneNumberError}
+                            </Form.Control.Feedback>
                         </Form.Group>
                         <Form.Group controlId="formTitle" className="mt-3">
                             <Form.Label>Title</Form.Label>
@@ -157,14 +178,15 @@ function ViewBaitWorkers() {
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                                 placeholder="Enter title"
+                                required
                             />
                         </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
-                    <Button variant="primary" onClick={handleAddWorker}>Add Worker</Button>
-                </Modal.Footer>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
+                        <Button variant="primary" type='submit'>Add Worker</Button>
+                    </Modal.Footer>
+                </Form>
             </Modal>
         </Container>
     );

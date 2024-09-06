@@ -21,6 +21,7 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
 
     const [showRoleModal, setShowRoleModal] = useState(false);
     const [newRole, setNewRole] = useState({ role: '' });
+    const [phoneNumberError, setPhoneNumberError] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -42,6 +43,15 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
+        const trimmedPhoneNumber = phoneNumber.trim();
+        // Check if the phone number contains only digits
+        if (!/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
+            setPhoneNumberError('Phone number must contain only numbers and spaces, and may start with a +.');
+            return;
+        }
+        // Reset the error message if validation passes
+        setPhoneNumberError('');
+        setPhoneNumber(trimmedPhoneNumber);
 
         try {
             const response = await axios.post(`${config.API_BASE_URL}/worker/add`, {
@@ -110,7 +120,6 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
             setShowLocationModal(false);
         } catch (error) {
             setError('Error adding location.');
-            console.error('Error adding location:', error);
         }
     };
 
@@ -187,7 +196,11 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
                         value={phoneNumber}
                         onChange={(e) => setPhoneNumber(e.target.value)}
                         required
+                        isInvalid={!!phoneNumberError} // Display error styling if there's an error
                     />
+                    <Form.Control.Feedback type="invalid">
+                        {phoneNumberError}
+                    </Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Title</Form.Label>
