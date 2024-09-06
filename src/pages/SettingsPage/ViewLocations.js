@@ -16,6 +16,9 @@ function ViewLocations() {
     const [postalCode, setPostalCode] = useState('');
     const [streetAddress, setStreetAddress] = useState('');
     const [phone, setPhone] = useState('');
+    const [phoneNumberError, setPhoneNumberError] = useState('');
+    const [postalCodeError, setPostalCodeError] = useState('');
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -33,7 +36,12 @@ function ViewLocations() {
         fetchLocations();
     }, []);
 
-    const handleAddLocation = async () => {
+    const handleAddLocation = async (e) => {
+        e.preventDefault();
+        setError(null);
+        if (!validatePhoneAndPostalCode()) {
+            return;
+        }
         try {
             const combinedAddress = `${streetAddress}, ${district}, ${city}, ${postalCode}, ${country}`;
             await axios.post(`${config.API_BASE_URL}/location/add`, {
@@ -56,6 +64,33 @@ function ViewLocations() {
             setError(error.message);
         }
     };
+
+    const validatePhoneAndPostalCode = () => {
+        const trimmedPhoneNumber = phone.trim();
+        const trimmedPostalCode = postalCode.trim();
+        let isValid = true; // Assume the validation is successful
+
+        // Validate phone number
+        if (!/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
+            setPhoneNumberError('Phone number must contain only numbers and spaces, and may start with a +.');
+            isValid = false; // Set validation flag to false
+        } else {
+            setPhoneNumberError('');
+            setPhone(trimmedPhoneNumber); // Set the trimmed phone number only if it's valid
+        }
+
+        // Validate postal code
+        if (!/^(?=.*\d)[A-Za-z\d\s-]+$/.test(trimmedPostalCode)) {
+            setPostalCodeError('Postal Code must contain at least 1 number and can contain letters.');
+            isValid = false; // Set validation flag to false
+        } else {
+            setPostalCodeError('');
+            setPostalCode(trimmedPostalCode); // Set the trimmed postal code only if it's valid
+        }
+
+        return isValid; // Return true if both validations passed, false otherwise
+    };
+
 
     return (
         <Container className="mt-5">
@@ -107,8 +142,8 @@ function ViewLocations() {
                 <Modal.Header closeButton>
                     <Modal.Title>Add Location</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
-                    <Form>
+                <Form onSubmit={handleAddLocation}>
+                    <Modal.Body>
                         <Form.Group controlId="formName">
                             <Form.Label>Name</Form.Label>
                             <Form.Control
@@ -157,7 +192,11 @@ function ViewLocations() {
                                 onChange={(e) => setPostalCode(e.target.value)}
                                 placeholder="Enter postal code"
                                 required
+                                isInvalid={!!postalCodeError} // Display error styling if there's an error
                             />
+                            <Form.Control.Feedback type="invalid">
+                                {postalCodeError}
+                            </Form.Control.Feedback>
                         </Form.Group>
                         <Form.Group controlId="formStreetAddress" className="mt-3">
                             <Form.Label>Street Address</Form.Label>
@@ -176,15 +215,18 @@ function ViewLocations() {
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
                                 placeholder="Enter phone number"
-                                required
+                                isInvalid={!!phoneNumberError} // Display error styling if there's an error
                             />
+                            <Form.Control.Feedback type="invalid">
+                                {phoneNumberError}
+                            </Form.Control.Feedback>
                         </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
-                    <Button variant="primary" onClick={handleAddLocation}>Add Location</Button>
-                </Modal.Footer>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
+                        <Button variant="primary" type="submit">Add Location</Button>
+                    </Modal.Footer>
+                </Form>
             </Modal>
         </Container>
     );

@@ -85,9 +85,11 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
 
             const workersWithRoles = await Promise.all(response.data.map(async worker => {
                 const rolesResponse = await axios.get(`${config.API_BASE_URL}/worker/role/${worker.id}`);
+                console.log(rolesResponse.data)
+                const sortedRoles = rolesResponse.data.sort((a, b) => a.id - b.id)
                 return {
                     ...worker,
-                    roles: rolesResponse.data
+                    roles: sortedRoles
                 };
             }));
 

@@ -47,6 +47,15 @@ function AddClient({ onClose }) {
         e.preventDefault();
         setError(null);
 
+        const today = new Date().toISOString().split("T")[0];
+
+        // Ensure Last Maintenance is not in the future
+        if (new Date(lastMaintenance) > new Date(today)) {
+            setError('Last Maintenance date cannot be in the future.');
+            return;
+        }
+
+        // Ensure Next Maintenance is after Last Maintenance
         if (new Date(nextMaintenance) < new Date(lastMaintenance)) {
             setError('Next maintenance date cannot be before the last maintenance date.');
             return;

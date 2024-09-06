@@ -10,6 +10,7 @@ function AddThirdPartyIT({ clientId, onClose, setRefresh }) {
     const [error, setError] = useState(null);
 
     const [showThirdPartyModal, setShowThirdPartyModal] = useState(false);
+    const [phoneNumberError, setPhoneNumberError] = useState('');
     const [newThirdParty, setNewThirdParty] = useState({ name: '', email: '', phone: '' });
 
     useEffect(() => {
@@ -43,7 +44,20 @@ function AddThirdPartyIT({ clientId, onClose, setRefresh }) {
         }
     };
 
-    const handleAddThirdParty = async () => {
+    const handleAddThirdParty = async (e) => {
+        e.preventDefault();
+        const trimmedPhoneNumber = newThirdParty.phone.trim();
+
+        // Check if the phone number contains only digits and allowed characters
+        if (!/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
+            setPhoneNumberError('Phone number must contain only numbers and spaces, and may start with a +.');
+            return false;
+        }
+
+        // Reset the error message if validation passes
+        setPhoneNumberError('');
+        setNewThirdParty({ ...newThirdParty, phone: trimmedPhoneNumber });
+
         const { name, email, phone } = newThirdParty;
 
         if (!name.trim() || !email.trim() || !phone.trim()) {
@@ -101,39 +115,45 @@ function AddThirdPartyIT({ clientId, onClose, setRefresh }) {
                 <Modal.Header closeButton>
                     <Modal.Title>Add New Third-Party IT</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Third-Party Name</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={newThirdParty.name}
-                            onChange={(e) => setNewThirdParty({ ...newThirdParty, name: e.target.value })}
-                            required
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Email</Form.Label>
-                        <Form.Control
-                            type="email"
-                            value={newThirdParty.email}
-                            onChange={(e) => setNewThirdParty({ ...newThirdParty, email: e.target.value })}
-                            required
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Phone</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={newThirdParty.phone}
-                            onChange={(e) => setNewThirdParty({ ...newThirdParty, phone: e.target.value })}
-                            required
-                        />
-                    </Form.Group>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowThirdPartyModal(false)}>Cancel</Button>
-                    <Button variant="primary" onClick={handleAddThirdParty}>Add Third-Party IT</Button>
-                </Modal.Footer>
+                <Form onSubmit={handleAddThirdParty}>
+                    <Modal.Body>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Third-Party Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={newThirdParty.name}
+                                onChange={(e) => setNewThirdParty({ ...newThirdParty, name: e.target.value })}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Email</Form.Label>
+                            <Form.Control
+                                type="email"
+                                value={newThirdParty.email}
+                                onChange={(e) => setNewThirdParty({ ...newThirdParty, email: e.target.value })}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Phone</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={newThirdParty.phone}
+                                onChange={(e) => setNewThirdParty({ ...newThirdParty, phone: e.target.value })}
+                                required
+                                isInvalid={!!phoneNumberError} // Display error styling if there's an error
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                {phoneNumberError}
+                            </Form.Control.Feedback>
+                        </Form.Group>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowThirdPartyModal(false)}>Cancel</Button>
+                        <Button variant="primary" type='submit'>Add Third-Party IT</Button>
+                    </Modal.Footer>
+                </Form>
             </Modal>
         </Container>
     );

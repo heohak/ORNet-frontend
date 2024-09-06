@@ -10,6 +10,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles }) 
     const [selectedRoles, setSelectedRoles] = useState([]);
     const [locations, setLocations] = useState([]);
     const [selectedLocation, setSelectedLocation] = useState(null);
+    const [phoneNumberError, setPhoneNumberError] = useState('');
 
     useEffect(() => {
         if (worker) {
@@ -48,6 +49,18 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles }) 
 
     const handleUpdateWorker = async (e) => {
         e.preventDefault();
+        const trimmedPhoneNumber = editingWorker.phoneNumber.trim();
+
+        // Check if the phone number contains only digits and allowed characters
+        if (!/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
+            setPhoneNumberError('Phone number must contain only numbers and spaces, and may start with a +.');
+            return false;
+        }
+
+        // Reset the error message if validation passes
+        setPhoneNumberError('');
+        setEditingWorker({ ...editingWorker, phoneNumber: trimmedPhoneNumber });
+
         try {
             const updatedWorker = {
                 ...editingWorker,
@@ -74,6 +87,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles }) 
                         <Form.Group className="mb-3">
                             <Form.Label>First Name</Form.Label>
                             <Form.Control
+                                required
                                 type="text"
                                 value={editingWorker.firstName}
                                 onChange={(e) => setEditingWorker({ ...editingWorker, firstName: e.target.value })}
@@ -82,6 +96,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles }) 
                         <Form.Group className="mb-3">
                             <Form.Label>Last Name</Form.Label>
                             <Form.Control
+                                required
                                 type="text"
                                 value={editingWorker.lastName}
                                 onChange={(e) => setEditingWorker({ ...editingWorker, lastName: e.target.value })}
@@ -90,6 +105,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles }) 
                         <Form.Group className="mb-3">
                             <Form.Label>Email</Form.Label>
                             <Form.Control
+                                required
                                 type="email"
                                 value={editingWorker.email}
                                 onChange={(e) => setEditingWorker({ ...editingWorker, email: e.target.value })}
@@ -98,14 +114,20 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles }) 
                         <Form.Group className="mb-3">
                             <Form.Label>Phone Number</Form.Label>
                             <Form.Control
+                                required
                                 type="text"
                                 value={editingWorker.phoneNumber}
                                 onChange={(e) => setEditingWorker({ ...editingWorker, phoneNumber: e.target.value })}
+                                isInvalid={!!phoneNumberError} // Display error styling if there's an error
                             />
+                            <Form.Control.Feedback type="invalid">
+                                {phoneNumberError}
+                            </Form.Control.Feedback>
                         </Form.Group>
                         <Form.Group className="mb-3">
                             <Form.Label>Title</Form.Label>
                             <Form.Control
+                                required
                                 type="text"
                                 value={editingWorker.title}
                                 onChange={(e) => setEditingWorker({ ...editingWorker, title: e.target.value })}

@@ -83,6 +83,20 @@ function EditClient() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const today = new Date().toISOString().split("T")[0];
+
+        // Ensure Last Maintenance is not in the future
+        if (new Date(clientData.lastMaintenance) > new Date(today)) {
+            setError('Last Maintenance date cannot be in the future.');
+            return;
+        }
+
+        // Ensure Next Maintenance is after Last Maintenance
+        if (new Date(clientData.nextMaintenance) < new Date(clientData.lastMaintenance)) {
+            setError('Next Maintenance date cannot be before the Last Maintenance date.');
+            return;
+        }
         try {
             // Submit only the locationIds, not the full location objects
             const updatedClientData = {
