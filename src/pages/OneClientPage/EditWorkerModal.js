@@ -74,6 +74,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles }) 
                         <Form.Group className="mb-3">
                             <Form.Label>First Name</Form.Label>
                             <Form.Control
+                                required
                                 type="text"
                                 value={editingWorker.firstName}
                                 onChange={(e) => setEditingWorker({ ...editingWorker, firstName: e.target.value })}
@@ -82,6 +83,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles }) 
                         <Form.Group className="mb-3">
                             <Form.Label>Last Name</Form.Label>
                             <Form.Control
+                                required
                                 type="text"
                                 value={editingWorker.lastName}
                                 onChange={(e) => setEditingWorker({ ...editingWorker, lastName: e.target.value })}
@@ -90,6 +92,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles }) 
                         <Form.Group className="mb-3">
                             <Form.Label>Email</Form.Label>
                             <Form.Control
+                                required
                                 type="email"
                                 value={editingWorker.email}
                                 onChange={(e) => setEditingWorker({ ...editingWorker, email: e.target.value })}
@@ -98,6 +101,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles }) 
                         <Form.Group className="mb-3">
                             <Form.Label>Phone Number</Form.Label>
                             <Form.Control
+                                required
                                 type="text"
                                 value={editingWorker.phoneNumber}
                                 onChange={(e) => setEditingWorker({ ...editingWorker, phoneNumber: e.target.value })}
@@ -106,6 +110,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles }) 
                         <Form.Group className="mb-3">
                             <Form.Label>Title</Form.Label>
                             <Form.Control
+                                required
                                 type="text"
                                 value={editingWorker.title}
                                 onChange={(e) => setEditingWorker({ ...editingWorker, title: e.target.value })}
