@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import {Container, Form, Button, Alert, ListGroup, Row, Col, Modal} from 'react-bootstrap';
@@ -31,8 +31,14 @@ function EditClient() {
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [error, setError] = useState(null);
     const [allLocations, setAllLocations] = useState([]);
+    const errorRef = useRef(null);
 
     useEffect(() => {
+
+        if (error && errorRef.current) {
+            errorRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+
         const fetchClientData = async () => {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/client/${clientId}`);
@@ -55,7 +61,7 @@ function EditClient() {
 
         fetchClientData();
         fetchLocations();
-    }, [clientId]);
+    }, [clientId, error]);
 
     const fetchLocations = async () => {
         try {
@@ -166,7 +172,11 @@ function EditClient() {
     return (
         <Container className="mt-5">
             <h1>Edit Client</h1>
-            {error && <Alert variant="danger">{error}</Alert>}
+            {error && (
+                <Alert ref={errorRef} variant="danger" onClose={() => setError(null)} dismissible>
+                    {error}
+                </Alert>
+            )}
             <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3">
                     <Form.Label>Full Name</Form.Label>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Form, Button, Alert, Modal } from 'react-bootstrap';
 import Select from 'react-select';
@@ -26,7 +26,12 @@ function AddClient({ onClose }) {
     const [showThirdPartyModal, setShowThirdPartyModal] = useState(false);
     const [newThirdParty, setNewThirdParty] = useState({ name: '', email: '', phone: '' });
 
+    const errorRef = useRef(null);
+
     useEffect(() => {
+        if (error && errorRef.current) {
+            errorRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
         const fetchLocationsAndThirdParties = async () => {
             try {
                 const [locationsResponse, thirdPartiesResponse] = await Promise.all([
@@ -41,7 +46,7 @@ function AddClient({ onClose }) {
         };
 
         fetchLocationsAndThirdParties();
-    }, []);
+    }, [error]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -145,9 +150,8 @@ function AddClient({ onClose }) {
     return (
         <div>
             {error && (
-                <Alert variant="danger">
-                    <Alert.Heading>Error</Alert.Heading>
-                    <p>{error}</p>
+                <Alert ref={errorRef} variant="danger" onClose={() => setError(null)} dismissible>
+                    {error}
                 </Alert>
             )}
             <Form onSubmit={handleSubmit}>
