@@ -123,7 +123,7 @@ function EditDevice() {
                         name="clientId"
                         value={deviceData.clientId}
                         onChange={handleInputChange}
-                        required
+                        disabled
                     >
                         <option value="">Select Client</option>
                         {clients.map(client => (

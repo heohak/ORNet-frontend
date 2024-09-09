@@ -178,7 +178,7 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
 
     return (
         <>
-            <Button onClick={() => navigate(-1)}>Back</Button>
+            <Button onClick={() => navigate(`/client/${device.clientId}`)}>Back</Button>
             <Button onClick={handleNavigate} variant='secondary'>
                 See device history
             </Button>

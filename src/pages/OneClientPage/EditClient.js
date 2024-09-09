@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Form, Button, Alert, ListGroup, Row, Col } from 'react-bootstrap';
+import {Container, Form, Button, Alert, ListGroup, Row, Col, Modal} from 'react-bootstrap';
 import config from '../../config/config';
 
 function EditClient() {
@@ -19,10 +19,26 @@ function EditClient() {
         locationIds: [],
         locations: [], // This will store location objects
     });
+    const [newLocation, setNewLocation] = useState({
+        name: '',
+        city: '',
+        country: '',
+        district: '',
+        postalCode: '',
+        streetAddress: '',
+        phone: ''
+    });
+    const [showLocationModal, setShowLocationModal] = useState(false);
     const [error, setError] = useState(null);
     const [allLocations, setAllLocations] = useState([]);
+    const errorRef = useRef(null);
 
     useEffect(() => {
+
+        if (error && errorRef.current) {
+            errorRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+
         const fetchClientData = async () => {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/client/${clientId}`);
@@ -41,18 +57,20 @@ function EditClient() {
             }
         };
 
-        const fetchLocations = async () => {
-            try {
-                const response = await axios.get(`${config.API_BASE_URL}/location/all`);
-                setAllLocations(response.data);
-            } catch (error) {
-                setError(error.message);
-            }
-        };
+
 
         fetchClientData();
         fetchLocations();
-    }, [clientId]);
+    }, [clientId, error]);
+
+    const fetchLocations = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/location/all`);
+            setAllLocations(response.data);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -79,6 +97,41 @@ function EditClient() {
             locations: clientData.locations.filter((loc) => loc.id !== locationId),
             locationIds: clientData.locationIds.filter((id) => id !== locationId),
         });
+    };
+
+    const handleAddLocation = async () => {
+        const { name, city, country, district, postalCode, streetAddress, phone } = newLocation;
+
+        if (!name.trim() || !city.trim() || !country.trim() || !district.trim() || !postalCode.trim() || !streetAddress.trim() || !phone.trim()) {
+            setError('Please fill in all fields for the new location.');
+            return;
+        }
+
+        const combinedAddress = `${streetAddress}, ${district}, ${city}, ${postalCode}, ${country}`;
+
+        try {
+            const response = await axios.post(`${config.API_BASE_URL}/location/add`, {
+                name,
+                address: combinedAddress,
+                phone,
+            });
+
+            const addedLocation = response.data;
+            setAllLocations(prevLocations => [...prevLocations, addedLocation]);
+            await fetchLocations(); // Silent refresh
+            setShowLocationModal(false);
+            setNewLocation({  // After adding make the fields empty again
+                name: '',
+                city: '',
+                country: '',
+                district: '',
+                postalCode: '',
+                streetAddress: '',
+                phone: ''});
+        } catch (error) {
+            setError('Error adding location.');
+            console.error('Error adding location:', error);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -119,7 +172,11 @@ function EditClient() {
     return (
         <Container className="mt-5">
             <h1>Edit Client</h1>
-            {error && <Alert variant="danger">{error}</Alert>}
+            {error && (
+                <Alert ref={errorRef} variant="danger" onClose={() => setError(null)} dismissible>
+                    {error}
+                </Alert>
+            )}
             <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3">
                     <Form.Label>Full Name</Form.Label>
@@ -228,10 +285,87 @@ function EditClient() {
                             </option>
                         ))}
                     </Form.Select>
+                    <Form.Text className="text-muted">
+                        Can't find the location? <Button variant="link" onClick={() => setShowLocationModal(true)}>Add New</Button>
+                    </Form.Text>
                 </Form.Group>
                 <Button variant="success" type="submit">Save Changes</Button>
                 <Button variant="secondary" className="ms-3" onClick={() => navigate(`/client/${clientId}`)}>Cancel</Button>
             </Form>
+            <Modal show={showLocationModal} onHide={() => setShowLocationModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Add New Location</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Location Name</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.name}
+                            onChange={(e) => setNewLocation(prev => ({ ...prev, name: e.target.value }))}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>City</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.city}
+                            onChange={(e) => setNewLocation(prev => ({ ...prev, city: e.target.value }))}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Country</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.country}
+                            onChange={(e) => setNewLocation(prev => ({ ...prev, country: e.target.value }))}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>District</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.district}
+                            onChange={(e) => setNewLocation(prev => ({ ...prev, district: e.target.value }))}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Postal Code</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.postalCode}
+                            onChange={(e) => setNewLocation(prev => ({ ...prev, postalCode: e.target.value }))}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Street Address</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.streetAddress}
+                            onChange={(e) => setNewLocation(prev => ({ ...prev, streetAddress: e.target.value }))}
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Phone</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.phone}
+                            onChange={(e) => setNewLocation(prev => ({ ...prev, phone: e.target.value }))}
+                            required
+                        />
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowLocationModal(false)}>Cancel</Button>
+                    <Button variant="primary" onClick={handleAddLocation}>Add Location</Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 }
