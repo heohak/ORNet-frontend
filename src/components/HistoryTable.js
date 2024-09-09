@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, Container } from 'react-bootstrap';
+import {Table, Container, Button} from 'react-bootstrap';
 import config from "../config/config";
 import '../css/HistoryTable.css';
-import { useLocation } from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 
 function HistoryTable() {
     const location = useLocation();
@@ -19,6 +19,7 @@ function HistoryTable() {
     const [fileNames, setFileNames] = useState({});
     const [comments, setComments] = useState({});
     const [thirdPartyNames, setThirdPartyNames] = useState({});
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -163,47 +164,52 @@ function HistoryTable() {
     const booleanHeaders = ['surgeryClient', 'editorClient', 'pathologyClient']
 
     return (
-        <Container fluid className="mt-4 table-wrapper">
-            <Table striped bordered hover>
-                <thead>
-                <tr>
-                    {allHeaders.map((header, index) => (
-                        <th key={index}>
-                            {header.replace(/$|Id/, '')} {/* Remove 'Id' or 'Ids' suffix */}
-                        </th>
-                    ))}
-                </tr>
-                </thead>
-                <tbody>
-                {data.map((item, index) => (
-                    <tr key={index}>
-                        {baseHeaders.map((header, index) => (
-                            <td key={index}>
-                                {/* Replace IDs with fetched names, handle multiple IDs */}
-                                {header === 'clientId' ? clientNames[item[header]] || item[header] :
-                                    header === 'classificatorId' ? classificatorNames[item[header]] || item[header] :
-                                        header === 'locationId' ? locationNames[item[header]] || item[header] :
-                                            header === 'maintenanceIds' ? item[header].map(id => maintenanceNames[id] || id).join(', ') :
-                                                header === 'fileIds' ? item[header].map(id => fileNames[id] || id).join(', ') :
-                                                    header === 'commentIds' ? item[header].map(id => comments[id] || id).join(', ') :
-                                                        header === 'locationIds' ? item[header].map(id => locationNames[id] || id).join(', ') :
-                                                            header === 'thirdPartyIds' ? item[header].map(id => thirdPartyNames[id] || id).join(', ') :
-                                                                booleanHeaders.includes(header) && item[header] ? 'Yes' :
-                                                                    booleanHeaders.includes(header) ? 'No' :
-                                                            item[header]}
-                            </td>
+        <>
+            <Container fluid className="mt-4 table-wrapper">
+                <Button className="mb-3" onClick={() => navigate(-1)}>
+                    Back
+                </Button>
+                <Table striped bordered hover>
+                    <thead>
+                    <tr>
+                        {allHeaders.map((header, index) => (
+                            <th key={index}>
+                                {header.replace(/$|Id/, '')} {/* Remove 'Id' or 'Ids' suffix */}
+                            </th>
                         ))}
-                        {attributeKeys.map((attrKey, index) => (
-                            <td key={index}>
-                                {item.attributes && item.attributes[attrKey] ? item.attributes[attrKey] : ''}
-                            </td>
-                        ))}
-                        {/* New columns for ThirdPartyIds and boolean fields */}
                     </tr>
-                ))}
-                </tbody>
-            </Table>
-        </Container>
+                    </thead>
+                    <tbody>
+                    {data.map((item, index) => (
+                        <tr key={index}>
+                            {baseHeaders.map((header, index) => (
+                                <td key={index}>
+                                    {/* Replace IDs with fetched names, handle multiple IDs */}
+                                    {header === 'clientId' ? clientNames[item[header]] || item[header] :
+                                        header === 'classificatorId' ? classificatorNames[item[header]] || item[header] :
+                                            header === 'locationId' ? locationNames[item[header]] || item[header] :
+                                                header === 'maintenanceIds' ? item[header].map(id => maintenanceNames[id] || id).join(', ') :
+                                                    header === 'fileIds' ? item[header].map(id => fileNames[id] || id).join(', ') :
+                                                        header === 'commentIds' ? item[header].map(id => comments[id] || id).join(', ') :
+                                                            header === 'locationIds' ? item[header].map(id => locationNames[id] || id).join(', ') :
+                                                                header === 'thirdPartyIds' ? item[header].map(id => thirdPartyNames[id] || id).join(', ') :
+                                                                    booleanHeaders.includes(header) && item[header] ? 'Yes' :
+                                                                        booleanHeaders.includes(header) ? 'No' :
+                                                                item[header]}
+                                </td>
+                            ))}
+                            {attributeKeys.map((attrKey, index) => (
+                                <td key={index}>
+                                    {item.attributes && item.attributes[attrKey] ? item.attributes[attrKey] : ''}
+                                </td>
+                            ))}
+                            {/* New columns for ThirdPartyIds and boolean fields */}
+                        </tr>
+                    ))}
+                    </tbody>
+                </Table>
+            </Container>
+        </>
     );
 }
 
