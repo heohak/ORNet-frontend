@@ -25,17 +25,8 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
     const [locationId, setLocationId] = useState('');
     const [classificators, setClassificators] = useState([]);
     const [showClassificatorModal, setShowClassificatorModal] = useState(false);
-    const [showLocationModal, setShowLocationModal] = useState(false);
     const [newClassificator, setNewClassificator] = useState('');
-    const [newLocation, setNewLocation] = useState({
-        name: '',
-        city: '',
-        country: '',
-        district: '',
-        postalCode: '',
-        streetAddress: '',
-        phone: ''
-    });
+
 
 
     useEffect(() => {
@@ -45,7 +36,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
     const fetchData = async () => {
         try {
             const [locationsRes, classificatorsRes] = await Promise.all([
-                axios.get(`${config.API_BASE_URL}/location/all`),
+                axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`),
                 axios.get(`${config.API_BASE_URL}/device/classificator/all`)
             ]);
 
@@ -122,36 +113,6 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
         } catch (error) {
             setError('Error adding classificator.');
             console.error('Error adding classificator:', error);
-        }
-    };
-
-    const handleAddLocation = async () => {
-        const { name, city, country, district, postalCode, streetAddress, phone } = newLocation;
-
-        if (!name.trim() || !city.trim() || !country.trim() || !district.trim() || !postalCode.trim() || !streetAddress.trim() || !phone.trim()) {
-            setError('Please fill in all fields for the new location.');
-            return;
-        }
-
-        const combinedAddress = `${streetAddress}, ${district}, ${city}, ${postalCode}, ${country}`;
-
-        try {
-            const response = await axios.post(`${config.API_BASE_URL}/location/add`, {
-                name,
-                address: combinedAddress,
-                phone,
-            });
-
-            const addedLocation = response.data;
-            const newLocationOption = { value: addedLocation.id, label: addedLocation.name };
-            setLocations(prevLocations => [...prevLocations, newLocationOption]);
-            setLocationId(addedLocation.id);
-            setNewLocation({ name: '', city: '', country: '', district: '', postalCode: '', streetAddress: '', phone: '' });
-            await fetchData(); // Silent refresh
-            setShowLocationModal(false);
-        } catch (error) {
-            setError('Error adding location.');
-            console.error('Error adding location:', error);
         }
     };
 
@@ -292,9 +253,6 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                         value={locations.find(loc => loc.value === locationId)}
                         onChange={(selectedOption) => setLocationId(selectedOption.value)}
                     />
-                    <Form.Text className="text-muted">
-                        Can't find the location? <Button variant="link" onClick={() => setShowLocationModal(true)}>Add New</Button>
-                    </Form.Text>
                 </Form.Group>
 
 
@@ -324,80 +282,6 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                 </Modal.Footer>
             </Modal>
 
-            <Modal show={showLocationModal} onHide={() => setShowLocationModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Add New Location</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Location Name</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={newLocation.name}
-                            onChange={(e) => setNewLocation(prev => ({ ...prev, name: e.target.value }))}
-                            required
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>City</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={newLocation.city}
-                            onChange={(e) => setNewLocation(prev => ({ ...prev, city: e.target.value }))}
-                            required
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Country</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={newLocation.country}
-                            onChange={(e) => setNewLocation(prev => ({ ...prev, country: e.target.value }))}
-                            required
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>District</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={newLocation.district}
-                            onChange={(e) => setNewLocation(prev => ({ ...prev, district: e.target.value }))}
-                            required
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Postal Code</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={newLocation.postalCode}
-                            onChange={(e) => setNewLocation(prev => ({ ...prev, postalCode: e.target.value }))}
-                            required
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Street Address</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={newLocation.streetAddress}
-                            onChange={(e) => setNewLocation(prev => ({ ...prev, streetAddress: e.target.value }))}
-                            required
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Phone</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={newLocation.phone}
-                            onChange={(e) => setNewLocation(prev => ({ ...prev, phone: e.target.value }))}
-                            required
-                        />
-                    </Form.Group>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowLocationModal(false)}>Cancel</Button>
-                    <Button variant="primary" onClick={handleAddLocation}>Add Location</Button>
-                </Modal.Footer>
-            </Modal>
 
         </Container>
     );
