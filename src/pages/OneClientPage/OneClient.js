@@ -22,11 +22,32 @@ function OneClient() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [refresh, setRefresh] = useState(false); // State to trigger refresh
+    const [locations, setLocations] = useState([])
+    const [locationsMap, setLocationsMap] =useState([])
 
     const navigate = useNavigate();
 
+    const fetchClientLocations = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`);
+            setLocations(response.data); // Keep the original array for ClientDetails
+
+            // Also create a location map for ClientDevices
+            const locationMap = response.data.reduce((acc, loc) => {
+                acc[loc.id] = loc.name;
+                return acc;
+            }, {});
+            setLocationsMap(locationMap); // Use this for ClientDevices
+        } catch (error) {
+            setError('Error fetching client locations');
+        }
+    };
+
+
+
     useEffect(() => {
         const fetchData = async () => {
+
             try {
                 const [clientRes, deviceRes, workerRes, softwareRes, ticketsRes, maintenanceRes] = await Promise.all([
                     axios.get(`${config.API_BASE_URL}/client/${clientId}`),
@@ -50,6 +71,7 @@ function OneClient() {
         };
 
         fetchData();
+        fetchClientLocations()
     }, [clientId, refresh]); // Add refresh as a dependency
 
     if (loading) {
@@ -75,7 +97,9 @@ function OneClient() {
 
     return (
         <Container className="mt-5">
-            <ClientDetails client={client} navigate={navigate} />
+            <ClientDetails client={client}
+                           navigate={navigate}
+            locations={locations}/>
             <Row>
                 <Col md={6}>
                     <ClientDevices
@@ -83,6 +107,7 @@ function OneClient() {
                         client={client}
                         clientId={clientId}
                         setRefresh={setRefresh}
+                        locations={locationsMap}
                     />
                 </Col>
                 <Col md={6}>

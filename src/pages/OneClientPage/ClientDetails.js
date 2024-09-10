@@ -10,16 +10,14 @@ const specificFields = [
     'fullName', 'shortName', 'pathologyClient', 'surgeryClient', 'editorClient', 'otherMedicalInformation', 'lastMaintenance', 'nextMaintenance'
 ];
 
-function ClientDetails({ client, navigate }) {
+function ClientDetails({ client, navigate, locations }) {
     const [showClientFieldModal, setShowClientFieldModal] = useState(false);
     const [visibleDeviceFields, setVisibleDeviceFields] = useState({});
-    const [clientLocations, setClientLocations] = useState([]);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         if (client) {
             initializeVisibleFields(client);
-            fetchClientLocations(client.id);
         }
     }, [client]);
 
@@ -38,14 +36,7 @@ function ClientDetails({ client, navigate }) {
         }
     };
 
-    const fetchClientLocations = async (clientId) => {
-        try {
-            const response = await axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`);
-            setClientLocations(response.data);
-        } catch (error) {
-            setError('Error fetching client locations');
-        }
-    };
+
 
     const handleFieldToggle = (field) => {
         setVisibleDeviceFields(prevVisibleFields => {
@@ -122,8 +113,8 @@ function ClientDetails({ client, navigate }) {
                         <Accordion.Item eventKey="0">
                             <Accordion.Header>Locations</Accordion.Header>
                             <Accordion.Body>
-                                {clientLocations.length > 0 ? (
-                                    clientLocations.map(location => (
+                                {locations.length > 0 ? (
+                                    locations.map(location => (
                                         <Card key={location.id} className="mb-2">
                                             <Card.Body>
                                                 <Card.Title>{location.name}</Card.Title>
