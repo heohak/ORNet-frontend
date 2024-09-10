@@ -252,6 +252,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                         options={locations.map(location => ({ value: location.id, label: location.name }))}
                         value={locations.find(loc => loc.value === locationId)}
                         onChange={(selectedOption) => setLocationId(selectedOption.value)}
+                        required
                     />
                 </Form.Group>
 
