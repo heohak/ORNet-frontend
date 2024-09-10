@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Container, Row, Col, Card, Button, Spinner, Alert, Modal, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import config from '../../config/config';
+import {validatePhoneAndPostalCode} from "../../utils/Validation";
 
 function ViewLocations() {
     const [locations, setLocations] = useState([]);
@@ -39,56 +40,38 @@ function ViewLocations() {
     const handleAddLocation = async (e) => {
         e.preventDefault();
         setError(null);
-        if (!validatePhoneAndPostalCode()) {
-            return;
-        }
-        try {
-            const combinedAddress = `${streetAddress}, ${district}, ${city}, ${postalCode}, ${country}`;
-            await axios.post(`${config.API_BASE_URL}/location/add`, {
-                name,
-                address: combinedAddress,
-                phone
-            });
-            const response = await axios.get(`${config.API_BASE_URL}/location/all`);
-            setLocations(response.data);
-            setShowAddModal(false);
-            // Clear the form fields
-            setName('');
-            setCity('');
-            setCountry('');
-            setDistrict('');
-            setPostalCode('');
-            setStreetAddress('');
-            setPhone('');
-        } catch (error) {
-            setError(error.message);
-        }
-    };
 
-    const validatePhoneAndPostalCode = () => {
-        const trimmedPhoneNumber = phone.trim();
-        const trimmedPostalCode = postalCode.trim();
-        let isValid = true; // Assume the validation is successful
-
-        // Validate phone number
-        if (!/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
-            setPhoneNumberError('Phone number must contain only numbers and spaces, and may start with a +.');
-            isValid = false; // Set validation flag to false
-        } else {
-            setPhoneNumberError('');
-            setPhone(trimmedPhoneNumber); // Set the trimmed phone number only if it's valid
+        const isValid = validatePhoneAndPostalCode(
+            phone,
+            postalCode,
+            setPhoneNumberError,
+            setPostalCodeError,
+            setPhone,
+            setPostalCode
+        );
+        if (isValid) {
+            try {
+                const combinedAddress = `${streetAddress}, ${district}, ${city}, ${postalCode}, ${country}`;
+                await axios.post(`${config.API_BASE_URL}/location/add`, {
+                    name,
+                    address: combinedAddress,
+                    phone
+                });
+                const response = await axios.get(`${config.API_BASE_URL}/location/all`);
+                setLocations(response.data);
+                setShowAddModal(false);
+                // Clear the form fields
+                setName('');
+                setCity('');
+                setCountry('');
+                setDistrict('');
+                setPostalCode('');
+                setStreetAddress('');
+                setPhone('');
+            } catch (error) {
+                setError(error.message);
+            }
         }
-
-        // Validate postal code
-        if (!/^(?=.*\d)[A-Za-z\d\s-]+$/.test(trimmedPostalCode)) {
-            setPostalCodeError('Postal Code must contain at least 1 number and can contain letters.');
-            isValid = false; // Set validation flag to false
-        } else {
-            setPostalCodeError('');
-            setPostalCode(trimmedPostalCode); // Set the trimmed postal code only if it's valid
-        }
-
-        return isValid; // Return true if both validations passed, false otherwise
     };
 
 
