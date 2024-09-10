@@ -251,6 +251,7 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                 worker={selectedWorker}
                 onUpdateSuccess={handleUpdateSuccess}
                 roles={roles}
+                clientId={clientId}
             />
 
             <Modal show={showAddRoleModal} onHide={() => setShowAddRoleModal(false)}>

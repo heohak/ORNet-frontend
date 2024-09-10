@@ -4,7 +4,7 @@ import axios from 'axios';
 import config from "../../config/config";
 import Select from 'react-select';
 
-function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles }) {
+function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, clientId }) {
     const [editingWorker, setEditingWorker] = useState(worker || {});
     const [availableRoles, setAvailableRoles] = useState([]);
     const [selectedRoles, setSelectedRoles] = useState([]);
@@ -38,7 +38,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles }) 
 
     const fetchLocations = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/location/all`);
+            const response = await axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`);
             const fetchedLocations = response.data.map(location => ({ value: location.id, label: location.name }));
             setLocations(fetchedLocations);
             setSelectedLocation(fetchedLocations.find(location => location.value === worker.locationId));
