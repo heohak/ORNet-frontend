@@ -27,7 +27,7 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
         const fetchData = async () => {
             try {
                 const [locationsResponse, rolesResponse] = await Promise.all([
-                    axios.get(`${config.API_BASE_URL}/location/all`),
+                    axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/worker/classificator/all`)
                 ]);
                 setLocations(locationsResponse.data.map(loc => ({ value: loc.id, label: loc.name })));
