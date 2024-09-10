@@ -152,12 +152,15 @@ function HistoryTable() {
     if (loading) return <p>Loading...</p>;
     if (error) return <p>{error}</p>;
 
-    if (data.length === 0) return <p>No data available</p>;
 
     // Extract keys from the first object to create table headers (excluding attributes)
-    const baseHeaders = Object.keys(data[0]).filter(key => key !== 'attributes');
+// Check if data has at least one item before accessing data[0]
+    const baseHeaders = data.length > 0 ? Object.keys(data[0]).filter(key => key !== 'attributes') : [];
 
-    baseHeaders.splice(0, 1); // Removes the id field, it is always the first
+// Proceed only if baseHeaders has values
+    if (baseHeaders.length > 0) {
+        baseHeaders.splice(0, 1); // Removes the id field, it is always the first
+    }
 
     // Combine base headers with dynamic attribute keys
     const allHeaders = [...baseHeaders, ...attributeKeys];
@@ -169,6 +172,9 @@ function HistoryTable() {
                 <Button className="mb-3" onClick={() => navigate(-1)}>
                     Back
                 </Button>
+                {data.length === 0 ? (
+                    <p>No data available</p>
+                ) : (
                 <Table striped bordered hover>
                     <thead>
                     <tr>
@@ -208,6 +214,7 @@ function HistoryTable() {
                     ))}
                     </tbody>
                 </Table>
+                    )}
             </Container>
         </>
     );
