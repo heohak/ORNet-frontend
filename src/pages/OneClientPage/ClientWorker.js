@@ -85,7 +85,6 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
 
             const workersWithRoles = await Promise.all(response.data.map(async worker => {
                 const rolesResponse = await axios.get(`${config.API_BASE_URL}/worker/role/${worker.id}`);
-                console.log(rolesResponse.data)
                 const sortedRoles = rolesResponse.data.sort((a, b) => a.id - b.id)
                 return {
                     ...worker,
@@ -168,6 +167,8 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
         }
     };
 
+
+
     return (
         <>
             <h2 className="mb-4">Workers</h2>
@@ -215,7 +216,7 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                                             <Button variant="link" onClick={() => handleEditWorker(worker)}>
                                                 Edit
                                             </Button>
-                                            <Button variant="link" onClick={() => { setSelectedWorkerId(worker.id); setShowAddRoleModal(true); }}>
+                                            <Button variant="link" onClick={() => {setSelectedRoles(worker.roleIds.map(roleId => roles.find(role => role.value === roleId))); setSelectedWorkerId(worker.id); setShowAddRoleModal(true); }}>
                                                 Add Role
                                             </Button>
                                         </div>
@@ -244,15 +245,16 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                     <AddWorker clientId={clientId} onClose={() => setShowAddWorkerModal(false)} onSuccess={handleAddWorkerSuccess} />
                 </Modal.Body>
             </Modal>
-
-            <EditWorkerModal
-                show={showEditWorkerModal}
-                handleClose={() => setShowEditWorkerModal(false)}
-                worker={selectedWorker}
-                onUpdateSuccess={handleUpdateSuccess}
-                roles={roles}
-            />
-
+            {selectedWorker && (
+                <EditWorkerModal
+                    show={showEditWorkerModal}
+                    handleClose={() => setShowEditWorkerModal(false)}
+                    worker={selectedWorker}
+                    onUpdateSuccess={handleUpdateSuccess}
+                    roles={roles}
+                    clientId={clientId}
+                />
+            )}
             <Modal show={showAddRoleModal} onHide={() => setShowAddRoleModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add Role to Worker</Modal.Title>

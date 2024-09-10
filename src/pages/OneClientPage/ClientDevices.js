@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import config from "../../config/config"; // Import axios for making HTTP requests
 
-function ClientDevices({ devices, client, clientId, setRefresh }) {
+function ClientDevices({ devices, client, clientId, setRefresh, locations }) {
     const [showAddDeviceModal, setShowAddDeviceModal] = useState(false);
     const [classificators, setClassificators] = useState([]);
     const [selectedClassificatorId, setSelectedClassificatorId] = useState('');
@@ -103,6 +103,8 @@ function ClientDevices({ devices, client, clientId, setRefresh }) {
                                     <Card.Title style={{ cursor: "pointer", color: "#0000EE" }} onClick={() => navigate(`/device/${device.id}`)}>
                                         {index + 1}. {device.deviceName}
                                     </Card.Title>
+                                    <p><strong>Location:</strong> {locations[device.locationId] || 'Unknown'}</p>
+                                    <p><strong>Room:</strong> {device.room ? device.room : 'N/A'}</p>
                                 </Card.Body>
                             </Card>
                         </ListGroup.Item>

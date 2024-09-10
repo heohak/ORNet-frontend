@@ -1,9 +1,11 @@
-
 import React from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
+import { useLocation } from 'react-router-dom';
 
 const MenuBar = () => {
+    const location = useLocation();
+
     return (
         <Navbar bg="light" expand="lg">
             <Container>
@@ -12,24 +14,25 @@ const MenuBar = () => {
                 </LinkContainer>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
-                    <Nav className="me-auto">
-                        <LinkContainer to="/">
-                            <Nav.Link>Home</Nav.Link>
+                    {/* Pass the current pathname as activeKey to highlight the active link */}
+                    <Nav className="me-auto" activeKey={location.pathname}>
+                        <LinkContainer to="/" exact>
+                            <Nav.Link eventKey="/">Home</Nav.Link>
                         </LinkContainer>
                         <LinkContainer to="/clients">
-                            <Nav.Link>Clients</Nav.Link>
+                            <Nav.Link eventKey="/clients">Clients</Nav.Link>
                         </LinkContainer>
                         <LinkContainer to="/devices">
-                            <Nav.Link>Devices</Nav.Link>
+                            <Nav.Link eventKey="/devices">Devices</Nav.Link>
                         </LinkContainer>
                         <LinkContainer to="/tickets">
-                            <Nav.Link>Tickets</Nav.Link>
+                            <Nav.Link eventKey="/tickets">Tickets</Nav.Link>
                         </LinkContainer>
                         <LinkContainer to="/wiki">
-                            <Nav.Link>Wiki</Nav.Link>
+                            <Nav.Link eventKey="/wiki">Wiki</Nav.Link>
                         </LinkContainer>
                         <LinkContainer to="/settings">
-                            <Nav.Link>Settings</Nav.Link>
+                            <Nav.Link eventKey="/settings">Settings</Nav.Link>
                         </LinkContainer>
                     </Nav>
                 </Navbar.Collapse>
