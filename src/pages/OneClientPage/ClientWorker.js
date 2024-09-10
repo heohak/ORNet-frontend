@@ -168,6 +168,8 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
         }
     };
 
+
+
     return (
         <>
             <h2 className="mb-4">Workers</h2>
@@ -215,7 +217,7 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                                             <Button variant="link" onClick={() => handleEditWorker(worker)}>
                                                 Edit
                                             </Button>
-                                            <Button variant="link" onClick={() => { setSelectedWorkerId(worker.id); setShowAddRoleModal(true); }}>
+                                            <Button variant="link" onClick={() => {setSelectedRoles(worker.roleIds.map(roleId => roles.find(role => role.value === roleId))); setSelectedWorkerId(worker.id); setShowAddRoleModal(true); }}>
                                                 Add Role
                                             </Button>
                                         </div>
