@@ -85,7 +85,6 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
 
             const workersWithRoles = await Promise.all(response.data.map(async worker => {
                 const rolesResponse = await axios.get(`${config.API_BASE_URL}/worker/role/${worker.id}`);
-                console.log(rolesResponse.data)
                 const sortedRoles = rolesResponse.data.sort((a, b) => a.id - b.id)
                 return {
                     ...worker,
@@ -246,16 +245,16 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                     <AddWorker clientId={clientId} onClose={() => setShowAddWorkerModal(false)} onSuccess={handleAddWorkerSuccess} />
                 </Modal.Body>
             </Modal>
-
-            <EditWorkerModal
-                show={showEditWorkerModal}
-                handleClose={() => setShowEditWorkerModal(false)}
-                worker={selectedWorker}
-                onUpdateSuccess={handleUpdateSuccess}
-                roles={roles}
-                clientId={clientId}
-            />
-
+            {selectedWorker && (
+                <EditWorkerModal
+                    show={showEditWorkerModal}
+                    handleClose={() => setShowEditWorkerModal(false)}
+                    worker={selectedWorker}
+                    onUpdateSuccess={handleUpdateSuccess}
+                    roles={roles}
+                    clientId={clientId}
+                />
+            )}
             <Modal show={showAddRoleModal} onHide={() => setShowAddRoleModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add Role to Worker</Modal.Title>
