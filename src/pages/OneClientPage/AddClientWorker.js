@@ -15,10 +15,6 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
     const [roles, setRoles] = useState([]);
     const [selectedRoles, setSelectedRoles] = useState([]);
     const [error, setError] = useState(null);
-
-    const [showLocationModal, setShowLocationModal] = useState(false);
-    const [newLocation, setNewLocation] = useState({ name: '', country: '', district: '', postalCode: '', streetAddress: '', city: '', phone: '' });
-
     const [showRoleModal, setShowRoleModal] = useState(false);
     const [newRole, setNewRole] = useState({ role: '' });
     const [phoneNumberError, setPhoneNumberError] = useState('');
@@ -95,33 +91,6 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
         }
     };
 
-    const handleAddLocation = async () => {
-        const { name, country, district, postalCode, streetAddress, city, phone } = newLocation;
-
-        if (!name.trim() || !country.trim() || !district.trim() || !postalCode.trim() || !streetAddress.trim() || !city.trim() || !phone.trim()) {
-            setError('Please fill in all fields for the new location.');
-            return;
-        }
-
-        const combinedAddress = `${streetAddress}, ${city}, ${district}, ${postalCode}, ${country}`;
-
-        try {
-            const response = await axios.post(`${config.API_BASE_URL}/location/add`, {
-                name,
-                address: combinedAddress,
-                phone,
-            });
-
-            const addedLocation = response.data;
-            const newLocationOption = { value: addedLocation.id, label: addedLocation.name };
-            setLocations(prevLocations => [...prevLocations, newLocationOption]);
-            setLocationId(newLocationOption.value); // Automatically select the new location
-            setNewLocation({ name: '', country: '', district: '', postalCode: '', streetAddress: '', city: '', phone: '' });
-            setShowLocationModal(false);
-        } catch (error) {
-            setError('Error adding location.');
-        }
-    };
 
     const handleAddRole = async () => {
         const { role } = newRole;
@@ -137,8 +106,7 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
             });
 
             const addedRole = response.data;
-            const id = parseInt(addedRole.token);  // Backend returns the id of a role as a string
-            const newRoleOption = { value: id, label: role };
+            const newRoleOption = { value: addedRole.id, label: role };
             console.log(newRoleOption);
 
             setRoles(prevRoles => [...prevRoles, newRoleOption]);
@@ -218,9 +186,6 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
                         value={locations.find(loc => loc.value === locationId)}
                         onChange={selectedOption => setLocationId(selectedOption.value)}
                     />
-                    <Form.Text className="text-muted">
-                        Can't find the location? <Button variant="link" onClick={() => setShowLocationModal(true)}>Add New</Button>
-                    </Form.Text>
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Roles</Form.Label>
@@ -239,82 +204,6 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
                     Add Worker
                 </Button>
             </Form>
-
-            {/* Modal for adding a new location */}
-            <Modal show={showLocationModal} onHide={() => setShowLocationModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Add New Location</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Name</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={newLocation.name}
-                            onChange={(e) => setNewLocation({ ...newLocation, name: e.target.value })}
-                            required
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Country</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={newLocation.country}
-                            onChange={(e) => setNewLocation({ ...newLocation, country: e.target.value })}
-                            required
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>City</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={newLocation.city}
-                            onChange={(e) => setNewLocation({ ...newLocation, city: e.target.value })}
-                            required
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>District</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={newLocation.district}
-                            onChange={(e) => setNewLocation({ ...newLocation, district: e.target.value })}
-                            required
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Postal Code</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={newLocation.postalCode}
-                            onChange={(e) => setNewLocation({ ...newLocation, postalCode: e.target.value })}
-                            required
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Street Address</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={newLocation.streetAddress}
-                            onChange={(e) => setNewLocation({ ...newLocation, streetAddress: e.target.value })}
-                            required
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Phone</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={newLocation.phone}
-                            onChange={(e) => setNewLocation({ ...newLocation, phone: e.target.value })}
-                            required
-                        />
-                    </Form.Group>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowLocationModal(false)}>Cancel</Button>
-                    <Button variant="primary" onClick={handleAddLocation}>Add Location</Button>
-                </Modal.Footer>
-            </Modal>
 
             {/* Modal for adding a new role */}
             <Modal show={showRoleModal} onHide={() => setShowRoleModal(false)}>

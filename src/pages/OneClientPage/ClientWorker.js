@@ -151,6 +151,7 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
     };
 
     const handleAddWorkerSuccess = async (newWorker) => {
+        await fetchRoles();  //Silent fetch to show new roles for the other workers as well
         try {
             setFilteredWorkers((prevWorkers) => [...prevWorkers, newWorker]);
 
