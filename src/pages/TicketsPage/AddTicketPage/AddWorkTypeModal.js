@@ -9,11 +9,11 @@ const AddWorkTypeModal = ({ show, handleClose, onAdd }) => {
 
     const handleAddWorkType = async () => {
         try {
-            await axios.post(`${config.API_BASE_URL}/work-type/classificator/add`, {
+            const response = await axios.post(`${config.API_BASE_URL}/work-type/classificator/add`, {
                 workType,
             });
             setWorkType('');
-            onAdd(); // Refresh work types list in parent component
+            onAdd(response.data); // Refresh work types list in parent component
             handleClose();
         } catch (error) {
             console.error('Error adding new work type:', error);

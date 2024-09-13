@@ -107,7 +107,6 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
 
             const addedRole = response.data;
             const newRoleOption = { value: addedRole.id, label: role };
-            console.log(newRoleOption);
 
             setRoles(prevRoles => [...prevRoles, newRoleOption]);
             setSelectedRoles(prevSelected => [...prevSelected, newRoleOption]);

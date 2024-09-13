@@ -23,7 +23,8 @@ function OneClient() {
     const [error, setError] = useState(null);
     const [refresh, setRefresh] = useState(false); // State to trigger refresh
     const [locations, setLocations] = useState([])
-    const [locationsMap, setLocationsMap] =useState([])
+    const [locationsMap, setLocationsMap] = useState([])
+    const [statusMap, setStatusMap] = useState({});
 
     const navigate = useNavigate();
 
@@ -49,13 +50,14 @@ function OneClient() {
         const fetchData = async () => {
 
             try {
-                const [clientRes, deviceRes, workerRes, softwareRes, ticketsRes, maintenanceRes] = await Promise.all([
+                const [clientRes, deviceRes, workerRes, softwareRes, ticketsRes, maintenanceRes, statusesRes] = await Promise.all([
                     axios.get(`${config.API_BASE_URL}/client/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/device/client/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/worker/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/software/client/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/ticket/client/${clientId}`),
-                    axios.get(`${config.API_BASE_URL}/client/maintenance/${clientId}`)
+                    axios.get(`${config.API_BASE_URL}/client/maintenance/${clientId}`),
+                    axios.get(`${config.API_BASE_URL}/ticket/classificator/all`)
                 ]);
                 setClient(clientRes.data);
                 setDevices(deviceRes.data);
@@ -63,6 +65,14 @@ function OneClient() {
                 setSoftwareList(softwareRes.data);
                 setTickets(ticketsRes.data);
                 setMaintenances(maintenanceRes.data);
+                const fetchedStatuses = statusesRes.data;
+                // Create a map for statuses for faster lookup
+                const mappedStatuses = fetchedStatuses.reduce((acc, status) => {
+                    acc[status.id] = status; // Map status.id to the status object
+                    return acc;
+                }, {});
+
+                setStatusMap(mappedStatuses);
             } catch (error) {
                 setError(error.message);
             } finally {
@@ -139,8 +149,10 @@ function OneClient() {
                     client={client}/>
                 </Col>
             </Row>
-            <ClientTickets tickets={tickets}
-            client={client}/>
+            <ClientTickets
+            tickets={tickets}
+            statusMap={statusMap}
+            />
         </Container>
     );
 }

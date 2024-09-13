@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { Button, Form, Container, Alert, Badge, Row, Stack, Col } from 'react-bootstrap';
+import { Button, Form, Container, Alert, Row, Col } from 'react-bootstrap';
 import moment from 'moment';
 import config from "../../../config/config";
 import AddWorkTypeModal from './AddWorkTypeModal';
 import AddLocationModal from "./AddLocationModal";
 import AddContactModal from "./AddContactModal";
+import Select from 'react-select';
 
 function AddTicket() {
     const { mainTicketId } = useParams();
@@ -37,11 +38,10 @@ function AddTicket() {
     const [baitWorkers, setBaitWorkers] = useState([]);
     const [statuses, setStatuses] = useState([]);
     const [workTypes, setWorkTypes] = useState([]);
+    const [selectedWorkTypes, setSelectedWorkTypes] = useState([]);
     const [error, setError] = useState(null);
     const [clientName, setClientName] = useState('');
-    const [selectedOptions, setSelectedOptions] = useState([]);
-    const [availableOptions, setAvailableOptions] = useState([]);
-    const [showWorkTypeModal, setShowWorkTypeModal] = useState(false); // State for modal visibility
+    const [showWorkTypeModal, setShowWorkTypeModal] = useState(false);
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [showContactModal, setShowContactModal] = useState(false);
 
@@ -59,9 +59,8 @@ function AddTicket() {
 
                 setStatuses(statusRes.data);
                 setBaitWorkers(baitWorkerRes.data);
-                const fetchedWorkTypes = workTypeRes.data;
-                setWorkTypes(fetchedWorkTypes);
-                setAvailableOptions(fetchedWorkTypes); // Set available options initially
+                setWorkTypes(workTypeRes.data.map(workType => ({ value: workType.id, label: workType.workType })));
+
                 if (clientRes) setClients(clientRes.data);
 
                 if (clientIdParam) {
@@ -81,7 +80,7 @@ function AddTicket() {
             if (formData.clientId) {
                 try {
                     const locationRes = await axios.get(`${config.API_BASE_URL}/client/locations/${formData.clientId}`);
-                    const contactRes = await axios.get(`${config.API_BASE_URL}/worker/${formData.clientId}`)
+                    const contactRes = await axios.get(`${config.API_BASE_URL}/worker/${formData.clientId}`);
                     setLocations(locationRes.data);
                     setContacts(contactRes.data);
                 } catch (error) {
@@ -93,35 +92,12 @@ function AddTicket() {
         fetchLocationsAndContacts();
     }, [formData.clientId]);
 
-
-
     const handleChange = (e) => {
         const { id, value, type, checked } = e.target;
         setFormData(prevData => ({
             ...prevData,
             [id]: id === 'contactIds' ? [value] : (type === 'checkbox' ? checked : value)
         }));
-    };
-
-
-    const handleSelection = (e) => {
-        const selectedValue = parseInt(e.target.value, 10);
-        if (selectedValue) {
-            const selectedWorkType = workTypes.find(type => type.id === selectedValue);
-            if (selectedWorkType) {
-                setSelectedOptions(prev => [...prev, selectedWorkType]);
-                setAvailableOptions(prev => prev.filter(option => option.id !== selectedValue));
-            }
-            e.target.value = ''; // Reset dropdown selection
-        }
-    };
-
-    const removeBubble = (workTypeId) => {
-        setSelectedOptions(prev => prev.filter(option => option.id !== workTypeId));
-        setAvailableOptions(prev => [
-            ...prev,
-            workTypes.find(option => option.id === workTypeId)
-        ].sort((a, b) => a.id - b.id)); // Sort if needed
     };
 
     const handleSubmit = async (e) => {
@@ -134,7 +110,7 @@ function AddTicket() {
                 ...formData,
                 startDateTime: localDateTime,
                 clientId: formData.clientId || clients.find(client => client.id === formData.clientId)?.id,
-                workTypeIds: selectedOptions.map(option => option.id), // Map selected work type objects to IDs
+                workTypeIds: selectedWorkTypes.map(option => option.value), // Map selected work type objects to IDs
                 ...(mainTicketId && { mainTicketId })
             };
 
@@ -145,12 +121,12 @@ function AddTicket() {
         }
     };
 
-    const handleWorkTypeAdded = async () => {
+    const handleWorkTypeAdded = async (workType) => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/work-type/classificator/all`);
-            const fetchedWorkTypes = response.data;
-            setWorkTypes(fetchedWorkTypes);
-            setAvailableOptions(fetchedWorkTypes);
+            const newWorkTypeOption = { value: workType.id, label: workType.workType };
+
+            setWorkTypes(prevWorkTypes => [...prevWorkTypes, newWorkTypeOption]);
+            setSelectedWorkTypes(prevSelected => [...prevSelected, newWorkTypeOption]);
         } catch (error) {
             console.error('Error fetching work types:', error);
         }
@@ -160,10 +136,9 @@ function AddTicket() {
         if (formData.clientId) {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/client/locations/${formData.clientId}`);
-                const fetchedLocations = response.data;
-                setLocations(fetchedLocations);
+                setLocations(response.data);
             } catch (error) {
-                console.error('Error fetching work types:', error);
+                console.error('Error fetching locations:', error);
             }
         }
     };
@@ -171,11 +146,10 @@ function AddTicket() {
     const handleContactAdded = async () => {
         if (formData.clientId) {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/worker/${formData.clientId}`)
-                const fetchedContacts = response.data;
-                setContacts(fetchedContacts);
+                const response = await axios.get(`${config.API_BASE_URL}/worker/${formData.clientId}`);
+                setContacts(response.data);
             } catch (error) {
-                console.error('Error fetching work types:', error);
+                console.error('Error fetching contacts:', error);
             }
         }
     };
@@ -254,51 +228,23 @@ function AddTicket() {
                         onChange={handleChange}
                     />
                 </Form.Group>
-                <Form.Group as={Row} className="mb-3">
-                    <div>
-                        <Form.Label column sm={2}>
-                            Work Types
-                        </Form.Label>
-                        <Button
-                            variant="link"
-                            onClick={() => setShowWorkTypeModal(true)}
-                            className="text-primary"
-                        >
-                            Add New Work Type
-                        </Button>
-                    </div>
-                    <Col sm={10}>
-                        <Form.Control as="select" onChange={handleSelection}>
-                            <option value="">Select an option</option>
-                            {availableOptions.map(workType => (
-                                <option key={workType.id} value={workType.id}>
-                                    {workType.workType}
-                                </option>
-                            ))}
-                        </Form.Control>
-                    </Col>
+                <Form.Group className="mb-3">
+                    <Form.Label>Selected Work Types</Form.Label>
+                    <Button
+                        variant="link"
+                        onClick={() => setShowWorkTypeModal(true)}
+                        className="text-primary"
+                    >
+                        Add New Work Type
+                    </Button>
+                    <Select
+                        isMulti
+                        options={workTypes}
+                        value={selectedWorkTypes}
+                        onChange={setSelectedWorkTypes}
+                        placeholder="Select work types"
+                    />
                 </Form.Group>
-
-                <Stack direction="horizontal" gap={2} className="flex-wrap mb-3">
-                    {selectedOptions.map(workType => (
-                        <Badge
-                            key={workType.id}
-                            pill
-                            bg="primary"
-                            className="position-relative d-flex align-items-center"
-                        >
-                            {workType.workType}
-                            <Button
-                                variant="outline-light"
-                                className="position-absolute top-0 end-0 ms-2"
-                                size="sm"
-                                onClick={() => removeBubble(workType.id)}
-                            >
-                                &times;
-                            </Button>
-                        </Badge>
-                    ))}
-                </Stack>
 
                 <Form.Group controlId="rootCause" className="mb-3">
                     <Form.Label>Root Cause</Form.Label>
@@ -326,15 +272,15 @@ function AddTicket() {
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label column sm={2}>Location</Form.Label>
-                    {formData.clientId ? (
-                    <Button
-                        variant="link"
-                        onClick={() => setShowLocationModal(true)}
-                        className="text-primary"
-                    >
-                        Add New Location
-                    </Button>
-                        ) : null}
+                    {formData.clientId && (
+                        <Button
+                            variant="link"
+                            onClick={() => setShowLocationModal(true)}
+                            className="text-primary"
+                        >
+                            Add New Location
+                        </Button>
+                    )}
                     <Form.Control
                         as="select"
                         value={formData.locationId}
@@ -358,7 +304,7 @@ function AddTicket() {
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label column sm={2}>Contact</Form.Label>
-                    {formData.clientId ? (
+                    {formData.clientId && (
                         <Button
                             variant="link"
                             onClick={() => setShowContactModal(true)}
@@ -366,7 +312,7 @@ function AddTicket() {
                         >
                             Add A New Contact
                         </Button>
-                    ) : null}
+                    )}
                     <Form.Control
                         as="select"
                         value={formData.contactIds[0] || ""}
@@ -425,11 +371,10 @@ function AddTicket() {
             />
             <AddContactModal
                 show={showContactModal}
-                handleClose={()=> setShowContactModal(false)}
+                handleClose={() => setShowContactModal(false)}
                 onAdd={handleContactAdded}
                 clientId={formData.clientId}
                 locations={locations}
-
             />
         </Container>
     );

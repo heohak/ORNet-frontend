@@ -10,6 +10,7 @@ import 'react-datetime/css/react-datetime.css';
 import "../../../../css/TicketDetails.css"
 import Datetime from "react-datetime";
 import moment from 'moment';
+import {useNavigate} from "react-router-dom";
 
 const TicketDetails = ({
                            ticket,
@@ -41,6 +42,10 @@ const TicketDetails = ({
     const [maintenances, setMaintenances] = useState ([]);
     const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
     const [notification, setNotification] = useState('');
+    const [closedStatus, setClosedStatus] = useState(null);
+    const [openStatus, setOpenStatus] = useState(null);
+    const navigate = useNavigate();
+
 
 
 
@@ -101,14 +106,19 @@ const TicketDetails = ({
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`);
                 setStatuses(response.data);
+                if (response.data.length > 0) {
+                    const closed = response.data.find(status => status.status === 'Closed');
+                    const open = response.data.find(status => status.status === 'Open');
+                    if (open) setOpenStatus(open);
+                    if (closed) setClosedStatus(closed);
+                }
             } catch (error) {
                 console.error('Error fetching statuses:', error);
             }
         };
-
+        fetchStatuses();
         if (isEditing) {
             fetchClients();
-            fetchStatuses();
         }
     }, [isEditing]);
 
@@ -250,6 +260,7 @@ const TicketDetails = ({
     const handleMakePaid = async (ticketId) => {
         try {
             await axios.put(`${config.API_BASE_URL}/ticket/add/paid-work/${ticketId}`);
+            navigate(`/ticket/${ticket.id}?scrollTo=${ticket.id}`);
             window.location.reload();
         } catch (error) {
             console.error('Error making ticket paid:', error);
@@ -365,17 +376,19 @@ const TicketDetails = ({
     const handleSettle = async (ticketId) => {
         try {
             await axios.put(`${config.API_BASE_URL}/ticket/settle/${ticketId}`);
+            navigate(`/ticket/${ticket.id}?scrollTo=${ticket.id}`);
             window.location.reload();
         } catch (error) {
             console.error("error settling ticket", error);
         }
     };
 
-    const handleCloseTicket = async (ticketId) => {
-        const info = paidInfo[ticketId];
-        if (!info || info.settled) {  //Peaks küsima pop upi
+    const handleCloseTicket = async () => {
+        const info = paidInfo[ticket.id];
+        if (!info || info.settled) {
             try {
-                await axios.put(`${config.API_BASE_URL}/ticket/status/${ticketId}/2`); //2 is the close classificator id
+                await axios.put(`${config.API_BASE_URL}/ticket/status/${ticket.id}/${closedStatus.id}`); //2 is the close classificator id
+                navigate(`/ticket/${ticket.id}?scrollTo=${ticket.id}`);
                 window.location.reload();
             } catch (error) {
                 console.log("Error closing the ticket", error);
@@ -392,6 +405,19 @@ const TicketDetails = ({
         }, 3000); // Hide notification after 3 seconds
     };
 
+    const handleOpenTicket = async () => {
+        try {
+            await axios.put(`${config.API_BASE_URL}/ticket/status/${ticket.id}/${openStatus.id}`);
+
+            navigate(`/ticket/${ticket.id}?scrollTo=${ticket.id}`);
+            window.location.reload();
+        } catch (error) {
+            console.error("Error updating ticket status", error);
+        }
+    };
+
+
+
 
     return (
         <Container className="ticket-container">
@@ -407,7 +433,13 @@ const TicketDetails = ({
                         </div>
                     </Accordion.Header>
                     <Accordion.Body>
-                        <Button variant="danger" onClick={() => handleCloseTicket(ticket.id)}>Close Ticket</Button>
+                        {openStatus && closedStatus ? (
+                            ticket.statusId === openStatus.id ? (
+                                <Button variant="danger" onClick={() => handleCloseTicket()}>Close Ticket</Button>
+                            ) : ticket.statusId === closedStatus.id ? (
+                                <Button variant="success" onClick={() => handleOpenTicket()}>Open Ticket</Button>
+                            ) : null
+                        ) : null}
                         {notification && (
                             <div className='notification'>
                                 {notification}
