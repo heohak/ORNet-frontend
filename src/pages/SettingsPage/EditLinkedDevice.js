@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Form, Button, Alert } from 'react-bootstrap';
+import { Container, Form, Button, Alert, Modal } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
 import config from '../../config/config';
 
@@ -13,7 +13,32 @@ function EditLinkedDevice() {
     const [manufacturer, setManufacturer] = useState(linkedDevice?.manufacturer || '');
     const [productCode, setProductCode] = useState(linkedDevice?.productCode || '');
     const [serialNumber, setSerialNumber] = useState(linkedDevice?.serialNumber || '');
+    const [connectedDevice, setConnectedDevice] = useState(null); // Store the connected device
     const [error, setError] = useState(null);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+    // Fetch the device to which the linked device is connected when the delete modal is shown
+    const showDeleteModal = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/linked/device/device/${linkedDevice.id}`);
+            setConnectedDevice(response.data); // This will store the connected device information
+        } catch (error) {
+            setError('Failed to fetch the connected device');
+        }
+        setShowDeleteConfirm(true);
+    };
+
+    const handleDeleteLinkedDevice = async () => {
+        try {
+            await axios.delete(`${config.API_BASE_URL}/linked/device/${linkedDevice.id}`);
+            setShowDeleteConfirm(false);
+            navigate('/settings/linked-devices');
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
+    const hideDeleteModal = () => setShowDeleteConfirm(false);
 
     const handleUpdateLinkedDevice = async () => {
         try {
@@ -23,15 +48,6 @@ function EditLinkedDevice() {
                 productCode,
                 serialNumber,
             });
-            navigate('/settings/linked-devices');
-        } catch (error) {
-            setError(error.message);
-        }
-    };
-
-    const handleDeleteLinkedDevice = async () => {
-        try {
-            await axios.delete(`${config.API_BASE_URL}/linked/device/${linkedDevice.id}`);
             navigate('/settings/linked-devices');
         } catch (error) {
             setError(error.message);
@@ -84,16 +100,43 @@ function EditLinkedDevice() {
                         placeholder="Enter serial number"
                     />
                 </Form.Group>
+
                 <Button variant="primary" className="mt-3" onClick={handleUpdateLinkedDevice}>
                     Update Linked Device
                 </Button>
-                <Button variant="danger" className="mt-3 ms-2" onClick={handleDeleteLinkedDevice}>
+                <Button variant="danger" className="mt-3 ms-2" onClick={showDeleteModal}>
                     Delete Linked Device
                 </Button>
                 <Button variant="secondary" className="mt-3 ms-2" onClick={() => navigate('/settings/linked-devices')}>
                     Cancel
                 </Button>
             </Form>
+
+            {/* Modal for Delete Confirmation */}
+            <Modal show={showDeleteConfirm} onHide={hideDeleteModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {connectedDevice ? (
+                        <p>
+                            This linked device is connected to the following device: <strong>{connectedDevice.deviceName}</strong>.
+                            <br />
+                            Are you sure you want to delete it?
+                        </p>
+                    ) : (
+                        <p>Are you sure you want to delete this linked device?</p>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={hideDeleteModal}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={handleDeleteLinkedDevice}>
+                        Confirm Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 }
