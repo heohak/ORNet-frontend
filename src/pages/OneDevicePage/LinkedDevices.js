@@ -104,12 +104,20 @@ function LinkedDevices({
     const handleAddNewLinkedDevice = async () => {
         try {
             const response = await axios.post(`${config.API_BASE_URL}/linked/device/add`, newLinkedDevice);
+            setNewLinkedDevice({
+                name: '',
+                manufacturer: '',
+                productCode: '',
+                serialNumber: '',
+                comment: ''
+            });
             const newDeviceId = response.data.token;
 
             await axios.put(`${config.API_BASE_URL}/linked/device/link/${newDeviceId}/${deviceId}`);
             const updatedLinkedDevices = await axios.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
             setLinkedDevices(updatedLinkedDevices.data);
             initializeVisibleFields(updatedLinkedDevices.data);
+            setShowAddNewDeviceForm(false)
             setShowModal(false);
         } catch (error) {
             console.error('Error adding new linked device:', error);
