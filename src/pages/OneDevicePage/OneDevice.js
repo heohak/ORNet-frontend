@@ -36,7 +36,7 @@ function OneDevice() {
                 const [deviceRes, linkedDevicesRes, availableLinkedDevicesRes, maintenanceInfoRes] = await Promise.all([
                     axios.get(`${config.API_BASE_URL}/device/${deviceId}`),
                     axios.get(`${config.API_BASE_URL}/linked/device/${deviceId}`),
-                    axios.get(`${config.API_BASE_URL}/linked/device/all`),
+                    axios.get(`${config.API_BASE_URL}/linked/device/not-used`),
                     axios.get(`${config.API_BASE_URL}/device/maintenances/${deviceId}`)
                 ]);
 
