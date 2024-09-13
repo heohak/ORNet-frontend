@@ -7,7 +7,7 @@ import config from '../../config/config';
 function EditThirdPartyIT() {
     const location = useLocation();
     const navigate = useNavigate();
-    const { thirdParty } = location.state;
+    const { thirdParty, clientId } = location.state || {};
 
     const [name, setName] = useState(thirdParty.name);
     const [email, setEmail] = useState(thirdParty.email);
@@ -24,7 +24,13 @@ function EditThirdPartyIT() {
                 email,
                 phone,
             });
-            navigate('/settings/third-party-its');
+            if (clientId) {
+                // If clientId exists, navigate back to the client profile
+                navigate(`/client/${clientId}`);
+            } else {
+                // Otherwise, navigate to the global settings page
+                navigate('/settings/third-party-its');
+            }
         } catch (error) {
             setError(error.message);
         }
@@ -33,7 +39,13 @@ function EditThirdPartyIT() {
     const handleDelete = async () => {
         try {
             await axios.delete(`${config.API_BASE_URL}/third-party/${thirdParty.id}`);
-            navigate('/settings/third-party-its');
+            if (clientId) {
+                // If clientId exists, navigate back to the client profile
+                navigate(`/client/${clientId}`);
+            } else {
+                // Otherwise, navigate to the global settings page
+                navigate('/settings/third-party-its');
+            }
         } catch (error) {
             setError(error.message);
         }
@@ -85,7 +97,11 @@ function EditThirdPartyIT() {
                 <Button variant="danger" onClick={handleDelete} className="mt-3 ms-3">
                     Delete
                 </Button>
-                <Button variant="secondary" onClick={() => navigate('/settings/third-party-its')} className="mt-3 ms-3">
+                <Button
+                    variant="secondary"
+                    onClick={() => clientId ? navigate(`/client/${clientId}`) : navigate('/settings/third-party-its')}
+                    className="mt-3 ms-3"
+                >
                     Cancel
                 </Button>
             </Form>

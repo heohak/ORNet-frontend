@@ -58,7 +58,7 @@ function ClientThirdPartyIT({ clientId, client }) {
                                     </Card.Text>
                                     <Button
                                         variant="secondary"
-                                        onClick={() => navigate(`/settings/third-party-its/edit/${thirdParty.id}`, { state: { thirdParty } })}
+                                        onClick={() => navigate(`/settings/third-party-its/edit/${thirdParty.id}`, { state: { thirdParty, clientId } })}
                                     >
                                         Edit
                                     </Button>
