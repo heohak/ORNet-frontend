@@ -85,7 +85,7 @@ function Devices() {
             <Row>
                 {devices.map((device) => (
                     <Col md={4} key={device.id} className="mb-4">
-                        <Card className='all-page-card' onClick={() => navigate(`/device/${device.id}`)}>
+                        <Card className='all-page-card' onClick={() => navigate(`/device/${device.id}`, {state: {from: 'all-devices'}})}>
                             <Card.Body className='all-page-cardBody'>
                                 <Card.Title className='all-page-cardTitle'><strong>Device Name: </strong>{device.deviceName}</Card.Title>
                                 <Card.Text className='all-page-cardText'>
@@ -105,6 +105,7 @@ function Devices() {
             <SummaryModal
                 show={showSummaryModal}
                 handleClose={() => setShowSummaryModal(false)}
+                devices={devices}
             />
         </Container>
     );

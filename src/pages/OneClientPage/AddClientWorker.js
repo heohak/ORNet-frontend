@@ -107,7 +107,6 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
 
             const addedRole = response.data;
             const newRoleOption = { value: addedRole.id, label: role };
-            console.log(newRoleOption);
 
             setRoles(prevRoles => [...prevRoles, newRoleOption]);
             setSelectedRoles(prevSelected => [...prevSelected, newRoleOption]);
@@ -185,6 +184,7 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
                         options={locations}
                         value={locations.find(loc => loc.value === locationId)}
                         onChange={selectedOption => setLocationId(selectedOption.value)}
+                        required
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">

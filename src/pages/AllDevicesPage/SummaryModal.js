@@ -3,7 +3,7 @@ import { Modal, Button, Spinner, Alert, ListGroup } from 'react-bootstrap';
 import axios from 'axios';
 import config from '../../config/config';
 
-function SummaryModal({ show, handleClose }) {
+function SummaryModal({ show, handleClose, devices }) {
     const [summary, setSummary] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -18,7 +18,13 @@ function SummaryModal({ show, handleClose }) {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/device/summary`);
+            const deviceIds = devices.map(device => device.id);
+
+            const response = await axios.get(`${config.API_BASE_URL}/device/summary`, {
+                params: {
+                    deviceIds: deviceIds.join(',')
+                }
+            });
             setSummary(response.data);
         } catch (error) {
             setError(error.message);

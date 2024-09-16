@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Button, Modal, Form, Alert } from 'react-bootstrap';
 import { FaPlus } from 'react-icons/fa';
+import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import config from "../../config/config";
 import DeviceFileList from "./DeviceFileList";
@@ -13,6 +14,7 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
     const [localDevice, setLocalDevice] = useState(device);
     const [showWrittenOffModal, setShowWrittenOffModal] = useState(false);
     const [writtenOffDate, setWrittenOffDate] = useState(device?.writtenOffDate || "");
+    const location = useLocation();
 
     const defaultFields = [
         'deviceName',
@@ -178,7 +180,19 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
 
     return (
         <>
-            <Button onClick={() => navigate(`/client/${device.clientId}`)}>Back</Button>
+            <Button
+                onClick={() => {
+                    if (location.state && location.state.from === 'all-devices') {
+                        navigate('/devices');
+                    } else if (device && device.clientId) {
+                        navigate(`/client/${device.clientId}`);
+                    } else {
+                        navigate(-1);
+                    }
+                }}
+            >
+                Back
+            </Button>
             <Button onClick={handleNavigate} variant='secondary'>
                 See device history
             </Button>

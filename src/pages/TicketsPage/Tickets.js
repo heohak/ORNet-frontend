@@ -12,12 +12,14 @@ function Tickets() {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [filter, setFilter] = useState(1);
+    const [filter, setFilter] = useState(null);
     const [crisis, setCrisis] = useState(false);
-    const [paid, setPaid] = useState(false); // New state for Paid
+    const [paid, setPaid] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const [statuses, setStatuses] = useState([]);
+    const [openStatus, setOpenStatus] = useState(null);
+    const [closedStatus, setClosedStatus] = useState(null);
     const navigate = useNavigate();
 
     // Fetch status classifications
@@ -25,13 +27,37 @@ function Tickets() {
         const fetchStatuses = async () => {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`);
-                setStatuses(response.data);
+                setStatuses(response.data); // Set statuses once fetched
             } catch (error) {
                 console.error("Error fetching statuses", error);
             }
         };
+
         fetchStatuses();
-    }, []);
+    }, []); // Runs only once when the component mounts
+
+    // Find and set open and closed statuses once statuses are fetched
+    useEffect(() => {
+        const findOpenAndClosedStatuses = () => {
+            // Ensure statuses are available before proceeding
+            if (statuses.length > 0) {
+                // Filter for open and closed statuses
+                const open = statuses.find(status => status.status === 'Open');
+                const closed = statuses.find(status => status.status === 'Closed');
+
+                // Update state with the found statuses
+                if (open) {
+                    setOpenStatus(open);
+                    setFilter(open.id); // Set the filter to open status ID
+                }
+                if (closed) {
+                    setClosedStatus(closed);
+                }
+            }
+        };
+
+        findOpenAndClosedStatuses();
+    }, [statuses]); // This effect runs when 'statuses' is updated
 
     // Debounce the search query input
     useEffect(() => {
@@ -45,6 +71,7 @@ function Tickets() {
 
     useEffect(() => {
         const fetchTickets = async () => {
+            if (filter === null) return;
             setLoading(true);
             setError(null);
             try {
