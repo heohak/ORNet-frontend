@@ -105,6 +105,7 @@ function Devices() {
             <SummaryModal
                 show={showSummaryModal}
                 handleClose={() => setShowSummaryModal(false)}
+                devices={devices}
             />
         </Container>
     );
