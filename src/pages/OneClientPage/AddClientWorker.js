@@ -184,6 +184,7 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
                         options={locations}
                         value={locations.find(loc => loc.value === locationId)}
                         onChange={selectedOption => setLocationId(selectedOption.value)}
+                        required
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
