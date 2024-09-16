@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Container, Row, Col, Card, Button, Spinner, Alert, Modal, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import config from '../../config/config';
-import {validatePhoneAndPostalCode} from "../../utils/Validation";
+import { validatePhoneAndPostalCode } from '../../utils/Validation';
 
 function ViewLocations() {
     const [locations, setLocations] = useState([]);
@@ -19,13 +19,28 @@ function ViewLocations() {
     const [phone, setPhone] = useState('');
     const [phoneNumberError, setPhoneNumberError] = useState('');
     const [postalCodeError, setPostalCodeError] = useState('');
+    const [searchQuery, setSearchQuery] = useState(''); // State for search query
+    const [debouncedQuery, setDebouncedQuery] = useState(''); // State to hold debounced query
 
     const navigate = useNavigate();
+
+    // Debounce the search query to avoid sending too many requests
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedQuery(searchQuery);
+        }, 300); // 300ms delay
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [searchQuery]);
 
     useEffect(() => {
         const fetchLocations = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/location/all`);
+                const response = await axios.get(`${config.API_BASE_URL}/location/search`, {
+                    params: { q: debouncedQuery.length >= 3 ? debouncedQuery : '' } // Use the query only if it has at least 3 characters
+                });
                 setLocations(response.data);
             } catch (error) {
                 setError(error.message);
@@ -35,7 +50,7 @@ function ViewLocations() {
         };
 
         fetchLocations();
-    }, []);
+    }, [debouncedQuery]); // Fetch locations whenever debouncedQuery changes
 
     const handleAddLocation = async (e) => {
         e.preventDefault();
@@ -57,10 +72,7 @@ function ViewLocations() {
                     address: combinedAddress,
                     phone
                 });
-                const response = await axios.get(`${config.API_BASE_URL}/location/all`);
-                setLocations(response.data);
                 setShowAddModal(false);
-                // Clear the form fields
                 setName('');
                 setCity('');
                 setCountry('');
@@ -68,12 +80,13 @@ function ViewLocations() {
                 setPostalCode('');
                 setStreetAddress('');
                 setPhone('');
+                setSearchQuery(''); // Clear the search query to show all locations
+                setDebouncedQuery(''); // Reset debounced query
             } catch (error) {
                 setError(error.message);
             }
         }
     };
-
 
     return (
         <Container className="mt-5">
@@ -81,6 +94,17 @@ function ViewLocations() {
                 <h1>Locations</h1>
                 <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Location</Button>
             </div>
+
+            {/* Search Input */}
+            <Form.Group controlId="search" className="mb-4">
+                <Form.Control
+                    type="text"
+                    placeholder="Search locations..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+            </Form.Group>
+
             {loading ? (
                 <Container className="text-center mt-5">
                     <Spinner animation="border" role="status">
