@@ -20,6 +20,8 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
     const [selectedRoles, setSelectedRoles] = useState([]); // State for adding roles in modal
     const [filteredWorkers, setFilteredWorkers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [favoriteFilter, setFavoriteFilter] = useState(false);
+
 
     useEffect(() => {
         fetchRoles();
@@ -32,7 +34,7 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
 
     useEffect(() => {
         filterWorkers();
-    }, [selectedFilterRoleId, searchQuery]);
+    }, [selectedFilterRoleId, searchQuery, favoriteFilter]);
 
     const fetchWorkerLocations = async () => {
         try {
@@ -80,7 +82,8 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                 params: {
                     q: searchQuery,
                     roleId: selectedFilterRoleId || null,
-                    clientId: clientId
+                    clientId: clientId,
+                    favorite: favoriteFilter || null
                 }
             });
 
@@ -205,6 +208,15 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                     ))}
                 </Form.Control>
             </Form.Group>
+            <Form.Group controlId="favoriteFilter" className="mt-3">
+                <Form.Check
+                    type="checkbox"
+                    label="Show Only Favorites"
+                    checked={favoriteFilter}
+                    onChange={(e) => setFavoriteFilter(e.target.checked)}
+                />
+            </Form.Group>
+
             {filteredWorkers.length > 0 ? (
                 <ListGroup className="mt-3">
                     {filteredWorkers.map((worker) => (
