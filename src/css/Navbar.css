@@ -1,0 +1,25 @@
+/* General Navbar styling */
+.navbar-custom {
+    z-index: 1000; /* Make sure the Navbar is always on top of other content */
+    width: 100%;
+    padding-top: 10px; /* Adjust padding to your preference */
+    padding-bottom: 10px;
+    background-color: #f8f9fa; /* Ensure the background covers the entire area */
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 768px) {
+    .navbar-custom {
+        padding-top: 0; /* Remove or reduce padding on top for mobile view */
+        padding-bottom: 0; /* Remove or reduce padding on the bottom */
+    }
+
+    /* Optional: Adjust the size of the brand or links on mobile if needed */
+    .navbar-custom .navbar-brand {
+        font-size: 1.2rem; /* Slightly smaller logo text on mobile */
+    }
+
+    .navbar-custom .nav-link {
+        font-size: 1rem; /* Adjust link size for mobile if desired */
+    }
+}

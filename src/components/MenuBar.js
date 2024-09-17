@@ -7,14 +7,13 @@ const MenuBar = () => {
     const location = useLocation();
 
     return (
-        <Navbar bg="light" expand="lg">
+        <Navbar bg="light" expand="lg" fixed="top" className="navbar-custom">
             <Container>
                 <LinkContainer to="/">
                     <Navbar.Brand>BP CRM</Navbar.Brand>
                 </LinkContainer>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
-                    {/* Pass the current pathname as activeKey to highlight the active link */}
                     <Nav className="me-auto" activeKey={location.pathname}>
                         <LinkContainer to="/" exact>
                             <Nav.Link eventKey="/">Home</Nav.Link>

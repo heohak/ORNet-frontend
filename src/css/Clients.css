@@ -85,6 +85,13 @@ h1 {
 .alert {
     border-radius: 0.25rem;
 }
+/* This one is in the OneClient.js */
+.client-name {
+    position: fixed;
+    background-color: #f8f9fa;
+    width: 100%;
+    z-index: 999; /* Ensure it stays on top of other content */
+}
 
 /* Responsive Styles */
 @media (max-width: 768px) {
@@ -101,3 +108,4 @@ h1 {
         margin-top: 1rem;
     }
 }
+

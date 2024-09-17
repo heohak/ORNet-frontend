@@ -89,7 +89,6 @@ function ClientDetails({ client, navigate, locations }) {
         <>
             <div className="mb-4" style={{display: "flex", justifyContent: "space-between"}}>
                 <Button style={{width: '9%'}} className='mt-2 mb-2' onClick={() => navigate('/clients')}>Back</Button>
-                <h1>{client ? `${client.shortName} Details` : 'Client Details'}</h1>
                 <Button onClick={handleNavigate} style={{width: '9%'}} className='mt-2 mb-2'>See History</Button>
             </div>
             {client ? (

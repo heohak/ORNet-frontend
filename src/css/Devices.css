@@ -1,0 +1,20 @@
+.device-search-fixed {
+    position: fixed;
+    z-index: 999;
+    background-color: white;
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    padding-top: 15px;
+}
+
+.devices-container {
+    padding-top: 110px;
+}
+/* Responsive Styles */
+@media (max-width: 768px) {
+
+    .devices-container {
+        padding-top: 150px;
+    }
+}
