@@ -6,6 +6,7 @@ import config from "../../config/config";
 import AddDeviceModal from './AddDeviceModal';
 import DeviceSearchFilter from './DeviceSearchFilter';
 import SummaryModal from './SummaryModal';
+import '../../css/Devices.css';
 
 function Devices() {
     const [devices, setDevices] = useState([]);
@@ -69,45 +70,49 @@ function Devices() {
     }
 
     return (
-        <Container className="mt-5">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1 className="mb-0">Devices</h1>
-                <div>
-                    <Button variant="info" className="mb-4 me-2" onClick={() => setShowSummaryModal(true)}>
-                        Show Summary
-                    </Button>
-                    <Button variant="primary" className="mb-4" onClick={() => setShowAddDeviceModal(true)}>
-                        Add Device
-                    </Button>
+        <>
+            <div className="device-search-fixed">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <h1 className="mb-0">Devices</h1>
+                    <div>
+                        <Button variant="info" className="mb-4 me-2" onClick={() => setShowSummaryModal(true)}>
+                            Show Summary
+                        </Button>
+                        <Button variant="primary" className="mb-4" onClick={() => setShowAddDeviceModal(true)}>
+                            Add Device
+                        </Button>
+                    </div>
                 </div>
+                <DeviceSearchFilter setDevices={setDevices} />
             </div>
-            <DeviceSearchFilter setDevices={setDevices} />
-            <Row>
-                {devices.map((device) => (
-                    <Col md={4} key={device.id} className="mb-4">
-                        <Card className='all-page-card' onClick={() => navigate(`/device/${device.id}`, {state: {from: 'all-devices'}})}>
-                            <Card.Body className='all-page-cardBody'>
-                                <Card.Title className='all-page-cardTitle'><strong>Device Name: </strong>{device.deviceName}</Card.Title>
-                                <Card.Text className='all-page-cardText'>
-                                    <strong>Serial Number: </strong>{device.serialNumber}<br />
-                                    <strong>Type: </strong>{classificators[device.classificatorId] || "Unknown type"}
-                                </Card.Text>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                ))}
-            </Row>
-            <AddDeviceModal
-                show={showAddDeviceModal}
-                onHide={() => setShowAddDeviceModal(false)}
-                setRefresh={setRefresh}
-            />
-            <SummaryModal
-                show={showSummaryModal}
-                handleClose={() => setShowSummaryModal(false)}
-                devices={devices}
-            />
-        </Container>
+            <Container className="mt-5 devices-container">
+                <Row>
+                    {devices.map((device) => (
+                        <Col md={4} key={device.id} className="mb-4">
+                            <Card className='all-page-card' onClick={() => navigate(`/device/${device.id}`, {state: {from: 'all-devices'}})}>
+                                <Card.Body className='all-page-cardBody'>
+                                    <Card.Title className='all-page-cardTitle'><strong>{device.deviceName}</strong></Card.Title>
+                                    <Card.Text className='all-page-cardText'>
+                                        <strong>Serial Number: </strong>{device.serialNumber}<br />
+                                        <strong>Type: </strong>{classificators[device.classificatorId] || "Unknown type"}
+                                    </Card.Text>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    ))}
+                </Row>
+                <AddDeviceModal
+                    show={showAddDeviceModal}
+                    onHide={() => setShowAddDeviceModal(false)}
+                    setRefresh={setRefresh}
+                />
+                <SummaryModal
+                    show={showSummaryModal}
+                    handleClose={() => setShowSummaryModal(false)}
+                    devices={devices}
+                />
+            </Container>
+    </>
     );
 }
 

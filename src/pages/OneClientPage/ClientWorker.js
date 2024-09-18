@@ -5,6 +5,7 @@ import EditWorkerModal from './EditWorkerModal'; // Import the EditWorkerModal c
 import axios from 'axios';
 import config from "../../config/config";
 import Select from 'react-select';
+import { FaStar, FaRegStar } from 'react-icons/fa';
 
 function ClientWorker({ workers, client, clientId, setRefresh }) {
     const [showAddWorkerModal, setShowAddWorkerModal] = useState(false);
@@ -19,6 +20,8 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
     const [selectedRoles, setSelectedRoles] = useState([]); // State for adding roles in modal
     const [filteredWorkers, setFilteredWorkers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [favoriteFilter, setFavoriteFilter] = useState(false);
+
 
     useEffect(() => {
         fetchRoles();
@@ -31,7 +34,7 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
 
     useEffect(() => {
         filterWorkers();
-    }, [selectedFilterRoleId, searchQuery]);
+    }, [selectedFilterRoleId, searchQuery, favoriteFilter]);
 
     const fetchWorkerLocations = async () => {
         try {
@@ -79,7 +82,8 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                 params: {
                     q: searchQuery,
                     roleId: selectedFilterRoleId || null,
-                    clientId: clientId
+                    clientId: clientId,
+                    favorite: favoriteFilter || null
                 }
             });
 
@@ -168,6 +172,18 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
         }
     };
 
+    const toggleFavorite = async (workerId) => {
+        try {
+            // Make the API call to toggle the favorite status
+            await axios.put(`${config.API_BASE_URL}/worker/favorite/${workerId}`);
+
+            // Fetch the updated list of workers to reflect the new order
+            await fetchWorkers();
+        } catch (error) {
+            console.log('Failed to update favorite status');
+        }
+    };
+
 
 
     return (
@@ -192,6 +208,15 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                     ))}
                 </Form.Control>
             </Form.Group>
+            <Form.Group controlId="favoriteFilter" className="mt-3">
+                <Form.Check
+                    type="checkbox"
+                    label="Show Only Favorites"
+                    checked={favoriteFilter}
+                    onChange={(e) => setFavoriteFilter(e.target.checked)}
+                />
+            </Form.Group>
+
             {filteredWorkers.length > 0 ? (
                 <ListGroup className="mt-3">
                     {filteredWorkers.map((worker) => (
@@ -211,6 +236,12 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                                             )}
                                         </div>
                                         <div>
+                                            <span
+                                                style={{ cursor: 'pointer', color: worker.favorite ? 'gold' : 'gray', marginRight: '10px' }}
+                                                onClick={() => toggleFavorite(worker.id)}
+                                            >
+                                                {worker.favorite ? <FaStar /> : <FaRegStar />}
+                                            </span>
                                             <Button variant="link" onClick={() => toggleWorkerDetails(worker.id)}>
                                                 {expandedWorkerId === worker.id ? '▲' : '▼'}
                                             </Button>

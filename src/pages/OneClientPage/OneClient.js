@@ -106,54 +106,59 @@ function OneClient() {
     }
 
     return (
-        <Container className="mt-5">
-            <ClientDetails client={client}
-                           navigate={navigate}
-            locations={locations}/>
-            <Row>
-                <Col md={6}>
-                    <ClientDevices
-                        devices={devices}
-                        client={client}
-                        clientId={clientId}
+        <>
+            <div className='client-name'>
+                <h1>{client ? `${client.shortName} Details` : 'Client Details'}</h1>
+            </div>
+            <Container className="mt-5">
+                <ClientDetails client={client}
+                               navigate={navigate}
+                locations={locations}/>
+                <Row>
+                    <Col md={6}>
+                        <ClientDevices
+                            devices={devices}
+                            client={client}
+                            clientId={clientId}
+                            setRefresh={setRefresh}
+                            locations={locationsMap}
+                        />
+                    </Col>
+                    <Col md={6}>
+                        <ClientWorker
+                            workers={workers}
+                            client={client}
+                            clientId={clientId}
+                            setRefresh={setRefresh}
+                        />
+                    </Col>
+                </Row>
+                <Row>
+                    <Col md={6}>
+                        <ClientThirdPartyIT clientId={clientId}
+                        client={client}/>
+                    </Col>
+                    <Col md={6}>
+                        <ClientMaintenances
+                            maintenances={maintenances}
+                            clientId={clientId}
+                            setRefresh={setRefresh}
+                            client={client}
+                        />
+                    </Col>
+                    <Col md={6}>
+                        <SoftwareDetails softwareList={softwareList}
+                                         clientId={clientId}
                         setRefresh={setRefresh}
-                        locations={locationsMap}
-                    />
-                </Col>
-                <Col md={6}>
-                    <ClientWorker
-                        workers={workers}
-                        client={client}
-                        clientId={clientId}
-                        setRefresh={setRefresh}
-                    />
-                </Col>
-            </Row>
-            <Row>
-                <Col md={6}>
-                    <ClientThirdPartyIT clientId={clientId}
-                    client={client}/>
-                </Col>
-                <Col md={6}>
-                    <ClientMaintenances
-                        maintenances={maintenances}
-                        clientId={clientId}
-                        setRefresh={setRefresh}
-                        client={client}
-                    />
-                </Col>
-                <Col md={6}>
-                    <SoftwareDetails softwareList={softwareList}
-                                     clientId={clientId}
-                    setRefresh={setRefresh}
-                    client={client}/>
-                </Col>
-            </Row>
-            <ClientTickets
-            tickets={tickets}
-            statusMap={statusMap}
-            />
-        </Container>
+                        client={client}/>
+                    </Col>
+                </Row>
+                <ClientTickets
+                tickets={tickets}
+                statusMap={statusMap}
+                />
+            </Container>
+        </>
     );
 }
 
