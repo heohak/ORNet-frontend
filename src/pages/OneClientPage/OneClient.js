@@ -118,7 +118,7 @@ function OneClient() {
                         locations={locations}
                     />
                     <Accordion defaultActiveKey="0">
-                        <Accordion.Item eventKey="2">
+                        <Accordion.Item eventKey="0">
                             <Accordion.Header>Technical Information</Accordion.Header>
                             <Accordion.Body>
                                 <SoftwareDetails
@@ -130,7 +130,7 @@ function OneClient() {
                             </Accordion.Body>
                         </Accordion.Item>
 
-                        <Accordion.Item eventKey="3">
+                        <Accordion.Item eventKey="1">
                             <Accordion.Header>Tickets</Accordion.Header>
                             <Accordion.Body>
                                 <ClientTickets
@@ -140,7 +140,7 @@ function OneClient() {
                             </Accordion.Body>
                         </Accordion.Item>
 
-                        <Accordion.Item eventKey="1">
+                        <Accordion.Item eventKey="2">
                             <Accordion.Header>Workers</Accordion.Header>
                             <Accordion.Body>
                                 <ClientWorker
@@ -152,7 +152,7 @@ function OneClient() {
                             </Accordion.Body>
                         </Accordion.Item>
 
-                        <Accordion.Item eventKey="0">
+                        <Accordion.Item eventKey="3">
                             <Accordion.Header>Devices</Accordion.Header>
                             <Accordion.Body>
                                 <ClientDevices
