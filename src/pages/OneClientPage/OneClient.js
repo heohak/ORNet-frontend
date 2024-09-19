@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Container, Spinner, Alert, Row, Col } from 'react-bootstrap';
+import { Container, Spinner, Alert, Accordion, Row, Col } from 'react-bootstrap';
 import config from "../../config/config";
 import ClientDetails from "./ClientDetails";
 import ClientDevices from "./ClientDevices";
@@ -106,59 +106,90 @@ function OneClient() {
     }
 
     return (
-        <>
-            <div className='client-name'>
-                <h1>{client ? `${client.shortName} Details` : 'Client Details'}</h1>
-            </div>
-            <Container className="mt-5">
-                <ClientDetails client={client}
-                               navigate={navigate}
-                locations={locations}/>
-                <Row>
-                    <Col md={6}>
-                        <ClientDevices
-                            devices={devices}
-                            client={client}
-                            clientId={clientId}
-                            setRefresh={setRefresh}
-                            locations={locationsMap}
-                        />
-                    </Col>
-                    <Col md={6}>
-                        <ClientWorker
-                            workers={workers}
-                            client={client}
-                            clientId={clientId}
-                            setRefresh={setRefresh}
-                        />
-                    </Col>
-                </Row>
-                <Row>
-                    <Col md={6}>
-                        <ClientThirdPartyIT clientId={clientId}
-                        client={client}/>
-                    </Col>
-                    <Col md={6}>
-                        <ClientMaintenances
-                            maintenances={maintenances}
-                            clientId={clientId}
-                            setRefresh={setRefresh}
-                            client={client}
-                        />
-                    </Col>
-                    <Col md={6}>
-                        <SoftwareDetails softwareList={softwareList}
-                                         clientId={clientId}
-                        setRefresh={setRefresh}
-                        client={client}/>
-                    </Col>
-                </Row>
-                <ClientTickets
-                tickets={tickets}
-                statusMap={statusMap}
-                />
-            </Container>
-        </>
+        <Container>
+            {loading && <Spinner animation="border" />}
+            {error && <Alert variant="danger">{error}</Alert>}
+
+            {client && (
+                <>
+                    <ClientDetails
+                        client={client}
+                        navigate={navigate}
+                        locations={locations}
+                    />
+                    <Accordion defaultActiveKey="0">
+                        <Accordion.Item eventKey="2">
+                            <Accordion.Header>Technical Information</Accordion.Header>
+                            <Accordion.Body>
+                                <SoftwareDetails
+                                    softwareList={softwareList}
+                                    clientId={clientId}
+                                    setRefresh={setRefresh}
+                                    client={client}
+                                />
+                            </Accordion.Body>
+                        </Accordion.Item>
+
+                        <Accordion.Item eventKey="3">
+                            <Accordion.Header>Tickets</Accordion.Header>
+                            <Accordion.Body>
+                                <ClientTickets
+                                    tickets={tickets}
+                                    statusMap={statusMap}
+                                />
+                            </Accordion.Body>
+                        </Accordion.Item>
+
+                        <Accordion.Item eventKey="1">
+                            <Accordion.Header>Workers</Accordion.Header>
+                            <Accordion.Body>
+                                <ClientWorker
+                                    workers={workers}
+                                    client={client}
+                                    clientId={clientId}
+                                    setRefresh={setRefresh}
+                                />
+                            </Accordion.Body>
+                        </Accordion.Item>
+
+                        <Accordion.Item eventKey="0">
+                            <Accordion.Header>Devices</Accordion.Header>
+                            <Accordion.Body>
+                                <ClientDevices
+                                    devices={devices}
+                                    client={client}
+                                    clientId={clientId}
+                                    setRefresh={setRefresh}
+                                    locations={locationsMap}
+                                />
+                            </Accordion.Body>
+                        </Accordion.Item>
+
+                        <Accordion.Item eventKey="4">
+                            <Accordion.Header>Third Party ITs</Accordion.Header>
+                            <Accordion.Body>
+                                <ClientThirdPartyIT
+                                    clientId={clientId}
+                                    client={client}
+                                />
+                            </Accordion.Body>
+                        </Accordion.Item>
+
+                        <Accordion.Item eventKey="5">
+                            <Accordion.Header>Maintenances</Accordion.Header>
+                            <Accordion.Body>
+                                <ClientMaintenances
+                                    maintenances={maintenances}
+                                    clientId={clientId}
+                                    setRefresh={setRefresh}
+                                    client={client}
+                                />
+                            </Accordion.Body>
+                        </Accordion.Item>
+                    </Accordion>
+                </>
+            )}
+        </Container>
     );
 }
 
