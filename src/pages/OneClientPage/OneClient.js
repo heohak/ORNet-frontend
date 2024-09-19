@@ -109,7 +109,9 @@ function OneClient() {
         <Container>
             {loading && <Spinner animation="border" />}
             {error && <Alert variant="danger">{error}</Alert>}
-
+            <div className='client-name'>
+                <h1>{client ? `${client.shortName} Details` : 'Client Details'}</h1>
+            </div>
             {client && (
                 <>
                     <ClientDetails
