@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {Card, Button, Modal, Form, Alert, Accordion, Row, Col, Container} from 'react-bootstrap';
+import {Card, Button, Modal, Form, Alert, Row, Col, Container} from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../config/config";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -10,7 +10,7 @@ const specificFields = [
     'fullName', 'shortName', 'pathologyClient', 'surgeryClient', 'editorClient', 'otherMedicalInformation', 'lastMaintenance', 'nextMaintenance'
 ];
 
-function ClientDetails({ client, navigate, locations }) {
+function ClientDetails({ client, navigate }) {
     const [showClientFieldModal, setShowClientFieldModal] = useState(false);
     const [visibleDeviceFields, setVisibleDeviceFields] = useState({});
     const [error, setError] = useState(null);

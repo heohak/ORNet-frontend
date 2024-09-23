@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import {Container, Spinner, Alert, Accordion, Row, Col, Card} from 'react-bootstrap';
+import {Container, Spinner, Alert, Accordion, Card} from 'react-bootstrap';
 import config from "../../config/config";
 import ClientDetails from "./ClientDetails";
 import ClientDevices from "./ClientDevices";
