@@ -91,6 +91,8 @@ h1 {
     background-color: #f8f9fa;
     width: 100%;
     z-index: 999; /* Ensure it stays on top of other content */
+    display: flex;
+    justify-content: center;
 }
 
 /* Responsive Styles */

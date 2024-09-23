@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Container, Spinner, Alert, Accordion, Row, Col } from 'react-bootstrap';
+import {Container, Spinner, Alert, Accordion, Row, Col, Card} from 'react-bootstrap';
 import config from "../../config/config";
 import ClientDetails from "./ClientDetails";
 import ClientDevices from "./ClientDevices";
@@ -121,7 +121,27 @@ function OneClient() {
                             locations={locations}
                         />
                         <Accordion defaultActiveKey="0">
-                            <Accordion.Item eventKey="0">
+                            <Accordion.Item eventKey="1">
+                                <Accordion.Header>Locations</Accordion.Header>
+                                <Accordion.Body>
+                                    {locations.length > 0 ? (
+                                        locations.map(location => (
+                                            <Card key={location.id} className="mb-2">
+                                                <Card.Body>
+                                                    <Card.Title>{location.name}</Card.Title>
+                                                    <Card.Text>
+                                                        <strong>Address: </strong>{location.address}<br />
+                                                        <strong>Phone: </strong>{location.phone}
+                                                    </Card.Text>
+                                                </Card.Body>
+                                            </Card>
+                                        ))
+                                    ) : (
+                                        <Alert variant="info">No locations available.</Alert>
+                                    )}
+                                </Accordion.Body>
+                            </Accordion.Item>
+                            <Accordion.Item eventKey="2">
                                 <Accordion.Header>Technical Information</Accordion.Header>
                                 <Accordion.Body>
                                     <SoftwareDetails
@@ -133,7 +153,7 @@ function OneClient() {
                                 </Accordion.Body>
                             </Accordion.Item>
 
-                            <Accordion.Item eventKey="1">
+                            <Accordion.Item eventKey="3">
                                 <Accordion.Header>Tickets</Accordion.Header>
                                 <Accordion.Body>
                                     <ClientTickets
@@ -143,7 +163,7 @@ function OneClient() {
                                 </Accordion.Body>
                             </Accordion.Item>
 
-                            <Accordion.Item eventKey="2">
+                            <Accordion.Item eventKey="4">
                                 <Accordion.Header>Workers</Accordion.Header>
                                 <Accordion.Body>
                                     <ClientWorker
@@ -155,7 +175,7 @@ function OneClient() {
                                 </Accordion.Body>
                             </Accordion.Item>
 
-                            <Accordion.Item eventKey="3">
+                            <Accordion.Item eventKey="5">
                                 <Accordion.Header>Devices</Accordion.Header>
                                 <Accordion.Body>
                                     <ClientDevices
@@ -168,7 +188,7 @@ function OneClient() {
                                 </Accordion.Body>
                             </Accordion.Item>
 
-                            <Accordion.Item eventKey="4">
+                            <Accordion.Item eventKey="6">
                                 <Accordion.Header>Third Party ITs</Accordion.Header>
                                 <Accordion.Body>
                                     <ClientThirdPartyIT
@@ -178,7 +198,7 @@ function OneClient() {
                                 </Accordion.Body>
                             </Accordion.Item>
 
-                            <Accordion.Item eventKey="5">
+                            <Accordion.Item eventKey="7">
                                 <Accordion.Header>Maintenances</Accordion.Header>
                                 <Accordion.Body>
                                     <ClientMaintenances

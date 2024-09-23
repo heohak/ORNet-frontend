@@ -89,7 +89,6 @@ function ClientDetails({ client, navigate, locations }) {
         <>
             <div className="mb-4" style={{display: "flex", justifyContent: "space-between"}}>
                 <Button style={{width: '9%'}} className='mt-2 mb-2' onClick={() => navigate('/clients')}>Back</Button>
-                <Button onClick={handleNavigate} style={{width: '9%'}} className='mt-2 mb-2'>See History</Button>
             </div>
             {client ? (
                 <Card className="mb-4">
@@ -99,37 +98,21 @@ function ClientDetails({ client, navigate, locations }) {
                                 {renderFields(client)}
                             </Col>
                             <Col className='col-md-auto'>
-                                <Button variant="primary" onClick={() => navigate(`/client/edit/${client.id}`)}>
-                                    Edit Client
-                                </Button>
-                                <Button variant="link" className="float-end" onClick={() => setShowClientFieldModal(true)}>
-                                    <FontAwesomeIcon icon={faCog} />
-                                </Button>
+                                <div className="d-flex align-items-center">
+                                    <Button variant="link" className="me-2" onClick={() => setShowClientFieldModal(true)}>
+                                        <FontAwesomeIcon icon={faCog} />
+                                    </Button>
+                                    <Button variant="primary" onClick={() => navigate(`/client/edit/${client.id}`)}>
+                                        Edit Client
+                                    </Button>
+                                </div>
+                                <div style={{display: "flex", justifyContent: "right"}}>
+                                    <Button onClick={handleNavigate} className='mt-2 mb-2'>See History</Button>
+                                </div>
                             </Col>
+
                         </Row>
                     </Card.Body>
-                    <Accordion className="m-3">
-                        <Accordion.Item eventKey="0">
-                            <Accordion.Header>Locations</Accordion.Header>
-                            <Accordion.Body>
-                                {locations.length > 0 ? (
-                                    locations.map(location => (
-                                        <Card key={location.id} className="mb-2">
-                                            <Card.Body>
-                                                <Card.Title>{location.name}</Card.Title>
-                                                <Card.Text>
-                                                    <strong>Address: </strong>{location.address}<br />
-                                                    <strong>Phone: </strong>{location.phone}
-                                                </Card.Text>
-                                            </Card.Body>
-                                        </Card>
-                                    ))
-                                ) : (
-                                    <Alert variant="info">No locations available.</Alert>
-                                )}
-                            </Accordion.Body>
-                        </Accordion.Item>
-                    </Accordion>
                 </Card>
             ) : (
                 <Alert variant="info">No client details available.</Alert>
