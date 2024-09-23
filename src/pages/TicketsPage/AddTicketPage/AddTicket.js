@@ -8,7 +8,6 @@ import AddWorkTypeModal from './AddWorkTypeModal';
 import AddLocationModal from "./AddLocationModal";
 import AddContactModal from "./AddContactModal";
 import Select from 'react-select';
-import { FaStar } from 'react-icons/fa';
 
 function AddTicket() {
     const { mainTicketId } = useParams();
@@ -82,8 +81,16 @@ function AddTicket() {
                 try {
                     const locationRes = await axios.get(`${config.API_BASE_URL}/client/locations/${formData.clientId}`);
                     const contactRes = await axios.get(`${config.API_BASE_URL}/worker/${formData.clientId}`);
+
+                    const contactsWithRoles = await Promise.all(
+                        contactRes.data.map(async contact => {
+                            const rolesRes = await axios.get(`${config.API_BASE_URL}/worker/role/${contact.id}`);
+                            return { ...contact, roles: rolesRes.data.map(role => role.role) };
+                        })
+                    );
+
                     setLocations(locationRes.data);
-                    setContacts(contactRes.data);
+                    setContacts(contactsWithRoles);
                 } catch (error) {
                     console.error('Error fetching locations or contacts:', error);
                 }
@@ -330,6 +337,7 @@ function AddTicket() {
                                     <option key={contact.id} value={contact.id}>
                                         {contact.favorite ? "★ " : ""}
                                         {contact.firstName + " " + contact.lastName}
+                                        {contact.roles && contact.roles.length > 0 && ` - Roles: ${contact.roles.join(", ")}`}
                                     </option>
                                 ))}
                             </>
