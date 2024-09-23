@@ -35,7 +35,7 @@ function CommentsModal({ show, handleClose, deviceId, isLinkedDevice = false }) 
                 ? `${config.API_BASE_URL}/linked/device/comment/${deviceId}`
                 : `${config.API_BASE_URL}/device/comment/${deviceId}`;
             await axios.put(url, null, { params: { comment: newComment } });
-            setComments([...comments, { comment: newComment, timestamp: new Date() }]);
+            setComments([{ comment: newComment, timestamp: new Date() }, ...comments]);
             setNewComment("");
         } catch (error) {
             console.error('Error adding comment:', error);
