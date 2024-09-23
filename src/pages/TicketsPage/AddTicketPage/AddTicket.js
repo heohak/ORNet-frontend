@@ -8,6 +8,7 @@ import AddWorkTypeModal from './AddWorkTypeModal';
 import AddLocationModal from "./AddLocationModal";
 import AddContactModal from "./AddContactModal";
 import Select from 'react-select';
+import { FaStar } from 'react-icons/fa';
 
 function AddTicket() {
     const { mainTicketId } = useParams();
@@ -327,6 +328,7 @@ function AddTicket() {
                                 <option value="">Select a Contact</option>
                                 {contacts.map(contact => (
                                     <option key={contact.id} value={contact.id}>
+                                        {contact.favorite ? "★ " : ""}
                                         {contact.firstName + " " + contact.lastName}
                                     </option>
                                 ))}
