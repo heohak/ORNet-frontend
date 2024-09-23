@@ -9,6 +9,7 @@ function ClientDevices({ devices, client, clientId, setRefresh, locations }) {
     const [showAddDeviceModal, setShowAddDeviceModal] = useState(false);
     const [classificators, setClassificators] = useState([]);
     const [selectedClassificatorId, setSelectedClassificatorId] = useState('');
+    const [writtenOff, setWrittenOff] = useState(false);
     const [filteredDevices, setFilteredDevices] = useState(devices);
     const [searchQuery, setSearchQuery] = useState('');
     const [deviceSummary, setDeviceSummary] = useState({});
@@ -24,7 +25,7 @@ function ClientDevices({ devices, client, clientId, setRefresh, locations }) {
 
     useEffect(() => {
         filterDevices();
-    }, [selectedClassificatorId, searchQuery]);
+    }, [selectedClassificatorId, searchQuery, writtenOff]);
 
     const fetchClassificators = async () => {
         try {
@@ -53,7 +54,8 @@ function ClientDevices({ devices, client, clientId, setRefresh, locations }) {
                 params: {
                     q: searchQuery,
                     classificatorId: selectedClassificatorId || null,
-                    clientId: clientId
+                    clientId: clientId,
+                    writtenOff: writtenOff
                 }
             });
             setFilteredDevices(response.data);
@@ -90,6 +92,16 @@ function ClientDevices({ devices, client, clientId, setRefresh, locations }) {
                         <option key={classificator.id} value={classificator.id}>{classificator.name}</option>
                     ))}
                 </Form.Control>
+            </Form.Group>
+            <Form.Group controlId="written-off-filter" className="mt-3">
+                <Form.Check
+                    type="switch"
+                    id="written-off-switch"
+                    label="Written-off"
+                    checked={writtenOff}
+                    onChange={(e) => setWrittenOff(e.target.checked)}
+                    className="mb-4"
+                />
             </Form.Group>
 
 
