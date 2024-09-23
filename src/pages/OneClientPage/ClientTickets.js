@@ -26,8 +26,8 @@ function ClientTickets({tickets, statusMap}) {
                             >
                                 <h3 style={{color: "#0000EE"}}>{ticket.title}</h3>
                                 {status && (
-                                    <Badge style={{ backgroundColor: status.color }}>
-                                        {status.status}  {/* Display status name */}
+                                    <Badge bg={status.color ? "none" : "primary"} style={{ backgroundColor: status.color }}>
+                                        {status.status}
                                     </Badge>
                                 )}
                             </ListGroup.Item>
