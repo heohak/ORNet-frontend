@@ -14,6 +14,9 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
     const [localDevice, setLocalDevice] = useState(device);
     const [showWrittenOffModal, setShowWrittenOffModal] = useState(false);
     const [writtenOffDate, setWrittenOffDate] = useState(device?.writtenOffDate || "");
+    const [isWrittenOff, setIsWrittenOff] = useState(!!device?.writtenOffDate);
+    const [writtenOffComment, setWrittenOffComment] = useState('');
+    const [showReactivateModal, setShowReactivateModal] = useState(false)
     const location = useLocation();
 
     const defaultFields = [
@@ -163,13 +166,33 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
 
     const handleAddWrittenOffDate = async () => {
         try {
-            await axios.put(`${config.API_BASE_URL}/device/written-off/${device.id}`, { writtenOffDate });
+            await axios.put(`${config.API_BASE_URL}/device/written-off/${device.id}`,
+                { writtenOffDate }, // Sending the writtenOffDate in the request body
+                { params: { comment: writtenOffComment } } // Sending the comment as a request parameter
+            );
+            setIsWrittenOff(true); // Mark the device as written off
             setRefresh(prev => !prev); // Refresh data
             setShowWrittenOffModal(false); // Close modal
         } catch (error) {
             console.error('Error updating written off date:', error);
         }
     };
+
+
+    const handleReactivateDevice = async () => {
+        try {
+            await axios.put(`${config.API_BASE_URL}/device/reactivate/${device.id}`, null,
+                { params: { comment: writtenOffComment } } // Sending the comment as a request parameter
+            );
+            setWrittenOffDate('');  // Clear the written off date
+            setIsWrittenOff(false); // Update the status
+            setRefresh(prev => !prev); // Refresh the data
+            setShowReactivateModal(false)
+        } catch (error) {
+            console.error('Error reactivating the device:', error);
+        }
+    };
+
     const handleNavigate = () => {
         if (device && device.id) {
             navigate('/history', { state: { endpoint: `device/history/${device.id}` } })
@@ -220,7 +243,27 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
                             ...localDevice.attributes
                         })}
                         <DeviceFileList deviceId={localDevice.id}/>  {/* Calls the FileList class */}
-                        <Button variant="warning me-2" onClick={() => setShowWrittenOffModal(true)}>Write Off</Button>
+                        {isWrittenOff ? (
+                            <Button variant="success me-2" onClick={() => {
+                                setWrittenOffComment("");
+                                setShowReactivateModal(true);
+                            }}
+                                    >
+                                Reactivate
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="warning me-2"
+                                onClick={() => {
+                                    setWrittenOffDate("");
+                                    setWrittenOffComment("");
+                                    setShowWrittenOffModal(true);
+                                }}
+                            >
+                                Write Off
+                            </Button>
+                        )}
+
                         <Button variant="info" onClick={() => setShowCommentsModal(true)}>View Comments</Button>
                     </Card.Body>
                 </Card>
@@ -297,11 +340,45 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
                                 onChange={(e) => setWrittenOffDate(e.target.value)}
                             />
                         </Form.Group>
+                        <Form.Group controlId="writtenOffComment" className="mt-3">
+                            <Form.Label>Comment</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={3}
+                                value={writtenOffComment}
+                                onChange={(e) => setWrittenOffComment(e.target.value)}
+                                placeholder="Enter reason for writing off the device"
+                            />
+                        </Form.Group>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowWrittenOffModal(false)}>Close</Button>
                     <Button variant="primary" onClick={handleAddWrittenOffDate}>Save</Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showReactivateModal} onHide={() => setShowReactivateModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Reactivate Device</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group controlId="reactivateComment">
+                            <Form.Label>Comment</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={3}
+                                value={writtenOffComment}
+                                onChange={(e) => setWrittenOffComment(e.target.value)}
+                                placeholder="Enter reason for reactivating the device"
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowReactivateModal(false)}>Close</Button>
+                    <Button variant="primary" onClick={handleReactivateDevice}>Reactivate</Button>
                 </Modal.Footer>
             </Modal>
         </>
