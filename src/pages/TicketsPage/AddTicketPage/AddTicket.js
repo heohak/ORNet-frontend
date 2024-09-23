@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { Button, Form, Container, Alert, Row, Col } from 'react-bootstrap';
+import { Button, Form, Container, Alert } from 'react-bootstrap';
 import moment from 'moment';
 import config from "../../../config/config";
 import AddWorkTypeModal from './AddWorkTypeModal';
@@ -81,8 +81,16 @@ function AddTicket() {
                 try {
                     const locationRes = await axios.get(`${config.API_BASE_URL}/client/locations/${formData.clientId}`);
                     const contactRes = await axios.get(`${config.API_BASE_URL}/worker/${formData.clientId}`);
+
+                    const contactsWithRoles = await Promise.all(
+                        contactRes.data.map(async contact => {
+                            const rolesRes = await axios.get(`${config.API_BASE_URL}/worker/role/${contact.id}`);
+                            return { ...contact, roles: rolesRes.data.map(role => role.role) };
+                        })
+                    );
+
                     setLocations(locationRes.data);
-                    setContacts(contactRes.data);
+                    setContacts(contactsWithRoles);
                 } catch (error) {
                     console.error('Error fetching locations or contacts:', error);
                 }
@@ -327,7 +335,9 @@ function AddTicket() {
                                 <option value="">Select a Contact</option>
                                 {contacts.map(contact => (
                                     <option key={contact.id} value={contact.id}>
+                                        {contact.favorite ? "★ " : ""}
                                         {contact.firstName + " " + contact.lastName}
+                                        {contact.roles && contact.roles.length > 0 && ` - Roles: ${contact.roles.join(", ")}`}
                                     </option>
                                 ))}
                             </>

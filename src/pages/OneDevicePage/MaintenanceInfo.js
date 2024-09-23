@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Card, Button, Modal, Form, Alert, ListGroup } from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../config/config";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCog} from "@fortawesome/free-solid-svg-icons";
 
 function MaintenanceInfo({
                              maintenanceInfo,
@@ -76,7 +78,7 @@ function MaintenanceInfo({
             if (visibleFields[key] && data[key] !== null) {
                 return (
                     <Card.Text key={key} className="mb-1">
-                        <strong>{key.replace(/([A-Z])/g, ' $1')}: </strong> {data[key]}
+                        <strong>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}: </strong> {data[key]}
                     </Card.Text>
                 );
             }
@@ -149,11 +151,15 @@ function MaintenanceInfo({
 
     return (
         <>
-            <h2 className="mb-4">
-                Maintenance Information
-                <Button variant="link" className="float-end mb-3" onClick={() => setShowMaintenanceFieldModal(true)}>Edit Fields</Button>
-            </h2>
-            <Button variant="primary" onClick={() => setShowMaintenanceModal(true)} className="mb-3">Add Maintenance</Button>
+            <div className="mb-5 mt-4" style={{display: "flex"}}>
+                <h2>Maintenance Information</h2>
+                <div className="ms-3" style={{alignContent: "center"}}>
+                    <Button variant="primary" onClick={() => setShowMaintenanceModal(true)}>Add Maintenance</Button>
+                </div>
+                <Button variant="link" onClick={() => setShowMaintenanceFieldModal(true)}>
+                    <FontAwesomeIcon icon={faCog} />
+                </Button>
+            </div>
             {maintenanceInfo.length > 0 ? (
                 maintenanceInfo.map((maintenance, index) => (
                     <Card key={index} className="mb-4">

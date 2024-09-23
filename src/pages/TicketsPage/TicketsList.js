@@ -72,8 +72,10 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
     return (
         <Row>
             {tickets.map((ticket) => {
-                const statusName = statuses.find(status => status.id === ticket.statusId)?.status || 'Unknown Status';
+                const status = statuses.find(status => status.id === ticket.statusId);
+                const statusName = status?.status || 'Unknown Status';
                 const clientName = clientDetails[ticket.clientId] || 'Unknown Client';
+                const statusColor = status.color;
 
                 return (
                     <Col md={4} key={ticket.id} className="mb-4">
@@ -81,7 +83,7 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
                             <Card.Body className='all-page-cardBody'>
                                 <div className="position-absolute top-0 end-0 m-2">
                                     <Button
-                                        variant={ticket.statusId === 1 ? "success" : "danger"}
+                                        style={{ backgroundColor: statusColor || "#007bff", borderColor: statusColor || "#007bff" }}
                                         size=""
                                         disabled
                                     >

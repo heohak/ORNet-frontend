@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Modal, Form, Alert } from 'react-bootstrap';
+import {Card, Button, Modal, Form, Alert, Col, Row} from 'react-bootstrap';
 import { FaPlus } from 'react-icons/fa';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import config from "../../config/config";
 import DeviceFileList from "./DeviceFileList";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCog} from "@fortawesome/free-solid-svg-icons";
+import "../../css/Devices.css";
 
 function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommentsModal, setRefresh }) {
     const [showDeviceFieldModal, setShowDeviceFieldModal] = useState(false);
@@ -14,7 +17,9 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
     const [localDevice, setLocalDevice] = useState(device);
     const [showWrittenOffModal, setShowWrittenOffModal] = useState(false);
     const [writtenOffDate, setWrittenOffDate] = useState(device?.writtenOffDate || "");
-    const location = useLocation();
+    const [isWrittenOff, setIsWrittenOff] = useState(!!device?.writtenOffDate);
+    const [writtenOffComment, setWrittenOffComment] = useState('');
+    const [showReactivateModal, setShowReactivateModal] = useState(false)
 
     const defaultFields = [
         'deviceName',
@@ -105,13 +110,33 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
                 }
                 return (
                     <div key={key} className="mb-1">
-                        <strong>{key.replace(/([A-Z])/g, ' $1')}: </strong> {data[key]}
+                        <strong>{formatLabel(key)}: </strong> {data[key]}
                     </div>
                 );
             }
             return null;
         });
     };
+
+    const formatLabel = (label) => {
+        // List of known abbreviations to preserve
+        const abbreviations = ['IP', 'API', 'ID']; // Add more abbreviations as needed
+
+        return label
+            // Split camelCase and concatenate words, keeping abbreviations like "IP" intact
+            .replace(/([a-z])([A-Z])/g, '$1 $2')  // Insert space between lowercase and uppercase (e.g., "FirstIP" -> "First IP")
+            .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')  // Insert space between uppercase groups and camelCase (e.g., "IPAddress" -> "IP Address")
+            .split(' ')  // Split the label into words by spaces
+            .map(word => {
+                // If the word matches a known abbreviation, return it fully capitalized
+                if (abbreviations.includes(word.toUpperCase())) {
+                    return word.toUpperCase();  // Ensure it stays uppercase (e.g., "IP" -> "IP")
+                }
+                // Capitalize only the first letter of normal words (e.g., "first" -> "First")
+                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+            })
+            .join(' ');  // Join the words back into a single string
+    }
 
     const handleAddField = async () => {
         if (newField.key.trim() === '' || newField.value.trim() === '') {
@@ -163,13 +188,33 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
 
     const handleAddWrittenOffDate = async () => {
         try {
-            await axios.put(`${config.API_BASE_URL}/device/written-off/${device.id}`, { writtenOffDate });
+            await axios.put(`${config.API_BASE_URL}/device/written-off/${device.id}`,
+                { writtenOffDate }, // Sending the writtenOffDate in the request body
+                { params: { comment: writtenOffComment } } // Sending the comment as a request parameter
+            );
+            setIsWrittenOff(true); // Mark the device as written off
             setRefresh(prev => !prev); // Refresh data
             setShowWrittenOffModal(false); // Close modal
         } catch (error) {
             console.error('Error updating written off date:', error);
         }
     };
+
+
+    const handleReactivateDevice = async () => {
+        try {
+            await axios.put(`${config.API_BASE_URL}/device/reactivate/${device.id}`, null,
+                { params: { comment: writtenOffComment } } // Sending the comment as a request parameter
+            );
+            setWrittenOffDate('');  // Clear the written off date
+            setIsWrittenOff(false); // Update the status
+            setRefresh(prev => !prev); // Refresh the data
+            setShowReactivateModal(false)
+        } catch (error) {
+            console.error('Error reactivating the device:', error);
+        }
+    };
+
     const handleNavigate = () => {
         if (device && device.id) {
             navigate('/history', { state: { endpoint: `device/history/${device.id}` } })
@@ -180,28 +225,11 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
 
     return (
         <>
-            <Button
-                onClick={() => {
-                    if (location.state && location.state.from === 'all-devices') {
-                        navigate('/devices');
-                    } else if (device && device.clientId) {
-                        navigate(`/client/${device.clientId}`);
-                    } else {
-                        navigate(-1);
-                    }
-                }}
-            >
-                Back
-            </Button>
-            <Button onClick={handleNavigate} variant='secondary'>
-                See device history
-            </Button>
-            <h1 className="mb-4 mt-4">
+            <h1 className="device-details-header mt-4">
                 {device ? `${device.deviceName} Details` : 'Device Details'}
-                <Button variant="link" className="float-end" onClick={() => setShowDeviceFieldModal(true)}>Edit Fields</Button>
             </h1>
             {device && device.introducedDate && writtenOffDate && (
-                <div className="mt-3">
+                <div>
                     <strong>Service Duration: </strong>
                     {Math.floor((new Date(writtenOffDate) - new Date(device.introducedDate)) / (1000 * 60 * 60 * 24))} days
                 </div>
@@ -209,18 +237,50 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
             {localDevice ? (
                 <Card className="mb-4">
                     <Card.Body>
-                        <div style={{justifyContent: "space-between", display: "flex"}}>
-                            <Card.Title>{localDevice.deviceName}</Card.Title>
-                            <Button variant="primary" onClick={() => navigate(`/device/edit/${localDevice.id}`)}>
-                                Edit Device
-                            </Button>
-                        </div>
-                        {renderFields({
-                            ...Object.fromEntries(Object.entries(localDevice).filter(([key]) => key !== 'attributes')),
-                            ...localDevice.attributes
-                        })}
+                        <Row>
+                            <Col>
+                                {renderFields({
+                                    ...Object.fromEntries(Object.entries(localDevice).filter(([key]) => key !== 'attributes')),
+                                    ...localDevice.attributes
+                                })}
+                            </Col>
+                            <Col className='col-md-auto'>
+                                <div className="d-flex align-items-center">
+                                    <Button variant="link" className="me-2" onClick={() => setShowDeviceFieldModal(true)}>
+                                        <FontAwesomeIcon icon={faCog} />
+                                    </Button>
+                                    <Button variant="primary" onClick={() => navigate(`/device/edit/${localDevice.id}`)}>
+                                        Edit Device
+                                    </Button>
+                                </div>
+                                <div style={{display: "flex", justifyContent: "right"}}>
+                                    <Button onClick={handleNavigate} className='mt-2 mb-2'>See History</Button>
+                                </div>
+                            </Col>
+                        </Row>
+
                         <DeviceFileList deviceId={localDevice.id}/>  {/* Calls the FileList class */}
-                        <Button variant="warning me-2" onClick={() => setShowWrittenOffModal(true)}>Write Off</Button>
+                        {isWrittenOff ? (
+                            <Button variant="success me-2" onClick={() => {
+                                setWrittenOffComment("");
+                                setShowReactivateModal(true);
+                            }}
+                                    >
+                                Reactivate
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="warning me-2"
+                                onClick={() => {
+                                    setWrittenOffDate("");
+                                    setWrittenOffComment("");
+                                    setShowWrittenOffModal(true);
+                                }}
+                            >
+                                Write Off
+                            </Button>
+                        )}
+
                         <Button variant="info" onClick={() => setShowCommentsModal(true)}>View Comments</Button>
                     </Card.Body>
                 </Card>
@@ -297,11 +357,45 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
                                 onChange={(e) => setWrittenOffDate(e.target.value)}
                             />
                         </Form.Group>
+                        <Form.Group controlId="writtenOffComment" className="mt-3">
+                            <Form.Label>Comment</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={3}
+                                value={writtenOffComment}
+                                onChange={(e) => setWrittenOffComment(e.target.value)}
+                                placeholder="Enter reason for writing off the device"
+                            />
+                        </Form.Group>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowWrittenOffModal(false)}>Close</Button>
                     <Button variant="primary" onClick={handleAddWrittenOffDate}>Save</Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showReactivateModal} onHide={() => setShowReactivateModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Reactivate Device</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group controlId="reactivateComment">
+                            <Form.Label>Comment</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={3}
+                                value={writtenOffComment}
+                                onChange={(e) => setWrittenOffComment(e.target.value)}
+                                placeholder="Enter reason for reactivating the device"
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowReactivateModal(false)}>Close</Button>
+                    <Button variant="primary" onClick={handleReactivateDevice}>Reactivate</Button>
                 </Modal.Footer>
             </Modal>
         </>

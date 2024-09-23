@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Row, Col, Alert } from 'react-bootstrap';
+import {Form, Row, Col, Alert, FormCheck} from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../config/config";
 import SummaryModal from "./SummaryModal";
@@ -9,6 +9,7 @@ function DeviceSearchFilter({ setDevices }) {
     const [classificatorId, setClassificatorId] = useState("");
     const [clientId, setClientId] = useState("");
     const [locationId, setLocationId] = useState("");
+    const [writtenOff, setWrittenOff] = useState(false);
     const [classificators, setClassificators] = useState([]);
     const [clients, setClients] = useState([]);
     const [locations, setLocations] = useState([])
@@ -78,7 +79,8 @@ function DeviceSearchFilter({ setDevices }) {
                     q: searchQuery,
                     classificatorId: classificatorId || undefined,
                     clientId: clientId || undefined,
-                    locationId: locationId || undefined
+                    locationId: locationId || undefined,
+                    writtenOff: writtenOff
                 }
             });
             setDevices(response.data);
@@ -95,7 +97,7 @@ function DeviceSearchFilter({ setDevices }) {
         }, 300);
         setTypingTimeout(timeout);
         return () => clearTimeout(timeout);
-    }, [searchQuery, classificatorId, clientId, locationId]);
+    }, [searchQuery, classificatorId, clientId, locationId, writtenOff]);
 
     return (
         <>
@@ -159,6 +161,16 @@ function DeviceSearchFilter({ setDevices }) {
                             </option>
                         ))}
                     </Form.Control>
+                </Col>
+                <Col>
+                    <Form.Check
+                        type="switch"
+                        id="written-off-switch"
+                        label="Written-off"
+                        checked={writtenOff}
+                        onChange={(e) => setWrittenOff(e.target.checked)}
+                        className="mb-4"
+                    />
                 </Col>
             </Row>
         </>
