@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, ListGroup, Alert, Button, Modal, Form,Spinner } from 'react-bootstrap';
+import {Card, ListGroup, Alert, Button, Modal, Form, Spinner, Badge} from 'react-bootstrap';
 import AddClientDevice from './AddClientDevice';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -114,6 +114,9 @@ function ClientDevices({ devices, client, clientId, setRefresh, locations }) {
                                 <Card.Body>
                                     <Card.Title style={{ cursor: "pointer", color: "#0000EE" }} onClick={() => navigate(`/device/${device.id}`)}>
                                         {index + 1}. {device.deviceName}
+                                        {device.writtenOffDate && (
+                                            <Badge bg="danger" className="ms-2">Written Off</Badge> // Simple written-off indicator
+                                        )}
                                     </Card.Title>
                                     <p><strong>Location:</strong> {locations[device.locationId] || 'Unknown'}</p>
                                     <p><strong>Room:</strong> {device.room ? device.room : 'N/A'}</p>

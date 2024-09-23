@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Alert, Button, Card, Col, Container, Row, Spinner } from "react-bootstrap";
+import { Alert, Button, Card, Col, Container, Row, Spinner, Badge } from "react-bootstrap";
 import config from "../../config/config";
 import AddDeviceModal from './AddDeviceModal';
 import DeviceSearchFilter from './DeviceSearchFilter';
@@ -91,7 +91,11 @@ function Devices() {
                         <Col md={4} key={device.id} className="mb-4">
                             <Card className='all-page-card' onClick={() => navigate(`/device/${device.id}`, {state: {from: 'all-devices'}})}>
                                 <Card.Body className='all-page-cardBody'>
-                                    <Card.Title className='all-page-cardTitle'><strong>{device.deviceName}</strong></Card.Title>
+                                    <Card.Title className='all-page-cardTitle'>
+                                        <strong>{device.deviceName}</strong>
+                                        {device.writtenOffDate && (
+                                            <Badge bg="danger" className="ms-2">Written Off</Badge> // Simple written-off indicator
+                                        )}</Card.Title>
                                     <Card.Text className='all-page-cardText'>
                                         <strong>Serial Number: </strong>{device.serialNumber}<br />
                                         <strong>Type: </strong>{classificators[device.classificatorId] || "Unknown type"}
