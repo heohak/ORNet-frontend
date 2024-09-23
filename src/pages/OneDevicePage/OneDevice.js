@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Spinner, Alert } from 'react-bootstrap';
+import {useParams, useNavigate, useLocation} from 'react-router-dom';
+import {Container, Spinner, Alert, Row, Col, Button} from 'react-bootstrap';
 import config from "../../config/config";
 import DeviceDetails from "./DeviceDetails";
 import MaintenanceInfo from "./MaintenanceInfo";
@@ -27,7 +27,7 @@ function OneDevice() {
     const [showFileUploadModal, setShowFileUploadModal] = useState(false);
     const [showCommentsModal, setShowCommentsModal] = useState(false);
     const [refresh, setRefresh] = useState(false);
-
+    const location = useLocation();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -137,35 +137,54 @@ function OneDevice() {
 
     return (
         <Container className="mt-5">
-            <DeviceDetails
-                device={device}
-                navigate={navigate}
-                setShowFileUploadModal={setShowFileUploadModal}
-                setShowCommentsModal={setShowCommentsModal}
-                setRefresh={setRefresh}
-                onUploadSuccess={handleUploadSuccess}
-            />
-            <MaintenanceInfo
-                maintenanceInfo={maintenanceInfo}
-                showMaintenanceModal={showMaintenanceModal}
-                setShowMaintenanceModal={setShowMaintenanceModal}
-                handleAddMaintenance={handleAddMaintenance}
-                setMaintenanceName={setMaintenanceName}
-                setMaintenanceDate={setMaintenanceDate}
-                setMaintenanceComment={setMaintenanceComment}
-                setFiles={setFiles} // Pass setFiles to MaintenanceInfo
-            />
-            <LinkedDevices
-                linkedDevices={linkedDevices}
-                showModal={showModal}
-                setShowModal={setShowModal}
-                availableLinkedDevices={availableLinkedDevices}
-                selectedLinkedDeviceId={selectedLinkedDeviceId}
-                setSelectedLinkedDeviceId={setSelectedLinkedDeviceId}
-                handleLinkDevice={handleLinkDevice}
-                deviceId={deviceId} // Pass deviceId as a prop
-                setLinkedDevices={setLinkedDevices} // Pass setLinkedDevices as a prop
-            />
+            <Button
+                onClick={() => {
+                    if (location.state && location.state.from === 'all-devices') {
+                        navigate('/devices');
+                    } else if (device && device.clientId) {
+                        navigate(`/client/${device.clientId}`);
+                    } else {
+                        navigate(-1);
+                    }
+                }}
+            >
+                Back
+            </Button>
+            <Row>
+                <Col md={6}>
+                    <DeviceDetails
+                        device={device}
+                        navigate={navigate}
+                        setShowFileUploadModal={setShowFileUploadModal}
+                        setShowCommentsModal={setShowCommentsModal}
+                        setRefresh={setRefresh}
+                        onUploadSuccess={handleUploadSuccess}
+                    />
+                    <LinkedDevices
+                        linkedDevices={linkedDevices}
+                        showModal={showModal}
+                        setShowModal={setShowModal}
+                        availableLinkedDevices={availableLinkedDevices}
+                        selectedLinkedDeviceId={selectedLinkedDeviceId}
+                        setSelectedLinkedDeviceId={setSelectedLinkedDeviceId}
+                        handleLinkDevice={handleLinkDevice}
+                        deviceId={deviceId} // Pass deviceId as a prop
+                        setLinkedDevices={setLinkedDevices} // Pass setLinkedDevices as a prop
+                    />
+                </Col>
+                <Col md={6}>
+                    <MaintenanceInfo
+                        maintenanceInfo={maintenanceInfo}
+                        showMaintenanceModal={showMaintenanceModal}
+                        setShowMaintenanceModal={setShowMaintenanceModal}
+                        handleAddMaintenance={handleAddMaintenance}
+                        setMaintenanceName={setMaintenanceName}
+                        setMaintenanceDate={setMaintenanceDate}
+                        setMaintenanceComment={setMaintenanceComment}
+                        setFiles={setFiles} // Pass setFiles to MaintenanceInfo
+                    />
+                </Col>
+            </Row>
             <FileUploadModal
                 show={showFileUploadModal}
                 handleClose={() => setShowFileUploadModal(false)}

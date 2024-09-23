@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { Button, Form, Container, Alert, Row, Col } from 'react-bootstrap';
+import { Button, Form, Container, Alert } from 'react-bootstrap';
 import moment from 'moment';
 import config from "../../../config/config";
 import AddWorkTypeModal from './AddWorkTypeModal';

@@ -102,7 +102,7 @@ function ClientDetails({ client, navigate }) {
                                     <Button variant="link" className="me-2" onClick={() => setShowClientFieldModal(true)}>
                                         <FontAwesomeIcon icon={faCog} />
                                     </Button>
-                                    <Button variant="primary" onClick={() => navigate(`/client/edit/${client.id}`)}>
+                                    <Button variant="primary" style={{ minWidth: '105px' }} onClick={() => navigate(`/client/edit/${client.id}`)}>
                                         Edit Client
                                     </Button>
                                 </div>
@@ -110,7 +110,6 @@ function ClientDetails({ client, navigate }) {
                                     <Button onClick={handleNavigate} className='mt-2 mb-2'>See History</Button>
                                 </div>
                             </Col>
-
                         </Row>
                     </Card.Body>
                 </Card>

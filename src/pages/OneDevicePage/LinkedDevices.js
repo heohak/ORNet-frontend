@@ -4,6 +4,8 @@ import { FaPlus } from 'react-icons/fa';
 import axios from 'axios';
 import config from "../../config/config";
 import CommentsModal from "../../modals/CommentsModal";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCog} from "@fortawesome/free-solid-svg-icons";
 
 function LinkedDevices({
                            linkedDevices,
@@ -93,7 +95,7 @@ function LinkedDevices({
                 }
                 return (
                     <div key={key} className="mb-1">
-                        <strong>{key.replace(/([A-Z])/g, ' $1')}: </strong> {data[key]}
+                        <strong>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}: </strong> {data[key]}
                     </div>
                 );
             }
@@ -182,14 +184,10 @@ function LinkedDevices({
                         <ListGroup.Item key={linkedDevice.id}>
                             <Card>
                                 <Card.Body>
-                                    <Card.Title>
+                                    <Card.Title style={{display: "flex", justifyContent: "space-between"}}>
                                         {linkedDevice.name}
-                                        <Button
-                                            variant="link"
-                                            className="float-end"
-                                            onClick={() => openFieldModal(linkedDevice.id)}
-                                        >
-                                            Edit Fields
+                                        <Button variant="link" onClick={() => openFieldModal(linkedDevice.id)}>
+                                            <FontAwesomeIcon icon={faCog} />
                                         </Button>
                                     </Card.Title>
                                     {renderFields(linkedDevice.id, {
