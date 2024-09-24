@@ -183,7 +183,7 @@ function OneTicket() {
                     if (location.state && location.state.from === 'tickets') {
                         navigate('/devices');
                     } else if (tickets[ticketId] && tickets[ticketId].clientId) {
-                        navigate(`/client/${tickets[ticketId].clientId}`);
+                        navigate(`/customer/${tickets[ticketId].clientId}`);
                     } else {
                         navigate(-1);
                     }
