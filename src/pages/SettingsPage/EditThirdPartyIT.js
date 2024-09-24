@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Container, Form, Button, Alert } from 'react-bootstrap';
+import { Container, Form, Button, Alert, Modal } from 'react-bootstrap';
 import config from '../../config/config';
 
 function EditThirdPartyIT() {
@@ -13,6 +13,27 @@ function EditThirdPartyIT() {
     const [email, setEmail] = useState(thirdParty.email);
     const [phone, setPhone] = useState(thirdParty.phone);
     const [error, setError] = useState(null);
+    const [associatedClients, setAssociatedClients] = useState([]); // State to hold associated clients
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+
+    useEffect(() => {
+        if (thirdParty.id) {
+            fetchAssociatedClients();
+        }
+    }, [thirdParty.id]);
+
+    // Fetch clients associated with the Third Party IT entity
+    const fetchAssociatedClients = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/client/search`, {
+                params: { thirdPartyId: thirdParty.id }
+            });
+            setAssociatedClients(response.data); // Assuming API returns list of associated clients
+        } catch (error) {
+            setError('Error fetching associated clients');
+        }
+    };
 
     const handleUpdate = async (e) => {
         e.preventDefault();
@@ -49,6 +70,16 @@ function EditThirdPartyIT() {
         } catch (error) {
             setError(error.message);
         }
+    };
+
+    // Handle showing the delete modal
+    const handleShowDeleteModal = () => {
+        setShowDeleteModal(true);
+    };
+
+    // Close the delete modal
+    const handleCloseDeleteModal = () => {
+        setShowDeleteModal(false);
     };
 
     return (
@@ -94,7 +125,7 @@ function EditThirdPartyIT() {
                 <Button variant="primary" type="submit" className="mt-3">
                     Update
                 </Button>
-                <Button variant="danger" onClick={handleDelete} className="mt-3 ms-3">
+                <Button variant="danger" onClick={handleShowDeleteModal} className="mt-3 ms-3">
                     Delete
                 </Button>
                 <Button
@@ -105,6 +136,38 @@ function EditThirdPartyIT() {
                     Cancel
                 </Button>
             </Form>
+            {/* Modal for Delete Confirmation */}
+            <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Third Party IT Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>Are you sure you want to delete this third-party IT entity?</p>
+                    {associatedClients.length > 0 ? (
+                        <>
+                            <p>This third-party IT entity is associated with the following clients and cannot be deleted:</p>
+                            <ul>
+                                {associatedClients.map((client) => (
+                                    <li key={client.id}>Client: {client.shortName}</li>
+                                ))}
+                            </ul>
+                        </>
+                    ) : (
+                        <p>No clients associated. You can proceed with deletion.</p>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseDeleteModal}>
+                        Close
+                    </Button>
+                    {/* Conditionally render Delete button based on whether associated clients exist */}
+                    {associatedClients.length === 0 && (
+                        <Button variant="danger" onClick={handleDelete}>
+                            Delete
+                        </Button>
+                    )}
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 }

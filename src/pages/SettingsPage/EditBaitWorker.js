@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Form, Button, Container, Alert, Spinner } from 'react-bootstrap';
+import { Form, Button, Container, Alert, Spinner, Modal } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import config from "../../config/config";
 
@@ -13,6 +13,8 @@ function EditBaitWorker() {
     const [title, setTitle] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [relatedTickets, setRelatedTickets] = useState([]); // State to hold related tickets
+    const [showDeleteModal, setShowDeleteModal] = useState(false); // Modal for delete confirmation
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -57,6 +59,28 @@ function EditBaitWorker() {
         } catch (error) {
             setError('Error deleting worker');
         }
+    };
+
+    // Fetch related tickets based on baitWorkerId
+    const fetchRelatedTickets = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/search`, {
+                params: { baitWorkerId }
+            });
+            setRelatedTickets(response.data); // Assuming the API returns a list of related tickets with IDs, names, and clients
+        } catch (error) {
+            setError('Error fetching related tickets');
+        }
+    };
+
+// Show the delete modal and fetch related tickets
+    const handleShowDeleteModal = async () => {
+        await fetchRelatedTickets(); // Fetch the related tickets before showing the modal
+        setShowDeleteModal(true);
+    };
+
+    const handleCloseDeleteModal = () => {
+        setShowDeleteModal(false);
     };
 
     if (loading) {
@@ -122,13 +146,50 @@ function EditBaitWorker() {
                 <Button variant="primary" className="mt-3" onClick={handleUpdateWorker}>
                     Update Worker
                 </Button>
-                <Button variant="danger" className="mt-3 ms-3" onClick={handleDeleteWorker}>
+                <Button variant="danger" className="mt-3 ms-3" onClick={handleShowDeleteModal}>
                     Delete Worker
                 </Button>
                 <Button variant="secondary" className="mt-3 ms-3" onClick={() => navigate(-1)}>
                     Cancel
                 </Button>
             </Form>
+
+            <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Worker Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>Are you sure you want to delete this worker?</p>
+                    {relatedTickets.length > 0 ? (
+                        <>
+                            <p>This worker is linked to the following tickets and cannot be deleted:</p>
+                            <ul>
+                                {relatedTickets.map((ticket) => (
+                                    <li key={ticket.id}>
+                                        Ticket ID: {ticket.id}, Name: {ticket.title}, Client: {ticket.clientName}
+                                    </li>
+                                ))}
+                            </ul>
+                        </>
+                    ) : (
+                        <p>No related tickets found. You can proceed with deletion.</p>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseDeleteModal}>
+                        Close
+                    </Button>
+                    {/* Conditionally render Delete button based on whether related tickets exist */}
+                    {relatedTickets.length === 0 && (
+                        <Button variant="danger" onClick={handleDeleteWorker}>
+                            Delete Worker
+                        </Button>
+                    )}
+                </Modal.Footer>
+            </Modal>
+
+
+
         </Container>
     );
 }

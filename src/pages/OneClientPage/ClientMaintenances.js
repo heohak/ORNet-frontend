@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Modal, Form, ListGroup, Alert } from 'react-bootstrap';
+import { Card, Button, Modal, Form, Row, Col, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../config/config";
 
@@ -104,44 +104,48 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
         <>
             <h2 className="mt-4">Maintenances</h2>
             <Button variant="primary" onClick={() => setShowAddMaintenanceModal(true)}>Add Maintenance</Button>
-            {maintenances.length > 0 ? (
-                <ListGroup className="mt-3">
-                    {maintenances.map((maintenance) => (
-                        <ListGroup.Item key={maintenance.id}>
-                            <Card>
-                                <Card.Body>
-                                    <Card.Title>{maintenance.maintenanceName}</Card.Title>
-                                    <Card.Text>
-                                        <strong>Date:</strong> {maintenance.maintenanceDate}<br />
-                                        <strong>Comment:</strong> {maintenance.comment}<br />
-                                    </Card.Text>
-                                    <Button
-                                        variant="info"
-                                        onClick={() => {
-                                            setSelectedMaintenanceId(maintenance.id);
-                                            setShowViewFilesModal(true);
-                                        }}
-                                        className="me-2"
-                                    >
-                                        View Files
-                                    </Button>
-                                    <Button
-                                        variant="secondary"
-                                        onClick={() => {
-                                            setSelectedMaintenanceId(maintenance.id);
-                                            setShowAddFilesModal(true);
-                                        }}
-                                    >
-                                        Add Files
-                                    </Button>
+            <Row className="mt-3">
+                {maintenances.length > 0 ? (
+                    maintenances.map((maintenance) => (
+                        <Col md={4} key={maintenance.id} className="mb-4"> {/* Adjust column size as needed */}
+                            <Card className="h-100 position-relative all-page-card">
+                                <Card.Body className="all-page-cardBody">
+                                    <div className="mb-4">
+                                        <Card.Title className='all-page-cardTitle'>{maintenance.maintenanceName}</Card.Title>
+                                        <Card.Text className='all-page-cardText'>
+                                            <strong>Date:</strong> {maintenance.maintenanceDate}<br />
+                                            <strong>Comment:</strong> {maintenance.comment}
+                                        </Card.Text>
+                                    </div>
+                                    <div className="d-flex justify-content-end"> {/* Align buttons to the right */}
+                                        <Button
+                                            variant="info"
+                                            onClick={() => {
+                                                setSelectedMaintenanceId(maintenance.id);
+                                                setShowViewFilesModal(true);
+                                            }}
+                                            className="me-2"
+                                        >
+                                            View Files
+                                        </Button>
+                                        <Button
+                                            variant="secondary"
+                                            onClick={() => {
+                                                setSelectedMaintenanceId(maintenance.id);
+                                                setShowAddFilesModal(true);
+                                            }}
+                                        >
+                                            Add Files
+                                        </Button>
+                                    </div>
                                 </Card.Body>
                             </Card>
-                        </ListGroup.Item>
-                    ))}
-                </ListGroup>
+                        </Col>
+                    ))
             ) : (
                 <Alert className="mt-3" variant="info">No maintenances available.</Alert>
             )}
+            </Row>
 
             <Modal show={showAddMaintenanceModal} onHide={() => setShowAddMaintenanceModal(false)}>
                 <Modal.Header closeButton>

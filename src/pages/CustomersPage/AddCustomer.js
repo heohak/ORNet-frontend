@@ -4,12 +4,12 @@ import { Form, Button, Alert, Modal } from 'react-bootstrap';
 import Select from 'react-select';
 import config from "../../config/config";
 
-function AddClient({ onClose }) {
+function AddCustomer({ onClose }) {
     const [fullName, setFullName] = useState('');
     const [shortName, setShortName] = useState('');
-    const [pathologyClient, setPathologyClient] = useState(false);
-    const [surgeryClient, setSurgeryClient] = useState(false);
-    const [editorClient, setEditorClient] = useState(false);
+    const [pathologyCustomer, setPathologyCustomer] = useState(false);
+    const [surgeryCustomer, setSurgeryCustomer] = useState(false);
+    const [editorCustomer, setEditorCustomer] = useState(false);
     const [otherMedicalInformation, setOtherMedicalInformation] = useState('');
     const [lastMaintenance, setLastMaintenance] = useState('');
     const [nextMaintenance, setNextMaintenance] = useState('');
@@ -66,13 +66,13 @@ function AddClient({ onClose }) {
             return;
         }
 
-        try {
+        try {  // The backend table has client instead of customer
             const clientResponse = await axios.post(`${config.API_BASE_URL}/client/add`, {
                 fullName,
                 shortName,
-                pathologyClient,
-                surgeryClient,
-                editorClient,
+                pathologyClient: pathologyCustomer,
+                surgeryClient: surgeryCustomer,
+                editorClient: editorCustomer,
                 otherMedicalInformation,
                 lastMaintenance,
                 nextMaintenance
@@ -84,7 +84,7 @@ function AddClient({ onClose }) {
                 ...selectedThirdParties.map(tp => axios.put(`${config.API_BASE_URL}/client/third-party/${clientId}/${tp.value}`))
             ]);
 
-            onClose(); // Close the modal after adding the client
+            onClose(); // Close the modal after adding the customer
         } catch (error) {
             setError(error.message);
         }
@@ -174,27 +174,27 @@ function AddClient({ onClose }) {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
-                    <Form.Label>Pathology Client</Form.Label>
+                    <Form.Label>Pathology Customer</Form.Label>
                     <Form.Check
                         type="checkbox"
-                        checked={pathologyClient}
-                        onChange={(e) => setPathologyClient(e.target.checked)}
+                        checked={pathologyCustomer}
+                        onChange={(e) => setPathologyCustomer(e.target.checked)}
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
-                    <Form.Label>Surgery Client</Form.Label>
+                    <Form.Label>Surgery Customer</Form.Label>
                     <Form.Check
                         type="checkbox"
-                        checked={surgeryClient}
-                        onChange={(e) => setSurgeryClient(e.target.checked)}
+                        checked={surgeryCustomer}
+                        onChange={(e) => setSurgeryCustomer(e.target.checked)}
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
-                    <Form.Label>Editor Client</Form.Label>
+                    <Form.Label>Editor Customer</Form.Label>
                     <Form.Check
                         type="checkbox"
-                        checked={editorClient}
-                        onChange={(e) => setEditorClient(e.target.checked)}
+                        checked={editorCustomer}
+                        onChange={(e) => setEditorCustomer(e.target.checked)}
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
@@ -245,7 +245,7 @@ function AddClient({ onClose }) {
                         Can't find the third-party IT? <Button variant="link" onClick={() => setShowThirdPartyModal(true)}>Add New</Button>
                     </Form.Text>
                 </Form.Group>
-                <Button variant="success" type="submit">Add Client</Button>
+                <Button variant="success" type="submit">Add Customer</Button>
                 <Button variant="secondary" className="ms-3" onClick={onClose}>Cancel</Button>
             </Form>
 
@@ -368,4 +368,4 @@ function AddClient({ onClose }) {
     );
 }
 
-export default AddClient;
+export default AddCustomer;

@@ -142,7 +142,7 @@ function OneDevice() {
                     if (location.state && location.state.from === 'all-devices') {
                         navigate('/devices');
                     } else if (device && device.clientId) {
-                        navigate(`/client/${device.clientId}`);
+                        navigate(`/customer/${device.clientId}`);
                     } else {
                         navigate(-1);
                     }
