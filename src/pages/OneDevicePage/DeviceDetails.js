@@ -20,6 +20,7 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
     const [isWrittenOff, setIsWrittenOff] = useState(!!device?.writtenOffDate);
     const [writtenOffComment, setWrittenOffComment] = useState('');
     const [showReactivateModal, setShowReactivateModal] = useState(false)
+    const today = new Date().toISOString().split('T')[0];
 
     const defaultFields = [
         'deviceName',
@@ -355,6 +356,7 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
                                 type="date"
                                 value={writtenOffDate}
                                 onChange={(e) => setWrittenOffDate(e.target.value)}
+                                max={today}
                             />
                         </Form.Group>
                         <Form.Group controlId="writtenOffComment" className="mt-3">
