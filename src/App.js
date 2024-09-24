@@ -4,12 +4,12 @@ import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import MenuBar from './components/MenuBar';
 import Footer from './components/Footer';
-import Clients from './pages/ClientsPage/Clients';
+import Customers from './pages/CustomersPage/Customers';
 import Home from './pages/HomePage/Home';
 import ClientDevices from './pages/OneClientPage/ClientDevices';
 import Tickets from './pages/TicketsPage/Tickets';
 import OneTicket from './pages/TicketsPage/OneTicketPage/OneTicket';
-import AddClient from './pages/ClientsPage/AddClient';
+import AddCustomer from './pages/CustomersPage/AddCustomer';
 import AddClientWorker from './pages/OneClientPage/AddClientWorker';
 import Devices from './pages/AllDevicesPage/Devices';
 import OneDevice from './pages/OneDevicePage/OneDevice';
@@ -52,11 +52,11 @@ function App() {
                 <main className="flex-grow-1">
                     <Routes>
                         <Route path="/" element={<Home />} />
-                        <Route path="/clients" element={<Clients />} />
+                        <Route path="/customers" element={<Customers />} />
                         <Route path="/clients/:clientId/devices" element={<ClientDevices />} />
                         <Route path="/tickets" element={<Tickets />} />
                         <Route path="/ticket/:ticketId" element={<OneTicket />} />
-                        <Route path="/add-client" element={<AddClient />} />
+                        <Route path="/add-client" element={<AddCustomer />} />
                         <Route path="/add-client-worker" element={<AddClientWorker />} />
                         <Route path="/devices" element={<Devices />} />
                         <Route path="/device/:deviceId" element={<OneDevice />} />
@@ -64,7 +64,7 @@ function App() {
                         <Route path="/add-ticket" element={<AddTicket />} />
                         <Route path="/add-ticket/:mainTicketId" element={<AddTicket />} />
                         <Route path="/software/:softwareId" element={<SoftwareDetails />} />
-                        <Route path="/client/:clientId" element={<OneClient />} />
+                        <Route path="/customer/:clientId" element={<OneClient />} />
                         <Route path="/wiki" element={<Wiki />} />
                         <Route path="/wiki/:wikiId" element={<WikiDetails />} />
                         <Route path="/settings" element={<Settings />} />

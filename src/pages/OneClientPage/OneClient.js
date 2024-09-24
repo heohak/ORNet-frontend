@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import {Container, Spinner, Alert, Accordion, Card} from 'react-bootstrap';
+import {Container, Spinner, Alert, Accordion, Card, Button} from 'react-bootstrap';
 import config from "../../config/config";
 import ClientDetails from "./ClientDetails";
 import ClientDevices from "./ClientDevices";
@@ -108,9 +108,10 @@ function OneClient() {
     return (
         <>
             <div className='client-name'>
-                <h1>{client ? `${client.shortName} Details` : 'Client Details'}</h1>
+                <Button className='mt-2 mb-2 ms-2' onClick={() => navigate('/clients')}>Back</Button>
+                <h1 className="text-center flex-grow-1 me-2" >{client ? `${client.shortName} Details` : 'Client Details'}</h1>
             </div>
-            <Container className="mt-5">
+            <Container className="mt-5 pt-5">
                 {loading && <Spinner animation="border" />}
                 {error && <Alert variant="danger">{error}</Alert>}
                 {client && (

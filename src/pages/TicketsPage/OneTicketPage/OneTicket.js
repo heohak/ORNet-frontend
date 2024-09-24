@@ -19,6 +19,7 @@ function OneTicket() {
     const [editFields, setEditFields] = useState({});
     const [clientName, setClientName] = useState(null);
     const navigate = useNavigate();
+    const location = useLocation();
 
     const ticketRefs = useRef({});
 
@@ -49,7 +50,7 @@ function OneTicket() {
                 setEditFields(initialEditFields);
                 if (scrollToId) {
                     setExpandedTickets(new Set([scrollToId]));
-                    setExpandedSections({ [scrollToId]: { dates: true, details: true, paid: true, maintenance: true } });
+                    setExpandedSections({ [scrollToId]: { dates: false, details: false, paid: false, maintenance: false } });
                 }
             } catch (error) {
                 setError(error.message);
@@ -110,10 +111,10 @@ function OneTicket() {
         setExpandedSections((prevSections) => ({
             ...prevSections,
             [id]: {
-                dates: expandedTickets.has(id) ? !expandedSections[id]?.dates : true,
-                details: expandedTickets.has(id) ? !expandedSections[id]?.details : true,
-                paid: expandedTickets.has(id) ? !expandedSections[id]?.paid : true,
-                maintenance: expandedTickets.has(id) ? !expandedSections[id]?.maintenance : true,
+                dates: expandedTickets.has(id) ? !expandedSections[id]?.dates : false,
+                details: expandedTickets.has(id) ? !expandedSections[id]?.details : false,
+                paid: expandedTickets.has(id) ? !expandedSections[id]?.paid : false,
+                maintenance: expandedTickets.has(id) ? !expandedSections[id]?.maintenance : false,
 
 
             }
@@ -177,7 +178,19 @@ function OneTicket() {
             ) : (
                 <Alert variant="info">No ticket details available.</Alert>
             )}
-            <Button onClick={() => navigate(`/tickets`)}>Back</Button>
+            <Button
+                onClick={() => {
+                    if (location.state && location.state.from === 'tickets') {
+                        navigate('/devices');
+                    } else if (tickets[ticketId] && tickets[ticketId].clientId) {
+                        navigate(`/client/${tickets[ticketId].clientId}`);
+                    } else {
+                        navigate(-1);
+                    }
+                }}
+            >
+                Back
+            </Button>
         </Container>
     );
 }

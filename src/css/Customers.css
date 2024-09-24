@@ -92,7 +92,8 @@ h1 {
     width: 100%;
     z-index: 999; /* Ensure it stays on top of other content */
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
 }
 
 /* Responsive Styles */
