@@ -184,7 +184,7 @@ function EditClient() {
 
     return (
         <Container className="mt-5">
-            <h1>Edit Client</h1>
+            <h1>Edit Customer</h1>
             {error && (
                 <Alert ref={errorRef} variant="danger" onClose={() => setError(null)} dismissible>
                     {error}

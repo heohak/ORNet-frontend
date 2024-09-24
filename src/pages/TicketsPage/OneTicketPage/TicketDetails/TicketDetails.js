@@ -34,6 +34,7 @@ const TicketDetails = ({
     const [responsibleName, setResponsibleName] = useState('');
     const [locationName, setLocationName] = useState('');
     const [statusName, setStatusName] = useState('');
+    const [customerName, setCustomerName] = useState('');
     const [workTypes, setWorkTypes] = useState([]);
     const [baitWorkers, setBaitWorkers] = useState([]);
     const [showWorkTypeModal, setShowWorkTypeModal] = useState(false);
@@ -83,7 +84,7 @@ const TicketDetails = ({
         if (expandedTickets.has(ticket.id.toString())) {
             fetchComments(ticket.id);
             fetchContacts(ticket.id);
-            fetchNames(ticket.baitWorkerId, ticket.locationId, ticket.statusId); // Fetch names
+            fetchNames(ticket.baitWorkerId, ticket.locationId, ticket.statusId, ticket.clientId); // Fetch names
             fetchWorkTypes(ticket.id); // Fetch work types
             fetchMaintenances(ticket.id);
             if (ticket.paidWorkId) {
@@ -181,17 +182,19 @@ const TicketDetails = ({
         }
     }
 
-    const fetchNames = async (responsibleId, locationId, statusId) => {
+    const fetchNames = async (responsibleId, locationId, statusId, clientId) => {
         try {
-            const [responsibleResponse, locationResponse, statusResponse] = await Promise.all([
+            const [responsibleResponse, locationResponse, statusResponse, clientRes] = await Promise.all([
                 axios.get(`${config.API_BASE_URL}/bait/worker/${responsibleId}`),
                 axios.get(`${config.API_BASE_URL}/location/${locationId}`),
-                axios.get(`${config.API_BASE_URL}/ticket/classificator/${statusId}`)
+                axios.get(`${config.API_BASE_URL}/ticket/classificator/${statusId}`),
+                axios.get(`${config.API_BASE_URL}/client/${clientId}`)
             ]);
             const fullName = responsibleResponse.data.firstName + " " + responsibleResponse.data.lastName;
             setResponsibleName(fullName);
             setLocationName(locationResponse.data.name);
             setStatusName(statusResponse.data.status);
+            setCustomerName(clientRes.data.fullName);
         } catch (error) {
             console.error('Error fetching names:', error);
         }
@@ -388,6 +391,9 @@ const TicketDetails = ({
         if (!info || info.settled) {
             try {
                 await axios.put(`${config.API_BASE_URL}/ticket/status/${ticket.id}/${closedStatus.id}`); //2 is the close classificator id
+                await axios.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`,{
+                    endDateTime: new Date()
+                });
                 navigate(`/ticket/${ticket.id}?scrollTo=${ticket.id}`);
                 window.location.reload();
             } catch (error) {
@@ -408,7 +414,9 @@ const TicketDetails = ({
     const handleOpenTicket = async () => {
         try {
             await axios.put(`${config.API_BASE_URL}/ticket/status/${ticket.id}/${openStatus.id}`);
-
+            await axios.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`,{
+                endDateTime: ""
+            });
             navigate(`/ticket/${ticket.id}?scrollTo=${ticket.id}`);
             window.location.reload();
         } catch (error) {
@@ -454,8 +462,8 @@ const TicketDetails = ({
                                             <Col>
                                                 {isEditing ? (
                                                     <>
-                                                        <p><strong>Start Date Time:</strong> {formatDate(ticket.startDateTime)}</p>
-                                                        <p><strong>End Date Time:</strong> {ticket.endDateTime ? formatDate(ticket.endDateTime) : '--:-- --:--'}</p>
+                                                        <p><strong>Created Date Time:</strong> {formatDate(ticket.startDateTime)}</p>
+                                                        <p><strong>Closed Date Time:</strong> {ticket.endDateTime ? formatDate(ticket.endDateTime) : '--:-- --:--'}</p>
                                                         <Form.Group className="mb-3">
                                                             <Form.Label>Response Date Time</Form.Label>
                                                             <Datetime
@@ -469,8 +477,8 @@ const TicketDetails = ({
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <p><strong>Start Date Time:</strong> {formatDate(ticket.startDateTime)}</p>
-                                                        <p><strong>End Date Time:</strong> {ticket.endDateTime ? formatDate(ticket.endDateTime) : '--:-- --:--'}</p>
+                                                        <p><strong>Created Date Time:</strong> {formatDate(ticket.startDateTime)}</p>
+                                                        <p><strong>Closed Date Time:</strong> {ticket.endDateTime ? formatDate(ticket.endDateTime) : '--:-- --:--'}</p>
                                                         <p><strong>Response Date Time:</strong> {ticket.responseDateTime ? formatDate(ticket.responseDateTime) : '--:-- --:--'}</p>
                                                         <p><strong>Update Time:</strong> {formatDate(ticket.updateDateTime)}</p>
                                                     </>

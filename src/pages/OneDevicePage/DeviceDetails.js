@@ -246,20 +246,25 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
                                 })}
                             </Col>
                             <Col className='col-md-auto'>
-                                <div className="d-flex align-items-center">
-                                    <Button variant="link" className="me-2" onClick={() => setShowDeviceFieldModal(true)}>
-                                        <FontAwesomeIcon icon={faCog} />
-                                    </Button>
-                                    <Button variant="primary" onClick={() => navigate(`/device/edit/${localDevice.id}`)}>
-                                        Edit Device
-                                    </Button>
-                                </div>
-                                <div style={{display: "flex", justifyContent: "right"}}>
-                                    <Button onClick={handleNavigate} className='mt-2 mb-2'>See History</Button>
-                                </div>
+                                <Row>
+                                    <Col className='col-md-auto'>
+                                        <Button variant="link" className="me-2" onClick={() => setShowDeviceFieldModal(true)}>
+                                            <FontAwesomeIcon icon={faCog} />
+                                        </Button>
+                                    </Col>
+                                    <Col className="col-md-auto">
+                                        <Row>
+                                            <Button variant="primary" onClick={() => navigate(`/device/edit/${localDevice.id}`)}>
+                                                Edit Device
+                                            </Button>
+                                        </Row>
+                                        <Row>
+                                            <Button onClick={handleNavigate} className='mt-2 mb-2'>See History</Button>
+                                        </Row>
+                                    </Col>
+                                </Row>
                             </Col>
                         </Row>
-
                         <DeviceFileList deviceId={localDevice.id}/>  {/* Calls the FileList class */}
                         {isWrittenOff ? (
                             <Button variant="success me-2" onClick={() => {

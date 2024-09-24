@@ -14,8 +14,8 @@ const HomePage = () => {
                 <Col md={3}>
                     <Card className="text-center mb-3">
                         <Card.Body>
-                            <Card.Title>Clients</Card.Title>
-                            <Button variant="primary" href="/clients">Clients</Button>
+                            <Card.Title>Customers</Card.Title>
+                            <Button variant="primary" href="/customers">Customers</Button>
                         </Card.Body>
                     </Card>
                 </Col>

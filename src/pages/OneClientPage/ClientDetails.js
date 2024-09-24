@@ -58,7 +58,7 @@ function ClientDetails({ client, navigate }) {
                 }
                 return (
                     <Card.Text key={key} className="mb-1">
-                        <strong>{key.replace(/([A-Z])/g, ' $1')}: </strong> {displayValue}
+                        <strong>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}: </strong> {displayValue}
                     </Card.Text>
                 );
             }
@@ -87,9 +87,6 @@ function ClientDetails({ client, navigate }) {
 
     return (
         <>
-            <div className="mb-4" style={{display: "flex", justifyContent: "space-between"}}>
-                <Button style={{width: '9%'}} className='mt-2 mb-2' onClick={() => navigate('/clients')}>Back</Button>
-            </div>
             {client ? (
                 <Card className="mb-4">
                     <Card.Body>
@@ -98,17 +95,23 @@ function ClientDetails({ client, navigate }) {
                                 {renderFields(client)}
                             </Col>
                             <Col className='col-md-auto'>
-                                <div className="d-flex align-items-center">
-                                    <Button variant="link" className="me-2" onClick={() => setShowClientFieldModal(true)}>
-                                        <FontAwesomeIcon icon={faCog} />
-                                    </Button>
-                                    <Button variant="primary" style={{ minWidth: '105px' }} onClick={() => navigate(`/client/edit/${client.id}`)}>
-                                        Edit Client
-                                    </Button>
-                                </div>
-                                <div style={{display: "flex", justifyContent: "right"}}>
-                                    <Button onClick={handleNavigate} className='mt-2 mb-2'>See History</Button>
-                                </div>
+                                <Row>
+                                    <Col className='col-md-auto'>
+                                        <Button variant="link" onClick={() => setShowClientFieldModal(true)}>
+                                            <FontAwesomeIcon icon={faCog} />
+                                        </Button>
+                                    </Col>
+                                    <Col className="col-md-auto">
+                                        <Row>
+                                            <Button variant="primary" onClick={() => navigate(`/client/edit/${client.id}`)}>
+                                                Edit Customer
+                                            </Button>
+                                        </Row>
+                                        <Row>
+                                            <Button onClick={handleNavigate} className='mt-2'>See History</Button>
+                                        </Row>
+                                    </Col>
+                                </Row>
                             </Col>
                         </Row>
                     </Card.Body>

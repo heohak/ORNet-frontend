@@ -111,7 +111,8 @@ function DeviceSearchFilter({ setDevices }) {
                     </Col>
                 </Row>
             )}
-            <Row className="mb-3">
+            <Row className="mb-3 device-search-bar">
+            <Row style={{width: "90%"}}>
                 <Col>
                     <Form.Control
                         type="text"
@@ -162,7 +163,7 @@ function DeviceSearchFilter({ setDevices }) {
                         ))}
                     </Form.Control>
                 </Col>
-                <Col>
+                <Col className="col-md-auto">
                     <Form.Check
                         type="switch"
                         id="written-off-switch"
@@ -172,6 +173,7 @@ function DeviceSearchFilter({ setDevices }) {
                         className="mb-4"
                     />
                 </Col>
+            </Row>
             </Row>
         </>
     );
