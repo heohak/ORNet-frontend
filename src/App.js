@@ -43,6 +43,7 @@ import EditClientWorkerRole from "./pages/SettingsPage/EditClientWorkerRole";
 import EditSoftware from "./pages/SettingsPage/EditSoftware";
 import EditWorkType from "./pages/SettingsPage/EditWorkType";
 import HistoryTable from "./components/HistoryTable";
+import Contacts from "./pages/ContactsPage/Contacts";
 
 function App() {
     return (
@@ -91,6 +92,8 @@ function App() {
                         <Route path="/settings/software/edit/:id" element={<EditSoftware />} />
                         <Route path="/settings/work-types/edit/:id" element={<EditWorkType />} />
                         <Route path="/history" element={<HistoryTable />} />
+                        <Route path="/contacts" element={<Contacts />} />
+
                     </Routes>
                 </main>
                 <Footer />

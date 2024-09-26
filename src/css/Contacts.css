@@ -1,0 +1,32 @@
+.contact-search-menu {
+    position: fixed;
+    z-index: 999;
+    background-color: #f8f9fa;
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    padding-top: 15px;
+    border-bottom: 22px black;
+    box-shadow: 0px 5px 5px #cbcbcb;
+}
+
+.contacts-container {
+    padding-top: 130px;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+
+    .contacts-container {
+        padding-top: 150px;
+    }
+}
+
+.contact-details-header {
+    margin-bottom: 32px;
+}
+
+.contact-search-bar {
+    display: flex;
+    justify-content: center;
+}
