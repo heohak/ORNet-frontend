@@ -169,7 +169,7 @@ function EditClient() {
             };
 
             await axios.put(`${config.API_BASE_URL}/client/update/${clientId}`, updatedClientData);
-            navigate(`/client/${clientId}`); // Redirect to the client details page
+            navigate(`/customer/${clientId}`); // Redirect to the client details page
         } catch (error) {
             setError(error.message);
         }

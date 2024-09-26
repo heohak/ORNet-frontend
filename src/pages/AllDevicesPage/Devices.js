@@ -22,7 +22,8 @@ function Devices() {
         const fetchDevices = async () => {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/device/all`);
-                setDevices(response.data);
+                const filteredDevices = response.data.filter(device => !device.writtenOffDate);
+                setDevices(filteredDevices);
             } catch (error) {
                 setError(error.message);
             } finally {

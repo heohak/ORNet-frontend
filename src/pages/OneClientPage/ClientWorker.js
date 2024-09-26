@@ -225,15 +225,11 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                                 <Card.Body>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <div>
-                                            <Card.Title>Title: {worker.title}</Card.Title>
+                                            <Card.Title>{worker.firstName} {worker.lastName}</Card.Title>
                                             <Card.Text>
-                                                <strong>Name: </strong>{worker.firstName + " " + worker.lastName}
+                                                <strong>Role: </strong>{worker.roles.map(role => role.role).join(', ')}<br />
+                                                <strong>Location: </strong>{workerLocations[worker.id]?.name || "N/A"}
                                             </Card.Text>
-                                            {worker.roles && worker.roles.length > 0 && (
-                                                <Card.Text>
-                                                    <strong>Roles: </strong>{worker.roles.map(role => role.role).join(', ')}
-                                                </Card.Text>
-                                            )}
                                         </div>
                                         <div>
                                             <span
@@ -255,9 +251,9 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                                     </div>
                                     {expandedWorkerId === worker.id && workerLocations[worker.id] && (
                                         <div>
-                                            <Card.Text><strong>Phone: </strong>{worker.phoneNumber}</Card.Text>
+                                            <Card.Text style={{marginBottom: 0}}><strong>Phone: </strong>{worker.phoneNumber}</Card.Text>
+
                                             <Card.Text><strong>Email: </strong>{worker.email}</Card.Text>
-                                            <Card.Text><strong>Location: </strong>{workerLocations[worker.id].name}</Card.Text>
                                         </div>
                                     )}
                                 </Card.Body>
