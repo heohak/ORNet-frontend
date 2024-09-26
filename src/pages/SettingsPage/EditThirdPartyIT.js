@@ -47,7 +47,7 @@ function EditThirdPartyIT() {
             });
             if (clientId) {
                 // If clientId exists, navigate back to the client profile
-                navigate(`/client/${clientId}`);
+                navigate(`/customer/${clientId}`);
             } else {
                 // Otherwise, navigate to the global settings page
                 navigate('/settings/third-party-its');
@@ -62,7 +62,7 @@ function EditThirdPartyIT() {
             await axios.delete(`${config.API_BASE_URL}/third-party/${thirdParty.id}`);
             if (clientId) {
                 // If clientId exists, navigate back to the client profile
-                navigate(`/client/${clientId}`);
+                navigate(`/customer/${clientId}`);
             } else {
                 // Otherwise, navigate to the global settings page
                 navigate('/settings/third-party-its');
@@ -130,7 +130,7 @@ function EditThirdPartyIT() {
                 </Button>
                 <Button
                     variant="secondary"
-                    onClick={() => clientId ? navigate(`/client/${clientId}`) : navigate('/settings/third-party-its')}
+                    onClick={() => clientId ? navigate(`/customer/${clientId}`) : navigate('/settings/third-party-its')}
                     className="mt-3 ms-3"
                 >
                     Cancel
