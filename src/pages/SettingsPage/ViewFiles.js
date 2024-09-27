@@ -96,6 +96,7 @@ function ViewFiles() {
                                 <Card.Text>
                                     <strong>Name: </strong>{file.fileName}
                                 </Card.Text>
+                                <Button variant="primary" href={`${config.API_BASE_URL}/file/open/${file.id}`} className="ms-2">Open</Button>
                                 <Button variant="primary" href={`${config.API_BASE_URL}/file/download/${file.id}`} className="ms-2">Download</Button>
                             </Card.Body>
                         </Card>
