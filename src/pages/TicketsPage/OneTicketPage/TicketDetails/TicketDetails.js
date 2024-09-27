@@ -388,8 +388,8 @@ const TicketDetails = ({
 
     const handleCloseTicket = async () => {
         const info = paidInfo[ticket.id];
-        let now = new Date();  // 'now' is declared in this block (the function body)
-        now.setHours(now.getUTCHours() + 3);
+        let now = new Date();
+        now.setHours(now.getUTCHours() + 6);
         if (!info || info.settled) {
             try {
                 await axios.put(`${config.API_BASE_URL}/ticket/status/${ticket.id}/${closedStatus.id}`); //2 is the close classificator id
@@ -465,7 +465,13 @@ const TicketDetails = ({
                                                 {isEditing ? (
                                                     <>
                                                         <p><strong>Created Date Time:</strong> {formatDate(ticket.startDateTime)}</p>
-                                                        <p><strong>Closed Date Time:</strong> {ticket.endDateTime ? formatDate(ticket.endDateTime) : '--:-- --:--'}</p>
+                                                        {openStatus ? (
+                                                        ticket.statusId === openStatus.id ? (
+                                                            <p><strong>Closed Date Time:</strong> --:-- --:--</p>
+                                                        ) : (
+                                                            <p><strong>Closed Date Time:</strong> {ticket.endDateTime ? formatDate(ticket.endDateTime) : 'N/A'}</p>
+                                                        )) : null}
+
                                                         <Form.Group className="mb-3">
                                                             <Form.Label>Response Date Time</Form.Label>
                                                             <Datetime
@@ -480,7 +486,12 @@ const TicketDetails = ({
                                                 ) : (
                                                     <>
                                                         <p><strong>Created Date Time:</strong> {formatDate(ticket.startDateTime)}</p>
-                                                        <p><strong>Closed Date Time:</strong> {ticket.endDateTime ? formatDate(ticket.endDateTime) : '--:-- --:--'}</p>
+                                                        {openStatus ? (
+                                                        ticket.statusId === openStatus.id ? (
+                                                            <p><strong>Closed Date Time:</strong> --:-- --:--</p>
+                                                        ) : (
+                                                            <p><strong>Closed Date Time:</strong> {ticket.endDateTime ? formatDate(ticket.endDateTime) : 'N/A'}</p>
+                                                        )) : null}
                                                         <p><strong>Response Date Time:</strong> {ticket.responseDateTime ? formatDate(ticket.responseDateTime) : '--:-- --:--'}</p>
                                                         <p><strong>Update Time:</strong> {formatDate(ticket.updateDateTime)}</p>
                                                     </>

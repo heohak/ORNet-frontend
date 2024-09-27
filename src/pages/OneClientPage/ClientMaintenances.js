@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Button, Modal, Form, Row, Col, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../config/config";
+import '../../css/Customers.css';
 
 function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
     const [showAddMaintenanceModal, setShowAddMaintenanceModal] = useState(false);
@@ -108,7 +109,7 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
                 {maintenances.length > 0 ? (
                     maintenances.map((maintenance) => (
                         <Col md={4} key={maintenance.id} className="mb-4"> {/* Adjust column size as needed */}
-                            <Card className="h-100 position-relative all-page-card">
+                            <Card className="h-100 position-relative customer-page-card">
                                 <Card.Body className="all-page-cardBody">
                                     <div className="mb-4">
                                         <Card.Title className='all-page-cardTitle'>{maintenance.maintenanceName}</Card.Title>
