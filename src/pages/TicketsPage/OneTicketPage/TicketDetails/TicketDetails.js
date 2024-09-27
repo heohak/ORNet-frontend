@@ -626,6 +626,8 @@ const TicketDetails = ({
                                                         <Form.Group className="mb-3">
                                                             <Form.Label>Root Cause</Form.Label>
                                                             <Form.Control
+                                                                as="textarea"
+                                                                rows={2}
                                                                 type="text"
                                                                 name="rootCause"
                                                                 value={editFields[ticket.id]?.rootCause || ''}

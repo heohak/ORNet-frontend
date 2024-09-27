@@ -214,6 +214,8 @@ function AddTicket() {
                 <Form.Group controlId="description" className="mb-3">
                     <Form.Label>Description</Form.Label>
                     <Form.Control
+                        as="textarea"
+                        rows={3}
                         type="text"
                         value={formData.description}
                         onChange={handleChange}
@@ -257,6 +259,8 @@ function AddTicket() {
                 <Form.Group controlId="rootCause" className="mb-3">
                     <Form.Label>Root Cause</Form.Label>
                     <Form.Control
+                        as="textarea"
+                        rows={2}
                         type="text"
                         value={formData.rootCause}
                         onChange={handleChange}
