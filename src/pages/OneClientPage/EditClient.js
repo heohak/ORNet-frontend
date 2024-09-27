@@ -302,7 +302,7 @@ function EditClient() {
                     </Form.Text>
                 </Form.Group>
                 <Button variant="success" type="submit">Save Changes</Button>
-                <Button variant="secondary" className="ms-3" onClick={() => navigate(`/client/${clientId}`)}>Cancel</Button>
+                <Button variant="secondary" className="ms-3" onClick={() => navigate(`/customer/${clientId}`)}>Cancel</Button>
             </Form>
             <Modal show={showLocationModal} onHide={() => setShowLocationModal(false)}>
                 <Modal.Header closeButton>
