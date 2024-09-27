@@ -13,7 +13,7 @@ function ViewLocations() {
     const [name, setName] = useState('');
     const [city, setCity] = useState('');
     const [country, setCountry] = useState('');
-    const [district, setDistrict] = useState('');
+    const [email, setEmail] = useState('');
     const [postalCode, setPostalCode] = useState('');
     const [streetAddress, setStreetAddress] = useState('');
     const [phone, setPhone] = useState('');
@@ -66,17 +66,20 @@ function ViewLocations() {
         );
         if (isValid) {
             try {
-                const combinedAddress = `${streetAddress}, ${district}, ${city}, ${postalCode}, ${country}`;
                 await axios.post(`${config.API_BASE_URL}/location/add`, {
                     name,
-                    address: combinedAddress,
-                    phone
+                    country,
+                    city,
+                    streetAddress,
+                    postalCode,
+                    phone,
+                    email
                 });
                 setShowAddModal(false);
                 setName('');
                 setCity('');
                 setCountry('');
-                setDistrict('');
+                setEmail('');
                 setPostalCode('');
                 setStreetAddress('');
                 setPhone('');
@@ -182,12 +185,12 @@ function ViewLocations() {
                             />
                         </Form.Group>
                         <Form.Group controlId="formDistrict" className="mt-3">
-                            <Form.Label>District</Form.Label>
+                            <Form.Label>Email</Form.Label>
                             <Form.Control
                                 type="text"
-                                value={district}
-                                onChange={(e) => setDistrict(e.target.value)}
-                                placeholder="Enter district"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="Enter email"
                                 required
                             />
                         </Form.Group>

@@ -388,11 +388,13 @@ const TicketDetails = ({
 
     const handleCloseTicket = async () => {
         const info = paidInfo[ticket.id];
+        let now = new Date();  // 'now' is declared in this block (the function body)
+        now.setHours(now.getUTCHours() + 3);
         if (!info || info.settled) {
             try {
                 await axios.put(`${config.API_BASE_URL}/ticket/status/${ticket.id}/${closedStatus.id}`); //2 is the close classificator id
                 await axios.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`,{
-                    endDateTime: new Date()
+                    endDateTime: now
                 });
                 navigate(`/ticket/${ticket.id}?scrollTo=${ticket.id}`);
                 window.location.reload();
