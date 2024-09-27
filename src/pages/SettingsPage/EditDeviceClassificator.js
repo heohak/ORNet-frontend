@@ -14,6 +14,7 @@ function EditDeviceClassificator() {
     const [deviceList, setDeviceList] = useState([]);
     const [locationNames, setLocationNames] = useState({});  // To store location names for each locationId
     const [showDeleteModal, setShowDeleteModal] = useState(false); // Modal for delete confirmation
+    const [clientNames, setClientNames] = useState({});
 
     const fetchRelatedDevices = async () => {
         try {
@@ -27,6 +28,7 @@ function EditDeviceClassificator() {
 
             // Fetch location names based on locationId for each device
             const locationIds = devices.map(device => device.locationId).filter(Boolean); // Get unique locationIds
+            const clientIds = devices.map(device => device.clientId).filter(Boolean);
             const locationPromises = locationIds.map(locationId =>
                 axios.get(`${config.API_BASE_URL}/location/${locationId}`)
             );
@@ -37,6 +39,17 @@ function EditDeviceClassificator() {
                 return acc;
             }, {});
             setLocationNames(locations);  // Save the location names in state
+
+            // Fetch client names
+            const clientPromises = clientIds.map(clientId =>
+                axios.get(`${config.API_BASE_URL}/client/${clientId}`)
+            );
+            const clientResponses = await Promise.all(clientPromises);
+            const clients = clientResponses.reduce((acc, res) => {
+                acc[res.data.id] = res.data.shortName;  // Store clientId to clientName mapping
+                return acc;
+            }, {});
+            setClientNames(clients);  // Save the client names in state
         } catch (error) {
             setError('Error fetching related devices or locations');
         }
@@ -130,8 +143,9 @@ function EditDeviceClassificator() {
                                 {deviceList.map((device) => (
                                     <li key={device.id}>
                                         <strong>Device Name:</strong> {device.deviceName} <br />
-                                        <strong>Serial Number:</strong> {device.serialNumber} <br />
+                                        <strong>Customer:</strong> {clientNames[device.clientId] || 'Unknown Client'} <br />
                                         <strong>Location:</strong> {locationNames[device.locationId] || 'Unknown Location'} <br />
+                                        <strong>Serial Number:</strong> {device.serialNumber} <br />
                                         <strong>License Number:</strong> {device.licenseNumber || 'N/A'}
                                     </li>
                                 ))}
