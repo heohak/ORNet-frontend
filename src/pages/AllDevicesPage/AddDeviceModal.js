@@ -28,6 +28,28 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
     const [error, setError] = useState(null);
     const [showAddClassificatorModal, setShowAddClassificatorModal] = useState(false);
     const [showLocationModal, setShowLocationModal] = useState(false);
+    const [showIPFields, setShowIPFields] = useState(false);
+
+    const resetForm = () => {
+        setDeviceName('');
+        setDepartment('');
+        setRoom('');
+        setSerialNumber('');
+        setLicenseNumber('');
+        setVersion('');
+        setVersionUpdateDate('');
+        setFirstIPAddress('');
+        setSecondIPAddress('');
+        setSubnetMask('');
+        setDeviceClassificatorId('');
+        setSoftwareKey('');
+        setIntroducedDate('');
+        setWrittenOffDate('');
+        setComment('');
+        setLocationId('');
+        setClientId('');
+        setError(null);
+    };
 
     useEffect(() => {
         const fetchClients = async () => {
@@ -112,6 +134,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
             }
 
             setRefresh(prev => !prev); // Trigger refresh by toggling state
+            resetForm();
             onHide(); // Close the modal after adding the device
         } catch (error) {
             setError(error.message);
@@ -138,15 +161,6 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                     )}
                     <Form onSubmit={handleSubmit}>
                         <Form.Group className="mb-3">
-                            <Form.Label>Device Name</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={deviceName}
-                                onChange={(e) => setDeviceName(e.target.value)}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
                             <Form.Label column sm={4}>Device Classificator</Form.Label>
                             <Button
                                 variant="link"
@@ -169,6 +183,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                                 ))}
                             </Form.Control>
                         </Form.Group>
+
                         <Form.Group className="mb-3">
                             <Form.Label>Client</Form.Label>
                             <Form.Control
@@ -219,6 +234,16 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                             </Form.Control>
                         </Form.Group>
                         <Form.Group className="mb-3">
+                            <Form.Label>Device Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={deviceName}
+                                onChange={(e) => setDeviceName(e.target.value)}
+                                required
+                            />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
                             <Form.Label>Department</Form.Label>
                             <Form.Control
                                 type="text"
@@ -244,6 +269,44 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                                 pattern="\d+"
                                 title="Serial number should only contain numbers"
                             />
+                            {/* Optional IP Fields */}
+                            <Form.Check
+                                type="checkbox"
+                                label="Assign IP Addresses"
+                                checked={showIPFields}
+                                onChange={() => setShowIPFields(!showIPFields)}
+                                className="mb-3 mt-3"
+                            />
+                            {showIPFields && (
+                                <>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>First IP Address</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={firstIPAddress}
+                                            onChange={(e) => setFirstIPAddress(e.target.value)}
+                                        />
+                                    </Form.Group>
+
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Second IP Address</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={secondIPAddress}
+                                            onChange={(e) => setSecondIPAddress(e.target.value)}
+                                        />
+                                    </Form.Group>
+
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Subnet Mask</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={subnetMask}
+                                            onChange={(e) => setSubnetMask(e.target.value)}
+                                        />
+                                    </Form.Group>
+                                </>
+                            )}
                         </Form.Group>
                         <Form.Group className="mb-3">
                             <Form.Label>License Number</Form.Label>
@@ -267,30 +330,6 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                                 type="date"
                                 value={versionUpdateDate}
                                 onChange={(e) => setVersionUpdateDate(e.target.value)}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>First IP Address</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={firstIPAddress}
-                                onChange={(e) => setFirstIPAddress(e.target.value)}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Second IP Address</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={secondIPAddress}
-                                onChange={(e) => setSecondIPAddress(e.target.value)}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Subnet Mask</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={subnetMask}
-                                onChange={(e) => setSubnetMask(e.target.value)}
                             />
                         </Form.Group>
                         <Form.Group className="mb-3">
