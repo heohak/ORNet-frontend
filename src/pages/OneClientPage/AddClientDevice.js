@@ -26,6 +26,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
     const [classificators, setClassificators] = useState([]);
     const [showClassificatorModal, setShowClassificatorModal] = useState(false);
     const [newClassificator, setNewClassificator] = useState('');
+    const [showIPFields, setShowIPFields] = useState(false);
 
 
 
@@ -127,6 +128,34 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
             )}
             <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3">
+                    <Form.Label>Device Classificator</Form.Label>
+                    <Form.Control
+                        as="select"
+                        value={deviceClassificatorId}
+                        onChange={(e) => setDeviceClassificatorId(e.target.value)}
+                        required
+                    >
+                        <option value="">Select Classificator</option>
+                        {classificators.map(classificator => (
+                            <option key={classificator.id} value={classificator.id}>
+                                {classificator.name}
+                            </option>
+                        ))}
+                    </Form.Control>
+                    <Form.Text className="text-muted">
+                        Can't find the classificator? <Button variant="link" onClick={() => setShowClassificatorModal(true)}>Add New</Button>
+                    </Form.Text>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Location</Form.Label>
+                    <Select
+                        options={locations.map(location => ({ value: location.id, label: location.name }))}
+                        value={locations.find(loc => loc.value === locationId)}
+                        onChange={(selectedOption) => setLocationId(selectedOption.value)}
+                        required
+                    />
+                </Form.Group>
+                <Form.Group className="mb-3">
                     <Form.Label>Device Name</Form.Label>
                     <Form.Control
                         type="text"
@@ -161,6 +190,43 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                         pattern="\d+"
                         title="Serial number should only contain numbers"
                     />
+                    <Form.Check
+                        type="checkbox"
+                        label="Assign IP Addresses"
+                        checked={showIPFields}
+                        onChange={() => setShowIPFields(!showIPFields)}
+                        className="mb-3 mt-3"
+                    />
+                    {showIPFields && (
+                        <>
+                            <Form.Group className="mb-3">
+                                <Form.Label>First IP Address</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={firstIPAddress}
+                                    onChange={(e) => setFirstIPAddress(e.target.value)}
+                                />
+                            </Form.Group>
+
+                            <Form.Group className="mb-3">
+                                <Form.Label>Second IP Address</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={secondIPAddress}
+                                    onChange={(e) => setSecondIPAddress(e.target.value)}
+                                />
+                            </Form.Group>
+
+                            <Form.Group className="mb-3">
+                                <Form.Label>Subnet Mask</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={subnetMask}
+                                    onChange={(e) => setSubnetMask(e.target.value)}
+                                />
+                            </Form.Group>
+                        </>
+                    )}
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>License Number</Form.Label>
@@ -179,58 +245,6 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
-                    <Form.Label>Version Update Date</Form.Label>
-                    <Form.Control
-                        type="date"
-                        value={versionUpdateDate}
-                        onChange={(e) => setVersionUpdateDate(e.target.value)}
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>First IP Address</Form.Label>
-                    <Form.Control
-                        type="text"
-                        value={firstIPAddress}
-                        onChange={(e) => setFirstIPAddress(e.target.value)}
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Second IP Address</Form.Label>
-                    <Form.Control
-                        type="text"
-                        value={secondIPAddress}
-                        onChange={(e) => setSecondIPAddress(e.target.value)}
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Subnet Mask</Form.Label>
-                    <Form.Control
-                        type="text"
-                        value={subnetMask}
-                        onChange={(e) => setSubnetMask(e.target.value)}
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Device Classificator</Form.Label>
-                    <Form.Control
-                        as="select"
-                        value={deviceClassificatorId}
-                        onChange={(e) => setDeviceClassificatorId(e.target.value)}
-                        required
-                    >
-                        <option value="">Select Classificator</option>
-                        {classificators.map(classificator => (
-                            <option key={classificator.id} value={classificator.id}>
-                                {classificator.name}
-                            </option>
-                        ))}
-                    </Form.Control>
-                    <Form.Text className="text-muted">
-                        Can't find the classificator? <Button variant="link" onClick={() => setShowClassificatorModal(true)}>Add New</Button>
-                    </Form.Text>
-                </Form.Group>
-
-                <Form.Group className="mb-3">
                     <Form.Label>Software Key</Form.Label>
                     <Form.Control
                         type="text"
@@ -239,20 +253,21 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
+                    <Form.Label>Version Update Date</Form.Label>
+                    <Form.Control
+                        type="date"
+                        value={versionUpdateDate}
+                        onChange={(e) => setVersionUpdateDate(e.target.value)}
+                    />
+                </Form.Group>
+
+
+                <Form.Group className="mb-3">
                     <Form.Label>Introduced Date</Form.Label>
                     <Form.Control
                         type="date"
                         value={introducedDate}
                         onChange={(e) => setIntroducedDate(e.target.value)}
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Location</Form.Label>
-                    <Select
-                        options={locations.map(location => ({ value: location.id, label: location.name }))}
-                        value={locations.find(loc => loc.value === locationId)}
-                        onChange={(selectedOption) => setLocationId(selectedOption.value)}
-                        required
                     />
                 </Form.Group>
 
