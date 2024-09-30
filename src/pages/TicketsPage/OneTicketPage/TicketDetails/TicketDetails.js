@@ -3,7 +3,7 @@ import { Accordion, Container, Card, Button, Row, Col, Form } from 'react-bootst
 import axios from 'axios';
 import ClientWorkersModal from "./ClientWorkersModal";
 import WorkTypeModal from "./WorkTypeModal";
-import FileList from "./FileList";
+import TicketFileList from "./TicketFileList";
 import MaintenanceModal from "./MaintenanceModal";
 import config from "../../../../config/config";
 import 'react-datetime/css/react-datetime.css';
@@ -22,6 +22,7 @@ const TicketDetails = ({
                            setEditFields,
                            handleSave,
                            ticketRefs,
+                            handleAddTicket
                        }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [showWorkersModal, setShowWorkersModal] = useState(false); // Add state for showing workers modal
@@ -430,13 +431,18 @@ const TicketDetails = ({
 
 
     return (
+        <>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h1 className="mb-4">{customerName} - {locationName} - {ticket.baitNumeration}</h1>
+                <Button variant="success" onClick={handleAddTicket} className="mb-4">Add Ticket</Button>
+            </div>
         <Container className="ticket-container">
         <Accordion className="ticket-accordion" key={ticket.id} activeKey={expandedTickets.has(ticket.id.toString()) ? ticket.id.toString() : null}>
             <Card ref={(el) => (ticketRefs.current[ticket.id] = el)} className="mb-4">
                 <Accordion.Item eventKey={ticket.id.toString()}>
                     <Accordion.Header onClick={() => toggleTicketExpansion(ticket.id.toString())}>
                         <div style={{display: 'flex'}} className="justify-content-between w-100">
-                            <span style={{alignContent: 'center'}}>Title: {ticket.title}</span>
+                            <span style={{alignContent: 'center'}}>{ticket.title}</span>
                             <Button variant="outline-primary" onClick={(e) => { e.stopPropagation(); toggleEdit(); }}>
                                 {isEditing ? 'Cancel' : 'Edit'}
                             </Button>
@@ -786,7 +792,7 @@ const TicketDetails = ({
                                 />
                                 <Button variant="primary" onClick={handleAddComment} className="mt-2">Add Comment</Button>
                             </Form.Group>
-                            <FileList ticketId={ticket.id}/>  {/* Calls the FileList class */}
+                            <TicketFileList ticketId={ticket.id}/>  {/* Calls the TicketFileList class */}
                             {isEditing && (
                                 <Button className="mt-3" variant="primary" onClick={() => { handleSave(ticket.id); toggleEdit(); }}>
                                     Save
@@ -821,6 +827,7 @@ const TicketDetails = ({
             />
         </Accordion>
         </Container>
+        </>
     );
 };
 
