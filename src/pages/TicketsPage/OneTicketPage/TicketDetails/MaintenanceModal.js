@@ -51,19 +51,18 @@ const MaintenanceModal = ({ show, handleClose, clientId, ticketId, onSave }) => 
         }
     };
 
-    const handleSave = async () => {
+    const handleSave = async (e) => {
+        e.preventDefault();
         try {
             const maintenanceResponse = await axios.post(`${config.API_BASE_URL}/maintenance/add`, {
                 maintenanceName,
                 maintenanceDate,
                 comment
             });
-
             const maintenanceId = maintenanceResponse.data.token;
 
             await axios.put(`${config.API_BASE_URL}/ticket/maintenance/${ticketId}/${maintenanceId}`)
             //assigns the maintenance to the respective ticket
-            console.log(selectedDevices)
             for (const device of selectedDevices) {
                 const deviceId = device.value
                 await axios.put(`${config.API_BASE_URL}/device/maintenance/${deviceId}/${maintenanceId}`)

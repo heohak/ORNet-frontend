@@ -10,19 +10,15 @@ import 'react-datetime/css/react-datetime.css';
 import "../../../../css/TicketDetails.css"
 import Datetime from "react-datetime";
 import moment from 'moment';
-import {useNavigate} from "react-router-dom";
+import '../../../../css/TicketDetails.css';
 
 const TicketDetails = ({
                            ticket,
-                           expandedTickets,
                            expandedSections,
-                           toggleTicketExpansion,
                            toggleSectionExpansion,
                            editFields,
                            setEditFields,
-                           handleSave,
-                           ticketRefs,
-                            handleAddTicket
+                           handleSave
                        }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [showWorkersModal, setShowWorkersModal] = useState(false); // Add state for showing workers modal
@@ -46,53 +42,48 @@ const TicketDetails = ({
     const [notification, setNotification] = useState('');
     const [closedStatus, setClosedStatus] = useState(null);
     const [openStatus, setOpenStatus] = useState(null);
-    const navigate = useNavigate();
-
-
 
 
     useEffect(() => {
-        if (isEditing) {
-            setEditFields((prevFields) => ({
-                ...prevFields,
-                [ticket.id]: {
-                    startDateTime: ticket.startDateTime || '',
-                    endDateTime: ticket.endDateTime || '',
-                    responseDateTime: ticket.responseDateTime || '',
-                    updateDateTime: ticket.updateDateTime || '',
-                    crisis: ticket.crisis || false,
-                    remote: ticket.remote || false,
-                    workTypeIds: ticket.workTypeIds || [],
-                    baitWorkerId: ticket.baitWorkerId || '',
-                    clientId: ticket.clientId || '',
-                    locationId: ticket.locationId || '',
-                    statusId: ticket.statusId || '',
-                    rootCause: ticket.rootCause || '',
-                    description: ticket.description || '',
-                    response: ticket.response || '',
-                    insideInfo: ticket.insideInfo || '',
-                    contactIds: ticket.contactIds || [],
-                    fileIds: ticket.fileIds || '',
-                    baitNumeration: ticket.baitNumeration || '',
-                    clientNumeration: ticket.clientNumeration || '',
-                    paidWorkId: ticket.paidWorkId || ''
-                }
-            }));
+        if (isEditing && ticket) {
+            setEditFields({
+                startDateTime: ticket.startDateTime || '',
+                endDateTime: ticket.endDateTime || '',
+                responseDateTime: ticket.responseDateTime || '',
+                updateDateTime: ticket.updateDateTime || '',
+                crisis: ticket.crisis || false,
+                remote: ticket.remote || false,
+                workTypeIds: ticket.workTypeIds || [],
+                baitWorkerId: ticket.baitWorkerId || '',
+                clientId: ticket.clientId || '',
+                locationId: ticket.locationId || '',
+                statusId: ticket.statusId || '',
+                rootCause: ticket.rootCause || '',
+                description: ticket.description || '',
+                response: ticket.response || '',
+                insideInfo: ticket.insideInfo || '',
+                contactIds: ticket.contactIds || [],
+                fileIds: ticket.fileIds || '',
+                baitNumeration: ticket.baitNumeration || '',
+                clientNumeration: ticket.clientNumeration || '',
+                paidWorkId: ticket.paidWorkId || ''
+            });
+
         }
     }, [isEditing, ticket]);
 
     useEffect(() => {
-        if (expandedTickets.has(ticket.id.toString())) {
-            fetchComments(ticket.id);
-            fetchContacts(ticket.id);
-            fetchNames(ticket.baitWorkerId, ticket.locationId, ticket.statusId, ticket.clientId); // Fetch names
-            fetchWorkTypes(ticket.id); // Fetch work types
-            fetchMaintenances(ticket.id);
-            if (ticket.paidWorkId) {
-                fetchPaidInfo(ticket.id);
-            }
+
+        fetchComments(ticket.id);
+        fetchContacts(ticket.id);
+        fetchNames(ticket.baitWorkerId, ticket.locationId, ticket.statusId, ticket.clientId); // Fetch names
+        fetchWorkTypes(ticket.id); // Fetch work types
+        fetchMaintenances(ticket.id);
+        if (ticket.paidWorkId) {
+            fetchPaidInfo(ticket.id);
         }
-    }, [expandedTickets]);
+
+    },[]);
 
     useEffect(() => {
         const fetchClients = async () => {
@@ -151,14 +142,14 @@ const TicketDetails = ({
             }
         };
 
-        if (editFields[ticket.id]?.clientId) {
-            fetchLocations(editFields[ticket.id]?.clientId);
+        if (editFields.clientId) {
+            fetchLocations(editFields.clientId);
         }
-    }, [editFields[ticket.id]?.clientId]);
+    }, [editFields.clientId]);
 
-    const fetchComments = async (ticketId) => {
+    const fetchComments = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/comment/${ticketId}`);
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/comment/${ticket.id}`);
             setComments(response.data);
         } catch (error) {
             console.error('Error fetching comments:', error);
@@ -227,34 +218,28 @@ const TicketDetails = ({
                 }
             });
             setNewComment('');
-            fetchComments(ticket.id); // Refresh comments
+            fetchComments(); // Refresh comments
         } catch (error) {
             console.error('Error adding comment:', error);
         }
     };
 
-    const handleDatetimeChange = (date, ticketId, field) => {
+    const handleDatetimeChange = (date, field) => {
         setEditFields((prevFields) => ({
             ...prevFields,
-            [ticketId]: {
-                ...prevFields[ticketId],
-                [field]: moment(date).format('YYYY-MM-DDTHH:mm:ss')
-            }
+            [field]: moment(date).format('YYYY-MM-DDTHH:mm:ss')
         }));
     };
 
 
-
-    const handleChange = (e, ticketId) => {
+    const handleChange = (e) => {
         const { name, value } = e.target;
         setEditFields((prevFields) => ({
             ...prevFields,
-            [ticketId]: {
-                ...prevFields[ticketId],
-                [name]: value
-            }
+            [name]: value
         }));
     };
+
 
     const toggleEdit = () => {
         setIsEditing(!isEditing);
@@ -264,48 +249,52 @@ const TicketDetails = ({
     const handleMakePaid = async (ticketId) => {
         try {
             await axios.put(`${config.API_BASE_URL}/ticket/add/paid-work/${ticketId}`);
-            navigate(`/ticket/${ticket.id}?scrollTo=${ticket.id}`);
             window.location.reload();
         } catch (error) {
             console.error('Error making ticket paid:', error);
         }
     };
 
-    const fetchPaidInfo = async (ticketId) => {
+    const fetchPaidInfo = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/paid-work/${ticketId}`);
-            setPaidInfo(prevState => ({ ...prevState, [ticketId]: response.data }));
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/paid-work/${ticket.id}`);
+            setPaidInfo(response.data); // Update the paid info directly without ticketId
         } catch (error) {
             console.error('Error fetching paid info:', error);
         }
     };
 
-    const handleTimeInputChange = (ticketId, field, value) => {
-        setTimeInputs({
-            ...timeInputs,
-            [ticketId]: {
-                ...timeInputs[ticketId],
-                [field]: value,
-            },
-        });
+
+    const handleTimeInputChange = (field, value) => {
+        setTimeInputs((prevInputs) => ({
+            ...prevInputs,
+            [field]: value,  // Directly set the field without referencing ticket.id
+        }));
     };
 
-    const handleAddTime = async (ticketId) => {
-        const { hours, minutes } = timeInputs[ticketId] || {};
+
+
+    const handleAddTime = async () => {
+        const { hours, minutes } = timeInputs || {};
 
         try {
-            await axios.put(`${config.API_BASE_URL}/ticket/add/time/${ticketId}`, null, {
+            await axios.put(`${config.API_BASE_URL}/ticket/add/time/${ticket.id}`, null, {
                 params: {
                     hours: hours || 0,
                     minutes: minutes || 0,
                 },
             });
-            fetchPaidInfo(ticketId);
-            renderPaidInfo(ticketId);  //render new info
+            fetchPaidInfo();
+            renderPaidInfo();  // Render new info
+            setTimeInputs({
+                hours: '',     // Clear hours field
+                minutes: '',   // Clear minutes field
+            });
         } catch (error) {
             console.error('Error adding time:', error);
         }
     };
+
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -332,55 +321,53 @@ const TicketDetails = ({
         return `${hours}H ${minutes}M`;
     };
 
-    const renderPaidInfo = (ticketId) => {
-        const info = paidInfo[ticketId];
-        if (!info) return null;
+    const renderPaidInfo = () => {
+        if (!paidInfo) return null;
 
         return (
             <div>
-                <p>Paid Start Time: {formatDate(info.startTime)}</p>
-                <p>Paid Time Spent: {info.timeSpent ? formatTime(info.timeSpent) : '--:--'}</p>
+                <p>Paid Start Time: {formatDate(paidInfo.startTime)}</p>
+                <p>Paid Time Spent: {paidInfo.timeSpent ? formatTime(paidInfo.timeSpent) : '--:--'}</p>
                 <div  style={{display: 'flex'}} >
                     <Form.Group className="me-2">
                         <Form.Control
                             type="number"
-                            value={timeInputs[ticketId]?.hours || ''}
-                            onChange={(e) => handleTimeInputChange(ticketId, 'hours', e.target.value)}
+                            value={timeInputs.hours || ''}
+                            onChange={(e) => handleTimeInputChange( 'hours', e.target.value)}
                             style={{ width: '80px', appearance: 'textfield' }}
-                            disabled={info.settled} // Disable if info.settled is true
+                            disabled={paidInfo.settled} // Disable if info.settled is true
                         />
                     </Form.Group>
                     <p className="me-4" style={{margin: 0, alignContent: 'center'}}>h</p>
                     <Form.Group className="me-2">
                         <Form.Control
                             type="number"
-                            value={timeInputs[ticketId]?.minutes || ''}
-                            onChange={(e) => handleTimeInputChange(ticketId, 'minutes', e.target.value)}
+                            value={timeInputs.minutes || ''}
+                            onChange={(e) => handleTimeInputChange( 'minutes', e.target.value)}
                             style={{ width: '80px', appearance: 'textfield' }}
-                            disabled={info.settled}
+                            disabled={paidInfo.settled}
                         />
                     </Form.Group>
                     <p className="me-4" style={{margin: 0, alignContent: 'center'}}>min</p>
                     <Button
-                        onClick={() => handleAddTime(ticketId)}
-                        disabled={info.settled}
+                        onClick={() => handleAddTime(ticket.id)}
+                        disabled={paidInfo.settled}
                     >
                         Add
                     </Button>
                 </div>
-                {info.settled ? (
+                {paidInfo.settled ? (
                     <p>Settled</p>
                     ):(
-                <Button className="mt-4" onClick={() => handleSettle(ticketId)} >Settle ticket</Button>
+                <Button className="mt-4" onClick={() => handleSettle()} >Settle ticket</Button>
                     )}
             </div>
         );
     };
 
-    const handleSettle = async (ticketId) => {
+    const handleSettle = async () => {
         try {
-            await axios.put(`${config.API_BASE_URL}/ticket/settle/${ticketId}`);
-            navigate(`/ticket/${ticket.id}?scrollTo=${ticket.id}`);
+            await axios.put(`${config.API_BASE_URL}/ticket/settle/${ticket.id}`);
             window.location.reload();
         } catch (error) {
             console.error("error settling ticket", error);
@@ -388,16 +375,14 @@ const TicketDetails = ({
     };
 
     const handleCloseTicket = async () => {
-        const info = paidInfo[ticket.id];
         let now = new Date();
         now.setHours(now.getUTCHours() + 6);
-        if (!info || info.settled) {
+        if (!ticket.paidWorkId || paidInfo.settled) {
             try {
                 await axios.put(`${config.API_BASE_URL}/ticket/status/${ticket.id}/${closedStatus.id}`); //2 is the close classificator id
                 await axios.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`,{
                     endDateTime: now
                 });
-                navigate(`/ticket/${ticket.id}?scrollTo=${ticket.id}`);
                 window.location.reload();
             } catch (error) {
                 console.log("Error closing the ticket", error);
@@ -420,7 +405,6 @@ const TicketDetails = ({
             await axios.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`,{
                 endDateTime: ""
             });
-            navigate(`/ticket/${ticket.id}?scrollTo=${ticket.id}`);
             window.location.reload();
         } catch (error) {
             console.error("Error updating ticket status", error);
@@ -434,21 +418,18 @@ const TicketDetails = ({
         <>
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h1 className="mb-4">{customerName} - {locationName} - {ticket.baitNumeration}</h1>
-                <Button variant="success" onClick={handleAddTicket} className="mb-4">Add Ticket</Button>
             </div>
         <Container className="ticket-container">
-        <Accordion className="ticket-accordion" key={ticket.id} activeKey={expandedTickets.has(ticket.id.toString()) ? ticket.id.toString() : null}>
-            <Card ref={(el) => (ticketRefs.current[ticket.id] = el)} className="mb-4">
-                <Accordion.Item eventKey={ticket.id.toString()}>
-                    <Accordion.Header onClick={() => toggleTicketExpansion(ticket.id.toString())}>
-                        <div style={{display: 'flex'}} className="justify-content-between w-100">
-                            <span style={{alignContent: 'center'}}>{ticket.title}</span>
-                            <Button variant="outline-primary" onClick={(e) => { e.stopPropagation(); toggleEdit(); }}>
-                                {isEditing ? 'Cancel' : 'Edit'}
-                            </Button>
-                        </div>
-                    </Accordion.Header>
-                    <Accordion.Body>
+            <Card className="mb-4">
+                <div className="ticket-card-header">
+                    <div className="d-flex justify-content-between align-items-center w-100 ms-3 me-3">
+                        <span>{ticket.title}</span>
+                        <Button variant="outline-primary" onClick={toggleEdit}>
+                            {isEditing ? 'Cancel' : 'Edit'}
+                        </Button>
+                    </div>
+                </div>
+                <Card.Body>
                         {openStatus && closedStatus ? (
                             ticket.statusId === openStatus.id ? (
                                 <Button variant="danger" onClick={() => handleCloseTicket()}>Close Ticket</Button>
@@ -462,9 +443,9 @@ const TicketDetails = ({
                             </div>
                         )}
                         <Card.Body style={{backgroundColor: '#f8f9fa'}}>
-                            <Accordion className="ticket-accordion" activeKey={expandedSections[ticket.id]?.dates ? "0" : null}>
+                            <Accordion className="ticket-accordion" activeKey={expandedSections.dates ? "0" : null}>
                                 <Accordion.Item eventKey="0">
-                                    <Accordion.Header onClick={() => toggleSectionExpansion(ticket.id, 'dates')}>Dates</Accordion.Header>
+                                    <Accordion.Header onClick={() => toggleSectionExpansion('dates')}>Dates</Accordion.Header>
                                     <Accordion.Body>
                                         <Row>
                                             <Col>
@@ -481,8 +462,8 @@ const TicketDetails = ({
                                                         <Form.Group className="mb-3">
                                                             <Form.Label>Response Date Time</Form.Label>
                                                             <Datetime
-                                                                value={editFields[ticket.id]?.responseDateTime || ''}
-                                                                onChange={(date) => handleDatetimeChange(date, ticket.id, 'responseDateTime')}
+                                                                value={editFields.responseDateTime || ''}
+                                                                onChange={(date) => handleDatetimeChange(date, 'responseDateTime')}
                                                                 dateFormat="YYYY-MM-DD"
                                                                 timeFormat="HH:mm"
                                                             />
@@ -507,9 +488,9 @@ const TicketDetails = ({
                                     </Accordion.Body>
                                 </Accordion.Item>
                             </Accordion>
-                            <Accordion className="ticket-accordion" activeKey={expandedSections[ticket.id]?.details ? "1" : null}>
+                            <Accordion className="ticket-accordion" activeKey={expandedSections.details ? "1" : null}>
                                 <Accordion.Item eventKey="1">
-                                    <Accordion.Header onClick={() => toggleSectionExpansion(ticket.id, 'details')}>Details</Accordion.Header>
+                                    <Accordion.Header onClick={() => toggleSectionExpansion('details')}>Details</Accordion.Header>
                                     <Accordion.Body>
                                         <Row>
                                             <Col md={6}>
@@ -520,7 +501,7 @@ const TicketDetails = ({
                                                             <Form.Control
                                                                 type="text"
                                                                 name="baitNumeration"
-                                                                value={editFields[ticket.id]?.baitNumeration || ''}
+                                                                value={editFields.baitNumeration || ''}
                                                                 onChange={(e) => handleChange(e, ticket.id)}
                                                             />
                                                         </Form.Group>
@@ -529,9 +510,9 @@ const TicketDetails = ({
                                                             <Form.Check
                                                                 type="checkbox"
                                                                 name="crisis"
-                                                                checked={editFields[ticket.id]?.crisis}
+                                                                checked={editFields.crisis}
                                                                 onChange={(e) => handleChange({ target: { name: 'crisis', value: e.target.checked } }, ticket.id)}
-                                                                label={editFields[ticket.id]?.crisis ? 'True' : 'False'}
+                                                                label={editFields.crisis ? 'True' : 'False'}
                                                             />
                                                         </Form.Group>
                                                         <Form.Group className="mb-3">
@@ -539,9 +520,9 @@ const TicketDetails = ({
                                                             <Form.Check
                                                                 type="checkbox"
                                                                 name="remote"
-                                                                checked={editFields[ticket.id]?.remote}
+                                                                checked={editFields.remote}
                                                                 onChange={(e) => handleChange({ target: { name: 'remote', value: e.target.checked } }, ticket.id)}
-                                                                label={editFields[ticket.id]?.remote ? 'True' : 'False'}
+                                                                label={editFields.remote ? 'True' : 'False'}
                                                             />
                                                         </Form.Group>
                                                         <Form.Group className="mb-3">
@@ -557,7 +538,7 @@ const TicketDetails = ({
                                                             <Form.Control
                                                                 as="select"
                                                                 name="baitWorkerId"
-                                                                value={editFields[ticket.id]?.baitWorkerId || ''}
+                                                                value={editFields.baitWorkerId || ''}
                                                                 onChange={(e) => handleChange(e, ticket.id)}
                                                             >
                                                                 <option value="">Select a worker</option>
@@ -594,7 +575,7 @@ const TicketDetails = ({
                                                             <Form.Control
                                                                 type="text"
                                                                 name="clientNumeration"
-                                                                value={editFields[ticket.id]?.clientNumeration || ''}
+                                                                value={editFields.clientNumeration || ''}
                                                                 onChange={(e) => handleChange(e, ticket.id)}
                                                             />
                                                         </Form.Group>
@@ -603,7 +584,7 @@ const TicketDetails = ({
                                                             <Form.Control
                                                                 as="select"
                                                                 name="clientId"
-                                                                value={editFields[ticket.id]?.clientId || ''}
+                                                                value={editFields.clientId || ''}
                                                                 onChange={(e) => handleChange(e, ticket.id)}
                                                                 disabled
                                                             >
@@ -618,9 +599,9 @@ const TicketDetails = ({
                                                             <Form.Control
                                                                 as="select"
                                                                 name="locationId"
-                                                                value={editFields[ticket.id]?.locationId || ''}
+                                                                value={editFields.locationId || ''}
                                                                 onChange={(e) => handleChange(e, ticket.id)}
-                                                                disabled={!editFields[ticket.id]?.clientId}
+                                                                disabled={!editFields.clientId}
                                                             >
                                                                 <option value="">Select a location</option>
                                                                 {locations.map(location => (
@@ -633,7 +614,7 @@ const TicketDetails = ({
                                                             <Form.Control
                                                                 as="select"
                                                                 name="statusId"
-                                                                value={editFields[ticket.id]?.statusId || ''}
+                                                                value={editFields.statusId || ''}
                                                                 onChange={(e) => handleChange(e, ticket.id)}
                                                             >
                                                                 <option value="">Select a status</option>
@@ -649,7 +630,7 @@ const TicketDetails = ({
                                                                 rows={2}
                                                                 type="text"
                                                                 name="rootCause"
-                                                                value={editFields[ticket.id]?.rootCause || ''}
+                                                                value={editFields.rootCause || ''}
                                                                 onChange={(e) => handleChange(e, ticket.id)}
                                                             />
                                                         </Form.Group>
@@ -673,15 +654,15 @@ const TicketDetails = ({
 
                             {/* Paid Info Section */}
                             {ticket.paidWorkId ? (
-                                <Accordion activeKey={expandedSections[ticket.id]?.paid ? "2" : null}>
+                                <Accordion activeKey={expandedSections.paid ? "2" : null}>
                                     <Accordion.Item eventKey="2">
-                                        <Accordion.Header onClick={() => toggleSectionExpansion(ticket.id, 'paid')}>
+                                        <Accordion.Header onClick={() => toggleSectionExpansion('paid')}>
                                             Paid Info
                                         </Accordion.Header>
                                         <Accordion.Body>
                                             {ticket.paidWorkId ? (
                                                 <>
-                                                    {expandedSections[ticket.id]?.paid && renderPaidInfo(ticket.id)}
+                                                    {expandedSections.paid && renderPaidInfo(ticket.id)}
                                                 </>
                                             ): null}
                                         </Accordion.Body>
@@ -697,7 +678,7 @@ const TicketDetails = ({
                                     as="textarea"
                                     rows={3}
                                     name="description"
-                                    value={editFields[ticket.id]?.description || ''}
+                                    value={editFields.description || ''}
                                     onChange={(e) => handleChange(e, ticket.id)}
                                     placeholder="Enter description here..."
                                 />
@@ -714,7 +695,7 @@ const TicketDetails = ({
                                     as="textarea"
                                     rows={3}
                                     name="response"
-                                    value={editFields[ticket.id]?.response || ''}
+                                    value={editFields.response || ''}
                                     onChange={(e) => handleChange(e, ticket.id)}
                                     placeholder="Enter response here..."
                                 />
@@ -732,7 +713,7 @@ const TicketDetails = ({
                                     as="textarea"
                                     rows={3}
                                     name="insideInfo"
-                                    value={editFields[ticket.id]?.insideInfo || ''}
+                                    value={editFields.insideInfo || ''}
                                     onChange={(e) => handleChange(e, ticket.id)}
                                     placeholder="Enter inside info here..."
                                 />
@@ -743,9 +724,9 @@ const TicketDetails = ({
                                     </Card.Body>
                                 </Card>
                             )}
-                            <Accordion activeKey={expandedSections[ticket.id]?.maintenance ? "3" : null}>
+                            <Accordion activeKey={expandedSections.maintenance ? "3" : null}>
                                 <Accordion.Item eventKey="3">
-                                    <Accordion.Header onClick={() => toggleSectionExpansion(ticket.id, 'maintenance')}>
+                                    <Accordion.Header onClick={() => toggleSectionExpansion('maintenance')}>
                                         Maintenances
                                     </Accordion.Header>
                                     <Accordion.Body>
@@ -799,14 +780,13 @@ const TicketDetails = ({
                                 </Button>
                             )}
                         </Card.Body>
-                    </Accordion.Body>
-                </Accordion.Item>
+                </Card.Body>
             </Card>
             <ClientWorkersModal
                 show={showWorkersModal}
                 handleClose={() => setShowWorkersModal(false)}
                 clientId={ticket.clientId}
-                selectedWorkers={editFields[ticket.id]?.contactIds || []}
+                selectedWorkers={editFields.contactIds || []}
                 onSave={()=> handleWorkTypeAndContactFetch(ticket.id)}
                 ticketId={ticket.id}
                 locations={locations}
@@ -814,7 +794,7 @@ const TicketDetails = ({
             <WorkTypeModal
                 show={showWorkTypeModal}
                 handleClose={() => setShowWorkTypeModal(false)}
-                selectedWorkTypes={editFields[ticket.id]?.workTypeIds || []}
+                selectedWorkTypes={editFields.workTypeIds || []}
                 onSave={()=> handleWorkTypeAndContactFetch(ticket.id)}
                 ticketId={ticket.id}
             />
@@ -825,7 +805,6 @@ const TicketDetails = ({
             ticketId={ticket.id}
             onSave={()=> fetchMaintenances(ticket.id)}
             />
-        </Accordion>
         </Container>
         </>
     );
