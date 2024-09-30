@@ -6,7 +6,6 @@ import config from "../../config/config";
 import DeviceDetails from "./DeviceDetails";
 import MaintenanceInfo from "./MaintenanceInfo";
 import LinkedDevices from "./LinkedDevices";
-import FileUploadModal from "../../modals/FileUploadModal";
 import CommentsModal from "../../modals/CommentsModal";
 
 function OneDevice() {
@@ -24,7 +23,6 @@ function OneDevice() {
     const [maintenanceDate, setMaintenanceDate] = useState("");
     const [maintenanceComment, setMaintenanceComment] = useState("");
     const [files, setFiles] = useState([]);
-    const [showFileUploadModal, setShowFileUploadModal] = useState(false);
     const [showCommentsModal, setShowCommentsModal] = useState(false);
     const [refresh, setRefresh] = useState(false);
     const location = useLocation();
@@ -155,7 +153,6 @@ function OneDevice() {
                     <DeviceDetails
                         device={device}
                         navigate={navigate}
-                        setShowFileUploadModal={setShowFileUploadModal}
                         setShowCommentsModal={setShowCommentsModal}
                         setRefresh={setRefresh}
                         onUploadSuccess={handleUploadSuccess}
@@ -185,13 +182,6 @@ function OneDevice() {
                     />
                 </Col>
             </Row>
-            <FileUploadModal
-                show={showFileUploadModal}
-                handleClose={() => setShowFileUploadModal(false)}
-                deviceId={deviceId}
-                uploadEndpoint={`${config.API_BASE_URL}/device/upload/${deviceId}`}
-                onUploadSuccess={handleUploadSuccess} // Pass callback to trigger refresh
-            />
             <CommentsModal
                 show={showCommentsModal}
                 handleClose={() => setShowCommentsModal(false)}

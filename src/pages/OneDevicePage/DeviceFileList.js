@@ -2,9 +2,11 @@ import React, {useEffect, useState} from 'react';
 import axios from "axios";
 import config from "../../config/config";
 import FileUploadModal from "../../modals/FileUploadModal";
+import FileList from "../../modals/FileList";
 import {Button} from "react-bootstrap";
 
-const FileList = ({ deviceId }) => {
+
+const DeviceFileList = ({ deviceId }) => {
     const [files, setFiles] = useState([]);
     const [showUploadModal, setShowUploadModal] = useState(false);
 
@@ -31,24 +33,7 @@ const FileList = ({ deviceId }) => {
                 Upload Files
             </Button>
             <div>
-                <strong>File List:</strong>
-                <ul>
-                    {files.length > 0 ? (
-                        files.map((file) => (
-                            <li key={file.id}>
-                                <a
-                                    href={`${config.API_BASE_URL}/file/download/${file.id}`}
-                                    download // This attribute suggests to the browser that it should download the file
-                                    className="file-link"
-                                >
-                                    {file.fileName}
-                                </a>
-                            </li>
-                        ))
-                    ) : (
-                        <li>No files available</li>
-                    )}
-                </ul>
+                <FileList files={files}/>
             </div>
             <FileUploadModal
                 show={showUploadModal}
@@ -60,4 +45,4 @@ const FileList = ({ deviceId }) => {
     );
 };
 
-export default FileList;
+export default DeviceFileList;
