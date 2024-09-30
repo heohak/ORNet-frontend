@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Modal, Form, ListGroup, Alert } from 'react-bootstrap';
+import { Card, Button, Modal, Form, ListGroup, Alert, Row, Col } from 'react-bootstrap';
 import { FaPlus } from 'react-icons/fa';
 import axios from 'axios';
 import config from "../../config/config";
@@ -174,10 +174,17 @@ function LinkedDevices({
 
     return (
         <>
-            <h2 className="mb-4">
-                Linked Devices
-            </h2>
-            <Button variant="primary" onClick={() => setShowModal(true)}>Link Device</Button>
+            <Row className="align-items-center justify-content-between">
+                <Col>
+                    <h2 className="mb-0">Linked Devices</h2>
+                </Col>
+                <Col className="col-auto">
+                    <Button variant="primary" onClick={() => setShowModal(true)}>
+                        Link Device
+                    </Button>
+                </Col>
+            </Row>
+
             {linkedDevices.length > 0 ? (
                 <ListGroup className="mt-3">
                     {linkedDevices.map((linkedDevice) => (

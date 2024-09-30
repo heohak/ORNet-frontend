@@ -229,10 +229,16 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
             <h1 className="device-details-header mt-4">
                 {device ? `${device.deviceName} Details` : 'Device Details'}
             </h1>
-            {device && device.introducedDate && writtenOffDate && (
+            {device && device.introducedDate && (
                 <div>
-                    <strong>Service Duration: </strong>
-                    {Math.floor((new Date(writtenOffDate) - new Date(device.introducedDate)) / (1000 * 60 * 60 * 24))} days
+                    {writtenOffDate ? (
+                        <div>
+                            <strong>Service Duration: </strong>
+                            {Math.floor((new Date(writtenOffDate) - new Date(device.introducedDate)) / (1000 * 60 * 60 * 24))} days
+                        </div>
+                    ) : (
+                        <div className="empty-placeholder"></div> // Empty div with class
+                    )}
                 </div>
             )}
             {localDevice ? (
