@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {Container, Form, Button, Alert, ListGroup, Row, Col, Modal} from 'react-bootstrap';
 import config from '../../config/config';
 import { validatePhoneAndPostalCode } from '../../utils/Validation';
+import AddThirdPartyITModal from "./AddThirdPartyITModal";
 
 function EditClient() {
     const { clientId } = useParams();
@@ -23,6 +24,7 @@ function EditClient() {
         thirdPartyITs: [] // To store third party IT objects
     });
     const [allThirdPartyITs, setAllThirdPartyITs] = useState([]);
+    const [showThirdPartyITModal, setShowThirdPartyITModal] = useState(false);
     const [newLocation, setNewLocation] = useState({
         name: '',
         city: '',
@@ -39,35 +41,34 @@ function EditClient() {
     const [postalCodeError, setPostalCodeError] = useState('');
     const errorRef = useRef(null);
 
+    const fetchClientData = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/client/${clientId}`);
+            const client = response.data;
+
+            // Fetch the location details for the locationIds
+            const locationResponses = await Promise.all(
+                client.locationIds.map(id => axios.get(`${config.API_BASE_URL}/location/${id}`))
+            );
+
+            const locations = locationResponses.map(res => res.data);
+
+            const thirdPartyResponses = await Promise.all(
+                client.thirdPartyIds.map(id => axios.get(`${config.API_BASE_URL}/third-party/${id}`))
+            );
+            const thirdPartyITs = thirdPartyResponses.map(res => res.data);
+
+            setClientData({ ...client, locations, thirdPartyITs });
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
     useEffect(() => {
 
         if (error && errorRef.current) {
             errorRef.current.scrollIntoView({ behavior: 'smooth' });
         }
-
-        const fetchClientData = async () => {
-            try {
-                const response = await axios.get(`${config.API_BASE_URL}/client/${clientId}`);
-                const client = response.data;
-
-                // Fetch the location details for the locationIds
-                const locationResponses = await Promise.all(
-                    client.locationIds.map(id => axios.get(`${config.API_BASE_URL}/location/${id}`))
-                );
-
-                const locations = locationResponses.map(res => res.data);
-
-                const thirdPartyResponses = await Promise.all(
-                    client.thirdPartyIds.map(id => axios.get(`${config.API_BASE_URL}/third-party/${id}`))
-                );
-                const thirdPartyITs = thirdPartyResponses.map(res => res.data);
-
-                setClientData({ ...client, locations, thirdPartyITs });
-            } catch (error) {
-                setError(error.message);
-            }
-        };
-
 
 
         fetchClientData();
@@ -110,6 +111,14 @@ function EditClient() {
             thirdPartyITs: clientData.thirdPartyITs.filter(it => it.id !== thirdPartyITId),
             thirdPartyIds: clientData.thirdPartyIds.filter(id => id !== thirdPartyITId),
         });
+    };
+    const handleNewThirdPartyIT = (newThirdPartyIT) => {
+        // Add the new third-party IT to the client's data
+        setClientData(prevData => ({
+            ...prevData,
+            thirdPartyITs: [...prevData.thirdPartyITs, newThirdPartyIT],
+            thirdPartyIds: [...prevData.thirdPartyIds, newThirdPartyIT.id],
+        }));
     };
 
     const handleInputChange = (e) => {
@@ -379,6 +388,10 @@ function EditClient() {
                             </option>
                         ))}
                     </Form.Select>
+                    <Form.Text className="text-muted">
+                        Can't find the third-party IT?{' '}
+                        <Button variant="link" onClick={() => setShowThirdPartyITModal(true)}>Add New</Button>
+                    </Form.Text>
                 </Form.Group>
 
                 <Button variant="success" type="submit">Save Changes</Button>
@@ -468,6 +481,11 @@ function EditClient() {
                     </Modal.Footer>
                 </Form>
             </Modal>
+            <AddThirdPartyITModal
+                show={showThirdPartyITModal}
+                onHide={() => setShowThirdPartyITModal(false)}
+                onNewThirdPartyIT={handleNewThirdPartyIT}
+            />
         </Container>
     );
 }
