@@ -18,8 +18,6 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
     const [deviceClassificatorId, setDeviceClassificatorId] = useState('');
     const [softwareKey, setSoftwareKey] = useState('');
     const [introducedDate, setIntroducedDate] = useState('');
-    const [writtenOffDate, setWrittenOffDate] = useState('');
-    const [comment, setComment] = useState('');
     const [locationId, setLocationId] = useState('');
     const [clients, setClients] = useState([]);
     const [clientId, setClientId] = useState('');
@@ -44,8 +42,6 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
         setDeviceClassificatorId('');
         setSoftwareKey('');
         setIntroducedDate('');
-        setWrittenOffDate('');
-        setComment('');
         setLocationId('');
         setClientId('');
         setError(null);
@@ -123,8 +119,6 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                 subnetMask,
                 softwareKey,
                 introducedDate,
-                writtenOffDate,
-                comment,
             });
 
             const deviceId = deviceResponse.data.token; // Assuming the response contains the new device's ID
@@ -325,14 +319,6 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                             />
                         </Form.Group>
                         <Form.Group className="mb-3">
-                            <Form.Label>Version Update Date</Form.Label>
-                            <Form.Control
-                                type="date"
-                                value={versionUpdateDate}
-                                onChange={(e) => setVersionUpdateDate(e.target.value)}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
                             <Form.Label>Software Key</Form.Label>
                             <Form.Control
                                 type="text"
@@ -341,28 +327,20 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                             />
                         </Form.Group>
                         <Form.Group className="mb-3">
+                            <Form.Label>Version Update Date</Form.Label>
+                            <Form.Control
+                                type="date"
+                                value={versionUpdateDate}
+                                onChange={(e) => setVersionUpdateDate(e.target.value)}
+                            />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
                             <Form.Label>Introduced Date</Form.Label>
                             <Form.Control
                                 type="date"
                                 value={introducedDate}
                                 onChange={(e) => setIntroducedDate(e.target.value)}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Written Off Date</Form.Label>
-                            <Form.Control
-                                type="date"
-                                value={writtenOffDate}
-                                onChange={(e) => setWrittenOffDate(e.target.value)}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Comment</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                rows={3}
-                                value={comment}
-                                onChange={(e) => setComment(e.target.value)}
                             />
                         </Form.Group>
                         <Button variant="success" type="submit">
