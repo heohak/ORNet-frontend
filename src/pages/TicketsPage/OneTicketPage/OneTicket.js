@@ -7,51 +7,30 @@ import TicketDetails from "./TicketDetails/TicketDetails";
 
 function OneTicket() {
     const { ticketId } = useParams();
-    const { search } = useLocation();
-    const queryParams = new URLSearchParams(search);
-    const scrollToId = queryParams.get('scrollTo');
 
-    const [tickets, setTickets] = useState([]);
+    const [ticket, setTicket] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [expandedTickets, setExpandedTickets] = useState(new Set());
     const [expandedSections, setExpandedSections] = useState({});
     const [editFields, setEditFields] = useState({});
-    const [clientName, setClientName] = useState(null);
     const navigate = useNavigate();
     const location = useLocation();
 
-    const ticketRefs = useRef({});
-
     useEffect(() => {
-        const fetchTickets = async () => {
+        const fetchTicket = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/ticket/main/${ticketId}`);
-                const ticketsData = response.data;
-                if (ticketsData.length > 0) {
-                    fetchClientName(ticketsData[0].clientId);
-                }
-                setTickets(ticketsData);
-                const initialEditFields = {};
-                ticketsData.forEach(ticket => {
-                    initialEditFields[ticket.id] = {
-                        title: ticket.title || '',
-                        response: ticket.response || '',
-                        insideInfo: ticket.insideInfo || '',
-                        description: ticket.description || '',
-                        workType: ticket.workType || '',
-                        clientId: ticket.clientId || '',
-                        mainTicketId: ticket.mainTicketId || '',
-                        statusId: ticket.statusId || '',
-                        createdAt: ticket.createdAt || '',
-                        updatedAt: ticket.updatedAt || '',
-                    };
+                const response = await axios.get(`${config.API_BASE_URL}/ticket/${ticketId}`);
+                setTicket(response.data);
+                setEditFields( {
+                    response: response.data.response || '',
+                    insideInfo: response.data.insideInfo || '',
+                    description: response.data.description || '',
+                    workType: response.data.workType || '',
+                    clientId: response.data.clientId || '',
+                    statusId: response.data.statusId || '',
+                    createdAt: response.data.createdAt || '',
+                    updatedAt: response.data.updatedAt || '',
                 });
-                setEditFields(initialEditFields);
-                if (scrollToId) {
-                    setExpandedTickets(new Set([scrollToId]));
-                    setExpandedSections({ [scrollToId]: { dates: false, details: false, paid: false, maintenance: false } });
-                }
             } catch (error) {
                 setError(error.message);
             } finally {
@@ -59,37 +38,14 @@ function OneTicket() {
             }
         };
 
-        fetchTickets();
-    }, [ticketId, scrollToId]);
+        fetchTicket();
+    }, [ticketId]);
 
-    useEffect(() => {
-        if (!loading && scrollToId && ticketRefs.current[scrollToId]) {
-            ticketRefs.current[scrollToId].scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    }, [loading, scrollToId]);
-
-    const fetchClientName = async (clientId) => {
-        try {
-            const clientResponse = await axios.get(`${config.API_BASE_URL}/client/${clientId}`);
-            setClientName(clientResponse.data.fullName);
-        } catch (error) {
-            console.error('Error fetching names:', error);
-        }
-    };
-
-    const handleAddTicket = () => {
-        const currentTicket = tickets.find(ticket => ticket.id === parseInt(ticketId));
-        if (currentTicket) {
-            navigate(`/add-ticket/${ticketId}?clientId=${currentTicket.clientId}`); // Passes along the client id
-        } else {
-            navigate(`/add-ticket/${ticketId}`);
-        }
-    };
 
     const handleSave = async (ticketId) => {
         try {
             await axios.put(`${config.API_BASE_URL}/ticket/update/whole/${ticketId}`, {
-                ...editFields[ticketId]
+                ...editFields
             });
             setError(null);
             window.location.reload();
@@ -98,36 +54,11 @@ function OneTicket() {
         }
     };
 
-    const toggleTicketExpansion = (id) => {
-        setExpandedTickets(prevExpandedTickets => {
-            const newExpandedTickets = new Set(prevExpandedTickets);
-            if (newExpandedTickets.has(id)) {
-                newExpandedTickets.delete(id);
-            } else {
-                newExpandedTickets.add(id);
-            }
-            return newExpandedTickets;
-        });
+
+    const toggleSectionExpansion = (section) => {
         setExpandedSections((prevSections) => ({
             ...prevSections,
-            [id]: {
-                dates: expandedTickets.has(id) ? !expandedSections[id]?.dates : false,
-                details: expandedTickets.has(id) ? !expandedSections[id]?.details : false,
-                paid: expandedTickets.has(id) ? !expandedSections[id]?.paid : false,
-                maintenance: expandedTickets.has(id) ? !expandedSections[id]?.maintenance : false,
-
-
-            }
-        }));
-    };
-
-    const toggleSectionExpansion = (ticketId, section) => {
-        setExpandedSections((prevSections) => ({
-            ...prevSections,
-            [ticketId]: {
-                ...prevSections[ticketId],
-                [section]: !prevSections[ticketId][section]
-            }
+            [section]: !prevSections[section]
         }));
     };
 
@@ -154,27 +85,15 @@ function OneTicket() {
 
     return (
         <Container className="mt-5">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1 className="mb-4">{clientName} - Ticket Details</h1>
-                <Button variant="success" onClick={handleAddTicket} className="mb-4">Add Ticket</Button>
-            </div>
-            {tickets.length > 0 ? (
-                <>
-                    {tickets.map((ticket) => (
-                        <TicketDetails
-                            key={ticket.id}
-                            ticket={ticket}
-                            expandedTickets={expandedTickets}
-                            expandedSections={expandedSections}
-                            toggleTicketExpansion={toggleTicketExpansion}
-                            toggleSectionExpansion={toggleSectionExpansion}
-                            editFields={editFields}
-                            setEditFields={setEditFields}
-                            handleSave={handleSave}
-                            ticketRefs={ticketRefs}
-                        />
-                    ))}
-                </>
+            {ticket ? (
+                <TicketDetails
+                    ticket={ticket}
+                    expandedSections={expandedSections}
+                    toggleSectionExpansion={toggleSectionExpansion}
+                    editFields={editFields}
+                    setEditFields={setEditFields}
+                    handleSave={handleSave}
+                />
             ) : (
                 <Alert variant="info">No ticket details available.</Alert>
             )}
@@ -182,8 +101,8 @@ function OneTicket() {
                 onClick={() => {
                     if (location.state && location.state.from === 'tickets') {
                         navigate('/devices');
-                    } else if (tickets[ticketId] && tickets[ticketId].clientId) {
-                        navigate(`/customer/${tickets[ticketId].clientId}`);
+                    } else if (ticket.id && ticket.clientId) {
+                        navigate(`/customer/${ticket.clientId}`);
                     } else {
                         navigate(-1);
                     }

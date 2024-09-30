@@ -16,7 +16,6 @@ function AddTicket() {
     const clientIdParam = queryParams.get('clientId');
 
     const [formData, setFormData] = useState({
-        title: '',
         description: '',
         rootCause: '',
         clientId: clientIdParam || '',
@@ -167,15 +166,6 @@ function AddTicket() {
             <h1 className="mb-4">{clientIdParam ? `Add Ticket for ${clientName}` : "Add a New Ticket"}</h1>
             {error && <Alert variant="danger">{error}</Alert>}
             <Form onSubmit={handleSubmit}>
-                <Form.Group controlId="title" className="mb-3">
-                    <Form.Label>Title</Form.Label>
-                    <Form.Control
-                        type="text"
-                        value={formData.title}
-                        onChange={handleChange}
-                        required
-                    />
-                </Form.Group>
                 {!clientIdParam && (
                     <Form.Group controlId="clientId" className="mb-3">
                         <Form.Label>Client</Form.Label>
@@ -214,6 +204,8 @@ function AddTicket() {
                 <Form.Group controlId="description" className="mb-3">
                     <Form.Label>Description</Form.Label>
                     <Form.Control
+                        as="textarea"
+                        rows={3}
                         type="text"
                         value={formData.description}
                         onChange={handleChange}
@@ -257,6 +249,8 @@ function AddTicket() {
                 <Form.Group controlId="rootCause" className="mb-3">
                     <Form.Label>Root Cause</Form.Label>
                     <Form.Control
+                        as="textarea"
+                        rows={2}
                         type="text"
                         value={formData.rootCause}
                         onChange={handleChange}

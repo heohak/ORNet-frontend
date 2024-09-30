@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Container, Row, Col, Card, Button, Spinner, Alert, Modal, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import config from '../../config/config';
+import noImg from "../../assets/no-img.jpg";
+
 
 function ViewFiles() {
     const [loading, setLoading] = useState(false);
@@ -88,7 +90,8 @@ function ViewFiles() {
                             <Card.Img
                                 variant="top"
                                 src={`${config.API_BASE_URL}/file/thumbnail/${file.id}`}
-                                alt={`Thumbnail of ${file.fileName}`}
+                                alt={file.fileName || "No image available"} // Use file name or default text for alt
+                                onError={(e) => { e.target.onerror = null; e.target.src = noImg; }} // Set default image on error
                                 style={{ height: '200px', objectFit: 'cover', objectPosition: 'center center' }}
                             />
                             <Card.Body>
@@ -96,6 +99,16 @@ function ViewFiles() {
                                 <Card.Text>
                                     <strong>Name: </strong>{file.fileName}
                                 </Card.Text>
+                                <a
+                                    href={`${config.API_BASE_URL}/file/open/${file.id}`} // Link to open the file in a new tab
+                                    target="_blank" // Open in a new tab
+                                    rel="noopener noreferrer" // Security feature
+                                    className="file-link"
+                                    style={{ display: 'inline-block', marginRight: '10px' }} // Only take width of the text
+                                >
+                                    <Button variant="primary" className="ms-2">Open</Button>
+
+                                </a>
                                 <Button variant="primary" href={`${config.API_BASE_URL}/file/download/${file.id}`} className="ms-2">Download</Button>
                             </Card.Body>
                         </Card>

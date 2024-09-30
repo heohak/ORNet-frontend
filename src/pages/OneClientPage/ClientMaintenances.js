@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Card, Button, Modal, Form, Row, Col, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../config/config";
+import '../../css/Customers.css';
+import noImg from "../../assets/no-img.jpg";
 
 function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
     const [showAddMaintenanceModal, setShowAddMaintenanceModal] = useState(false);
@@ -108,7 +110,7 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
                 {maintenances.length > 0 ? (
                     maintenances.map((maintenance) => (
                         <Col md={4} key={maintenance.id} className="mb-4"> {/* Adjust column size as needed */}
-                            <Card className="h-100 position-relative all-page-card">
+                            <Card className="h-100 position-relative customer-page-card">
                                 <Card.Body className="all-page-cardBody">
                                     <div className="mb-4">
                                         <Card.Title className='all-page-cardTitle'>{maintenance.maintenanceName}</Card.Title>
@@ -246,14 +248,28 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
                         <div>
                             {maintenanceFiles[selectedMaintenanceId].map(file => (
                                 <div key={file.id} className="mb-2">
-                                    <a href={`${config.API_BASE_URL}/file/download/${file.id}`} download>
-                                        <img
-                                            src={`${config.API_BASE_URL}/file/thumbnail/${file.id}`}
-                                            alt={file.fileName}
-                                            style={{ maxWidth: '100px', maxHeight: '100px', marginRight: '10px' }}
-                                        />
+                                    <img
+                                        src={`${config.API_BASE_URL}/file/thumbnail/${file.id}`}
+                                        alt={file.fileName || "No image available"} // Use file name or default text for alt
+                                        onError={(e) => { e.target.onerror = null; e.target.src = noImg; }} // Set default image on error
+                                        style={{ height: '40px', width: '40px', objectFit: 'cover', marginRight: '10px' }} // Thumbnail style
+                                    />
+                                    <a
+                                        href={`${config.API_BASE_URL}/file/open/${file.id}`} // Link to open the file
+                                        target="_blank" // Open in a new tab
+                                        rel="noopener noreferrer" // Security feature
+                                        className="file-link"
+                                        style={{ display: 'inline-block', marginRight: '10px' }} // Only take width of the text
+                                    >
                                         {file.fileName}
                                     </a>
+                                    <Button
+                                        variant="primary"
+                                        href={`${config.API_BASE_URL}/file/download/${file.id}`}
+                                        className="ms-2"
+                                    >
+                                        Download
+                                    </Button>
                                 </div>
                             ))}
                         </div>

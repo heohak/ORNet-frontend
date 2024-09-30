@@ -145,12 +145,13 @@ function EditThirdPartyIT() {
                     <p>Are you sure you want to delete this third-party IT entity?</p>
                     {associatedClients.length > 0 ? (
                         <>
-                            <p>This third-party IT entity is associated with the following clients and cannot be deleted:</p>
+                            <p>This third-party IT entity is associated with the following clients:</p>
                             <ul>
                                 {associatedClients.map((client) => (
                                     <li key={client.id}>Client: {client.shortName}</li>
                                 ))}
                             </ul>
+                            <p style={{color: 'red'}}>This action will delete the third party from all associated clients and cannot be undone.</p>
                         </>
                     ) : (
                         <p>No clients associated. You can proceed with deletion.</p>
@@ -160,12 +161,9 @@ function EditThirdPartyIT() {
                     <Button variant="secondary" onClick={handleCloseDeleteModal}>
                         Close
                     </Button>
-                    {/* Conditionally render Delete button based on whether associated clients exist */}
-                    {associatedClients.length === 0 && (
                         <Button variant="danger" onClick={handleDelete}>
                             Delete
                         </Button>
-                    )}
                 </Modal.Footer>
             </Modal>
         </Container>

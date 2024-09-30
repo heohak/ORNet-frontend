@@ -44,10 +44,12 @@ import EditSoftware from "./pages/SettingsPage/EditSoftware";
 import EditWorkType from "./pages/SettingsPage/EditWorkType";
 import HistoryTable from "./components/HistoryTable";
 import Contacts from "./pages/ContactsPage/Contacts";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
     return (
         <Router>
+            <ScrollToTop />
             <div className="d-flex flex-column min-vh-100">
                 <MenuBar />
                 <main className="flex-grow-1">

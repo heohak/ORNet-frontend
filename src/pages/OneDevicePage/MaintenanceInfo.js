@@ -4,6 +4,7 @@ import axios from 'axios';
 import config from "../../config/config";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCog} from "@fortawesome/free-solid-svg-icons";
+import FileList from "../../modals/FileList";
 
 function MaintenanceInfo({
                              maintenanceInfo,
@@ -93,23 +94,7 @@ function MaintenanceInfo({
                 <Card.Text>
                     <strong>Files:</strong>
                 </Card.Text>
-                <ul>
-                    {files.length > 0 ? (
-                        files.map((file) => (
-                            <li key={file.id}>
-                                <a
-                                    href={`${config.API_BASE_URL}/file/download/${file.id}`}
-                                    download
-                                    className="file-link"
-                                >
-                                    {file.fileName}
-                                </a>
-                            </li>
-                        ))
-                    ) : (
-                        <li>No files available</li>
-                    )}
-                </ul>
+                <FileList files={files}/>
             </>
         );
     };

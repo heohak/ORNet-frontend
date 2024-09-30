@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import {Container, Spinner, Alert, Accordion, Card, Button} from 'react-bootstrap';
+import {Container, Spinner, Alert, Accordion, Card, Button, Row, Col} from 'react-bootstrap';
 import config from "../../config/config";
 import ClientDetails from "./ClientDetails";
 import ClientDevices from "./ClientDevices";
@@ -10,6 +10,7 @@ import SoftwareDetails from "./SoftwareDetails";
 import ClientTickets from "./ClientTickets";
 import ClientThirdPartyIT from "./ClientThirdPartyIT";
 import ClientMaintenances from "./ClientMaintenances";
+import '../../css/Customers.css';
 
 function OneClient() {
     const { clientId } = useParams();
@@ -119,27 +120,30 @@ function OneClient() {
                         <ClientDetails
                             client={client}
                             navigate={navigate}
-                            locations={locations}
                         />
                         <Accordion defaultActiveKey="0">
                             <Accordion.Item eventKey="1">
                                 <Accordion.Header>Locations</Accordion.Header>
                                 <Accordion.Body>
-                                    {locations.length > 0 ? (
-                                        locations.map(location => (
-                                            <Card key={location.id} className="mb-2">
-                                                <Card.Body>
-                                                    <Card.Title>{location.name}</Card.Title>
-                                                    <Card.Text>
-                                                        <strong>Address: </strong>{location.address}<br />
-                                                        <strong>Phone: </strong>{location.phone}
-                                                    </Card.Text>
-                                                </Card.Body>
-                                            </Card>
-                                        ))
-                                    ) : (
-                                        <Alert variant="info">No locations available.</Alert>
-                                    )}
+                                    <Row>
+                                        {locations.length > 0 ? (
+                                                locations.map(location => (
+                                                    <Col md={4}  key={location.id} className="mb-4">
+                                                        <Card key={location.id} className="h-100 position-relative customer-page-card">
+                                                            <Card.Body>
+                                                                <Card.Title className='all-page-cardTitle'>{location.name}</Card.Title>
+                                                                <Card.Text>
+                                                                    <strong>Address: </strong>{location.address}<br />
+                                                                    <strong>Phone: </strong>{location.phone}
+                                                                </Card.Text>
+                                                            </Card.Body>
+                                                        </Card>
+                                                    </Col>
+                                                ))
+                                        ) : (
+                                            <Alert variant="info">No locations available.</Alert>
+                                        )}
+                                    </Row>
                                 </Accordion.Body>
                             </Accordion.Item>
                             <Accordion.Item eventKey="2">

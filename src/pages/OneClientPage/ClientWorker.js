@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Modal, ListGroup, Alert, Form } from 'react-bootstrap';
+import { Card, Button, Modal, Alert, Form, Row, Col } from 'react-bootstrap';
 import AddWorker from './AddClientWorker';
 import EditWorkerModal from './EditWorkerModal'; // Import the EditWorkerModal component
 import axios from 'axios';
 import config from "../../config/config";
 import Select from 'react-select';
 import { FaStar, FaRegStar } from 'react-icons/fa';
+import '../../css/Customers.css'
 
 function ClientWorker({ workers, client, clientId, setRefresh }) {
     const [showAddWorkerModal, setShowAddWorkerModal] = useState(false);
@@ -218,26 +219,26 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
             </Form.Group>
 
             {filteredWorkers.length > 0 ? (
-                <ListGroup className="mt-3">
+                <Row className="mt-3">
                     {filteredWorkers.map((worker) => (
-                        <ListGroup.Item key={worker.id}>
-                            <Card>
-                                <Card.Body>
+                        <Col md={6} key={worker.id} className="mb-4"> {/* Adjust column size as needed */}
+                            <Card className="h-100 position-relative customer-page-card">
+                                <Card.Body className="all-page-cardBody">
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <div>
-                                            <Card.Title>{worker.firstName} {worker.lastName}</Card.Title>
-                                            <Card.Text>
+                                            <Card.Title className='all-page-cardTitle'>{worker.firstName} {worker.lastName}</Card.Title>
+                                            <Card.Text className="all-page-cardText">
                                                 <strong>Role: </strong>{worker.roles.map(role => role.role).join(', ')}<br />
                                                 <strong>Location: </strong>{workerLocations[worker.id]?.name || "N/A"}
                                             </Card.Text>
                                         </div>
                                         <div>
-                                            <span
-                                                style={{ cursor: 'pointer', color: worker.favorite ? 'gold' : 'gray', marginRight: '10px' }}
-                                                onClick={() => toggleFavorite(worker.id)}
-                                            >
-                                                {worker.favorite ? <FaStar /> : <FaRegStar />}
-                                            </span>
+                                <span
+                                    style={{ cursor: 'pointer', color: worker.favorite ? 'gold' : 'gray', marginRight: '10px' }}
+                                    onClick={() => toggleFavorite(worker.id)}
+                                >
+                                    {worker.favorite ? <FaStar /> : <FaRegStar />}
+                                </span>
                                             <Button variant="link" onClick={() => toggleWorkerDetails(worker.id)}>
                                                 {expandedWorkerId === worker.id ? '▲' : '▼'}
                                             </Button>
@@ -252,15 +253,14 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                                     {expandedWorkerId === worker.id && workerLocations[worker.id] && (
                                         <div>
                                             <Card.Text style={{marginBottom: 0}}><strong>Phone: </strong>{worker.phoneNumber}</Card.Text>
-
                                             <Card.Text><strong>Email: </strong>{worker.email}</Card.Text>
                                         </div>
                                     )}
                                 </Card.Body>
                             </Card>
-                        </ListGroup.Item>
+                        </Col>
                     ))}
-                </ListGroup>
+                </Row>
             ) : (
                 <Alert className="mt-3" variant="info">No workers available.</Alert>
             )}

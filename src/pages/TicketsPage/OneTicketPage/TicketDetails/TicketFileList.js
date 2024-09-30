@@ -1,10 +1,12 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import config from "../../../../config/config";
 import FileUploadModal from "../../../../modals/FileUploadModal";
-import {Button} from "react-bootstrap";
+import FileList from "../../../../modals/FileList";
+import { Button } from "react-bootstrap";
 
-const FileList = ({ ticketId }) => {
+
+const TicketFileList = ({ ticketId }) => {
     const [files, setFiles] = useState([]);
     const [showUploadModal, setShowUploadModal] = useState(false);
 
@@ -21,7 +23,6 @@ const FileList = ({ ticketId }) => {
         }
     }
 
-
     return (
         <>
             <div className="mt-4">
@@ -31,24 +32,7 @@ const FileList = ({ ticketId }) => {
                 Upload Files
             </Button>
             <div>
-                <strong>File List:</strong>
-                <ul>
-                    {files.length > 0 ? (
-                        files.map((file) => (
-                            <li key={file.id}>
-                                <a
-                                    href={`${config.API_BASE_URL}/file/download/${file.id}`}
-                                    download // This attribute suggests to the browser that it should download the file
-                                    className="file-link"
-                                >
-                                    {file.fileName}
-                                </a>
-                            </li>
-                        ))
-                    ) : (
-                        <li>No files available</li>
-                    )}
-                </ul>
+                <FileList files={files}/>
             </div>
             <FileUploadModal
                 show={showUploadModal}
@@ -60,4 +44,4 @@ const FileList = ({ ticketId }) => {
     );
 };
 
-export default FileList;
+export default TicketFileList;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {Card, ListGroup, Alert, Button, Modal, Form, Spinner, Badge} from 'react-bootstrap';
+import {Card, ListGroup, Alert, Button, Modal, Form, Spinner, Badge, Col, Row} from 'react-bootstrap';
 import AddClientDevice from './AddClientDevice';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -107,24 +107,30 @@ function ClientDevices({ devices, client, clientId, setRefresh, locations }) {
 
 
             {filteredDevices.length > 0 ? (
-                <ListGroup className="mt-3">
+                <Row className="mt-3">
                     {filteredDevices.map((device, index) => (
-                        <ListGroup.Item key={device.id}>
-                            <Card>
-                                <Card.Body>
-                                    <Card.Title style={{ cursor: "pointer", color: "#0000EE" }} onClick={() => navigate(`/device/${device.id}`)}>
+                        <Col md={4} key={device.id} className="mb-4"> {/* Adjust column size as needed */}
+                            <Card className="h-100 position-relative all-page-card">
+                                <Card.Body className="all-page-cardBody">
+                                    <Card.Title
+                                        className='all-page-cardTitle'
+                                        style={{cursor: "pointer"}}
+                                        onClick={() => navigate(`/device/${device.id}`)}
+                                    >
                                         {index + 1}. {device.deviceName}
                                         {device.writtenOffDate && (
-                                            <Badge bg="danger" className="ms-2">Written Off</Badge> // Simple written-off indicator
+                                            <Badge bg="danger" className="ms-2">Written Off</Badge> // Written-off indicator
                                         )}
                                     </Card.Title>
-                                    <p><strong>Location:</strong> {locations[device.locationId] || 'Unknown'}</p>
-                                    <p><strong>Room:</strong> {device.room ? device.room : 'N/A'}</p>
+                                    <Card.Text className="all-page-cardText">
+                                        <strong>Location:</strong> {locations[device.locationId] || 'Unknown'}<br />
+                                        <strong>Room:</strong> {device.room ? device.room : 'N/A'}
+                                    </Card.Text>
                                 </Card.Body>
                             </Card>
-                        </ListGroup.Item>
+                        </Col>
                     ))}
-                </ListGroup>
+                </Row>
             ) : (
                 <Alert className="mt-3" variant="info">No devices available.</Alert>
             )}

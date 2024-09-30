@@ -102,7 +102,7 @@ function Tickets() {
     }, [filter, debouncedSearchQuery, crisis, paid]); // Include Paid in dependencies
 
     const handleNavigate = (ticketId) => {
-        navigate(`/ticket/${ticketId}?scrollTo=${ticketId}`);
+        navigate(`/ticket/${ticketId}`);
     };
 
     const handleSearchChange = useCallback((query) => {

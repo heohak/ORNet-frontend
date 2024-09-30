@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {Card, Button, Modal, Form, Alert, Col, Row} from 'react-bootstrap';
 import { FaPlus } from 'react-icons/fa';
-import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import config from "../../config/config";
 import DeviceFileList from "./DeviceFileList";
@@ -9,7 +8,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCog} from "@fortawesome/free-solid-svg-icons";
 import "../../css/Devices.css";
 
-function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommentsModal, setRefresh }) {
+function DeviceDetails({ device, navigate, setShowCommentsModal, setRefresh }) {
     const [showDeviceFieldModal, setShowDeviceFieldModal] = useState(false);
     const [visibleFields, setVisibleFields] = useState({});
     const [newField, setNewField] = useState({ key: '', value: '', addToAll: false });
@@ -229,10 +228,16 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
             <h1 className="device-details-header mt-4">
                 {device ? `${device.deviceName} Details` : 'Device Details'}
             </h1>
-            {device && device.introducedDate && writtenOffDate && (
+            {device && device.introducedDate && (
                 <div>
-                    <strong>Service Duration: </strong>
-                    {Math.floor((new Date(writtenOffDate) - new Date(device.introducedDate)) / (1000 * 60 * 60 * 24))} days
+                    {writtenOffDate ? (
+                        <div>
+                            <strong>Service Duration: </strong>
+                            {Math.floor((new Date(writtenOffDate) - new Date(device.introducedDate)) / (1000 * 60 * 60 * 24))} days
+                        </div>
+                    ) : (
+                        <div className="empty-placeholder"></div> // Empty div with class
+                    )}
                 </div>
             )}
             {localDevice ? (
@@ -265,7 +270,7 @@ function DeviceDetails({ device, navigate, setShowFileUploadModal, setShowCommen
                                 </Row>
                             </Col>
                         </Row>
-                        <DeviceFileList deviceId={localDevice.id}/>  {/* Calls the FileList class */}
+                        <DeviceFileList deviceId={localDevice.id}/>
                         {isWrittenOff ? (
                             <Button variant="success me-2" onClick={() => {
                                 setWrittenOffComment("");
