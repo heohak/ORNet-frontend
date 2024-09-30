@@ -19,7 +19,10 @@ function EditClient() {
         nextMaintenance: '',
         locationIds: [],
         locations: [], // This will store location objects
+        thirdPartyIds: [], // New state to store third party IT IDs
+        thirdPartyITs: [] // To store third party IT objects
     });
+    const [allThirdPartyITs, setAllThirdPartyITs] = useState([]);
     const [newLocation, setNewLocation] = useState({
         name: '',
         city: '',
@@ -54,7 +57,12 @@ function EditClient() {
 
                 const locations = locationResponses.map(res => res.data);
 
-                setClientData({ ...client, locations });
+                const thirdPartyResponses = await Promise.all(
+                    client.thirdPartyIds.map(id => axios.get(`${config.API_BASE_URL}/third-party/${id}`))
+                );
+                const thirdPartyITs = thirdPartyResponses.map(res => res.data);
+
+                setClientData({ ...client, locations, thirdPartyITs });
             } catch (error) {
                 setError(error.message);
             }
@@ -64,6 +72,7 @@ function EditClient() {
 
         fetchClientData();
         fetchLocations();
+        fetchAllThirdPartyITs()
     }, [clientId, error]);
 
     const fetchLocations = async () => {
@@ -73,6 +82,34 @@ function EditClient() {
         } catch (error) {
             setError(error.message);
         }
+    };
+
+    const fetchAllThirdPartyITs = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/third-party/all`); // Example endpoint for all third-party ITs
+            setAllThirdPartyITs(response.data);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
+    const handleThirdPartyITAdd = (e) => {
+        const thirdPartyITId = e.target.value;
+        const thirdPartyITToAdd = allThirdPartyITs.find(it => it.id === parseInt(thirdPartyITId));
+
+        setClientData({
+            ...clientData,
+            thirdPartyITs: [...clientData.thirdPartyITs, thirdPartyITToAdd],
+            thirdPartyIds: [...clientData.thirdPartyIds, thirdPartyITToAdd.id],
+        });
+    };
+
+    const handleThirdPartyITRemove = (thirdPartyITId) => {
+        setClientData({
+            ...clientData,
+            thirdPartyITs: clientData.thirdPartyITs.filter(it => it.id !== thirdPartyITId),
+            thirdPartyIds: clientData.thirdPartyIds.filter(id => id !== thirdPartyITId),
+        });
     };
 
     const handleInputChange = (e) => {
@@ -165,7 +202,9 @@ function EditClient() {
             // Submit only the locationIds, not the full location objects
             const updatedClientData = {
                 ...clientData,
-                locations: undefined, // Remove locations array to avoid sending it
+                locations: undefined,
+                thirdPartyITs: undefined,
+                // Remove locations array to avoid sending it
             };
 
             await axios.put(`${config.API_BASE_URL}/client/update/${clientId}`, updatedClientData);
@@ -178,6 +217,10 @@ function EditClient() {
     // Filter out already added locations from the dropdown list
     const availableLocations = allLocations.filter(
         (loc) => !clientData.locations.some((clientLoc) => clientLoc.id === loc.id)
+    );
+
+    const availableThirdPartyITs = allThirdPartyITs.filter(
+        (it) => !clientData.thirdPartyITs.some((clientIt) => clientIt.id === it.id)
     );
 
 
@@ -265,6 +308,7 @@ function EditClient() {
                         onChange={handleInputChange}
                     />
                 </Form.Group>
+
                 <Form.Group className="mb-3">
                     <Form.Label>Locations</Form.Label>
                     <ListGroup>
@@ -301,6 +345,42 @@ function EditClient() {
                         Can't find the location? <Button variant="link" onClick={() => setShowLocationModal(true)}>Add New</Button>
                     </Form.Text>
                 </Form.Group>
+
+                {/* Third Party IT Management */}
+                <Form.Group className="mb-3">
+                    <Form.Label>Third Party ITs</Form.Label>
+                    <ListGroup>
+                        {clientData.thirdPartyITs.map((thirdPartyIT) => (
+                            <ListGroup.Item key={thirdPartyIT.id}>
+                                <Row>
+                                    <Col>{thirdPartyIT.name}</Col>
+                                    <Col xs="auto">
+                                        <Button
+                                            variant="danger"
+                                            size="sm"
+                                            onClick={() => handleThirdPartyITRemove(thirdPartyIT.id)}
+                                        >
+                                            Remove
+                                        </Button>
+                                    </Col>
+                                </Row>
+                            </ListGroup.Item>
+                        ))}
+                    </ListGroup>
+                    <Form.Select
+                        className="mt-3"
+                        onChange={handleThirdPartyITAdd}
+                        value="" // Ensure the dropdown resets to the default option after selection
+                    >
+                        <option value="" disabled>Select Third Party IT</option>
+                        {availableThirdPartyITs.map((it) => (
+                            <option key={it.id} value={it.id}>
+                                {it.name}
+                            </option>
+                        ))}
+                    </Form.Select>
+                </Form.Group>
+
                 <Button variant="success" type="submit">Save Changes</Button>
                 <Button variant="secondary" className="ms-3" onClick={() => navigate(`/customer/${clientId}`)}>Cancel</Button>
             </Form>
