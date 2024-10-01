@@ -75,7 +75,7 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
                 const status = statuses.find(status => status.id === ticket.statusId);
                 const statusName = status?.status || 'Unknown Status';
                 const clientName = clientDetails[ticket.clientId] || 'Unknown Client';
-                const statusColor = status.color;
+                const statusColor = status?.color || null;
 
                 return (
                     <Col md={4} key={ticket.id} className="mb-4">
