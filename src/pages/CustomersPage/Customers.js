@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback} from 'react';
+import React, { useEffect, useState, useRef} from 'react';
 import axios from 'axios';
 import { Container, Row, Col, Card, Button, Spinner, Alert, Form, InputGroup, Modal } from 'react-bootstrap';
 import config from "../../config/config";
@@ -13,20 +13,12 @@ function Customers() {
     const [customerType, setCustomerType] = useState('');
     const [showAddCustomerModal, setShowAddCustomerModal] = useState(false);
     const [typingTimeout, setTypingTimeout] = useState(null);
-    const searchInputRef = useRef(null);
 
     useEffect(() => {
         fetchCustomers();
     }, []);
 
-    useEffect(() => {
-        // Focus back to the input after customers are fetched
-        if (searchInputRef.current) {
-            searchInputRef.current.focus();
-        }
-    }, [customer]);
-
-    const fetchCustomers = useCallback(async (query = '', type = '') => {
+    const fetchCustomers = async (query = '', type = '') => {
         setLoading(true);
         setError(null);
         try {
@@ -39,16 +31,16 @@ function Customers() {
         } finally {
             setLoading(false);
         }
-    }, []);
+    };
 
-    // Debouncing logic
     useEffect(() => {
-        const delayDebounceFn = setTimeout(() => {
+        if (typingTimeout) clearTimeout(typingTimeout);
+        const timeout = setTimeout(() => {
             fetchCustomers(searchQuery, customerType);
-        }, 300); // 300ms delay
-
-        return () => clearTimeout(delayDebounceFn);
-    }, [searchQuery, customerType, fetchCustomers]);
+        }, 300); // 300ms delay before search triggers
+        setTypingTimeout(timeout);
+        return () => clearTimeout(timeout);
+    }, [searchQuery, customerType]);
 
 
     const handleAddCustomer = () => {
@@ -70,7 +62,6 @@ function Customers() {
     };
 
 
-
     if (error) {
         return (
             <Container className="mt-5">
@@ -81,7 +72,6 @@ function Customers() {
             </Container>
         );
     }
-
 
 
     return (
@@ -95,7 +85,6 @@ function Customers() {
                     <Col md={6}>
                         <InputGroup>
                             <Form.Control
-                                ref={searchInputRef}
                                 type="text"
                                 placeholder="Search customers..."
                                 value={searchQuery}
