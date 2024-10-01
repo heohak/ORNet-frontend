@@ -79,7 +79,7 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
 
                 return (
                     <Col md={4} key={ticket.id} className="mb-4">
-                        <Card className='all-page-card' onClick={() => onNavigate(ticket.id)}>
+                        <Card className='all-page-card' onClick={() => onNavigate(ticket)}>
                             <Card.Body className='all-page-cardBody'>
                                 <div className="position-absolute top-0 end-0 m-2">
                                     <Button

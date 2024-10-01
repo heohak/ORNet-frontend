@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Button, Form, Container, Alert } from 'react-bootstrap';
 import moment from 'moment';
@@ -10,15 +10,11 @@ import AddContactModal from "./AddContactModal";
 import Select from 'react-select';
 
 function AddTicket() {
-    const { mainTicketId } = useParams();
-    const { search } = useLocation();
-    const queryParams = new URLSearchParams(search);
-    const clientIdParam = queryParams.get('clientId');
 
     const [formData, setFormData] = useState({
         description: '',
         rootCause: '',
-        clientId: clientIdParam || '',
+        clientId: '',
         startDateTime: '',
         crisis: false,
         remote: false,
@@ -35,11 +31,10 @@ function AddTicket() {
     const [locations, setLocations] = useState([]);
     const [contacts, setContacts] = useState([]);
     const [baitWorkers, setBaitWorkers] = useState([]);
-    const [statuses, setStatuses] = useState([]);
+    const [openStatusId, setOpenStatusId] = useState(null);
     const [workTypes, setWorkTypes] = useState([]);
     const [selectedWorkTypes, setSelectedWorkTypes] = useState([]);
     const [error, setError] = useState(null);
-    const [clientName, setClientName] = useState('');
     const [showWorkTypeModal, setShowWorkTypeModal] = useState(false);
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [showContactModal, setShowContactModal] = useState(false);
@@ -52,27 +47,28 @@ function AddTicket() {
                 const [statusRes, baitWorkerRes, clientRes, workTypeRes] = await Promise.all([
                     axios.get(`${config.API_BASE_URL}/ticket/classificator/all`),
                     axios.get(`${config.API_BASE_URL}/bait/worker/all`),
-                    !clientIdParam && axios.get(`${config.API_BASE_URL}/client/all`),
+                    axios.get(`${config.API_BASE_URL}/client/all`),
                     axios.get(`${config.API_BASE_URL}/work-type/classificator/all`)
                 ]);
-
-                setStatuses(statusRes.data);
+                const statuses = statusRes.data;
+                if (statuses.length > 0) {
+                    // Filter for open status
+                    const open = statuses.find(status => status.status === 'Open');
+                    if (open) {
+                        setOpenStatusId(open.id);
+                    }
+                }
                 setBaitWorkers(baitWorkerRes.data);
                 setWorkTypes(workTypeRes.data.map(workType => ({ value: workType.id, label: workType.workType })));
+                setClients(clientRes.data);
 
-                if (clientRes) setClients(clientRes.data);
-
-                if (clientIdParam) {
-                    const clientResponse = await axios.get(`${config.API_BASE_URL}/client/${clientIdParam}`);
-                    setClientName(clientResponse.data.fullName);
-                }
             } catch (error) {
                 setError(error.message);
             }
         };
 
         fetchData();
-    }, [clientIdParam]);
+    }, []);
 
     useEffect(() => {
         const fetchLocationsAndContacts = async () => {
@@ -116,13 +112,13 @@ function AddTicket() {
             const newTicket = {
                 ...formData,
                 startDateTime: localDateTime,
+                statusId: openStatusId,
                 clientId: formData.clientId || clients.find(client => client.id === formData.clientId)?.id,
                 workTypeIds: selectedWorkTypes.map(option => option.value), // Map selected work type objects to IDs
-                ...(mainTicketId && { mainTicketId })
             };
 
             await axios.post(`${config.API_BASE_URL}/ticket/add`, newTicket);
-            navigate(mainTicketId ? `/ticket/${mainTicketId}` : `/tickets`);
+            navigate(`/tickets`);
         } catch (err) {
             setError(err.message);
         }
@@ -163,28 +159,26 @@ function AddTicket() {
 
     return (
         <Container className="mt-5">
-            <h1 className="mb-4">{clientIdParam ? `Add Ticket for ${clientName}` : "Add a New Ticket"}</h1>
+            <h1 className="mb-4">{"Add a New Ticket"}</h1>
             {error && <Alert variant="danger">{error}</Alert>}
             <Form onSubmit={handleSubmit}>
-                {!clientIdParam && (
-                    <Form.Group controlId="clientId" className="mb-3">
-                        <Form.Label>Client</Form.Label>
-                        <Form.Control
-                            as="select"
-                            value={formData.clientId}
-                            onChange={handleChange}
-                            id="clientId"
-                            required
-                        >
-                            {clients.length > 0 && <option value="">Select Client</option>}
-                            {clients.map(client => (
-                                <option key={client.id} value={client.id}>
-                                    {client.fullName}
-                                </option>
-                            ))}
-                        </Form.Control>
-                    </Form.Group>
-                )}
+                <Form.Group controlId="clientId" className="mb-3">
+                    <Form.Label>Client</Form.Label>
+                    <Form.Control
+                        as="select"
+                        value={formData.clientId}
+                        onChange={handleChange}
+                        id="clientId"
+                        required
+                    >
+                        {clients.length > 0 && <option value="">Select Client</option>}
+                        {clients.map(client => (
+                            <option key={client.id} value={client.id}>
+                                {client.fullName}
+                            </option>
+                        ))}
+                    </Form.Control>
+                </Form.Group>
                 <Form.Group controlId="baitNumeration" className="mb-3">
                     <Form.Label>Our Numeration</Form.Label>
                     <Form.Control
@@ -336,23 +330,6 @@ function AddTicket() {
                                 ))}
                             </>
                         )}
-                    </Form.Control>
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Status</Form.Label>
-                    <Form.Control
-                        as="select"
-                        value={formData.statusId}
-                        onChange={handleChange}
-                        id="statusId"
-                        required
-                    >
-                        <option value="">Select Status</option>
-                        {statuses.map(status => (
-                            <option key={status.id} value={status.id}>
-                                {status.status}
-                            </option>
-                        ))}
                     </Form.Control>
                 </Form.Group>
                 <div className="mb-3">

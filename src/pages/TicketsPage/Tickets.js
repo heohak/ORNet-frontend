@@ -1,4 +1,3 @@
-// Tickets.js
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -6,6 +5,7 @@ import { Container, Button } from "react-bootstrap";
 import SearchBar from "./SearchBar";
 import TicketsList from "./TicketsList";
 import config from "../../config/config";
+import NewTicket from "./OneTicketPage/TicketDetails/NewTicket";
 
 
 function Tickets() {
@@ -20,6 +20,8 @@ function Tickets() {
     const [statuses, setStatuses] = useState([]);
     const [openStatus, setOpenStatus] = useState(null);
     const [closedStatus, setClosedStatus] = useState(null);
+    const [ticket, setTicket] = useState(null); // selected ticket
+    const [ticketModal, setTicketModal] = useState(false); // to control modal state
     const navigate = useNavigate();
 
     // Fetch status classifications
@@ -101,8 +103,9 @@ function Tickets() {
         fetchTickets();
     }, [filter, debouncedSearchQuery, crisis, paid]); // Include Paid in dependencies
 
-    const handleNavigate = (ticketId) => {
-        navigate(`/ticket/${ticketId}`);
+    const handleNavigate = (ticket) => {
+        setTicket(ticket); // Set the selected ticket
+        setTicketModal(true); // Open the modal
     };
 
     const handleSearchChange = useCallback((query) => {
@@ -126,6 +129,11 @@ function Tickets() {
         navigate('/add-ticket', { state: { from: 'tickets' } });
     };
 
+    const closeTicketModal = () => {
+        setTicketModal(false);
+        setTicket(null); // Reset the ticket when closing the modal
+    };
+
     return (
         <Container className="mt-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
@@ -146,10 +154,18 @@ function Tickets() {
             <TicketsList
                 tickets={tickets}
                 loading={loading}
-                onNavigate={handleNavigate}
+                onNavigate={handleNavigate} // Pass the navigation handler
                 error={error}
                 statuses={statuses}
             />
+            {/* Render the NewTicket modal only when the ticket is not null */}
+            {ticket && (
+                <NewTicket
+                    show={ticketModal}
+                    onClose={closeTicketModal}
+                    ticket={ticket} // Pass the selected ticket to NewTicket
+                />
+            )}
         </Container>
     );
 }
