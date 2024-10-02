@@ -136,6 +136,7 @@ function Tickets() {
 
     return (
         <Container className="mt-5">
+            <p className="w-100 d-flex justify-content-center" style={{color: "red"}}>Single ticket view still in progress</p>
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h1 className="mb-0">Tickets</h1>
                 <Button variant="success" onClick={handleAddTicket}>Add Ticket</Button>
@@ -164,6 +165,7 @@ function Tickets() {
                     show={ticketModal}
                     onClose={closeTicketModal}
                     ticket={ticket} // Pass the selected ticket to NewTicket
+                    statuses={statuses}
                 />
             )}
         </Container>

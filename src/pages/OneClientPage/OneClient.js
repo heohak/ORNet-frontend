@@ -133,8 +133,11 @@ function OneClient() {
                                                             <Card.Body>
                                                                 <Card.Title className='all-page-cardTitle'>{location.name}</Card.Title>
                                                                 <Card.Text>
-                                                                    <strong>Address: </strong>{location.address}<br />
+                                                                    <strong>Address: </strong>{location.streetAddress}, {location.city}, {location.country}, {location.postalCode}
+                                                                    <br />
                                                                     <strong>Phone: </strong>{location.phone}
+                                                                    <br />
+                                                                    <strong>Email: </strong>{location.email}
                                                                 </Card.Text>
                                                             </Card.Body>
                                                         </Card>
