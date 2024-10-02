@@ -1,4 +1,4 @@
-import React, { useEffect, useState} from 'react';
+import React, { useEffect, useState, useRef} from 'react';
 import axios from 'axios';
 import { Container, Row, Col, Card, Button, Spinner, Alert, Form, InputGroup, Modal } from 'react-bootstrap';
 import config from "../../config/config";
@@ -12,6 +12,7 @@ function Customers() {
     const [searchQuery, setSearchQuery] = useState('');
     const [customerType, setCustomerType] = useState('');
     const [showAddCustomerModal, setShowAddCustomerModal] = useState(false);
+    const [typingTimeout, setTypingTimeout] = useState(null);
 
     useEffect(() => {
         fetchCustomers();
@@ -32,6 +33,15 @@ function Customers() {
         }
     };
 
+    useEffect(() => {
+        if (typingTimeout) clearTimeout(typingTimeout);
+        const timeout = setTimeout(() => {
+            fetchCustomers(searchQuery, customerType);
+        }, 300); // 300ms delay before search triggers
+        setTypingTimeout(timeout);
+        return () => clearTimeout(timeout);
+    }, [searchQuery, customerType]);
+
 
     const handleAddCustomer = () => {
         setShowAddCustomerModal(true);
@@ -43,28 +53,14 @@ function Customers() {
 
     const handleFilterChange = (e) => {
         setCustomerType(e.target.value);
-        fetchCustomers(searchQuery, e.target.value);
     };
 
-    const handleSearchSubmit = (e) => {
-        e.preventDefault();
-        fetchCustomers(searchQuery, customerType);
-    };
 
     const handleCloseAddCustomerModal = () => {
         setShowAddCustomerModal(false);
         fetchCustomers(); // Refresh the customer list after adding a new customer
     };
 
-    if (loading) {
-        return (
-            <Container className="text-center mt-5">
-                <Spinner animation="border" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                </Spinner>
-            </Container>
-        );
-    }
 
     if (error) {
         return (
@@ -80,13 +76,13 @@ function Customers() {
 
     return (
         <Container className="mt-5">
-            <div className="d-flex justify-content-between align-items-center mb-4">
+            <div className="d-flex justify-content-between align-items-center mb-3">
                 <h1>Customers</h1>
                 <Button variant="success" onClick={handleAddCustomer}>Add Customer</Button>
             </div>
-            <Form className="mb-4" onSubmit={handleSearchSubmit}>
+            <Form className="mb-3">
                 <Row>
-                    <Col md={8}>
+                    <Col md={6}>
                         <InputGroup>
                             <Form.Control
                                 type="text"
@@ -94,7 +90,6 @@ function Customers() {
                                 value={searchQuery}
                                 onChange={handleSearchChange}
                             />
-                            <Button variant="primary" type="submit">Search</Button>
                         </InputGroup>
                     </Col>
                     <Col md={4}>
@@ -109,7 +104,7 @@ function Customers() {
             </Form>
             <Row>
                 {customer.map((customer) => (
-                    <Col md={4} key={customer.id} className="mb-4">
+                    <Col md={3} sm={6} key={customer.id} className="mb-4">
                         <Card className="h-100 position-relative all-page-card">
                             <Card.Body onClick={() => window.location.href = `/customer/${customer.id}`} className="all-page-cardBody">
                                 <div className="mb-4">
