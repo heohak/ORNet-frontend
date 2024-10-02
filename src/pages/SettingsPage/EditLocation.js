@@ -8,12 +8,12 @@ import {validatePhoneAndPostalCode} from "../../utils/Validation";
 function EditLocation() {
     const { locationId } = useParams();
     const [name, setName] = useState('');
-    const [phone, setPhone] = useState('');
-    const [streetAddress, setStreetAddress] = useState('');
-    const [district, setDistrict] = useState('');
     const [city, setCity] = useState('');
-    const [postalCode, setPostalCode] = useState('');
     const [country, setCountry] = useState('');
+    const [email, setEmail] = useState('');
+    const [postalCode, setPostalCode] = useState('');
+    const [streetAddress, setStreetAddress] = useState('');
+    const [phone, setPhone] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [phoneNumberError, setPhoneNumberError] = useState('');
@@ -29,15 +29,11 @@ function EditLocation() {
                 const response = await axios.get(`${config.API_BASE_URL}/location/${locationId}`);
                 const locationData = response.data;
                 setName(locationData.name);
-                const address = locationData.address;
-                const addressParts = address.split(',').map(part => part.trim());  // Split address into smaller parts
-
-                setStreetAddress(addressParts[0]);
-                setDistrict(addressParts[1]);
-                setCity(addressParts[2]);
-                setPostalCode(addressParts[3]);
-                setCountry(addressParts[4]);
-
+                setCity(locationData.city);
+                setCountry(locationData.country);
+                setEmail(locationData.email);
+                setPostalCode(locationData.postalCode);
+                setStreetAddress(locationData.streetAddress);
                 setPhone(locationData.phone);
             } catch (error) {
                 setError('Error fetching location data');
@@ -63,11 +59,14 @@ function EditLocation() {
         );
         if (isValid) {
             try {
-                const combinedAddress = `${streetAddress}, ${district}, ${city}, ${postalCode}, ${country}`;
                 await axios.put(`${config.API_BASE_URL}/location/update/${locationId}`, {
                     name,
-                    address: combinedAddress,
-                    phone
+                    country,
+                    city,
+                    streetAddress,
+                    postalCode,
+                    phone,
+                    email
                 });
                 navigate('/settings/locations');
             } catch (error) {
@@ -175,12 +174,12 @@ function EditLocation() {
                         required
                     />
                 </Form.Group>
-                <Form.Group controlId="formDistrict" className="mt-3">
-                    <Form.Label>District</Form.Label>
+                <Form.Group controlId="formEmail" className="mt-3">
+                    <Form.Label>Email</Form.Label>
                     <Form.Control
-                        type="text"
-                        value={district}
-                        onChange={(e) => setDistrict(e.target.value)}
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         placeholder="Enter district"
                         required
                     />

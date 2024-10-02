@@ -1,7 +1,10 @@
-import {Button, Col, Row, Alert} from "react-bootstrap";
+import {Col, Row, Alert} from "react-bootstrap";
 import config from "../config/config";
 import noImg from "../assets/no-img.jpg";
 import React from "react";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faDownload } from '@fortawesome/free-solid-svg-icons';
+
 
 
 const FileList = ({files}) => {
@@ -29,13 +32,13 @@ const FileList = ({files}) => {
                                 >
                                     {file.fileName}
                                 </a>
-                                <Button
-                                    variant="primary"
+                                <a
                                     href={`${config.API_BASE_URL}/file/download/${file.id}`}
                                     className="ms-2"
+                                    style={{ color: 'black', textDecoration: 'none' }} // Optional: adjust styling as needed
                                 >
-                                    Download
-                                </Button>
+                                    <FontAwesomeIcon icon={faDownload} size="lg" /> {/* Font Awesome Download Icon */}
+                                </a>
                             </Col>
                         );
                     })

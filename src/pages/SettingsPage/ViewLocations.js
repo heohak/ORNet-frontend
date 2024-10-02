@@ -129,9 +129,11 @@ function ViewLocations() {
                                 <Card.Body>
                                     <Card.Title>{location.name}</Card.Title>
                                     <Card.Text>
-                                        Address: {location.address}
+                                        Address: {location.streetAddress}, {location.city}, {location.country}, {location.postalCode}
                                         <br />
                                         Phone: {location.phone}
+                                        <br />
+                                        Email: {location.email}
                                     </Card.Text>
                                     <Button
                                         variant="secondary"
