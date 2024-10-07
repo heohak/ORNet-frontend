@@ -17,7 +17,7 @@ function AddCustomer({ onClose }) {
     const [thirdPartyOptions, setThirdPartyOptions] = useState([]);
     const [selectedLocations, setSelectedLocations] = useState([]);
     const [selectedThirdParties, setSelectedThirdParties] = useState([]);
-    const [error, setError] = useState(null);
+    const [dateError, setDateError] = useState(null);
 
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [newLocation, setNewLocation] = useState({ name: '', country: '', district: '', postalCode: '', streetAddress: '', city: '', phone: '' });
@@ -26,12 +26,17 @@ function AddCustomer({ onClose }) {
     const [showThirdPartyModal, setShowThirdPartyModal] = useState(false);
     const [newThirdParty, setNewThirdParty] = useState({ name: '', email: '', phone: '' });
 
-    const errorRef = useRef(null);
+    const dateErrorRef = useRef(null);
 
     useEffect(() => {
-        if (error && errorRef.current) {
-            errorRef.current.scrollIntoView({ behavior: 'smooth' });
+        if (dateError && dateErrorRef.current) {
+            dateErrorRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
+    }, [dateError]);
+
+
+
+    useEffect(() => {
         const fetchLocationsAndThirdParties = async () => {
             try {
                 const [locationsResponse, thirdPartiesResponse] = await Promise.all([
@@ -41,28 +46,27 @@ function AddCustomer({ onClose }) {
                 setLocationOptions(locationsResponse.data.map(loc => ({ value: loc.id, label: loc.name })));
                 setThirdPartyOptions(thirdPartiesResponse.data.map(tp => ({ value: tp.id, label: tp.name })));
             } catch (error) {
-                setError(error.message);
+                console.error('Error fetching data:', error);
             }
         };
 
         fetchLocationsAndThirdParties();
-    }, [error]);
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(null);
 
         const today = new Date().toISOString().split("T")[0];
 
         // Ensure Last Maintenance is not in the future
         if (new Date(lastMaintenance) > new Date(today)) {
-            setError('Last Maintenance date cannot be in the future.');
+            setDateError('Last Maintenance date cannot be in the future.');
             return;
         }
 
         // Ensure Next Maintenance is after Last Maintenance
         if (new Date(nextMaintenance) < new Date(lastMaintenance)) {
-            setError('Next maintenance date cannot be before the last maintenance date.');
+            setDateError('Next maintenance date cannot be before the last maintenance date.');
             return;
         }
 
@@ -86,17 +90,13 @@ function AddCustomer({ onClose }) {
 
             onClose(); // Close the modal after adding the customer
         } catch (error) {
-            setError(error.message);
+            console.error('Error adding customer:', error);
         }
     };
 
     const handleAddLocation = async () => {
         const { name, country, district, postalCode, streetAddress, city, phone } = newLocation;
 
-        if (!name.trim() || !country.trim() || !district.trim() || !postalCode.trim() || !streetAddress.trim() || !city.trim() || !phone.trim()) {
-            setError('Please fill in all fields for the new location.');
-            return;
-        }
 
         const combinedAddress = `${streetAddress}, ${city}, ${district}, ${postalCode}, ${country}`;
 
@@ -114,7 +114,6 @@ function AddCustomer({ onClose }) {
             setNewLocation({ name: '', country: '', district: '', postalCode: '', streetAddress: '', city: '', phone: '' });
             setShowLocationModal(false);
         } catch (error) {
-            setError('Error adding location.');
             console.error('Error adding location:', error);
         }
     };
@@ -123,10 +122,7 @@ function AddCustomer({ onClose }) {
     const handleAddThirdParty = async () => {
         const { name, email, phone } = newThirdParty;
 
-        if (!name.trim() || !email.trim() || !phone.trim()) {
-            setError('Please fill in all fields for the new third-party IT.');
-            return;
-        }
+
 
         try {
             const response = await axios.post(`${config.API_BASE_URL}/third-party/add`, {
@@ -142,16 +138,15 @@ function AddCustomer({ onClose }) {
             setNewThirdParty({ name: '', email: '', phone: '' });
             setShowThirdPartyModal(false);
         } catch (error) {
-            setError('Error adding third-party IT.');
             console.error('Error adding third-party IT:', error);
         }
     };
 
     return (
         <div>
-            {error && (
-                <Alert ref={errorRef} variant="danger" onClose={() => setError(null)} dismissible>
-                    {error}
+            {dateError && (
+                <Alert ref={dateErrorRef} variant="danger">
+                    {dateError}
                 </Alert>
             )}
             <Form onSubmit={handleSubmit}>
@@ -211,6 +206,7 @@ function AddCustomer({ onClose }) {
                         type="date"
                         value={lastMaintenance}
                         onChange={(e) => setLastMaintenance(e.target.value)}
+                        required
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
@@ -219,6 +215,7 @@ function AddCustomer({ onClose }) {
                         type="date"
                         value={nextMaintenance}
                         onChange={(e) => setNextMaintenance(e.target.value)}
+                        required
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
@@ -255,6 +252,7 @@ function AddCustomer({ onClose }) {
                     <Modal.Title>Add New Location</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                    <Form onSubmit={(e) => { e.preventDefault(); handleAddLocation(); }}>
                     <Form.Group className="mb-3">
                         <Form.Label>Name</Form.Label>
                         <Form.Control
@@ -318,11 +316,13 @@ function AddCustomer({ onClose }) {
                             required
                         />
                     </Form.Group>
-                </Modal.Body>
+
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowLocationModal(false)}>Cancel</Button>
-                    <Button variant="primary" onClick={handleAddLocation}>Add Location</Button>
+                    <Button variant="primary" type='submit'>Add Location</Button>
                 </Modal.Footer>
+                    </Form>
+                </Modal.Body>
             </Modal>
 
             {/* Modal for adding a new third-party IT */}
@@ -331,6 +331,7 @@ function AddCustomer({ onClose }) {
                     <Modal.Title>Add New Third-Party IT</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                    <Form onSubmit={(e) => { e.preventDefault(); handleAddThirdParty(); }}>
                     <Form.Group className="mb-3">
                         <Form.Label>Third-Party Name</Form.Label>
                         <Form.Control
@@ -358,11 +359,13 @@ function AddCustomer({ onClose }) {
                             required
                         />
                     </Form.Group>
-                </Modal.Body>
+
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowThirdPartyModal(false)}>Cancel</Button>
-                    <Button variant="primary" onClick={handleAddThirdParty}>Add Third-Party IT</Button>
+                    <Button variant="primary" type="submit">Add Third-Party IT</Button>
                 </Modal.Footer>
+            </Form>
+                </Modal.Body>
             </Modal>
         </div>
     );
