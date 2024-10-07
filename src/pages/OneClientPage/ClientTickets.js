@@ -11,7 +11,7 @@ function ClientTickets({tickets, statusMap}) {
     };
 
     return (
-        <Container className="mt-5">
+        <Container className="mt-3">
             <h2>Tickets</h2>
             {tickets.length > 0 ? (
                 <Row className="mt-3">

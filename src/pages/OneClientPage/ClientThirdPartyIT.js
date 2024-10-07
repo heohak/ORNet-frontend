@@ -44,12 +44,21 @@ function ClientThirdPartyIT({ clientId, client }) {
 
     return (
         <div className="mt-4">
-            <h2>Third-Party ITs</h2>
-            <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Third-Party IT</Button>
+            <Row className="d-flex justify-content-between align-items-center">
+                <Col>
+                    <h2 className="mt-1">Third-Party ITs</h2>
+                </Col>
+                <Col className="text-end">
+                    <Button variant="primary" onClick={() => setShowAddModal(true)}>
+                        Add Third-Party IT
+                    </Button>
+                </Col>
+            </Row>
+
             {thirdPartyITs.length > 0 ? (
                 <Row className="mt-3">
                     {thirdPartyITs.map((thirdParty) => (
-                        <Col md={4} key={thirdParty.id} className="mb-4"> {/* Adjust column size as needed */}
+                        <Col md={3} key={thirdParty.id} className="mb-4"> {/* Adjust column size as needed */}
                             <Card className="h-100 position-relative customer-page-card">
                                 <Card.Body className="all-page-cardBody">
                                     <div className="mb-4">

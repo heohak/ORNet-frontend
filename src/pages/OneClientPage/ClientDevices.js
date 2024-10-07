@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import {Card, ListGroup, Alert, Button, Modal, Form, Spinner, Badge, Col, Row} from 'react-bootstrap';
+import React, {useEffect, useState} from 'react';
+import {Alert, Badge, Button, Card, Col, Form, ListGroup, Modal, Row, Spinner} from 'react-bootstrap';
 import AddClientDevice from './AddClientDevice';
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import config from "../../config/config"; // Import axios for making HTTP requests
 
-function ClientDevices({ devices, client, clientId, setRefresh, locations }) {
+function ClientDevices({devices, client, clientId, setRefresh, locations}) {
     const [showAddDeviceModal, setShowAddDeviceModal] = useState(false);
     const [classificators, setClassificators] = useState([]);
     const [selectedClassificatorId, setSelectedClassificatorId] = useState('');
@@ -70,11 +70,19 @@ function ClientDevices({ devices, client, clientId, setRefresh, locations }) {
 
     return (
         <>
-            <h2 className="mb-4">
-                {'Devices'}
-            </h2>
-            <Button variant="primary" onClick={() => setShowAddDeviceModal(true)}>Add Device</Button>
-
+            <Row className="d-flex justify-content-between align-items-center">
+                <Col>
+                    <h2 className="mb-4">
+                        {'Devices'}
+                    </h2>
+                </Col>
+                <Col className="text-end">
+                    <Button variant="primary" onClick={() => setShowAddDeviceModal(true)}>Add Device</Button>
+                </Col>
+            </Row>
+        <Form className="mb-e">
+            <Row className="align-items-end">
+                <Col md={3}>
             <Form.Group controlId="search" className="mt-3">
                 <Form.Label>Search</Form.Label>
                 <Form.Control
@@ -84,15 +92,22 @@ function ClientDevices({ devices, client, clientId, setRefresh, locations }) {
                     onChange={handleSearchChange}
                 />
             </Form.Group>
+                </Col>
+                <Col md={3}>
             <Form.Group controlId="classificatorFilter" className="mt-3">
                 <Form.Label>Filter by Classificator</Form.Label>
-                <Form.Control as="select" value={selectedClassificatorId} onChange={(e) => setSelectedClassificatorId(e.target.value)}>
+                <Form.Control as="select" value={selectedClassificatorId}
+                              onChange={(e) => setSelectedClassificatorId(e.target.value)}>
                     <option value="">All Classificators</option>
                     {classificators.map((classificator) => (
                         <option key={classificator.id} value={classificator.id}>{classificator.name}</option>
                     ))}
                 </Form.Control>
             </Form.Group>
+                </Col>
+                <Col md={4}>
+
+
             <Form.Group controlId="written-off-filter" className="mt-3">
                 <Form.Check
                     type="switch"
@@ -100,11 +115,12 @@ function ClientDevices({ devices, client, clientId, setRefresh, locations }) {
                     label="Written-off"
                     checked={writtenOff}
                     onChange={(e) => setWrittenOff(e.target.checked)}
-                    className="mb-4"
+                    className="mb-2"
                 />
             </Form.Group>
-
-
+                </Col>
+            </Row>
+        </Form>
 
             {filteredDevices.length > 0 ? (
                 <Row className="mt-3">
@@ -123,7 +139,7 @@ function ClientDevices({ devices, client, clientId, setRefresh, locations }) {
                                         )}
                                     </Card.Title>
                                     <Card.Text className="all-page-cardText">
-                                        <strong>Location:</strong> {locations[device.locationId] || 'Unknown'}<br />
+                                        <strong>Location:</strong> {locations[device.locationId] || 'Unknown'}<br/>
                                         <strong>Room:</strong> {device.room ? device.room : 'N/A'}
                                     </Card.Text>
                                 </Card.Body>
@@ -160,7 +176,8 @@ function ClientDevices({ devices, client, clientId, setRefresh, locations }) {
                     <Modal.Title>Add Device to {client.shortName}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <AddClientDevice clientId={clientId} onClose={() => setShowAddDeviceModal(false)} setRefresh={setRefresh} /> {/* Pass clientId and setRefresh as props */}
+                    <AddClientDevice clientId={clientId} onClose={() => setShowAddDeviceModal(false)}
+                                     setRefresh={setRefresh}/> {/* Pass clientId and setRefresh as props */}
                 </Modal.Body>
             </Modal>
         </>

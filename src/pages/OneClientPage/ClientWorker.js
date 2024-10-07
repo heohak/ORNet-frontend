@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { Card, Button, Modal, Alert, Form, Row, Col } from 'react-bootstrap';
+import React, {useEffect, useState} from 'react';
+import {Alert, Button, Card, Col, Form, Modal, Row} from 'react-bootstrap';
 import AddWorker from './AddClientWorker';
 import EditWorkerModal from './EditWorkerModal'; // Import the EditWorkerModal component
 import axios from 'axios';
 import config from "../../config/config";
 import Select from 'react-select';
-import { FaStar, FaRegStar } from 'react-icons/fa';
+import {FaRegStar, FaStar} from 'react-icons/fa';
 import '../../css/Customers.css'
 
-function ClientWorker({ workers, client, clientId, setRefresh }) {
+function ClientWorker({workers, client, clientId, setRefresh}) {
     const [showAddWorkerModal, setShowAddWorkerModal] = useState(false);
     const [showAddRoleModal, setShowAddRoleModal] = useState(false);
     const [showEditWorkerModal, setShowEditWorkerModal] = useState(false); // State to control the EditWorkerModal
@@ -57,7 +57,7 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
     const fetchRoles = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/worker/classificator/all`);
-            setRoles(response.data.map(role => ({ value: role.id, label: role.role })));
+            setRoles(response.data.map(role => ({value: role.id, label: role.role})));
         } catch (error) {
             console.error('Error fetching roles:', error);
         }
@@ -68,7 +68,7 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
             const response = await axios.get(`${config.API_BASE_URL}/worker/${clientId}`);
             const workersWithRolesPromises = response.data.map(async (worker) => {
                 const rolesResponse = await axios.get(`${config.API_BASE_URL}/worker/role/${worker.id}`);
-                return { ...worker, roles: rolesResponse.data };
+                return {...worker, roles: rolesResponse.data};
             });
             const workersWithRoles = await Promise.all(workersWithRolesPromises);
             setFilteredWorkers(workersWithRoles);
@@ -134,7 +134,7 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
             const currentRoles = currentRolesResponse.data.map(role => role.id);
             const roleIds = [...new Set([...currentRoles, ...selectedRoles.map(role => role.value)])];
 
-            await axios.put(`${config.API_BASE_URL}/worker/role/${selectedWorkerId}`, { roleIds });
+            await axios.put(`${config.API_BASE_URL}/worker/role/${selectedWorkerId}`, {roleIds});
 
             setShowAddRoleModal(false);
             setSelectedRoles([]); // Clear selected roles after submission
@@ -161,7 +161,7 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
             setFilteredWorkers((prevWorkers) => [...prevWorkers, newWorker]);
 
             const rolesResponse = await axios.get(`${config.API_BASE_URL}/worker/role/${newWorker.id}`);
-            const updatedWorker = { ...newWorker, roles: rolesResponse.data };
+            const updatedWorker = {...newWorker, roles: rolesResponse.data};
 
             setFilteredWorkers((prevWorkers) =>
                 prevWorkers.map(worker => worker.id === updatedWorker.id ? updatedWorker : worker)
@@ -186,37 +186,56 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
     };
 
 
-
     return (
         <>
-            <h2 className="mb-4">Workers</h2>
-            <Button variant="primary" onClick={() => setShowAddWorkerModal(true)}>Add Worker</Button>
-            <Form.Group controlId="search" className="mt-3">
-                <Form.Label>Search</Form.Label>
-                <Form.Control
-                    type="text"
-                    placeholder="Search workers..."
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                />
-            </Form.Group>
-            <Form.Group controlId="roleFilter" className="mt-3">
-                <Form.Label>Filter by Role</Form.Label>
-                <Form.Control as="select" value={selectedFilterRoleId} onChange={(e) => setSelectedFilterRoleId(e.target.value)}>
-                    <option value="">All Roles</option>
-                    {roles.map((role) => (
-                        <option key={role.value} value={role.value}>{role.label}</option>
-                    ))}
-                </Form.Control>
-            </Form.Group>
-            <Form.Group controlId="favoriteFilter" className="mt-3">
-                <Form.Check
-                    type="checkbox"
-                    label="Show Only Favorites"
-                    checked={favoriteFilter}
-                    onChange={(e) => setFavoriteFilter(e.target.checked)}
-                />
-            </Form.Group>
+            <Row className="d-flex justify-content-between align-items-center">
+                <Col>
+                    <h2 className="mt-1">Workers</h2>
+                </Col>
+                <Col className="text-end">
+                    <Button variant="primary" onClick={() => setShowAddWorkerModal(true)}>
+                        Add Worker
+                    </Button>
+                </Col>
+            </Row>
+
+            <Form className="mb-3">
+                <Row className="align-items-end">
+                    <Col md={3}>
+                        <Form.Group controlId="search" className="mt-3">
+                            <Form.Label>Search</Form.Label>
+                            <Form.Control
+                                type="text"
+                                placeholder="Search workers..."
+                                value={searchQuery}
+                                onChange={handleSearchChange}
+                            />
+                        </Form.Group>
+                    </Col>
+                    <Col md={3}>
+                        <Form.Group controlId="roleFilter" className="mt-3">
+                            <Form.Label>Filter by Role</Form.Label>
+                            <Form.Control as="select" value={selectedFilterRoleId}
+                                          onChange={(e) => setSelectedFilterRoleId(e.target.value)}>
+                                <option value="">All Roles</option>
+                                {roles.map((role) => (
+                                    <option key={role.value} value={role.value}>{role.label}</option>
+                                ))}
+                            </Form.Control>
+                        </Form.Group>
+                    </Col>
+                    <Col md={4}>
+                        <Form.Group controlId="favoriteFilter" className="mt-2 d-flex align-items-end">
+                            <Form.Check
+                                type="checkbox"
+                                label="Show Only Favorites"
+                                checked={favoriteFilter}
+                                onChange={(e) => setFavoriteFilter(e.target.checked)}
+                            />
+                        </Form.Group>
+                    </Col>
+                </Row>
+            </Form>
 
             {filteredWorkers.length > 0 ? (
                 <Row className="mt-3">
@@ -224,20 +243,29 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                         <Col md={6} key={worker.id} className="mb-4"> {/* Adjust column size as needed */}
                             <Card className="h-100 position-relative customer-page-card">
                                 <Card.Body className="all-page-cardBody">
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center'
+                                    }}>
                                         <div>
-                                            <Card.Title className='all-page-cardTitle'>{worker.firstName} {worker.lastName}</Card.Title>
+                                            <Card.Title
+                                                className='all-page-cardTitle'>{worker.firstName} {worker.lastName}</Card.Title>
                                             <Card.Text className="all-page-cardText">
-                                                <strong>Role: </strong>{worker.roles.map(role => role.role).join(', ')}<br />
+                                                <strong>Role: </strong>{worker.roles.map(role => role.role).join(', ')}<br/>
                                                 <strong>Location: </strong>{workerLocations[worker.id]?.name || "N/A"}
                                             </Card.Text>
                                         </div>
                                         <div>
                                 <span
-                                    style={{ cursor: 'pointer', color: worker.favorite ? 'gold' : 'gray', marginRight: '10px' }}
+                                    style={{
+                                        cursor: 'pointer',
+                                        color: worker.favorite ? 'gold' : 'gray',
+                                        marginRight: '10px'
+                                    }}
                                     onClick={() => toggleFavorite(worker.id)}
                                 >
-                                    {worker.favorite ? <FaStar /> : <FaRegStar />}
+                                    {worker.favorite ? <FaStar/> : <FaRegStar/>}
                                 </span>
                                             <Button variant="link" onClick={() => toggleWorkerDetails(worker.id)}>
                                                 {expandedWorkerId === worker.id ? '▲' : '▼'}
@@ -245,14 +273,20 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                                             <Button variant="link" onClick={() => handleEditWorker(worker)}>
                                                 Edit
                                             </Button>
-                                            <Button variant="link" onClick={() => {setSelectedRoles(worker.roleIds.map(roleId => roles.find(role => role.value === roleId))); setSelectedWorkerId(worker.id); setShowAddRoleModal(true); }}>
+                                            <Button variant="link" onClick={() => {
+                                                setSelectedRoles(worker.roleIds.map(roleId => roles.find(role => role.value === roleId)));
+                                                setSelectedWorkerId(worker.id);
+                                                setShowAddRoleModal(true);
+                                            }}>
                                                 Add Role
                                             </Button>
                                         </div>
                                     </div>
                                     {expandedWorkerId === worker.id && workerLocations[worker.id] && (
                                         <div>
-                                            <Card.Text style={{marginBottom: 0}}><strong>Phone: </strong>{worker.phoneNumber}</Card.Text>
+                                            <Card.Text
+                                                style={{marginBottom: 0}}><strong>Phone: </strong>{worker.phoneNumber}
+                                            </Card.Text>
                                             <Card.Text><strong>Email: </strong>{worker.email}</Card.Text>
                                         </div>
                                     )}
@@ -270,7 +304,8 @@ function ClientWorker({ workers, client, clientId, setRefresh }) {
                     <Modal.Title>Add Worker to {client.shortName}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <AddWorker clientId={clientId} onClose={() => setShowAddWorkerModal(false)} onSuccess={handleAddWorkerSuccess} />
+                    <AddWorker clientId={clientId} onClose={() => setShowAddWorkerModal(false)}
+                               onSuccess={handleAddWorkerSuccess}/>
                 </Modal.Body>
             </Modal>
             {selectedWorker && (

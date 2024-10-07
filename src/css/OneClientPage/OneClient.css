@@ -1,0 +1,20 @@
+.AccordionTechnicalInfo .accordion-body {
+    padding-right: 0;
+}
+
+.AccordionWorkers .accordion-body {
+    padding-right: 12px;
+}
+
+.AccordionDevices .accordion-body {
+    padding-right: 12px;
+}
+.AccordionThirdPartyITs .accordion-body {
+    padding-right: 12px;
+}
+.AccordionMaintenences .accordion-body {
+    padding-right: 12px;
+}
+.AccordionTickets .accordion-body {
+    padding: 5px;
+}
