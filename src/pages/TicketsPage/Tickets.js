@@ -19,6 +19,7 @@ function Tickets() {
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const [statuses, setStatuses] = useState([]);
     const [openStatus, setOpenStatus] = useState(null);
+    const [closedStatusId, setClosedStatusId] = useState(0);
     const [closedStatus, setClosedStatus] = useState(null);
     const [ticket, setTicket] = useState(null); // selected ticket
     const [ticketModal, setTicketModal] = useState(false); // to control modal state
@@ -54,6 +55,7 @@ function Tickets() {
                 }
                 if (closed) {
                     setClosedStatus(closed);
+                    setClosedStatusId(closed.id);
                 }
             }
         };
@@ -166,6 +168,7 @@ function Tickets() {
                     onClose={closeTicketModal}
                     ticket={ticket} // Pass the selected ticket to NewTicket
                     statuses={statuses}
+                    isTicketClosed={closedStatusId === ticket.statusId}
                 />
             )}
         </Container>

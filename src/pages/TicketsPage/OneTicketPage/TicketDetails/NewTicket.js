@@ -1,42 +1,71 @@
-import React, {useEffect, useState} from 'react';
-import {Modal, Button, Card, ListGroup, Form, Col, Row} from 'react-bootstrap';
-import axios from "axios";
-import config from "../../../../config/config";
+import React, {useState} from 'react';
+import {Modal, Button, Col, Row} from 'react-bootstrap';
+
 import NewTicketDetails from "./NewTicketDetails";
 import NewTicketFiles from "./NewTicketFiles";
 import NewTicketDescription from "./NewTicketDescription";
 import NewTicketRootCause from "./NewTicketRootCause";
 import NewTicketStatusDropdown from "./NewTicketStatusDropdown";
+import NewTicketActivity from "./NewTicketActivity";
+import NewTicketInsideInfo from "./NewTicketInsideInfo";
+import NewTicketResponse from "./NewTicketResponse";
+import '../../../../css/NewTicket.css';
+import axios from "axios";
+import config from "../../../../config/config";
 
-const NewTicket = ({ ticket, onClose, statuses }) => {
-    const [newComment, setNewComment] = useState("");
-    const [comments, setComments] = useState([]);
+const NewTicket = ({ ticket, onClose, statuses, isTicketClosed }) => {
     const [activeKey, setActiveKey] = useState('0');
+    const [isClosed, setIsClosed] = useState(isTicketClosed);
+    const [activeSection, setActiveSection] = useState('activity');
 
-    useEffect(() => {
-        fetchComments();
-    }, [ticket.id]);
-
-    const handleAddComment = () => {
-        if (newComment.trim() !== "") {
-            // Normally, you'd call an API here to save the comment.
-            console.log("New Comment Added:", newComment);
-            setNewComment("");
-        }
-    };
-
-    const fetchComments = async () => {
+    const reFetchTicket = async() => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/comment/${ticket.id}`);
-            setComments(response.data);
+            const response = await axios.get(`${config.BASE_API_URL}/ticket/${ticket.id}`)
         } catch (error) {
-            console.error('Error fetching comments:', error);
+            console.error("Error fetching ticket", error)
         }
-    };
+    }
+
 
     const handleAccordionToggle = (key) => {
         setActiveKey(prevKey => prevKey === key ? null : key); // Toggle the accordion
     };
+
+    const formatTimeDiff = (diffInMs) => {
+        const minutes = Math.floor(diffInMs / (1000 * 60)) % 60;
+        const hours = Math.floor(diffInMs / (1000 * 60 * 60)) % 24;
+        const days = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+        // Build the formatted time string conditionally
+        let result = '';
+        if (days > 0) {
+            result += `${days} day${days > 1 ? 's' : ''}, `;
+        }
+        if (hours > 0 || days > 0) {
+            result += `${hours} hour${hours > 1 ? 's' : ''}, `;
+        }
+        result += `${minutes} minute${minutes > 1 ? 's' : ''}`;
+
+        return result;
+    }
+
+    const formatDateString = (dateString) => {
+        const date = new Date(dateString);
+
+        // Get parts of the date
+        const options = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: false
+        };
+
+        // Format date into a readable string
+        return date.toLocaleString('en-US', options);
+    }
+
 
 
     return (
@@ -54,39 +83,43 @@ const NewTicket = ({ ticket, onClose, statuses }) => {
                         <NewTicketDescription
                             ticket={ticket}
                         />
-                        <NewTicketRootCause
-                            ticket={ticket}
-                        />
-                        <Card>
-                            <Card.Header>Activity</Card.Header>
-                            <ListGroup variant="flush">
-                                {comments.map((comment, index) => (
-                                    <ListGroup.Item key={index}>
-                                        <strong>Author</strong> - {comment.timestamp}
-                                        <p>{comment.comment}</p>
-                                    </ListGroup.Item>
-                                ))}
-                            </ListGroup>
-                            <Card.Footer>
-                                <Form.Group>
-                                    <Form.Control
-                                        as="textarea"
-                                        rows={3}
-                                        placeholder="Add a comment..."
-                                        value={newComment}
-                                        onChange={(e) => setNewComment(e.target.value)}
-                                    />
-                                </Form.Group>
-                                <Button className="mt-2" variant="primary" onClick={handleAddComment}>
-                                    Add Comment
-                                </Button>
-                            </Card.Footer>
-                        </Card>
+                        {isClosed && (
+                            <NewTicketRootCause
+                                ticket={ticket}
+                            />
+                        )}
+                        <div className="activityButtonsSection">
+                            <Button
+                                onClick={() => setActiveSection('activity')}
+                                size="sm"
+                                className="activityButtons ms-2"
+                            >
+                                Activity
+                            </Button>
+                            <Button
+                                onClick={() => setActiveSection('info')}
+                                size="sm"
+                                className="activityButtons ms-2"
+                            >
+                                Inside Info
+                            </Button>
+                            <Button
+                                onClick={() => setActiveSection('response')}
+                                size="sm"
+                                className="activityButtons ms-2"
+                            >
+                                Response
+                            </Button>
+                        </div>
+                        {activeSection === 'activity' && <NewTicketActivity ticketId={ticket.id} />}
+                        {activeSection === 'info' && <NewTicketInsideInfo ticket={ticket} />}
+                        {activeSection === 'response' && <NewTicketResponse ticket={ticket} />}
                     </Col>
                     <Col md={4}>
                         <NewTicketStatusDropdown
                             statuses={statuses}
                             ticket={ticket}
+                            setIsClosed={setIsClosed}
                         />
                        <NewTicketDetails
                            ticket={ticket}
@@ -100,8 +133,15 @@ const NewTicket = ({ ticket, onClose, statuses }) => {
                             handleAccordionToggle={handleAccordionToggle}
                             eventKey="1"
                         />
-                        <p className="mb-0">Created: {ticket.startDateTime}</p>
-                        <p>Updated: {ticket.updateDateTime}</p>
+                        {isClosed ? (
+                            <p className="mb-0">Closed: {formatDateString(ticket.endDateTime)}</p>
+                            ) : (
+                            <p className="mb-0">
+                                Been Open For: {formatTimeDiff(Date.now() - new Date(ticket.startDateTime))}
+                            </p>
+                            )}
+                        <p className="mb-0">Created: {formatDateString(ticket.startDateTime)}</p>
+                        <p>Updated: {formatDateString(ticket.updateDateTime)}</p>
                     </Col>
                 </Row>
             </Modal.Body>
