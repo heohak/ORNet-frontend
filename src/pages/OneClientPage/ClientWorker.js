@@ -190,7 +190,7 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
         <>
             <Row className="d-flex justify-content-between align-items-center">
                 <Col>
-                    <h2 className="mt-1">Workers</h2>
+                    <h2 className="mt-1 mb-1">Workers</h2>
                 </Col>
                 <Col className="text-end">
                     <Button variant="primary" onClick={() => setShowAddWorkerModal(true)}>
@@ -202,7 +202,7 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
             <Form className="mb-3">
                 <Row className="align-items-end">
                     <Col md={3}>
-                        <Form.Group controlId="search" className="mt-3">
+                        <Form.Group controlId="search" className="mt-2">
                             <Form.Label>Search</Form.Label>
                             <Form.Control
                                 type="text"
@@ -225,7 +225,7 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
                         </Form.Group>
                     </Col>
                     <Col md={4}>
-                        <Form.Group controlId="favoriteFilter" className="mt-2 d-flex align-items-end">
+                        <Form.Group controlId="favoriteFilter" className="mt-2 mb-1 d-flex align-items-end">
                             <Form.Check
                                 type="checkbox"
                                 label="Show Only Favorites"

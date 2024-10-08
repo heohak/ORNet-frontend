@@ -43,7 +43,7 @@ function ClientThirdPartyIT({ clientId, client }) {
     }
 
     return (
-        <div className="mt-4">
+        <div>
             <Row className="d-flex justify-content-between align-items-center">
                 <Col>
                     <h2 className="mt-1">Third-Party ITs</h2>
@@ -56,7 +56,7 @@ function ClientThirdPartyIT({ clientId, client }) {
             </Row>
 
             {thirdPartyITs.length > 0 ? (
-                <Row className="mt-3">
+                <Row className="mt-1">
                     {thirdPartyITs.map((thirdParty) => (
                         <Col md={3} key={thirdParty.id} className="mb-4"> {/* Adjust column size as needed */}
                             <Card className="h-100 position-relative customer-page-card">

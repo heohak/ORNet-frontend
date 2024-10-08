@@ -72,7 +72,7 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
         <>
             <Row className="d-flex justify-content-between align-items-center">
                 <Col>
-                    <h2 className="mb-4">
+                    <h2 className="mb-2">
                         {'Devices'}
                     </h2>
                 </Col>
@@ -151,7 +151,7 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
                 <Alert className="mt-3" variant="info">No devices available.</Alert>
             )}
 
-            <h3 className="mt-4">Device Summary</h3>
+            <h3 className="mt-2">Device Summary</h3>
             {loadingSummary ? (
                 <Spinner animation="border" role="status">
                     <span className="visually-hidden">Loading...</span>

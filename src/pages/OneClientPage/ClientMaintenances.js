@@ -114,7 +114,7 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
                     </Button>
                 </Col>
             </Row>
-            <Row className="mt-3">
+            <Row className="mt-1">
                 {maintenances.length > 0 ? (
                     maintenances.map((maintenance) => (
                         <Col md={4} key={maintenance.id} className="mb-4"> {/* Adjust column size as needed */}

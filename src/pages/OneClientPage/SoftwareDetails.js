@@ -48,7 +48,7 @@ function SoftwareDetails({softwareList, clientId, setRefresh, client}) {
             </Row>
             <Row className="mt-1">
                 {softwareList.map(software => (
-                    <Col md={4} key={software.id} className="mb-4">
+                    <Col md={4} key={software.id} className="mb-3">
                         <Card className="position-relative customer-page-card">
                             <Card.Body>
                                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
