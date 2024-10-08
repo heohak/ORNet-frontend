@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Container, Form, Button, Alert } from 'react-bootstrap';
+import { Container, Form, Button, Alert, Modal } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
 import config from '../../config/config';
 
@@ -8,6 +8,9 @@ function EditSoftware() {
     const location = useLocation();
     const navigate = useNavigate();
     const software = location.state?.software;
+    const [associatedClient, setAssociatedClient] = useState(null); // State to hold the associated client
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+
 
     const [name, setName] = useState(software?.name || '');
     const [dbVersion, setDbVersion] = useState(software?.dbVersion || '');
@@ -50,6 +53,19 @@ function EditSoftware() {
         }
     };
 
+    const fetchSoftwareWithClient = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/software/${software.id}`);
+            const clientId = response.data.clientId;
+
+            // Make another request to get client details using clientId
+            const clientResponse = await axios.get(`${config.API_BASE_URL}/client/${clientId}`);
+            setAssociatedClient(clientResponse.data); // Assuming API returns full client details
+        } catch (error) {
+            setError('Error fetching software or client information');
+        }
+    };
+
     const handleDeleteSoftware = async () => {
         try {
             await axios.delete(`${config.API_BASE_URL}/software/${software.id}`);
@@ -57,6 +73,14 @@ function EditSoftware() {
         } catch (error) {
             setError(error.message);
         }
+    };
+    const handleShowDeleteModal = () => {
+        fetchSoftwareWithClient(); // Fetch client before showing the modal
+        setShowDeleteModal(true);
+    };
+
+    const handleCloseDeleteModal = () => {
+        setShowDeleteModal(false);
     };
 
     return (
@@ -330,13 +354,43 @@ function EditSoftware() {
                 <Button variant="success" onClick={handleUpdateSoftware}>
                     Update Software
                 </Button>
-                <Button variant="danger" onClick={handleDeleteSoftware} className="ms-2">
+                <Button variant="danger" onClick={handleShowDeleteModal} className="ms-2">
                     Delete Software
                 </Button>
                 <Button variant="secondary" onClick={() => navigate('/settings/software')} className="ms-2">
                     Cancel
                 </Button>
             </Form>
+
+            {/* Delete Confirmation Modal */}
+            <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Software Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {associatedClient ? (
+                        <div>
+                            <p>This software is linked to the following client:</p>
+                            <ul>
+                                <li>Client: {associatedClient.shortName}</li>
+                            </ul>
+                            <p style={{ color: 'red' }}>
+                                Deleting this software will affect the above client. Are you sure you want to proceed?
+                            </p>
+                        </div>
+                    ) : (
+                        <p>Loading client information...</p>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseDeleteModal}>
+                        Close
+                    </Button>
+                    <Button variant="danger" onClick={handleDeleteSoftware} disabled={!associatedClient}>
+                        Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 }
