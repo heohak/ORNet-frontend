@@ -12,15 +12,19 @@ import NewTicketResponse from "./NewTicketResponse";
 import '../../../../css/NewTicket.css';
 import axios from "axios";
 import config from "../../../../config/config";
+import ToggleSwitch from "./ToggleSwitch";
+import TicketSectionButtons from "./TicketSectionButtons";
 
-const NewTicket = ({ ticket, onClose, statuses, isTicketClosed }) => {
+const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed }) => {
+    const [ticket, setTicket] = useState(firstTicket);
     const [activeKey, setActiveKey] = useState('0');
     const [isClosed, setIsClosed] = useState(isTicketClosed);
     const [activeSection, setActiveSection] = useState('activity');
 
     const reFetchTicket = async() => {
         try {
-            const response = await axios.get(`${config.BASE_API_URL}/ticket/${ticket.id}`)
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/${ticket.id}`)
+            setTicket(response.data);
         } catch (error) {
             console.error("Error fetching ticket", error)
         }
@@ -88,45 +92,31 @@ const NewTicket = ({ ticket, onClose, statuses, isTicketClosed }) => {
                                 ticket={ticket}
                             />
                         )}
-                        <div className="activityButtonsSection">
-                            <Button
-                                onClick={() => setActiveSection('activity')}
-                                size="sm"
-                                className="activityButtons ms-2"
-                            >
-                                Activity
-                            </Button>
-                            <Button
-                                onClick={() => setActiveSection('info')}
-                                size="sm"
-                                className="activityButtons ms-2"
-                            >
-                                Inside Info
-                            </Button>
-                            <Button
-                                onClick={() => setActiveSection('response')}
-                                size="sm"
-                                className="activityButtons ms-2"
-                            >
-                                Response
-                            </Button>
-                        </div>
-                        {activeSection === 'activity' && <NewTicketActivity ticketId={ticket.id} />}
+                        <TicketSectionButtons activeSection={activeSection} onSectionChange={setActiveSection}/>
+                        {activeSection === 'activity' && <NewTicketActivity ticket={ticket} reFetch={reFetchTicket} />}
                         {activeSection === 'info' && <NewTicketInsideInfo ticket={ticket} />}
                         {activeSection === 'response' && <NewTicketResponse ticket={ticket} />}
                     </Col>
                     <Col md={4}>
-                        <NewTicketStatusDropdown
-                            statuses={statuses}
+                        <Row className="justify-content-between mb-2">
+                            <Col className="col-md-auto">
+                                <NewTicketStatusDropdown
+                                    statuses={statuses}
+                                    ticket={ticket}
+                                    setIsClosed={setIsClosed}
+                                    reFetch={reFetchTicket}
+                                />
+                            </Col>
+                            <Col className="col-md-auto d-flex align-items-center">
+                                <ToggleSwitch ticket={ticket} reFetch={reFetchTicket} />
+                            </Col>
+                        </Row>
+                        <NewTicketDetails
                             ticket={ticket}
-                            setIsClosed={setIsClosed}
+                            activeKey={activeKey}
+                            handleAccordionToggle={handleAccordionToggle}
+                            eventKey="0"
                         />
-                       <NewTicketDetails
-                           ticket={ticket}
-                           activeKey={activeKey}
-                           handleAccordionToggle={handleAccordionToggle}
-                           eventKey="0"
-                       />
                         <NewTicketFiles
                             ticket={ticket}
                             activeKey={activeKey}

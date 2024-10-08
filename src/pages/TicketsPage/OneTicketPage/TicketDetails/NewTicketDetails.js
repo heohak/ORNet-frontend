@@ -16,6 +16,8 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
     const [locations, setLocations] = useState([]);
     const [selectedContacts, setSelectedContacts] = useState([]);  // Selected contacts
     const [availableContacts, setAvailableContacts] = useState([]);
+    const [paidTime, setPaidTime] = useState(ticket.paidTime);
+    const [timeSpent, setTimeSpent] = useState(ticket.timeSpent);
 
     useEffect(() => {
         fetchResponsibleName();
@@ -25,6 +27,20 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
         fetchBaitWorkers();  // Fetch all workers for the dropdown
         fetchLocations();
     }, []);
+
+    useEffect(() => {
+        setTimeSpent(ticket.timeSpent);
+        setPaidTime(ticket.paidTime);
+    }, [ticket.timeSpent, ticket.paidTime])
+
+    const formatTime = (timeString) => {
+        // Assuming timeString is in ISO 8601 duration format like "PT1H1M"
+        const match = timeString.match(/PT(\d+H)?(\d+M)?/);
+        const hours = match[1] ? match[1].replace('H', '') : '0';
+        const minutes = match[2] ? match[2].replace('M', '') : '0';
+
+        return `${hours}H ${minutes}M`;
+    };
 
     const fetchLocations = async () => {
         try {
@@ -154,7 +170,23 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
                     </Accordion.Header>
                     <Accordion.Body>
                         <div>
-                            {/* Assignee (Bait Worker Dropdown) */}
+
+                            <Row className="mb-2">
+                                <Col xs="auto" style={{ minWidth: '165px' }}>
+                                    <strong>Time Spent</strong>
+                                </Col>
+                                <Col>
+                                    {formatTime(timeSpent)}
+                                </Col>
+                            </Row>
+                            <Row className="mb-2">
+                                <Col xs="auto" style={{ minWidth: '165px' }}>
+                                    <strong>Paid Time</strong>
+                                </Col>
+                                <Col>
+                                    {formatTime(paidTime)}
+                                </Col>
+                            </Row>
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Assignee</strong>
@@ -176,7 +208,6 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
                                 </Col>
                             </Row>
 
-                            {/* Numeration */}
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Numeration</strong>
@@ -193,7 +224,6 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
                                 </Col>
                             </Row>
 
-                            {/* Priority Dropdown */}
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Priority</strong>
@@ -212,7 +242,6 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
                                 </Col>
                             </Row>
 
-                            {/* Remote Dropdown */}
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Remote</strong>
@@ -231,7 +260,6 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
                                 </Col>
                             </Row>
 
-                            {/* Client Numeration */}
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Client Numeration</strong>
@@ -248,7 +276,6 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
                                 </Col>
                             </Row>
 
-                            {/* Location */}
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Location</strong>
@@ -270,7 +297,6 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
                                 </Col>
                             </Row>
 
-                            {/* Contacts */}
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Contacts</strong>
@@ -290,7 +316,6 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
                                 </Col>
                             </Row>
 
-                            {/* Work Types */}
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Work Types</strong>

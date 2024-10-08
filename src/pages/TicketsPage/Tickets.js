@@ -166,7 +166,7 @@ function Tickets() {
                 <NewTicket
                     show={ticketModal}
                     onClose={closeTicketModal}
-                    ticket={ticket} // Pass the selected ticket to NewTicket
+                    firstTicket={ticket} // Pass the selected ticket to NewTicket
                     statuses={statuses}
                     isTicketClosed={closedStatusId === ticket.statusId}
                 />
