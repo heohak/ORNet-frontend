@@ -53,7 +53,7 @@ function SoftwareDetails({softwareList, clientId, setRefresh, client}) {
                             <Card.Body>
                                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                                     <div>
-                                        <Card.Title className='all-page-cardTitle'>Name: {software.name}</Card.Title>
+                                        <Card.Title className='all-page-cardTitle'>{software.name}</Card.Title>
                                     </div>
                                     <div>
                                         <Button variant="secondary"
