@@ -122,14 +122,15 @@ function OneClient() {
                             client={client}
                             navigate={navigate}
                         />
-                        <Accordion defaultActiveKey="0">
-                            <Accordion.Item eventKey="1">
+                        <Accordion defaultActiveKey="0" alwaysOpen>
+                            <Accordion.Item eventKey="1" className="AccordionLocations">
                                 <Accordion.Header>Locations</Accordion.Header>
                                 <Accordion.Body>
                                     <Row>
+                                        <h2 className="mt-1">Locations</h2>
                                         {locations.length > 0 ? (
                                                 locations.map(location => (
-                                                    <Col md={4}  key={location.id} className="mb-2">
+                                                    <Col md={4}  key={location.id} className="mb-1">
                                                         <Card key={location.id} className="h-100 position-relative customer-page-card">
                                                             <Card.Body>
                                                                 <Card.Title className='all-page-cardTitle'>{location.name}</Card.Title>

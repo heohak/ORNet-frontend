@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 
 import {Button, Card, Col, Container, Row, Spinner, Table} from 'react-bootstrap';
 import AddClientSoftware from "./AddClientSoftware";
@@ -12,6 +12,11 @@ function SoftwareDetails({softwareList, clientId, setRefresh, client}) {
     const [expandedSoftwareId, setExpandedSoftwareId] = useState(null);
     const [showAddSoftwareModal, setShowAddSoftwareModal] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        // Log the softwareList for debugging purposes
+        console.log("SoftwareList:", softwareList);
+    }, [softwareList]);
 
 
     const toggleTechnicalInfo = (softwareId) => {
@@ -28,19 +33,20 @@ function SoftwareDetails({softwareList, clientId, setRefresh, client}) {
         );
     }
 
+
     return (
-        <Container className="mt-3">
+        <Container className="mt-1">
             <Row className="d-flex justify-content-between align-items-center">
                 <Col>
-                    <h2 className=" mt-1">Technical information</h2>
+                    <h2 className="mt-1 mb-1">Technical information</h2>
                 </Col>
                 <Col className="text-end">
-                    <Button variant="primary" className="mb-3" onClick={() => setShowAddSoftwareModal(true)}>
+                    <Button variant="primary" className="mb-0" onClick={() => setShowAddSoftwareModal(true)}>
                         Add Software
                     </Button>
                 </Col>
             </Row>
-            <Row className="mt-2">
+            <Row className="mt-1">
                 {softwareList.map(software => (
                     <Col md={4} key={software.id} className="mb-4">
                         <Card className="h-100 position-relative customer-page-card">

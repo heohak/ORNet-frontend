@@ -1,5 +1,8 @@
 .AccordionTechnicalInfo .accordion-body {
     padding-right: 0;
+    padding-left: 6px;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 .AccordionWorkers .accordion-body {
@@ -17,4 +20,8 @@
 }
 .AccordionTickets .accordion-body {
     padding: 5px;
+}
+.AccordionLocations .accordion-body {
+    padding-top: 5px;
+    padding-bottom: 20px;
 }
