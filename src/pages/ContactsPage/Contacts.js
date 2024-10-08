@@ -81,13 +81,12 @@ function Contacts() {
                             <Card className='all-page-card'>
                                 <Card.Body className='all-page-cardBody'>
                                     <Card.Title className='all-page-cardTitle'>
-                                        <strong>{worker.firstName} {worker.lastName}</strong>
+                                        <strong>{worker.firstName} {worker.lastName} {worker.favorite && <Badge bg="warning">Favorite</Badge>}</strong>
                                     </Card.Title>
                                     <Card.Text className='all-page-cardText'>
                                         <strong>Email: </strong>{worker.email}<br />
                                         <strong>Phone: </strong>{worker.phoneNumber}<br />
                                         <strong>Title: </strong>{worker.title || "N/A"}<br />
-                                        {worker.favorite && <Badge bg="warning">Favorite</Badge>}
                                     </Card.Text>
                                 </Card.Body>
                             </Card>
