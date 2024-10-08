@@ -11,14 +11,14 @@ function ClientTickets({tickets, statusMap}) {
     };
 
     return (
-        <Container className="mt-5">
+        <Container className="mt-1">
             <h2>Tickets</h2>
             {tickets.length > 0 ? (
-                <Row className="mt-3">
+                <Row className="mt-2">
                     {tickets.map(ticket => {
                         const status = statusMap[ticket.statusId]; // Get status from statusMap
                         return (
-                            <Col md={4} key={ticket.id} className="mb-4"> {/* Adjust column size as needed */}
+                            <Col md={4} key={ticket.id} className="mb-3"> {/* Adjust column size as needed */}
                                 <Card
                                     className="h-100 position-relative all-page-card"
                                     style={{ cursor: 'pointer', borderRadius: '20px' }}

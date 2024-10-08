@@ -1,16 +1,22 @@
-import React, { useState } from 'react';
+import React, {useState, useEffect} from 'react';
 
-import { Container, Spinner, Table, Button, Card, Col, Row } from 'react-bootstrap';
+import {Button, Card, Col, Container, Row, Spinner, Table} from 'react-bootstrap';
 import AddClientSoftware from "./AddClientSoftware";
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
+import '../../css/OneClientPage/SoftwareDetails.css';
 
 
-function SoftwareDetails({ softwareList, clientId, setRefresh, client }) {
+function SoftwareDetails({softwareList, clientId, setRefresh, client}) {
 
     // State to manage expanded state for each software item
     const [expandedSoftwareId, setExpandedSoftwareId] = useState(null);
     const [showAddSoftwareModal, setShowAddSoftwareModal] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        // Log the softwareList for debugging purposes
+        console.log("SoftwareList:", softwareList);
+    }, [softwareList]);
 
 
     const toggleTechnicalInfo = (softwareId) => {
@@ -27,23 +33,31 @@ function SoftwareDetails({ softwareList, clientId, setRefresh, client }) {
         );
     }
 
+
     return (
-        <Container className="mt-5">
-            <h2 className="mb-4">Technical information</h2>
-            <Button variant="primary" className="mb-4" onClick={() => setShowAddSoftwareModal(true)}>
-                Add Software
-            </Button>
-            <Row className="mt-3">
+        <Container className="mt-1">
+            <Row className="d-flex justify-content-between align-items-center">
+                <Col>
+                    <h2 className="mt-1 mb-1">Technical information</h2>
+                </Col>
+                <Col className="text-end">
+                    <Button variant="primary" className="mb-0" onClick={() => setShowAddSoftwareModal(true)}>
+                        Add Software
+                    </Button>
+                </Col>
+            </Row>
+            <Row className="mt-1">
                 {softwareList.map(software => (
-                    <Col md={6}  key={software.id} className="mb-4">
-                        <Card className="h-100 position-relative customer-page-card">
+                    <Col md={4} key={software.id} className="mb-3">
+                        <Card className="position-relative customer-page-card">
                             <Card.Body>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                                     <div>
-                                        <Card.Title className='all-page-cardTitle'>Name: {software.name}</Card.Title>
+                                        <Card.Title className='all-page-cardTitle'>{software.name}</Card.Title>
                                     </div>
                                     <div>
-                                        <Button variant="secondary" onClick={() => navigate(`/settings/software/edit/${software.id}`, { state: { software } })}>
+                                        <Button variant="secondary"
+                                                onClick={() => navigate(`/settings/software/edit/${software.id}`, {state: {software}})}>
                                             Edit
                                         </Button>
                                         <Button variant="link" onClick={() => toggleTechnicalInfo(software.id)}>

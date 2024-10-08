@@ -1,6 +1,7 @@
 import React from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import '../../css/SettingsPage/Settings.css';
 
 function Settings() {
     const navigate = useNavigate();
@@ -8,133 +9,102 @@ function Settings() {
     return (
         <Container className="mt-5">
             <h1 className="mb-4">Settings</h1>
-            <p style={{ color: 'red', fontWeight: 'bold' }}>
-                Note: If you encounter a 500 error when trying to remove an object, it means that the object is linked to something else. This issue will be resolved as soon as possible.
-            </p>
             <Row className="mb-3">
-                <Col md={6}>
+                <Col md={3} sm={6} className="mb-2">
                     <Button
                         variant="primary"
                         onClick={() => navigate('/view-bait-workers')}
-                        className="w-50"
+                        className="settings-button"
                     >
-                        View Bait Workers
+                        Bait Workers
                     </Button>
                 </Col>
-            </Row>
-            <Row className="mb-3">
-                <Col md={6}>
+                <Col md={3} sm={6} className="mb-2">
                     <Button
                         variant="primary"
                         onClick={() => navigate('/settings/locations')}
-                        className="w-50"
+                        className="settings-button"
                     >
-                        View Locations
+                        Locations
                     </Button>
                 </Col>
-            </Row>
-            <Row className="mb-3">
-                <Col md={6}>
+                <Col md={3} sm={6} className="mb-2">
                     <Button
                         variant="primary"
                         onClick={() => navigate('/settings/device-classificators')}
-                        className="w-50"
+                        className="settings-button"
                     >
-                        View Device Classificators
+                        Device Classificators
                     </Button>
                 </Col>
-            </Row>
-            <Row className="mb-3">
-                <Col md={6}>
+                <Col md={3} sm={6} className="mb-2">
                     <Button
                         variant="primary"
                         onClick={() => navigate('/settings/ticket-status-classificators')}
-                        className="w-50"
+                        className="settings-button"
                     >
-                        View Ticket Status Classificators
+                        Ticket Status Classificators
                     </Button>
                 </Col>
             </Row>
             <Row className="mb-3">
-                <Col md={6}>
+                <Col md={3} sm={6} className="mb-2">
                     <Button
                         variant="primary"
                         onClick={() => navigate('/settings/third-party-its')}
-                        className="w-50"
+                        className="settings-button"
                     >
-                        View Third Party ITs
+                        Third Party ITs
                     </Button>
                 </Col>
-            </Row>
-            <Row className="mb-3">
-                <Col md={6}>
+                <Col md={3} sm={6} className="mb-2">
                     <Button
                         variant="primary"
                         onClick={() => navigate('/settings/linked-devices')}
-                        className="w-50"
+                        className="settings-button"
                     >
-                        View Linked Devices
+                        Linked Devices
                     </Button>
                 </Col>
-            </Row>
-            <Row className="mb-3">
-                <Col md={6}>
+                <Col md={3} sm={6} className="mb-2">
                     <Button
                         variant="primary"
                         onClick={() => navigate('/settings/client-worker-roles')}
-                        className="w-50"
+                        className="settings-button"
                     >
-                        View Client Worker Roles
+                        Customer Worker Roles
                     </Button>
                 </Col>
-            </Row>
-            {/*
-            <Row className="mb-3">
-                <Col md={6}>
-                    <Button
-                        variant="primary"
-                        onClick={() => navigate('/settings/client-workers')}
-                        className="w-50"
-                    >
-                        View Client Workers
-                    </Button>
-                </Col>
-            </Row>
-            */}
-            <Row className="mb-3">
-                <Col md={6}>
+                <Col md={3} sm={6} className="mb-2">
                     <Button
                         variant="primary"
                         onClick={() => navigate('/settings/software')}
-                        className="w-50"
+                        className="settings-button"
                     >
-                        View Software
+                        Softwares
                     </Button>
                 </Col>
             </Row>
             <Row className="mb-3">
-                <Col md={6}>
+                <Col md={3} sm={6} className="mb-2">
                     <Button
                         variant="primary"
                         onClick={() => navigate('/settings/files')}
-                        className="w-50"
+                        className="settings-button"
                     >
                         Upload Files
                     </Button>
                 </Col>
-            </Row>
-            <Row className="mb-3">
-                <Col md={6}>
+                <Col md={3} sm={6} className="mb-2">
                     <Button
                         variant="primary"
                         onClick={() => navigate('/settings/work-types')}
-                        className="w-50"
+                        className="settings-button"
                     >
-                        View Work Types
+                        Work Types
                     </Button>
                 </Col>
             </Row>
-
         </Container>
     );
 }

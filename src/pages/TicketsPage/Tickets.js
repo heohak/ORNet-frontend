@@ -19,6 +19,7 @@ function Tickets() {
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const [statuses, setStatuses] = useState([]);
     const [openStatus, setOpenStatus] = useState(null);
+    const [closedStatusId, setClosedStatusId] = useState(0);
     const [closedStatus, setClosedStatus] = useState(null);
     const [ticket, setTicket] = useState(null); // selected ticket
     const [ticketModal, setTicketModal] = useState(false); // to control modal state
@@ -54,6 +55,7 @@ function Tickets() {
                 }
                 if (closed) {
                     setClosedStatus(closed);
+                    setClosedStatusId(closed.id);
                 }
             }
         };
@@ -136,7 +138,6 @@ function Tickets() {
 
     return (
         <Container className="mt-5">
-            <p className="w-100 d-flex justify-content-center" style={{color: "red"}}>Single ticket view still in progress</p>
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h1 className="mb-0">Tickets</h1>
                 <Button variant="success" onClick={handleAddTicket}>Add Ticket</Button>
@@ -164,8 +165,9 @@ function Tickets() {
                 <NewTicket
                     show={ticketModal}
                     onClose={closeTicketModal}
-                    ticket={ticket} // Pass the selected ticket to NewTicket
+                    firstTicket={ticket} // Pass the selected ticket to NewTicket
                     statuses={statuses}
+                    isTicketClosed={closedStatusId === ticket.statusId}
                 />
             )}
         </Container>

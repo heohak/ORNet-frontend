@@ -108,11 +108,9 @@ function AddTicket() {
         e.preventDefault();
         setError(null);
         try {
-            const localDateTime = moment().format('YYYY-MM-DDTHH:mm:ss');
 
             const newTicket = {
                 ...formData,
-                startDateTime: localDateTime,
                 statusId: openStatusId,
                 clientId: formData.clientId,
                 workTypeIds: selectedWorkTypes.map(option => option.value), // Map selected work type objects to IDs

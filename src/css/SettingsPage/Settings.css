@@ -1,0 +1,9 @@
+.settings-button {
+    width: 200px; /* Full width in the column */
+    height: 40px; /* Shorter height */
+    font-size: 14px; /* Adjust the font size for compactness */
+    padding: 5px; /* Reduce padding */
+}
+
+
+

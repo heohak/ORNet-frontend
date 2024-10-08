@@ -89,7 +89,7 @@ function ClientDetails({ client, navigate }) {
         <>
             {client ? (
                 <Card className="mb-4">
-                    <Card.Body>
+                    <Card.Body className="pt-2 pb-2">
                         <Row>
                             <Col>
                                 {renderFields(client)}

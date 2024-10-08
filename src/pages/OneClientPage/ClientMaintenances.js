@@ -104,9 +104,17 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
 
     return (
         <>
-            <h2 className="mt-4">Maintenances</h2>
-            <Button variant="primary" onClick={() => setShowAddMaintenanceModal(true)}>Add Maintenance</Button>
-            <Row className="mt-3">
+            <Row className="d-flex justify-content-between align-items-center"> {/* Aligning title and button on the same row */}
+                <Col>
+                    <h2 className="mt-1">Maintenances</h2>
+                </Col>
+                <Col className="text-end">
+                    <Button variant="primary" onClick={() => setShowAddMaintenanceModal(true)}>
+                        Add Maintenance
+                    </Button>
+                </Col>
+            </Row>
+            <Row className="mt-1">
                 {maintenances.length > 0 ? (
                     maintenances.map((maintenance) => (
                         <Col md={4} key={maintenance.id} className="mb-4"> {/* Adjust column size as needed */}

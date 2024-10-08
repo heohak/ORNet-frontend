@@ -11,6 +11,7 @@ import ClientTickets from "./ClientTickets";
 import ClientThirdPartyIT from "./ClientThirdPartyIT";
 import ClientMaintenances from "./ClientMaintenances";
 import '../../css/Customers.css';
+import '../../css/OneClientPage/OneClient.css';
 
 function OneClient() {
     const { clientId } = useParams();
@@ -121,14 +122,15 @@ function OneClient() {
                             client={client}
                             navigate={navigate}
                         />
-                        <Accordion defaultActiveKey="0">
-                            <Accordion.Item eventKey="1">
+                        <Accordion defaultActiveKey="0" alwaysOpen>
+                            <Accordion.Item eventKey="1" className="AccordionLocations">
                                 <Accordion.Header>Locations</Accordion.Header>
                                 <Accordion.Body>
                                     <Row>
+                                        <h2 className="mt-1">Locations</h2>
                                         {locations.length > 0 ? (
                                                 locations.map(location => (
-                                                    <Col md={4}  key={location.id} className="mb-4">
+                                                    <Col md={4}  key={location.id} className="mb-1">
                                                         <Card key={location.id} className="h-100 position-relative customer-page-card">
                                                             <Card.Body>
                                                                 <Card.Title className='all-page-cardTitle'>{location.name}</Card.Title>
@@ -149,7 +151,7 @@ function OneClient() {
                                     </Row>
                                 </Accordion.Body>
                             </Accordion.Item>
-                            <Accordion.Item eventKey="2">
+                            <Accordion.Item eventKey="2" className="AccordionTechnicalInfo">
                                 <Accordion.Header>Technical Information</Accordion.Header>
                                 <Accordion.Body>
                                     <SoftwareDetails
@@ -161,7 +163,7 @@ function OneClient() {
                                 </Accordion.Body>
                             </Accordion.Item>
 
-                            <Accordion.Item eventKey="3">
+                            <Accordion.Item eventKey="3" className="AccordionTickets">
                                 <Accordion.Header>Tickets</Accordion.Header>
                                 <Accordion.Body>
                                     <ClientTickets
@@ -171,7 +173,7 @@ function OneClient() {
                                 </Accordion.Body>
                             </Accordion.Item>
 
-                            <Accordion.Item eventKey="4">
+                            <Accordion.Item eventKey="4" className="AccordionWorkers">
                                 <Accordion.Header>Workers</Accordion.Header>
                                 <Accordion.Body>
                                     <ClientWorker
@@ -183,7 +185,7 @@ function OneClient() {
                                 </Accordion.Body>
                             </Accordion.Item>
 
-                            <Accordion.Item eventKey="5">
+                            <Accordion.Item eventKey="5" className="AccordionDevices">
                                 <Accordion.Header>Devices</Accordion.Header>
                                 <Accordion.Body>
                                     <ClientDevices
@@ -196,7 +198,7 @@ function OneClient() {
                                 </Accordion.Body>
                             </Accordion.Item>
 
-                            <Accordion.Item eventKey="6">
+                            <Accordion.Item eventKey="6" className="AccordionThirdPartyITs">
                                 <Accordion.Header>Third Party ITs</Accordion.Header>
                                 <Accordion.Body>
                                     <ClientThirdPartyIT
@@ -206,7 +208,7 @@ function OneClient() {
                                 </Accordion.Body>
                             </Accordion.Item>
 
-                            <Accordion.Item eventKey="7">
+                            <Accordion.Item eventKey="7" className="AccordionMaintenences">
                                 <Accordion.Header>Maintenances</Accordion.Header>
                                 <Accordion.Body>
                                     <ClientMaintenances

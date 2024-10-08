@@ -1,49 +1,41 @@
-import React, {useState, useEffect} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheck, faEdit} from "@fortawesome/free-solid-svg-icons";
+import React, {useState} from "react";
 import axios from "axios";
 import config from "../../../../config/config";
 
 
-const NewTicketRootCause = ({ticket}) => {
-
+const NewTicketInsideInfo = ({ticket}) => {
     const [isEditing, setIsEditing] = useState(false);  // Edit mode state
-    const [rootCause, setRootCause] = useState(ticket.rootCause);  // Local state for the description
+    const [insideInfo, setInsideInfo] = useState(ticket.insideInfo);  // Local state for inside info
 
 
-    useEffect(() => {
-        setRootCause(ticket.rootCause);
-    }, [ticket.rootCause]);
-
-    // Function to handle saving the updated root cause
-    const handleSaveDescription = async () => {
+    const handleSaveInsideInfo = async () => {
         try {
             await axios.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`, {
-                rootCause: rootCause
+                insideInfo: insideInfo
             });
             setIsEditing(false); // Exit edit mode after saving
         } catch (error) {
-            console.error("Error updating the description", error);
+            console.error("Error updating Inside Info", error);
         }
     };
 
-
     return (
         <>
-            {/* Root cause Section */}
             <div
                 style={{ position: 'relative', padding: '10px'}}
             >
-                <h4>Root Cause</h4>
+                <h4>Inside Info</h4>
                 {isEditing ? (
                     <textarea
-                        value={rootCause}
-                        onChange={(e) => setRootCause(e.target.value)}
+                        value={insideInfo}
+                        onChange={(e) => setInsideInfo(e.target.value)}
                         rows={4}
                         style={{ width: '100%' }}
                     />
                 ) : (
-                    <p>{rootCause}</p>
+                    <p>{insideInfo}</p>
                 )}
 
                 {/* Icon */}
@@ -63,7 +55,7 @@ const NewTicketRootCause = ({ticket}) => {
                 ) : (
                     <FontAwesomeIcon
                         icon={faCheck}
-                        onClick={handleSaveDescription}
+                        onClick={handleSaveInsideInfo}
                         style={{
                             position: 'absolute',
                             top: '10px',
@@ -77,9 +69,6 @@ const NewTicketRootCause = ({ticket}) => {
             </div>
         </>
     );
-
-
-
 }
 
-export default NewTicketRootCause;
+export default NewTicketInsideInfo;
