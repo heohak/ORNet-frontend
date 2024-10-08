@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Container, Row, Col, Card, Button, Spinner, Alert, Form, InputGroup, Modal } from 'react-bootstrap';
 import config from "../../config/config";
 import AddCustomer from "./AddCustomer";
+import GenerateReportModal from "../../modals/GenerateReportModal";
 import '../../css/Customers.css';
 
 function Customers() {
@@ -12,6 +13,7 @@ function Customers() {
     const [searchQuery, setSearchQuery] = useState('');
     const [customerType, setCustomerType] = useState('');
     const [showAddCustomerModal, setShowAddCustomerModal] = useState(false);
+    const [showGenerateReportModal, setShowGenerateReportModal] = useState(false);
     const [typingTimeout, setTypingTimeout] = useState(null);
 
     useEffect(() => {
@@ -61,6 +63,14 @@ function Customers() {
         fetchCustomers(); // Refresh the customer list after adding a new customer
     };
 
+    const handleGenerateReport = () => {
+        setShowGenerateReportModal(true);
+    };
+
+    const handleCloseGenerateReportModal = () => {
+        setShowGenerateReportModal(false);
+    };
+
 
     if (error) {
         return (
@@ -76,10 +86,20 @@ function Customers() {
 
     return (
         <Container className="mt-5">
-            <div className="d-flex justify-content-between align-items-center mb-3">
-                <h1>Customers</h1>
-                <Button variant="success" onClick={handleAddCustomer}>Add Customer</Button>
-            </div>
+            <Row className="mb-3">
+                <Col>
+                    <h1>Customers</h1>
+                </Col>
+                <Col className="text-end">
+                    <Button variant="success" className="me-2" onClick={handleAddCustomer}>
+                        Add Customer
+                    </Button>
+                    <Button variant="primary" onClick={handleGenerateReport}>
+                        Generate Report
+                    </Button>
+                </Col>
+            </Row>
+
             <Form className="mb-3">
                 <Row>
                     <Col md={6}>
@@ -126,6 +146,9 @@ function Customers() {
                     <AddCustomer onClose={handleCloseAddCustomerModal} />
                 </Modal.Body>
             </Modal>
+
+            {/* Generate Report Modal */}
+            <GenerateReportModal show={showGenerateReportModal} handleClose={handleCloseGenerateReportModal} />
         </Container>
     );
 }
