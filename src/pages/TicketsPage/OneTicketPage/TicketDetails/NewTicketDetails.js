@@ -34,6 +34,9 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
     }, [ticket.timeSpent, ticket.paidTime])
 
     const formatTime = (timeString) => {
+        if (!timeString) {
+            return "0H 0M"
+        }
         // Assuming timeString is in ISO 8601 duration format like "PT1H1M"
         const match = timeString.match(/PT(\d+H)?(\d+M)?/);
         const hours = match[1] ? match[1].replace('H', '') : '0';
