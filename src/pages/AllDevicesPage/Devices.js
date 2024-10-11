@@ -6,7 +6,7 @@ import config from "../../config/config";
 import AddDeviceModal from './AddDeviceModal';
 import DeviceSearchFilter from './DeviceSearchFilter';
 import SummaryModal from './SummaryModal';
-import '../../css/Devices.css';
+import '../../css/AllDevicesPage/Devices.css';
 
 function Devices() {
     const [devices, setDevices] = useState([]);

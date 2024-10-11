@@ -6,7 +6,7 @@ import config from "../../config/config";
 import DeviceFileList from "./DeviceFileList";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCog} from "@fortawesome/free-solid-svg-icons";
-import "../../css/Devices.css";
+import "../../css/AllDevicesPage/Devices.css";
 
 function DeviceDetails({ device, navigate, setShowCommentsModal, setRefresh }) {
     const [showDeviceFieldModal, setShowDeviceFieldModal] = useState(false);
