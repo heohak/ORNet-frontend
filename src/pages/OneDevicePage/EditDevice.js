@@ -117,7 +117,7 @@ function EditDevice() {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
-                    <Form.Label>Client</Form.Label>
+                    <Form.Label>Customer</Form.Label>
                     <Form.Control
                         as="select"
                         name="clientId"
