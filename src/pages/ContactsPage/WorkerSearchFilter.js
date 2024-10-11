@@ -81,7 +81,7 @@ function WorkerSearchFilter({ setWorkers }) {
                 <Col>
                     <Form.Control
                         type="text"
-                        placeholder="Search workers..."
+                        placeholder="Search contacts..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -106,7 +106,7 @@ function WorkerSearchFilter({ setWorkers }) {
                         value={clientId}
                         onChange={(e) => setClientId(e.target.value)}
                     >
-                        <option value="">Select Client</option>
+                        <option value="">Select Customer</option>
                         {clients.map((client) => (
                             <option key={client.id} value={client.id}>
                                 {client.shortName}

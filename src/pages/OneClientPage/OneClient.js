@@ -174,7 +174,7 @@ function OneClient() {
                             </Accordion.Item>
 
                             <Accordion.Item eventKey="4" className="AccordionWorkers">
-                                <Accordion.Header>Workers</Accordion.Header>
+                                <Accordion.Header>Contacts</Accordion.Header>
                                 <Accordion.Body>
                                     <ClientWorker
                                         workers={workers}

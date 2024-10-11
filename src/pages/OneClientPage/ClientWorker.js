@@ -194,11 +194,11 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
         <>
             <Row className="d-flex justify-content-between align-items-center">
                 <Col>
-                    <h2 className="mt-1 mb-1">Workers</h2>
+                    <h2 className="mt-1 mb-1">Contacts</h2>
                 </Col>
                 <Col className="text-end">
                     <Button variant="primary" onClick={() => setShowAddWorkerModal(true)}>
-                        Add Worker
+                        Add Contact
                     </Button>
                 </Col>
             </Row>
@@ -210,7 +210,7 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
                             <Form.Label>Search</Form.Label>
                             <Form.Control
                                 type="text"
-                                placeholder="Search workers..."
+                                placeholder="Search contacts..."
                                 value={searchQuery}
                                 onChange={handleSearchChange}
                             />
@@ -305,7 +305,7 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
 
             <Modal show={showAddWorkerModal} onHide={() => setShowAddWorkerModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Add Worker to {client.shortName}</Modal.Title>
+                    <Modal.Title>Add Contact to {client.shortName}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <AddWorker clientId={clientId} onClose={() => setShowAddWorkerModal(false)}
@@ -324,7 +324,7 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
             )}
             <Modal show={showAddRoleModal} onHide={() => setShowAddRoleModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Add Role to Worker</Modal.Title>
+                    <Modal.Title>Add Role to Contact</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form onSubmit={handleAddRole}>

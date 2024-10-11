@@ -264,7 +264,7 @@ function EditClient() {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
-                    <Form.Label>Pathology Client</Form.Label>
+                    <Form.Label>Pathology Customer</Form.Label>
                     <Form.Check
                         type="checkbox"
                         name="pathologyClient"
@@ -273,7 +273,7 @@ function EditClient() {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
-                    <Form.Label>Surgery Client</Form.Label>
+                    <Form.Label>Surgery Customer</Form.Label>
                     <Form.Check
                         type="checkbox"
                         name="surgeryClient"
@@ -282,7 +282,7 @@ function EditClient() {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
-                    <Form.Label>Editor Client</Form.Label>
+                    <Form.Label>Editor Customer</Form.Label>
                     <Form.Check
                         type="checkbox"
                         name="editorClient"

@@ -179,14 +179,14 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                         </Form.Group>
 
                         <Form.Group className="mb-3">
-                            <Form.Label>Client</Form.Label>
+                            <Form.Label>Customer</Form.Label>
                             <Form.Control
                                 as="select"
                                 value={clientId}
                                 onChange={(e) => setClientId(e.target.value)}
                                 required
                             >
-                                <option value="">Select Client</option>
+                                <option value="">Select Customer</option>
                                 {clients.map(client => (
 
                                     <option key={client.id} value={client.id}>

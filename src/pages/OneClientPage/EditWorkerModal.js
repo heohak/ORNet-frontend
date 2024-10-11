@@ -79,7 +79,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, cl
     return (
         <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
-                <Modal.Title>Edit Worker Details</Modal.Title>
+                <Modal.Title>Edit Contact Details</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 {editingWorker && (

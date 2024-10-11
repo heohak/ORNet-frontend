@@ -201,7 +201,7 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
                     </Form.Text>
                 </Form.Group>
                 <Button variant="success" type="submit">
-                    Add Worker
+                    Add Contact
                 </Button>
             </Form>
 
