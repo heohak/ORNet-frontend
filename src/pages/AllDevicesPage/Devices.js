@@ -75,11 +75,11 @@ function Devices() {
             <div className="device-search-menu">
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <h1 className="mb-0">Devices</h1>
-                    <div>
-                        <Button variant="info" className="mb-4 me-2" onClick={() => setShowSummaryModal(true)}>
+                    <div className="d-flex">
+                        <Button variant="info" className="me-2" onClick={() => setShowSummaryModal(true)}>
                             Show Summary
                         </Button>
-                        <Button variant="primary" className="mb-4" onClick={() => setShowAddDeviceModal(true)}>
+                        <Button variant="primary" onClick={() => setShowAddDeviceModal(true)}>
                             Add Device
                         </Button>
                     </div>
