@@ -26,7 +26,7 @@ const NewTicketInsideInfo = ({ticket}) => {
             <div
                 style={{ position: 'relative', padding: '10px'}}
             >
-                <h4>Inside Info</h4>
+                <h4>Internal comments</h4>
                 {isEditing ? (
                     <textarea
                         value={insideInfo}

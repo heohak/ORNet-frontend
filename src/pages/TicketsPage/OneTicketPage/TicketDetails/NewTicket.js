@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Modal, Button, Col, Row} from 'react-bootstrap';
 
 import NewTicketDetails from "./NewTicketDetails";
@@ -20,6 +20,13 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed }) => {
     const [activeKey, setActiveKey] = useState('0');
     const [isClosed, setIsClosed] = useState(isTicketClosed);
     const [activeSection, setActiveSection] = useState('activity');
+    const [locationName, setLocationName] = useState('');
+
+
+
+    useEffect(() => {
+        fetchLocationName();
+    }, []);
 
     const reFetchTicket = async() => {
         try {
@@ -70,7 +77,14 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed }) => {
         return date.toLocaleString('en-US', options);
     }
 
-
+    const fetchLocationName = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/location/${ticket.locationId}`);
+            setLocationName(response.data.name);
+        } catch (error) {
+            console.error('Error fetching location', error);
+        }
+    }
 
     return (
         <Modal show onHide={onClose} size="xl">
@@ -78,7 +92,8 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed }) => {
                 <div className="w-100">
                     <Modal.Title>{ticket.title}</Modal.Title>
                     <p className="text-muted mb-0">{ticket.name}</p>
-                    <p className="text-muted mb-0">Client: {ticket.clientName}</p>
+                    <p className="text-muted mb-0">Customer: {ticket.clientName}</p>
+                    <p className="text-muted mb-0">Location: {locationName}</p>
                 </div>
             </Modal.Header>
             <Modal.Body>
@@ -95,7 +110,7 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed }) => {
                         <TicketSectionButtons activeSection={activeSection} onSectionChange={setActiveSection}/>
                         {activeSection === 'activity' && <NewTicketActivity ticket={ticket} reFetch={reFetchTicket} />}
                         {activeSection === 'info' && <NewTicketInsideInfo ticket={ticket} />}
-                        {activeSection === 'response' && <NewTicketResponse ticket={ticket} />}
+                        {/*{activeSection === 'response' && <NewTicketResponse ticket={ticket} />}*/}
                     </Col>
                     <Col md={4}>
                         <Row className="justify-content-between mb-2">

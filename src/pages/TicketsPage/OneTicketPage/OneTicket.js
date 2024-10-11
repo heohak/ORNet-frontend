@@ -22,7 +22,7 @@ function OneTicket() {
                 const response = await axios.get(`${config.API_BASE_URL}/ticket/${ticketId}`);
                 setTicket(response.data);
                 setEditFields( {
-                    response: response.data.response || '',
+                    // response: response.data.response || '',
                     insideInfo: response.data.insideInfo || '',
                     description: response.data.description || '',
                     workType: response.data.workType || '',

@@ -18,13 +18,13 @@ const TicketSectionButtons = ({ activeSection, onSectionChange }) => {
             >
                 Inside Info
             </Button>
-            <Button
-                onClick={() => onSectionChange('response')}
-                size="sm"
-                className={`activityButtons ms-2 ${activeSection === 'response' ? 'active' : ''}`}
-            >
-                Response
-            </Button>
+            {/*<Button*/}
+            {/*    onClick={() => onSectionChange('response')}*/}
+            {/*    size="sm"*/}
+            {/*    className={`activityButtons ms-2 ${activeSection === 'response' ? 'active' : ''}`}*/}
+            {/*>*/}
+            {/*    Response*/}
+            {/*</Button>*/}
         </div>
     );
 };

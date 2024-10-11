@@ -121,7 +121,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
 
         // Ensure crisis and remote are stored as numbers (not strings)
         let newValue = value;
-        if (name === "crisis" || name === "remote") {
+        if (name === "crisis") {
             newValue = parseInt(value);  // Convert the value to an integer
         }
 
@@ -146,7 +146,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
                 setLocationName(selectedLocation.name);
             }
 
-            setEditedTicket({ ...editedTicket, crisis: editedTicket.crisis, remote: editedTicket.remote });
+            setEditedTicket({ ...editedTicket, crisis: editedTicket.crisis});
 
             setEditMode(false);
         } catch (error) {
@@ -176,6 +176,38 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
 
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
+                                    <strong>Numeration</strong>
+                                </Col>
+                                <Col>
+                                    {editMode ? (
+                                        <Form.Control
+                                            type="text"
+                                            name="baitNumeration"
+                                            value={editedTicket.baitNumeration}
+                                            onChange={handleInputChange}
+                                        />
+                                    ) : editedTicket.baitNumeration}
+                                </Col>
+                            </Row>
+
+                            <Row className="mb-2">
+                                <Col xs="auto" style={{ minWidth: '165px' }}>
+                                    <strong>Client Numeration</strong>
+                                </Col>
+                                <Col>
+                                    {editMode ? (
+                                        <Form.Control
+                                            type="text"
+                                            name="clientNumeration"
+                                            value={editedTicket.clientNumeration}
+                                            onChange={handleInputChange}
+                                        />
+                                    ) : editedTicket.clientNumeration}
+                                </Col>
+                            </Row>
+
+                            <Row className="mb-2">
+                                <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Time Spent</strong>
                                 </Col>
                                 <Col>
@@ -190,6 +222,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
                                     {formatTime(paidTime)}
                                 </Col>
                             </Row>
+
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Assignee</strong>
@@ -213,22 +246,6 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
 
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
-                                    <strong>Numeration</strong>
-                                </Col>
-                                <Col>
-                                    {editMode ? (
-                                        <Form.Control
-                                            type="text"
-                                            name="baitNumeration"
-                                            value={editedTicket.baitNumeration}
-                                            onChange={handleInputChange}
-                                        />
-                                    ) : editedTicket.baitNumeration}
-                                </Col>
-                            </Row>
-
-                            <Row className="mb-2">
-                                <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Priority</strong>
                                 </Col>
                                 <Col>
@@ -245,39 +262,23 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
                                 </Col>
                             </Row>
 
-                            <Row className="mb-2">
-                                <Col xs="auto" style={{ minWidth: '165px' }}>
-                                    <strong>Remote</strong>
-                                </Col>
-                                <Col>
-                                    {editMode ? (
-                                        <Form.Select
-                                            name="remote"
-                                            value={editedTicket.remote ? 1 : 0}
-                                            onChange={handleInputChange}
-                                        >
-                                            <option value="1">True</option>
-                                            <option value="0">False</option>
-                                        </Form.Select>
-                                    ) : (editedTicket.remote ? "True" : "False")}
-                                </Col>
-                            </Row>
-
-                            <Row className="mb-2">
-                                <Col xs="auto" style={{ minWidth: '165px' }}>
-                                    <strong>Client Numeration</strong>
-                                </Col>
-                                <Col>
-                                    {editMode ? (
-                                        <Form.Control
-                                            type="text"
-                                            name="clientNumeration"
-                                            value={editedTicket.clientNumeration}
-                                            onChange={handleInputChange}
-                                        />
-                                    ) : editedTicket.clientNumeration}
-                                </Col>
-                            </Row>
+                            {/*<Row className="mb-2">*/}
+                            {/*    <Col xs="auto" style={{ minWidth: '165px' }}>*/}
+                            {/*        <strong>Remote</strong>*/}
+                            {/*    </Col>*/}
+                            {/*    <Col>*/}
+                            {/*        {editMode ? (*/}
+                            {/*            <Form.Select*/}
+                            {/*                name="remote"*/}
+                            {/*                value={editedTicket.remote ? 1 : 0}*/}
+                            {/*                onChange={handleInputChange}*/}
+                            {/*            >*/}
+                            {/*                <option value="1">True</option>*/}
+                            {/*                <option value="0">False</option>*/}
+                            {/*            </Form.Select>*/}
+                            {/*        ) : (editedTicket.remote ? "True" : "False")}*/}
+                            {/*    </Col>*/}
+                            {/*</Row>*/}
 
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
