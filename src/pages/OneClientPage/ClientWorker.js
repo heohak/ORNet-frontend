@@ -179,7 +179,11 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
             await axios.put(`${config.API_BASE_URL}/worker/favorite/${workerId}`);
 
             // Fetch the updated list of workers to reflect the new order
-            await fetchWorkers();
+            setFilteredWorkers(prevWorkers =>
+                prevWorkers.map(worker =>
+                    worker.id === workerId ? { ...worker, favorite: !worker.favorite } : worker
+                )
+            );
         } catch (error) {
             console.log('Failed to update favorite status');
         }
