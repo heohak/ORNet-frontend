@@ -7,6 +7,7 @@ import config from '../config/config';
 function GenerateReportModal({ show, handleClose }) {
     const [clients, setClients] = useState([]);
     const [selectedClientId, setSelectedClientId] = useState('');
+    const [includeAllClients, setIncludeAllClients] = useState(false);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [fileName, setFileName] = useState('');
@@ -16,6 +17,7 @@ function GenerateReportModal({ show, handleClose }) {
     useEffect(() => {
         // Fetch list of clients when the modal opens
         if (show) {
+            clearFields();
             fetchClients();
         }
     }, [show]);
@@ -30,6 +32,7 @@ function GenerateReportModal({ show, handleClose }) {
     };
     const clearFields = () => {
         setSelectedClientId('');
+        setIncludeAllClients(false);
         setStartDate('');
         setEndDate('');
         setFileName('');
@@ -40,15 +43,29 @@ function GenerateReportModal({ show, handleClose }) {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/report/client-tickets`, {
-                params: {
-                    clientId: selectedClientId,
-                    startDate: startDate || null,
-                    endDate: endDate || null,
-                    fileName: fileName || 'report'
-                },
-                responseType: 'blob', // to handle file download
-            });
+            let response;
+            if (includeAllClients) {
+                // Generate report for all clients
+                response = await axios.get(`${config.API_BASE_URL}/report/all-clients-tickets`, {
+                    params: {
+                        startDate: startDate || null,
+                        endDate: endDate || null,
+                        fileName: fileName || 'report'
+                    },
+                    responseType: 'blob', // Handle file download
+                });
+            } else {
+                // Generate report for selected client
+                response = await axios.get(`${config.API_BASE_URL}/report/client-tickets`, {
+                    params: {
+                        clientId: selectedClientId,
+                        startDate: startDate || null,
+                        endDate: endDate || null,
+                        fileName: fileName || 'report'
+                    },
+                    responseType: 'blob', // Handle file download
+                });
+            }
 
             // Trigger file download
             const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -74,26 +91,38 @@ function GenerateReportModal({ show, handleClose }) {
     return (
         <Modal show={show} onHide={handleModalClose}>
             <Modal.Header closeButton>
-                <Modal.Title>Generate Client Tickets Report</Modal.Title>
+                <Modal.Title>Generate Customer Report</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 {error && <Alert variant="danger">{error}</Alert>}
                 <Form>
                     <Form.Group className="mb-3">
-                        <Form.Label>Select Client</Form.Label>
-                        <Form.Select
-                            value={selectedClientId}
-                            onChange={(e) => setSelectedClientId(e.target.value)}
-                            required
-                        >
-                            <option value="">Select a client</option>
-                            {clients.map((client) => (
-                                <option key={client.id} value={client.id}>
-                                    {client.shortName}
-                                </option>
-                            ))}
-                        </Form.Select>
+                        <Form.Check
+                            type="checkbox"
+                            label="Include all customers"
+                            checked={includeAllClients}
+                            onChange={(e) => setIncludeAllClients(e.target.checked)}
+                        />
                     </Form.Group>
+
+                    {!includeAllClients && (
+                        <Form.Group className="mb-3">
+                            <Form.Label>Select Customer</Form.Label>
+                            <Form.Select
+                                value={selectedClientId}
+                                onChange={(e) => setSelectedClientId(e.target.value)}
+                                disabled={includeAllClients}
+                                required={!includeAllClients}
+                            >
+                                <option value="">Select a customer</option>
+                                {clients.map((client) => (
+                                    <option key={client.id} value={client.id}>
+                                        {client.shortName}
+                                    </option>
+                                ))}
+                            </Form.Select>
+                        </Form.Group>
+                    )}
 
                     <Form.Group className="mb-3">
                         <Form.Label>Start Date</Form.Label>
@@ -128,12 +157,13 @@ function GenerateReportModal({ show, handleClose }) {
                 </Form>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
-                    Close
-                </Button>
-                <Button variant="primary" onClick={handleGenerateReport} disabled={loading || !selectedClientId}>
+                <Button
+                    variant="primary"
+                    onClick={handleGenerateReport}
+                    disabled={loading || (!selectedClientId && !includeAllClients)}>
                     {loading ? 'Generating...' : 'Generate Report'}
                 </Button>
+
             </Modal.Footer>
         </Modal>
     );
