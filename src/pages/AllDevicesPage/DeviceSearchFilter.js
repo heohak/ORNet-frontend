@@ -111,8 +111,7 @@ function DeviceSearchFilter({ setDevices }) {
                     </Col>
                 </Row>
             )}
-            <Row className="mb-3 device-search-bar">
-            <Row style={{width: "90%"}}>
+            <Row className="mb-3" style={{maxWidth: '70%', margin: '0 auto'}}>
                 <Col>
                     <Form.Control
                         type="text"
@@ -141,7 +140,7 @@ function DeviceSearchFilter({ setDevices }) {
                         value={clientId}
                         onChange={(e) => setClientId(e.target.value)}
                     >
-                        <option value="">Select Client</option>
+                        <option value="">Select Customer</option>
                         {clients.map((client) => (
                             <option key={client.id} value={client.id}>
                                 {client.shortName}
@@ -173,7 +172,6 @@ function DeviceSearchFilter({ setDevices }) {
                         className="mb-4"
                     />
                 </Col>
-            </Row>
             </Row>
         </>
     );

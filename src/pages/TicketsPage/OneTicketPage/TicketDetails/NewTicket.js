@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {Modal, Button, Col, Row} from 'react-bootstrap';
+import React, {useEffect, useState} from 'react';
+import {Modal, Col, Row, Badge} from 'react-bootstrap';
 
 import NewTicketDetails from "./NewTicketDetails";
 import NewTicketFiles from "./NewTicketFiles";
@@ -9,17 +9,30 @@ import NewTicketStatusDropdown from "./NewTicketStatusDropdown";
 import NewTicketActivity from "./NewTicketActivity";
 import NewTicketInsideInfo from "./NewTicketInsideInfo";
 import NewTicketResponse from "./NewTicketResponse";
-import '../../../../css/NewTicket.css';
 import axios from "axios";
 import config from "../../../../config/config";
 import ToggleSwitch from "./ToggleSwitch";
 import TicketSectionButtons from "./TicketSectionButtons";
+import '../../../../css/NewTicket.css';
 
 const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed }) => {
     const [ticket, setTicket] = useState(firstTicket);
     const [activeKey, setActiveKey] = useState('0');
     const [isClosed, setIsClosed] = useState(isTicketClosed);
     const [activeSection, setActiveSection] = useState('activity');
+    const [locationName, setLocationName] = useState('');
+    const [paidTime, setPaidTime] = useState(ticket.paidTime);
+    const [timeSpent, setTimeSpent] = useState(ticket.timeSpent);
+
+
+    useEffect(() => {
+        setTimeSpent(ticket.timeSpent);
+        setPaidTime(ticket.paidTime);
+    }, [ticket.timeSpent, ticket.paidTime])
+
+    useEffect( () => {
+        fetchLocationName()
+        },[ticket.locationId]);
 
     const reFetchTicket = async() => {
         try {
@@ -28,6 +41,16 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed }) => {
         } catch (error) {
             console.error("Error fetching ticket", error)
         }
+    }
+
+    const fetchLocationName = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/location/${ticket.locationId}`);
+            setLocationName(response.data.name);
+        } catch (error) {
+            console.error('Error fetching location', error);
+        }
+
     }
 
 
@@ -51,34 +74,28 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed }) => {
         result += `${minutes} minute${minutes > 1 ? 's' : ''}`;
 
         return result;
-    }
+    };
 
-    const formatDateString = (dateString) => {
-        const date = new Date(dateString);
+    const formatTime = (timeString) => {
+        if (!timeString) {
+            return "0H 0M"
+        }
+        // Assuming timeString is in ISO 8601 duration format like "PT1H1M"
+        const match = timeString.match(/PT(\d+H)?(\d+M)?/);
+        const hours = match[1] ? match[1].replace('H', '') : '0';
+        const minutes = match[2] ? match[2].replace('M', '') : '0';
 
-        // Get parts of the date
-        const options = {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            hour12: false
-        };
-
-        // Format date into a readable string
-        return date.toLocaleString('en-US', options);
-    }
-
+        return `${hours}H ${minutes}M`;
+    };
 
 
     return (
-        <Modal show onHide={onClose} size="xl">
+        <Modal show onHide={onClose} dialogClassName="custom-modal">
             <Modal.Header closeButton>
                 <div className="w-100">
-                    <Modal.Title>{ticket.title}</Modal.Title>
+                    <Modal.Title>{ticket.title} {ticket.crisis && <Badge bg="danger">Priority</Badge>}</Modal.Title>
                     <p className="text-muted mb-0">{ticket.name}</p>
-                    <p className="text-muted mb-0">Client: {ticket.clientName}</p>
+                    <p className="text-muted mb-0">Customer: {ticket.clientName}, Location: {locationName}</p>
                 </div>
             </Modal.Header>
             <Modal.Body>
@@ -95,7 +112,7 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed }) => {
                         <TicketSectionButtons activeSection={activeSection} onSectionChange={setActiveSection}/>
                         {activeSection === 'activity' && <NewTicketActivity ticket={ticket} reFetch={reFetchTicket} />}
                         {activeSection === 'info' && <NewTicketInsideInfo ticket={ticket} />}
-                        {activeSection === 'response' && <NewTicketResponse ticket={ticket} />}
+                        {/*{activeSection === 'response' && <NewTicketResponse ticket={ticket} />}*/}
                     </Col>
                     <Col md={4}>
                         <Row className="justify-content-between mb-2">
@@ -116,22 +133,24 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed }) => {
                             activeKey={activeKey}
                             handleAccordionToggle={handleAccordionToggle}
                             eventKey="0"
+                            reFetch={reFetchTicket}
                         />
                         <NewTicketFiles
                             ticket={ticket}
                             activeKey={activeKey}
                             handleAccordionToggle={handleAccordionToggle}
-                            eventKey="1"
+                            eventKey="2"
                         />
                         {isClosed ? (
-                            <p className="mb-0">Closed: {formatDateString(ticket.endDateTime)}</p>
+                            <p className="mb-0">Closed: {ticket.endDateTime}</p>
                             ) : (
                             <p className="mb-0">
                                 Been Open For: {formatTimeDiff(Date.now() - new Date(ticket.startDateTime))}
                             </p>
                             )}
-                        <p className="mb-0">Created: {formatDateString(ticket.startDateTime)}</p>
-                        <p>Updated: {formatDateString(ticket.updateDateTime)}</p>
+                        <p className="mb-0">Time Spent: {formatTime(timeSpent)}</p>
+                        <p className="mb-0">Paid Time: {formatTime(paidTime)}</p>
+
                     </Col>
                 </Row>
             </Modal.Body>

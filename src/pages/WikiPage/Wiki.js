@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Container, Row, Col, Card, Button, Spinner, Alert, Modal, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import config from "../../config/config";
+import "../../css/Wiki.css"
 
 function Wiki() {
     const [wikis, setWikis] = useState([]);
@@ -80,72 +81,85 @@ function Wiki() {
     }
 
     return (
-        <Container className="mt-5">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1>Wiki</h1>
-                <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Wiki</Button>
-            </div>
-            <Form.Control
-                type="text"
-                placeholder="Search wiki..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="mb-4"
-            />
-            {error && (
-                <Alert variant="danger">
-                    <Alert.Heading>Error</Alert.Heading>
-                    <p>{error}</p>
-                </Alert>
-            )}
-            <Row>
-                {wikis.map((wiki) => (
-                    <Col md={4} key={wiki.id} className="mb-4">
-                        <Card style={{ cursor: "pointer" }} onClick={() => navigate(`/wiki/${wiki.id}`)}>
-                            <Card.Body>
-                                <Card.Title>{wiki.problem}</Card.Title>
-                                <Button variant="danger" onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteWiki(wiki.id);
-                                }}>Delete</Button>
-                            </Card.Body>
-                        </Card>
+        <>
+            <div className="wiki-search-menu">
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h1 className="mb-0">Wiki</h1>
+                    <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Wiki</Button>
+                </div>
+                <Row className="wiki-search-bar mb-3">
+                    <Col md={8}>
+                        <Form.Control
+                            type="text"
+                            placeholder="Search wiki..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+
+                        />
                     </Col>
-                ))}
-            </Row>
-            <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Add Wiki</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group controlId="formProblem">
-                            <Form.Label>Problem</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={problem}
-                                onChange={(e) => setProblem(e.target.value)}
-                                placeholder="Enter problem"
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formSolution" className="mt-3">
-                            <Form.Label>Solution</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                rows={3}
-                                value={solution}
-                                onChange={(e) => setSolution(e.target.value)}
-                                placeholder="Enter solution"
-                            />
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
-                    <Button variant="primary" onClick={handleAddWiki}>Add Wiki</Button>
-                </Modal.Footer>
-            </Modal>
-        </Container>
+                </Row>
+            </div>
+            <Container className=" mt-5 wiki-container">
+                {error && (
+                    <Alert variant="danger">
+                        <Alert.Heading>Error</Alert.Heading>
+                        <p>{error}</p>
+                    </Alert>
+                )}
+                <Row>
+                    {wikis.map((wiki) => (
+                        <Col md={4} key={wiki.id} className="mb-4">
+                            <Card className="all-page-card" style={{ cursor: "pointer" }} onClick={() => navigate(`/wiki/${wiki.id}`)}>
+                                <Card.Body className="all-page-cardBody">
+                                    <Card.Title className="all-page-cardTitle">{wiki.problem}</Card.Title>
+                                    <Button
+                                        variant="danger"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDeleteWiki(wiki.id);
+                                        }}
+                                    >
+                                        Delete
+                                    </Button>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    ))}
+                </Row>
+                <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Add Wiki</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form>
+                            <Form.Group controlId="formProblem">
+                                <Form.Label>Problem</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={problem}
+                                    onChange={(e) => setProblem(e.target.value)}
+                                    placeholder="Enter problem"
+                                />
+                            </Form.Group>
+                            <Form.Group controlId="formSolution" className="mt-3">
+                                <Form.Label>Solution</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    rows={3}
+                                    value={solution}
+                                    onChange={(e) => setSolution(e.target.value)}
+                                    placeholder="Enter solution"
+                                />
+                            </Form.Group>
+                        </Form>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
+                        <Button variant="primary" onClick={handleAddWiki}>Add Wiki</Button>
+                    </Modal.Footer>
+                </Modal>
+            </Container>
+        </>
     );
 }
 

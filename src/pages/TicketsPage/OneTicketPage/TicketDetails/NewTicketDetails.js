@@ -4,8 +4,9 @@ import axios from "axios";
 import { FaEdit, FaCheck } from 'react-icons/fa';  // Import edit and check icons
 import config from "../../../../config/config";
 import Select from "react-select";
+import {useNavigate} from "react-router-dom";
 
-const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }) => {
+const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, reFetch }) => {
     const [responsibleName, setResponsibleName] = useState('');
     const [locationName, setLocationName] = useState('');
     const [availableWorkTypes, setAvailableWorkTypes] = useState([]);
@@ -16,35 +17,31 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
     const [locations, setLocations] = useState([]);
     const [selectedContacts, setSelectedContacts] = useState([]);  // Selected contacts
     const [availableContacts, setAvailableContacts] = useState([]);
-    const [paidTime, setPaidTime] = useState(ticket.paidTime);
-    const [timeSpent, setTimeSpent] = useState(ticket.timeSpent);
+    const [selectedDevices, setSelectedDevices] = useState([]);
+    const [availableDevices, setAvailableDevices] = useState([]);
+    const navigate = useNavigate();
+
 
     useEffect(() => {
         fetchResponsibleName();
-        fetchLocationName();
         fetchWorkTypes();
         fetchContacts();
         fetchBaitWorkers();  // Fetch all workers for the dropdown
         fetchLocations();
+        fetchDevices();
     }, []);
 
-    useEffect(() => {
-        setTimeSpent(ticket.timeSpent);
-        setPaidTime(ticket.paidTime);
-    }, [ticket.timeSpent, ticket.paidTime])
 
-    const formatTime = (timeString) => {
-        if (!timeString) {
-            return "0H 0M"
+    const fetchDevices = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/device/client/${ticket.clientId}`);
+            const fetchedDevices = response.data.map(device => ({value: device.id, label: device.deviceName}))
+            setAvailableDevices(fetchedDevices);
+            setSelectedDevices(ticket.deviceIds.map(deviceId => fetchedDevices.find(device => device.value === deviceId)));
+        } catch (error) {
+            console.error("Error fetching customer devices", error);
         }
-        // Assuming timeString is in ISO 8601 duration format like "PT1H1M"
-        const match = timeString.match(/PT(\d+H)?(\d+M)?/);
-        const hours = match[1] ? match[1].replace('H', '') : '0';
-        const minutes = match[2] ? match[2].replace('M', '') : '0';
-
-        return `${hours}H ${minutes}M`;
     };
-
     const fetchLocations = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/client/locations/${ticket.clientId}`);
@@ -63,16 +60,6 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
             console.error('Error fetching names:', error);
         }
     };
-
-    const fetchLocationName = async () => {
-        try {
-            const response = await axios.get(`${config.API_BASE_URL}/location/${ticket.locationId}`);
-            setLocationName(response.data.name);
-        } catch (error) {
-            console.error('Error fetching location', error);
-        }
-
-    }
 
     const fetchContacts = async () => {
         try {
@@ -119,9 +106,9 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
     const handleInputChange = (e) => {
         const { name, value } = e.target;
 
-        // Ensure crisis and remote are stored as numbers (not strings)
+        // Ensure crisis is stored as a number (not strings)
         let newValue = value;
-        if (name === "crisis" || name === "remote") {
+        if (name === "crisis") {
             newValue = parseInt(value);  // Convert the value to an integer
         }
 
@@ -134,7 +121,8 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
             await axios.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`, {
                 ...editedTicket,
                 contactIds: selectedContacts.map(contact => contact.value),
-                workTypeIds: selectedWorkTypes.map(workType => workType.value)
+                workTypeIds: selectedWorkTypes.map(workType => workType.value),
+                deviceIds: selectedDevices.map(device => device.value)
             });
 
             const selectedWorker = baitWorkers.find(worker => worker.id === parseInt(editedTicket.baitWorkerId));
@@ -146,13 +134,31 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
                 setLocationName(selectedLocation.name);
             }
 
-            setEditedTicket({ ...editedTicket, crisis: editedTicket.crisis, remote: editedTicket.remote });
+            setEditedTicket({ ...editedTicket, crisis: editedTicket.crisis});
 
             setEditMode(false);
+            reFetch();
         } catch (error) {
             console.error('Error saving ticket details:', error);
         }
     };
+
+    const formatDateString = (dateString) => {
+        const date = new Date(dateString);
+
+        // Get parts of the date
+        const options = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: false
+        };
+
+        // Format date into a readable string
+        return date.toLocaleString('en-US', options);
+    }
 
     return (
         <>
@@ -173,23 +179,38 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
                     </Accordion.Header>
                     <Accordion.Body>
                         <div>
+                            <Row className="mb-2">
+                                <Col xs="auto" style={{ minWidth: '165px' }}>
+                                    <strong>Numeration</strong>
+                                </Col>
+                                <Col>
+                                    {editMode ? (
+                                        <Form.Control
+                                            type="text"
+                                            name="baitNumeration"
+                                            value={editedTicket.baitNumeration}
+                                            onChange={handleInputChange}
+                                        />
+                                    ) : editedTicket.baitNumeration}
+                                </Col>
+                            </Row>
 
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
-                                    <strong>Time Spent</strong>
+                                    <strong>Client Numeration</strong>
                                 </Col>
                                 <Col>
-                                    {formatTime(timeSpent)}
+                                    {editMode ? (
+                                        <Form.Control
+                                            type="text"
+                                            name="clientNumeration"
+                                            value={editedTicket.clientNumeration}
+                                            onChange={handleInputChange}
+                                        />
+                                    ) : editedTicket.clientNumeration}
                                 </Col>
                             </Row>
-                            <Row className="mb-2">
-                                <Col xs="auto" style={{ minWidth: '165px' }}>
-                                    <strong>Paid Time</strong>
-                                </Col>
-                                <Col>
-                                    {formatTime(paidTime)}
-                                </Col>
-                            </Row>
+
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Assignee</strong>
@@ -213,22 +234,6 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
 
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
-                                    <strong>Numeration</strong>
-                                </Col>
-                                <Col>
-                                    {editMode ? (
-                                        <Form.Control
-                                            type="text"
-                                            name="baitNumeration"
-                                            value={editedTicket.baitNumeration}
-                                            onChange={handleInputChange}
-                                        />
-                                    ) : editedTicket.baitNumeration}
-                                </Col>
-                            </Row>
-
-                            <Row className="mb-2">
-                                <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Priority</strong>
                                 </Col>
                                 <Col>
@@ -242,61 +247,6 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
                                             <option value="0">Normal</option>
                                         </Form.Select>
                                     ) : (editedTicket.crisis ? "High" : "Normal")}
-                                </Col>
-                            </Row>
-
-                            <Row className="mb-2">
-                                <Col xs="auto" style={{ minWidth: '165px' }}>
-                                    <strong>Remote</strong>
-                                </Col>
-                                <Col>
-                                    {editMode ? (
-                                        <Form.Select
-                                            name="remote"
-                                            value={editedTicket.remote ? 1 : 0}
-                                            onChange={handleInputChange}
-                                        >
-                                            <option value="1">True</option>
-                                            <option value="0">False</option>
-                                        </Form.Select>
-                                    ) : (editedTicket.remote ? "True" : "False")}
-                                </Col>
-                            </Row>
-
-                            <Row className="mb-2">
-                                <Col xs="auto" style={{ minWidth: '165px' }}>
-                                    <strong>Client Numeration</strong>
-                                </Col>
-                                <Col>
-                                    {editMode ? (
-                                        <Form.Control
-                                            type="text"
-                                            name="clientNumeration"
-                                            value={editedTicket.clientNumeration}
-                                            onChange={handleInputChange}
-                                        />
-                                    ) : editedTicket.clientNumeration}
-                                </Col>
-                            </Row>
-
-                            <Row className="mb-2">
-                                <Col xs="auto" style={{ minWidth: '165px' }}>
-                                    <strong>Location</strong>
-                                </Col>
-                                <Col>
-                                    {editMode ? (
-                                        <Form.Select
-                                            name="locationId"
-                                            value={editedTicket.locationId}
-                                            onChange={handleInputChange}
-                                        >
-                                            {locations.map(location => (
-                                                <option key={location.id} value={location.id}>
-                                                    {location.name}
-                                                </option>
-                                            ))}
-                                        </Form.Select>
-                                    ) : locationName}
                                 </Col>
                             </Row>
 
@@ -337,6 +287,59 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle }
                                     ): selectedWorkTypes.map(workType => workType.label).join(', ')}
                                 </Col>
                             </Row>
+
+                            <Row className="mb-2">
+                                <Col xs="auto" style={{ minWidth: '165px' }}>
+                                    <strong>Devices</strong>
+                                </Col>
+                                <Col>
+                                    {editMode ? (
+                                        <Form.Group className="mb-3">
+                                            <Select
+                                                isMulti
+                                                options={availableDevices}
+                                                value={selectedDevices}
+                                                onChange={setSelectedDevices}
+                                                placeholder="Select Devices"
+                                            />
+                                        </Form.Group>
+                                    ) : (
+                                        selectedDevices.length > 0 ? (
+                                            selectedDevices.map((device, index) => (
+                                                <React.Fragment key={device.id}>
+                                                      <span
+                                                          onClick={() => navigate(`/device/${device.value}`)} // Add click handler
+                                                          style={{ color: 'blue', cursor: 'pointer' }} // Styling for clickable text
+                                                      >
+                                                        {device.label}
+                                                      </span>
+                                                    {index < selectedDevices.length - 1 && ', '}
+                                                </React.Fragment>
+                                        ))) : (
+                                            <span style={{ fontStyle: 'italic', color: 'gray' }}>No Devices</span>
+                                        ))
+                                    }
+                                </Col>
+                            </Row>
+
+                            <Row className="mb-2">
+                                <Col xs="auto" style={{ minWidth: '165px' }}>
+                                    <strong>Created</strong>
+                                </Col>
+                                <Col>
+                                    {formatDateString(ticket.startDateTime)}
+                                </Col>
+                            </Row>
+
+                            <Row className="mb-2">
+                                <Col xs="auto" style={{ minWidth: '165px' }}>
+                                    <strong>Updated</strong>
+                                </Col>
+                                <Col>
+                                    {formatDateString(ticket.updateDateTime)}
+                                </Col>
+                            </Row>
+
                         </div>
                     </Accordion.Body>
                 </Accordion.Item>

@@ -61,11 +61,10 @@ function Contacts() {
         <>
             <div className="contact-search-menu">
                 <div className="d-flex justify-content-between align-items-center mb-4">
-                    <h1 className="mb-0">Client Workers</h1>
-                    <div>
+                    <h1 className="mb-0">Contacts</h1>
+                    <div className="d-flex">
                         <Button
                             variant="primary"
-                            className="mb-4"
                             onClick={handleCopyEmails}
                         >
                             {copied ? "Emails Copied!" : "Copy All Emails"}

@@ -24,3 +24,21 @@
     padding: 0; /* Optional: remove extra padding if needed */
 }
 
+
+/* Override Bootstrap's default modal width */
+.modal.show .modal-dialog {
+    min-width: 95% !important; /* Set a minimum width when the modal is shown */
+    max-width: 95% !important; /* Ensure it doesn't exceed the 95% width */
+}
+
+.custom-modal .modal-content {
+    min-height: 100vh; /* Set a minimum height for the modal */
+}
+
+
+.scrollable-activity {
+    max-height: 45vh; /* Set height for the activity section */
+    overflow-y: auto; /* Scroll the activity section only */
+}
+
+

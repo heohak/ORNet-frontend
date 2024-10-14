@@ -16,8 +16,9 @@ const TicketSectionButtons = ({ activeSection, onSectionChange }) => {
                 size="sm"
                 className={`activityButtons ms-2 ${activeSection === 'info' ? 'active' : ''}`}
             >
-                Inside Info
+                Internal comments
             </Button>
+            {/*
             <Button
                 onClick={() => onSectionChange('response')}
                 size="sm"
@@ -25,6 +26,7 @@ const TicketSectionButtons = ({ activeSection, onSectionChange }) => {
             >
                 Response
             </Button>
+            */}
         </div>
     );
 };
