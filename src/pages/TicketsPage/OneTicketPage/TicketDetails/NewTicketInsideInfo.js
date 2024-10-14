@@ -17,7 +17,7 @@ const NewTicketInsideInfo = ({ticket}) => {
             });
             setIsEditing(false); // Exit edit mode after saving
         } catch (error) {
-            console.error("Error updating Inside Info", error);
+            console.error("Error updating Internal Comments", error);
         }
     };
 
@@ -26,7 +26,7 @@ const NewTicketInsideInfo = ({ticket}) => {
             <div
                 style={{ position: 'relative', padding: '10px'}}
             >
-                <h4>Inside Info</h4>
+                <h4>Internal Comments</h4>
                 {isEditing ? (
                     <textarea
                         value={insideInfo}
