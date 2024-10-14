@@ -1,110 +1,86 @@
-import React, { useState, useEffect } from 'react';
-import { Card, Button, Modal, Form, Row, Col, Alert } from 'react-bootstrap';
+import React, { useState, useEffect, useRef } from 'react';
+import { Card, Button, Modal, Form, Row, Col, Accordion, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../config/config";
+import { FaPaperclip } from 'react-icons/fa';  // Import the paperclip icon
+import FileList from '../../modals/FileList'; // Assuming this is a reusable component for listing files
+import MaintenanceComment from "./MaintenanceComment";
+import AddMaintenanceModal from "./AddMaintenanceModal";
 import '../../css/Customers.css';
-import noImg from "../../assets/no-img.jpg";
 
 function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
+    const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
     const [showAddMaintenanceModal, setShowAddMaintenanceModal] = useState(false);
-    const [showAddFilesModal, setShowAddFilesModal] = useState(false);
-    const [showViewFilesModal, setShowViewFilesModal] = useState(false);
-    const [maintenanceName, setMaintenanceName] = useState('');
-    const [maintenanceDate, setMaintenanceDate] = useState('');
-    const [comment, setComment] = useState('');
+    const [selectedMaintenance, setSelectedMaintenance] = useState(null);
     const [files, setFiles] = useState([]);
-    const [selectedMaintenanceId, setSelectedMaintenanceId] = useState(null);
+    const [newFiles, setNewFiles] = useState([]);
+    const [activeKey, setActiveKey] = useState('0');
     const [error, setError] = useState(null);
-    const [maintenanceFiles, setMaintenanceFiles] = useState({});
+    const fileInputRef = useRef(null);
 
     useEffect(() => {
-        fetchMaintenanceFiles();
-    }, [maintenances]);
+        if (selectedMaintenance) {
+            fetchMaintenanceFiles(selectedMaintenance.id);
+        }
+    }, [selectedMaintenance]);
 
-    const fetchMaintenanceFiles = async () => {
+    const fetchMaintenanceFiles = async (maintenanceId) => {
         try {
-            const filePromises = maintenances.map(maintenance =>
-                axios.get(`${config.API_BASE_URL}/maintenance/files/${maintenance.id}`)
-            );
-            const fileResponses = await Promise.all(filePromises);
-            const filesMap = {};
-            fileResponses.forEach((response, index) => {
-                filesMap[maintenances[index].id] = response.data;
-            });
-            setMaintenanceFiles(filesMap);
+            const response = await axios.get(`${config.API_BASE_URL}/maintenance/files/${maintenanceId}`);
+            setFiles(response.data);
         } catch (error) {
             console.error('Error fetching maintenance files:', error);
         }
     };
 
-    const handleFileChange = (e) => {
-        setFiles(e.target.files);
-    };
+    const handleFileChange = async (e) => {
+        const selectedFile = e.target.files[0];
+        if (selectedFile && selectedMaintenance) {
+            try {
+                const formData = new FormData();
+                formData.append("files", selectedFile);
 
-    const handleAddMaintenance = async (e) => {
-        e.preventDefault();
-        setError(null);
+                // Upload the selected file to the maintenance
+                await axios.put(`${config.API_BASE_URL}/maintenance/upload/${selectedMaintenance.id}`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
 
-        try {
-            const maintenanceResponse = await axios.post(`${config.API_BASE_URL}/maintenance/add`, {
-                maintenanceName,
-                maintenanceDate,
-                comment
-            });
-
-            if (maintenanceResponse.data && maintenanceResponse.data.token) {
-                const maintenanceId = maintenanceResponse.data.token;
-                await axios.put(`${config.API_BASE_URL}/client/maintenance/${clientId}/${maintenanceId}`);
-
-                if (files.length > 0) {
-                    await uploadFiles(maintenanceId);
-                }
-
-                setMaintenanceName('');
-                setMaintenanceDate('');
-                setComment('');
-                setFiles([]);
-
-                setRefresh(prev => !prev); // Trigger refresh by toggling state
-                setShowAddMaintenanceModal(false); // Close the modal after adding the maintenance
+                // Refetch files after upload
+                fetchMaintenanceFiles(selectedMaintenance.id);
+                setNewFiles([]);
+            } catch (error) {
+                setError('Error uploading file.');
+                console.error('Error uploading file:', error);
             }
-        } catch (error) {
-            setError(error.message);
         }
     };
 
-    const uploadFiles = async (maintenanceId) => {
-        const formData = new FormData();
-        for (const file of files) {
-            formData.append('files', file);
-        }
+    const handleIconClick = (e) => {
+        e.stopPropagation(); // Prevent accordion from collapsing
+        fileInputRef.current.click(); // Trigger file input
+    };
+
+    const handleAccordionToggle = (key) => {
+        setActiveKey(prevKey => prevKey === key ? null : key); // Toggle accordion
+    };
+
+    // Inside ClientMaintenances component
+    const handleMaintenanceCardClick = async (maintenanceId) => {
         try {
-            await axios.put(`${config.API_BASE_URL}/maintenance/upload/${maintenanceId}`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-            await fetchMaintenanceFiles(); // Refresh the files list
+            const response = await axios.get(`${config.API_BASE_URL}/maintenance/${maintenanceId}`);
+            setSelectedMaintenance(response.data);
+            setShowMaintenanceModal(true);
         } catch (error) {
-            setError('Error uploading files.');
-            console.error('Error uploading files:', error);
+            console.error('Error fetching maintenance data:', error);
         }
     };
 
-    const handleAddFiles = async (e) => {
-        e.preventDefault();
-        setError(null);
-
-        if (selectedMaintenanceId && files.length > 0) {
-            await uploadFiles(selectedMaintenanceId);
-            setFiles([]);
-            setShowAddFilesModal(false);
-        }
-    };
 
     return (
         <>
-            <Row className="d-flex justify-content-between align-items-center"> {/* Aligning title and button on the same row */}
+            <Row className="d-flex justify-content-between align-items-center">
                 <Col>
                     <h2 className="mt-1">Maintenances</h2>
                 </Col>
@@ -117,178 +93,78 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
             <Row className="mt-1">
                 {maintenances.length > 0 ? (
                     maintenances.map((maintenance) => (
-                        <Col md={4} key={maintenance.id} className="mb-4"> {/* Adjust column size as needed */}
-                            <Card className="h-100 position-relative customer-page-card">
+                        <Col md={4} key={maintenance.id} className="mb-4">
+                            <Card className="h-100 position-relative customer-page-card" onClick={() => handleMaintenanceCardClick(maintenance.id)}>
                                 <Card.Body className="all-page-cardBody">
-                                    <div className="mb-4">
-                                        <Card.Title className='all-page-cardTitle'>{maintenance.maintenanceName}</Card.Title>
-                                        <Card.Text className='all-page-cardText'>
-                                            <strong>Date:</strong> {maintenance.maintenanceDate}<br />
-                                            <strong>Comment:</strong> {maintenance.comment}
-                                        </Card.Text>
-                                    </div>
-                                    <div className="d-flex justify-content-end"> {/* Align buttons to the right */}
-                                        <Button
-                                            variant="info"
-                                            onClick={() => {
-                                                setSelectedMaintenanceId(maintenance.id);
-                                                setShowViewFilesModal(true);
-                                            }}
-                                            className="me-2"
-                                        >
-                                            View Files
-                                        </Button>
-                                        <Button
-                                            variant="secondary"
-                                            onClick={() => {
-                                                setSelectedMaintenanceId(maintenance.id);
-                                                setShowAddFilesModal(true);
-                                            }}
-                                        >
-                                            Add Files
-                                        </Button>
-                                    </div>
+                                    <Card.Title className='all-page-cardTitle'>{maintenance.maintenanceName}</Card.Title>
+                                    <Card.Text className='all-page-cardText'>
+                                        <strong>Date:</strong> {maintenance.maintenanceDate}<br />
+                                    </Card.Text>
                                 </Card.Body>
                             </Card>
                         </Col>
                     ))
-            ) : (
-                <Alert className="mt-3" variant="info">No maintenances available.</Alert>
-            )}
+                ) : (
+                    <Alert className="mt-3" variant="info">No maintenances available.</Alert>
+                )}
             </Row>
+            {/* Add Maintenance Modal */}
+            <AddMaintenanceModal
+                show={showAddMaintenanceModal}
+                handleClose={() => setShowAddMaintenanceModal(false)}
+                clientId={clientId}
+                setRefresh={setRefresh}
+                client={client}
+            />
 
-            <Modal show={showAddMaintenanceModal} onHide={() => setShowAddMaintenanceModal(false)}>
+            {/* Maintenance Modal */}
+            <Modal show={showMaintenanceModal} onHide={() => setShowMaintenanceModal(false)} size="lg">
                 <Modal.Header closeButton>
-                    <Modal.Title>Add Maintenance to {client.shortName}</Modal.Title>
+                    <Modal.Title>Maintenance Details</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    {error && (
-                        <Alert variant="danger">
-                            <Alert.Heading>Error</Alert.Heading>
-                            <p>{error}</p>
-                        </Alert>
-                    )}
-                    <Form onSubmit={handleAddMaintenance}>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Maintenance Name</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={maintenanceName}
-                                onChange={(e) => setMaintenanceName(e.target.value)}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Maintenance Date</Form.Label>
-                            <Form.Control
-                                type="date"
-                                value={maintenanceDate}
-                                onChange={(e) => setMaintenanceDate(e.target.value)}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Comment</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={comment}
-                                onChange={(e) => setComment(e.target.value)}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Files</Form.Label>
-                            <Form.Control
-                                type="file"
-                                multiple
-                                onChange={handleFileChange}
-                            />
-                        </Form.Group>
-                        <Button variant="success" type="submit">
-                            Add Maintenance
-                        </Button>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowAddMaintenanceModal(false)}>
-                        Close
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+                    {selectedMaintenance && (
+                        <Row>
+                            {/* Left Side: Comment Section */}
+                            <Col md={8}>
+                                {/* Comment Section */}
+                                <MaintenanceComment maintenance={selectedMaintenance} />
+                            </Col>
 
-            <Modal show={showAddFilesModal} onHide={() => setShowAddFilesModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Add Files to Maintenance</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {error && (
-                        <Alert variant="danger">
-                            <Alert.Heading>Error</Alert.Heading>
-                            <p>{error}</p>
-                        </Alert>
-                    )}
-                    <Form onSubmit={handleAddFiles}>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Select Files</Form.Label>
-                            <Form.Control
-                                type="file"
-                                multiple
-                                onChange={handleFileChange}
-                            />
-                        </Form.Group>
-                        <Button variant="success" type="submit">
-                            Add Files
-                        </Button>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowAddFilesModal(false)}>
-                        Close
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+                            {/* Right Side: Files Accordion Section */}
+                            <Col md={4}>
+                                <Accordion activeKey={activeKey}>
+                                    <Accordion.Item eventKey="1">
+                                        <Accordion.Header onClick={() => handleAccordionToggle("1")}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                                                Files
+                                                <Button
+                                                    variant="link"
+                                                    onClick={handleIconClick}  // Trigger file input on icon click
+                                                    style={{ textDecoration: "none", padding: 0 }}
+                                                    className="me-2 d-flex"
+                                                >
+                                                    <FaPaperclip />
+                                                </Button>
+                                            </div>
+                                            <input
+                                                type="file"
+                                                ref={fileInputRef}
+                                                style={{ display: "none" }} // Hide the file input
+                                                onChange={handleFileChange} // Handle file selection
+                                            />
+                                        </Accordion.Header>
+                                        <Accordion.Body>
+                                            <FileList files={files} />
+                                        </Accordion.Body>
+                                    </Accordion.Item>
+                                </Accordion>
+                            </Col>
+                        </Row>
 
-            <Modal show={showViewFilesModal} onHide={() => setShowViewFilesModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>View Files</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {maintenanceFiles[selectedMaintenanceId] && maintenanceFiles[selectedMaintenanceId].length > 0 ? (
-                        <div>
-                            {maintenanceFiles[selectedMaintenanceId].map(file => (
-                                <div key={file.id} className="mb-2">
-                                    <img
-                                        src={`${config.API_BASE_URL}/file/thumbnail/${file.id}`}
-                                        alt={file.fileName || "No image available"} // Use file name or default text for alt
-                                        onError={(e) => { e.target.onerror = null; e.target.src = noImg; }} // Set default image on error
-                                        style={{ height: '40px', width: '40px', objectFit: 'cover', marginRight: '10px' }} // Thumbnail style
-                                    />
-                                    <a
-                                        href={`${config.API_BASE_URL}/file/open/${file.id}`} // Link to open the file
-                                        target="_blank" // Open in a new tab
-                                        rel="noopener noreferrer" // Security feature
-                                        className="file-link"
-                                        style={{ display: 'inline-block', marginRight: '10px' }} // Only take width of the text
-                                    >
-                                        {file.fileName}
-                                    </a>
-                                    <Button
-                                        variant="primary"
-                                        href={`${config.API_BASE_URL}/file/download/${file.id}`}
-                                        className="ms-2"
-                                    >
-                                        Download
-                                    </Button>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <Alert variant="info">No files available for this maintenance.</Alert>
                     )}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowViewFilesModal(false)}>
-                        Close
-                    </Button>
                 </Modal.Footer>
             </Modal>
         </>
