@@ -1,13 +1,43 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { Container, Alert, Row, Col, Card, Badge } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import '../../css/Customers.css';
+import axios from "axios";
+import config from "../../config/config";
+import NewTicket from "../TicketsPage/SingleTicketModal/NewTicket";
 
 function ClientTickets({tickets, statusMap}) {
     const navigate = useNavigate();
+    const [ticketModal, setTicketModal] = useState(false);
+    const [ticket, setTicket] = useState(null);
+    const [statuses, setStatuses] = useState([]);
+    const [closedStatusId, setClosedStatusId] = useState("");
 
-    const handleTicketClick = (ticketId) => {
-        navigate(`/ticket/${ticketId}?scrollTo=${ticketId}`);
+    const handleTicketClick = (ticket) => {
+        setTicket(ticket);
+        setTicketModal(true);
+        fetchStatuses();
+    };
+
+    const handleClose = () => {
+        setTicketModal(false);
+    }
+
+    const fetchStatuses = async() => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`)
+            const fetchedStatuses = response.data;
+            setStatuses(fetchedStatuses);
+            if (fetchedStatuses.length > 0) {
+                // Filter close status
+                const closed = statuses.find(status => status.status === 'Closed');
+                if (closed) {
+                    setClosedStatusId(closed.id);
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching statuses', error);
+        }
     };
 
     return (
@@ -22,7 +52,7 @@ function ClientTickets({tickets, statusMap}) {
                                 <Card
                                     className="h-100 position-relative all-page-card"
                                     style={{ cursor: 'pointer', borderRadius: '20px' }}
-                                    onClick={() => handleTicketClick(ticket.id)}
+                                    onClick={() => handleTicketClick(ticket)}
                                 >
                                     <Card.Body className="all-page-cardBody">
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -44,6 +74,15 @@ function ClientTickets({tickets, statusMap}) {
                 </Row>
             ) : (
                 <Alert variant="info">No tickets found for this client.</Alert>
+            )}
+            {ticketModal && ticket && statuses.length > 0 && (
+                <NewTicket
+                    show={ticketModal}
+                    onClose={handleClose}
+                    firstTicket={ticket} // Pass the selected ticket to NewTicket
+                    statuses={statuses}
+                    isTicketClosed={closedStatusId === ticket.statusId}
+                />
             )}
         </Container>
     );

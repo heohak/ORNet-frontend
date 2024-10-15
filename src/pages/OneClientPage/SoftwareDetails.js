@@ -13,12 +13,6 @@ function SoftwareDetails({softwareList, clientId, setRefresh, client}) {
     const [showAddSoftwareModal, setShowAddSoftwareModal] = useState(false);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        // Log the softwareList for debugging purposes
-        console.log("SoftwareList:", softwareList);
-    }, [softwareList]);
-
-
     const toggleTechnicalInfo = (softwareId) => {
         setExpandedSoftwareId(expandedSoftwareId === softwareId ? null : softwareId);
     };

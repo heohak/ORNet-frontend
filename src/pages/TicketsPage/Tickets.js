@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import axios from "axios";
 import { Container, Button } from "react-bootstrap";
 import SearchBar from "./SearchBar";
@@ -25,7 +25,7 @@ function Tickets() {
     const [ticket, setTicket] = useState(null); // selected ticket
     const [ticketModal, setTicketModal] = useState(false); // to control modal state
     const [addTicketModal, setAddTicketModal] = useState(false);
-    const navigate = useNavigate();
+
 
     // Fetch status classifications
     useEffect(() => {
