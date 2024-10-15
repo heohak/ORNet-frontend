@@ -3,7 +3,7 @@ import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../config/config";
 
-function AddMaintenanceModal({ show, handleClose, clientId, setRefresh, client, error }) {
+function AddMaintenanceModal({ show, handleClose, clientId, locationId, setRefresh, onAddMaintenance }) {
     const [maintenanceName, setMaintenanceName] = useState('');
     const [maintenanceDate, setMaintenanceDate] = useState('');
     const [comment, setComment] = useState('');
@@ -27,7 +27,18 @@ function AddMaintenanceModal({ show, handleClose, clientId, setRefresh, client, 
 
             if (maintenanceResponse.data && maintenanceResponse.data.token) {
                 const maintenanceId = maintenanceResponse.data.token;
-                await axios.put(`${config.API_BASE_URL}/client/maintenance/${clientId}/${maintenanceId}`);
+
+                if (clientId) {
+                    await axios.put(`${config.API_BASE_URL}/client/maintenance/${clientId}/${maintenanceId}`);
+                } else if (locationId) {
+                    // Use the endpoint to add maintenance to a location
+                    await axios.put(`${config.API_BASE_URL}/location/maintenance/${locationId}`, {
+                        maintenanceId,
+                        maintenanceName,
+                        maintenanceDate,
+                        comment
+                    });
+                }
 
                 if (files.length > 0) {
                     await uploadFiles(maintenanceId);
@@ -39,6 +50,9 @@ function AddMaintenanceModal({ show, handleClose, clientId, setRefresh, client, 
                 setFiles([]);
 
                 setRefresh(prev => !prev); // Trigger refresh
+                if (onAddMaintenance) {
+                    onAddMaintenance();
+                }
                 handleClose(); // Close modal
             }
         } catch (error) {
@@ -65,7 +79,7 @@ function AddMaintenanceModal({ show, handleClose, clientId, setRefresh, client, 
     return (
         <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
-                <Modal.Title>Add Maintenance to {client.shortName}</Modal.Title>
+                <Modal.Title>Add Maintenance</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 {addError && (

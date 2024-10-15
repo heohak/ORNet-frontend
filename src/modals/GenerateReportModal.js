@@ -13,6 +13,7 @@ function GenerateReportModal({ show, handleClose }) {
     const [fileName, setFileName] = useState('');
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [reportType, setReportType] = useState('tickets');
 
     useEffect(() => {
         // Fetch list of clients when the modal opens
@@ -44,9 +45,14 @@ function GenerateReportModal({ show, handleClose }) {
         setError(null);
         try {
             let response;
+
             if (includeAllClients) {
-                // Generate report for all clients
-                response = await axios.get(`${config.API_BASE_URL}/report/all-clients-tickets`, {
+                // Determine which report to generate for all clients based on report type
+                const reportEndpoint = reportType === 'tickets'
+                    ? `${config.API_BASE_URL}/report/all-clients-tickets`
+                    : `${config.API_BASE_URL}/report/all-clients-maintenances`;
+
+                response = await axios.get(reportEndpoint, {
                     params: {
                         startDate: startDate || null,
                         endDate: endDate || null,
@@ -55,8 +61,13 @@ function GenerateReportModal({ show, handleClose }) {
                     responseType: 'blob', // Handle file download
                 });
             } else {
+                // Determine which report endpoint to use based on the selected report type
+                const reportEndpoint = reportType === 'tickets'
+                    ? `${config.API_BASE_URL}/report/client-tickets`
+                    : `${config.API_BASE_URL}/report/client-maintenances`;
+
                 // Generate report for selected client
-                response = await axios.get(`${config.API_BASE_URL}/report/client-tickets`, {
+                response = await axios.get(reportEndpoint, {
                     params: {
                         clientId: selectedClientId,
                         startDate: startDate || null,
@@ -83,6 +94,7 @@ function GenerateReportModal({ show, handleClose }) {
             setLoading(false);
         }
     };
+
     const handleModalClose = () => {
         clearFields(); // Clear fields on modal close
         handleClose();  // Trigger parent close handler
@@ -103,6 +115,17 @@ function GenerateReportModal({ show, handleClose }) {
                             checked={includeAllClients}
                             onChange={(e) => setIncludeAllClients(e.target.checked)}
                         />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <Form.Label>Report Type</Form.Label>
+                        <Form.Select
+                            value={reportType}
+                            onChange={(e) => setReportType(e.target.value)}
+                        >
+                            <option value="tickets">Tickets Report</option>
+                            <option value="maintenances">Maintenances Report</option>
+                        </Form.Select>
                     </Form.Group>
 
                     {!includeAllClients && (

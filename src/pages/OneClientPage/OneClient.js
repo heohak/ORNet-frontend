@@ -10,6 +10,7 @@ import SoftwareDetails from "./SoftwareDetails";
 import ClientTickets from "./ClientTickets";
 import ClientThirdPartyIT from "./ClientThirdPartyIT";
 import ClientMaintenances from "./ClientMaintenances";
+import ClientLocations from "./ClientLocations";
 import '../../css/Customers.css';
 import '../../css/OneClientPage/OneClient.css';
 
@@ -29,54 +30,46 @@ function OneClient() {
     const [statusMap, setStatusMap] = useState({});
     const accordionRefs = useRef([]); // Array of refs for each Accordion.Item
 
-
     const navigate = useNavigate();
-
-    const fetchClientLocations = async () => {
-        try {
-            const response = await axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`);
-            setLocations(response.data); // Keep the original array for ClientDetails
-
-            // Also create a location map for ClientDevices
-            const locationMap = response.data.reduce((acc, loc) => {
-                acc[loc.id] = loc.name;
-                return acc;
-            }, {});
-            setLocationsMap(locationMap); // Use this for ClientDevices
-        } catch (error) {
-            setError('Error fetching client locations');
-        }
-    };
-
-
 
     useEffect(() => {
         const fetchData = async () => {
 
             try {
-                const [clientRes, deviceRes, workerRes, softwareRes, ticketsRes, maintenanceRes, statusesRes] = await Promise.all([
+                const [clientRes, deviceRes, workerRes, softwareRes, ticketsRes, maintenanceRes, statusesRes, locationsRes] = await Promise.all([
                     axios.get(`${config.API_BASE_URL}/client/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/device/client/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/worker/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/software/client/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/ticket/client/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/client/maintenance/${clientId}`),
-                    axios.get(`${config.API_BASE_URL}/ticket/classificator/all`)
+                    axios.get(`${config.API_BASE_URL}/ticket/classificator/all`),
+                    axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`)
                 ]);
+
                 setClient(clientRes.data);
                 setDevices(deviceRes.data);
                 setWorkers(workerRes.data);
                 setSoftwareList(softwareRes.data);
                 setTickets(ticketsRes.data);
                 setMaintenances(maintenanceRes.data);
+
                 const fetchedStatuses = statusesRes.data;
                 // Create a map for statuses for faster lookup
                 const mappedStatuses = fetchedStatuses.reduce((acc, status) => {
                     acc[status.id] = status; // Map status.id to the status object
                     return acc;
                 }, {});
-
                 setStatusMap(mappedStatuses);
+
+                // Set locations and location map
+                setLocations(locationsRes.data);
+                const locationMap = locationsRes.data.reduce((acc, loc) => {
+                    acc[loc.id] = loc.name;
+                    return acc;
+                }, {});
+                setLocationsMap(locationMap);
+
             } catch (error) {
                 setError(error.message);
             } finally {
@@ -85,7 +78,6 @@ function OneClient() {
         };
 
         fetchData();
-        fetchClientLocations()
     }, [clientId, refresh]); // Add refresh as a dependency
 
     const handleAccordionToggle = (eventKey) => {
@@ -102,8 +94,6 @@ function OneClient() {
             }, 100); // Delay for 100 milliseconds
         }
     };
-
-
 
 
 
@@ -147,31 +137,11 @@ function OneClient() {
                             <Accordion.Item eventKey="1" className="AccordionLocations" ref={(el) => accordionRefs.current[1] = el}>
                                 <Accordion.Header onClick={() => handleAccordionToggle(1)}>Locations</Accordion.Header>
                                 <Accordion.Body>
-                                    <Row>
-                                        <h2 className="mt-1">Locations</h2>
-                                        {locations.length > 0 ? (
-                                                locations.map(location => (
-                                                    <Col md={4}  key={location.id} className="mb-1">
-                                                        <Card key={location.id} className="h-100 position-relative customer-page-card">
-                                                            <Card.Body>
-                                                                <Card.Title className='all-page-cardTitle'>{location.name}</Card.Title>
-                                                                <Card.Text>
-                                                                    <strong>Address: </strong>{location.streetAddress}, {location.city}, {location.country}, {location.postalCode}
-                                                                    <br />
-                                                                    <strong>Phone: </strong>{location.phone}
-                                                                    <br />
-                                                                    <strong>Email: </strong>{location.email}
-                                                                </Card.Text>
-                                                            </Card.Body>
-                                                        </Card>
-                                                    </Col>
-                                                ))
-                                        ) : (
-                                            <Alert variant="info">No locations available.</Alert>
-                                        )}
-                                    </Row>
+                                    <ClientLocations locations={locations}
+                                    setRefresh={setRefresh}/>
                                 </Accordion.Body>
                             </Accordion.Item>
+
                             <Accordion.Item eventKey="2" className="AccordionTechnicalInfo" ref={(el) => accordionRefs.current[2] = el}>
                                 <Accordion.Header onClick={() => handleAccordionToggle(2)}>Technical Information</Accordion.Header>
                                 <Accordion.Body>
