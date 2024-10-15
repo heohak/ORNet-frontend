@@ -1,8 +1,8 @@
 import { Accordion, Button } from "react-bootstrap";
 import React, { useEffect, useState, useRef } from "react";
-import FileList from "../../../../modals/FileList";
+import FileList from "../../../modals/FileList";
 import axios from "axios";
-import config from "../../../../config/config";
+import config from "../../../config/config";
 import { FaPaperclip } from 'react-icons/fa';  // Import the paperclip icon
 
 const NewTicketFiles = ({ ticket, eventKey, activeKey, handleAccordionToggle }) => {

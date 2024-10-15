@@ -2,7 +2,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheck, faEdit} from "@fortawesome/free-solid-svg-icons";
 import React, {useState} from "react";
 import axios from "axios";
-import config from "../../../../config/config";
+import config from "../../../config/config";
 
 
 const NewTicketInsideInfo = ({ticket}) => {

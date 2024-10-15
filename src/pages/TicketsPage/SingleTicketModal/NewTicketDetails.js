@@ -2,7 +2,7 @@ import { Accordion, Col, Row, Button, Form } from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaEdit, FaCheck } from 'react-icons/fa';  // Import edit and check icons
-import config from "../../../../config/config";
+import config from "../../../config/config";
 import Select from "react-select";
 import {useNavigate} from "react-router-dom";
 

@@ -5,7 +5,8 @@ import { Container, Button } from "react-bootstrap";
 import SearchBar from "./SearchBar";
 import TicketsList from "./TicketsList";
 import config from "../../config/config";
-import NewTicket from "./OneTicketPage/TicketDetails/NewTicket";
+import NewTicket from "./SingleTicketModal/NewTicket";
+import AddTicketModal from "./AddTicketPage/AddTicketModal";
 
 
 function Tickets() {
@@ -23,6 +24,7 @@ function Tickets() {
     const [closedStatus, setClosedStatus] = useState(null);
     const [ticket, setTicket] = useState(null); // selected ticket
     const [ticketModal, setTicketModal] = useState(false); // to control modal state
+    const [addTicketModal, setAddTicketModal] = useState(false);
     const navigate = useNavigate();
 
     // Fetch status classifications
@@ -128,7 +130,7 @@ function Tickets() {
     }, []);
 
     const handleAddTicket = () => {
-        navigate('/add-ticket', { state: { from: 'tickets' } });
+        setAddTicketModal(true);
     };
 
     const closeTicketModal = () => {
@@ -170,6 +172,10 @@ function Tickets() {
                     isTicketClosed={closedStatusId === ticket.statusId}
                 />
             )}
+            <AddTicketModal
+                show={addTicketModal}
+                handleClose={() => setAddTicketModal(false)}
+            />
         </Container>
     );
 }

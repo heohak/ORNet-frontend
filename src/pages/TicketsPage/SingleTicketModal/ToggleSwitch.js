@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import "../../../../css/ToggleSwitch.css";
+import "../../../css/ToggleSwitch.css";
 import axios from "axios";
-import config from "../../../../config/config"; // Import the CSS file for styles
+import config from "../../../config/config";
 
 const ToggleSwitch = ({ ticket, reFetch }) => {
     const [isActive, setIsActive] = useState(ticket.paid === true); // Initialize based on ticket.paid

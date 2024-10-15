@@ -10,10 +10,10 @@ import NewTicketActivity from "./NewTicketActivity";
 import NewTicketInsideInfo from "./NewTicketInsideInfo";
 import NewTicketResponse from "./NewTicketResponse";
 import axios from "axios";
-import config from "../../../../config/config";
+import config from "../../../config/config";
 import ToggleSwitch from "./ToggleSwitch";
 import TicketSectionButtons from "./TicketSectionButtons";
-import '../../../../css/NewTicket.css';
+import '../../../css/NewTicket.css';
 
 const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed }) => {
     const [ticket, setTicket] = useState(firstTicket);
@@ -90,7 +90,7 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed }) => {
 
 
     return (
-        <Modal show onHide={onClose} dialogClassName="custom-modal">
+        <Modal id="custom-modal" show onHide={onClose} className="custom-width-modal" dialogClassName="custom-modal">
             <Modal.Header closeButton>
                 <div className="w-100">
                     <Modal.Title>{ticket.title} {ticket.crisis && <Badge bg="danger">Priority</Badge>}</Modal.Title>

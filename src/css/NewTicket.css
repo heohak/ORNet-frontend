@@ -26,7 +26,7 @@
 
 
 /* Override Bootstrap's default modal width */
-.modal.show .modal-dialog {
+.custom-width-modal.modal.show .modal-dialog {
     min-width: 95% !important; /* Set a minimum width when the modal is shown */
     max-width: 95% !important; /* Ensure it doesn't exceed the 95% width */
 }
