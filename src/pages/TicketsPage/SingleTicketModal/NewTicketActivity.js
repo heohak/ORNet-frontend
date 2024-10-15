@@ -2,8 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { Card, ListGroup, Form, InputGroup, Button } from "react-bootstrap";
 import { FaPaperPlane, FaEdit, FaCheck } from "react-icons/fa";
 import axios from "axios";
-import config from "../../../../config/config";
-import '../../../../css/NewTicket.css';
+import config from "../../../config/config";
+import '../../../css/NewTicket.css';
 
 const NewTicketActivity = ({ ticket, reFetch }) => {
     const [newActivity, setNewActivity] = useState("");
@@ -16,7 +16,9 @@ const NewTicketActivity = ({ ticket, reFetch }) => {
     const activityEndRef = useRef(null);
 
     useEffect(() => {
-        fetchActivities();
+        if (ticket.activityIds.length > 0) {
+            fetchActivities();
+        }
     }, []);
 
     useEffect(() => {

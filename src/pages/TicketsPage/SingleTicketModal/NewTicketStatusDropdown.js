@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { DropdownButton, InputGroup, Dropdown, Modal, Button, Form } from "react-bootstrap";
 import axios from "axios";
-import config from "../../../../config/config";
+import config from "../../../config/config";
 
 const NewTicketStatusDropdown = ({ ticket, statuses, setIsClosed, reFetch }) => {
     const [statusName, setStatusName] = useState("");

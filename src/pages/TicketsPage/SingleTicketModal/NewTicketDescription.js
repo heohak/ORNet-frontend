@@ -1,25 +1,20 @@
-import React, {useState, useEffect} from "react";
+import React, {useState} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheck, faEdit} from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
-import config from "../../../../config/config";
+import config from "../../../config/config";
 
 
-const NewTicketRootCause = ({ticket}) => {
+const NewTicketDescription = ({ticket}) => {
 
     const [isEditing, setIsEditing] = useState(false);  // Edit mode state
-    const [rootCause, setRootCause] = useState(ticket.rootCause);  // Local state for the description
+    const [description, setDescription] = useState(ticket.description);  // Local state for the description
 
-
-    useEffect(() => {
-        setRootCause(ticket.rootCause);
-    }, [ticket.rootCause]);
-
-    // Function to handle saving the updated root cause
+    // Function to handle saving the updated description
     const handleSaveDescription = async () => {
         try {
             await axios.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`, {
-                rootCause: rootCause
+                description: description
             });
             setIsEditing(false); // Exit edit mode after saving
         } catch (error) {
@@ -30,20 +25,20 @@ const NewTicketRootCause = ({ticket}) => {
 
     return (
         <>
-            {/* Root cause Section */}
+            {/* Description Section */}
             <div
                 style={{ position: 'relative', padding: '10px'}}
             >
-                <h4>Root Cause</h4>
+                <h4>Description</h4>
                 {isEditing ? (
                     <textarea
-                        value={rootCause}
-                        onChange={(e) => setRootCause(e.target.value)}
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
                         rows={4}
                         style={{ width: '100%' }}
                     />
                 ) : (
-                    <p>{rootCause}</p>
+                    <p>{description}</p>
                 )}
 
                 {/* Icon */}
@@ -82,4 +77,4 @@ const NewTicketRootCause = ({ticket}) => {
 
 }
 
-export default NewTicketRootCause;
+export default NewTicketDescription;

@@ -16,7 +16,7 @@ const MenuBar = () => {
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="me-auto" activeKey={location.pathname}>
-                        <LinkContainer to="/" exact>
+                        <LinkContainer to="/">
                             <Nav.Link eventKey="/">Home</Nav.Link>
                         </LinkContainer>
                         <LinkContainer to="/customers">

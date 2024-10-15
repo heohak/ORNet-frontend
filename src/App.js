@@ -8,13 +8,11 @@ import Customers from './pages/CustomersPage/Customers';
 import Home from './pages/HomePage/Home';
 import ClientDevices from './pages/OneClientPage/ClientDevices';
 import Tickets from './pages/TicketsPage/Tickets';
-import OneTicket from './pages/TicketsPage/OneTicketPage/OneTicket';
 import AddCustomer from './pages/CustomersPage/AddCustomer';
 import AddClientWorker from './pages/OneClientPage/AddClientWorker';
 import Devices from './pages/AllDevicesPage/Devices';
 import OneDevice from './pages/OneDevicePage/OneDevice';
 import AddClientDevice from './pages/OneClientPage/AddClientDevice';
-import AddTicket from "./pages/TicketsPage/AddTicketPage/AddTicket";
 import SoftwareDetails from './pages/OneClientPage/SoftwareDetails';
 import OneClient from './pages/OneClientPage/OneClient';
 import Wiki from './pages/WikiPage/Wiki';
@@ -58,14 +56,11 @@ function App() {
                         <Route path="/customers" element={<Customers />} />
                         <Route path="/clients/:clientId/devices" element={<ClientDevices />} />
                         <Route path="/tickets" element={<Tickets />} />
-                        <Route path="/ticket/:ticketId" element={<OneTicket />} />
                         <Route path="/add-client" element={<AddCustomer />} />
                         <Route path="/add-client-worker" element={<AddClientWorker />} />
                         <Route path="/devices" element={<Devices />} />
                         <Route path="/device/:deviceId" element={<OneDevice />} />
                         <Route path="/add-client-device" element={<AddClientDevice />} />
-                        <Route path="/add-ticket" element={<AddTicket />} />
-                        <Route path="/add-ticket/:mainTicketId" element={<AddTicket />} />
                         <Route path="/software/:softwareId" element={<SoftwareDetails />} />
                         <Route path="/customer/:clientId" element={<OneClient />} />
                         <Route path="/wiki" element={<Wiki />} />

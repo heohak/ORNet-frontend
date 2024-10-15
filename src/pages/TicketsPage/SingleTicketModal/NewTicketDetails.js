@@ -2,7 +2,7 @@ import { Accordion, Col, Row, Button, Form } from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaEdit, FaCheck } from 'react-icons/fa';  // Import edit and check icons
-import config from "../../../../config/config";
+import config from "../../../config/config";
 import Select from "react-select";
 import {useNavigate} from "react-router-dom";
 
@@ -306,7 +306,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                     ) : (
                                         selectedDevices.length > 0 ? (
                                             selectedDevices.map((device, index) => (
-                                                <React.Fragment key={device.id}>
+                                                <React.Fragment key={device.value}>
                                                       <span
                                                           onClick={() => navigate(`/device/${device.value}`)} // Add click handler
                                                           style={{ color: 'blue', cursor: 'pointer' }} // Styling for clickable text

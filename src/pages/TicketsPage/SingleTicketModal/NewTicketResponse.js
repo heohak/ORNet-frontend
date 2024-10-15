@@ -3,7 +3,7 @@ import { faCheck, faEdit } from "@fortawesome/free-solid-svg-icons";
 import { Form } from 'react-bootstrap';
 import React, { useState } from "react";
 import axios from "axios";
-import config from "../../../../config/config";
+import config from "../../../config/config";
 import Datetime from 'react-datetime';
 import 'react-datetime/css/react-datetime.css'; // Import the CSS for Datetime component
 
