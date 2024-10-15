@@ -43,8 +43,12 @@ const NewTicketRootCause = ({ticket}) => {
                         style={{ width: '100%' }}
                     />
                 ) : (
-                    <p>{rootCause}</p>
-                )}
+                    rootCause ? (
+                        <p>{rootCause}</p>
+                        ) : (
+                            <p>No root Cause</p>
+
+                    ))}
 
                 {/* Icon */}
                 {!isEditing ? (

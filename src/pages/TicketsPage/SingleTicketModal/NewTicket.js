@@ -75,6 +75,22 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed }) => {
 
         return result;
     };
+    const formatDateString = (dateString) => {
+        const date = new Date(dateString);
+
+        // Get parts of the date
+        const options = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: false
+        };
+
+        // Format date into a readable string
+        return date.toLocaleString('en-US', options);
+    }
 
     const formatTime = (timeString) => {
         if (!timeString) {
@@ -142,7 +158,7 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed }) => {
                             eventKey="2"
                         />
                         {isClosed ? (
-                            <p className="mb-0">Closed: {ticket.endDateTime}</p>
+                            <p className="mb-0">Closed: {formatDateString(ticket.endDateTime)}</p>
                             ) : (
                             <p className="mb-0">
                                 Been Open For: {formatTimeDiff(Date.now() - new Date(ticket.startDateTime))}

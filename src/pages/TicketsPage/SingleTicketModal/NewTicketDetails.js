@@ -306,7 +306,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                     ) : (
                                         selectedDevices.length > 0 ? (
                                             selectedDevices.map((device, index) => (
-                                                <React.Fragment key={device.id}>
+                                                <React.Fragment key={device.value}>
                                                       <span
                                                           onClick={() => navigate(`/device/${device.value}`)} // Add click handler
                                                           style={{ color: 'blue', cursor: 'pointer' }} // Styling for clickable text

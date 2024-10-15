@@ -16,7 +16,9 @@ const NewTicketActivity = ({ ticket, reFetch }) => {
     const activityEndRef = useRef(null);
 
     useEffect(() => {
-        fetchActivities();
+        if (ticket.activityIds.length > 0) {
+            fetchActivities();
+        }
     }, []);
 
     useEffect(() => {

@@ -6,7 +6,7 @@ import SearchBar from "./SearchBar";
 import TicketsList from "./TicketsList";
 import config from "../../config/config";
 import NewTicket from "./SingleTicketModal/NewTicket";
-import AddTicketModal from "./AddTicketPage/AddTicketModal";
+import AddTicketModal from "./AddTicketModal/AddTicketModal";
 
 
 function Tickets() {
@@ -29,17 +29,17 @@ function Tickets() {
 
     // Fetch status classifications
     useEffect(() => {
-        const fetchStatuses = async () => {
-            try {
-                const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`);
-                setStatuses(response.data); // Set statuses once fetched
-            } catch (error) {
-                console.error("Error fetching statuses", error);
-            }
-        };
-
         fetchStatuses();
-    }, []); // Runs only once when the component mounts
+    }, []);
+
+    const fetchStatuses = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`);
+            setStatuses(response.data); // Set statuses once fetched
+        } catch (error) {
+            console.error("Error fetching statuses", error);
+        }
+    };
 
     // Find and set open and closed statuses once statuses are fetched
     useEffect(() => {
@@ -76,36 +76,37 @@ function Tickets() {
     }, [searchQuery]);
 
     useEffect(() => {
-        const fetchTickets = async () => {
-            if (filter === null) return;
-            setLoading(true);
-            setError(null);
-            try {
-                const params = new URLSearchParams();
-                if (debouncedSearchQuery.trim()) {
-                    params.append('searchTerm', debouncedSearchQuery);
-                }
-                if (filter !== 'all') {
-                    params.append('statusId', filter);
-                }
-                if (crisis) {
-                    params.append('crisis', crisis);
-                }
-                if (paid) { // Append Paid parameter
-                    params.append('paidWork', paid);
-                }
-
-                const url = `${config.API_BASE_URL}/ticket/search?${params.toString()}`;
-                const response = await axios.get(url);
-                setTickets(response.data);
-            } catch (error) {
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchTickets();
     }, [filter, debouncedSearchQuery, crisis, paid]); // Include Paid in dependencies
+
+    const fetchTickets = async () => {
+        if (filter === null) return;
+        setLoading(true);
+        setError(null);
+        try {
+            const params = new URLSearchParams();
+            if (debouncedSearchQuery.trim()) {
+                params.append('searchTerm', debouncedSearchQuery);
+            }
+            if (filter !== 'all') {
+                params.append('statusId', filter);
+            }
+            if (crisis) {
+                params.append('crisis', crisis);
+            }
+            if (paid) { // Append Paid parameter
+                params.append('paidWork', paid);
+            }
+
+            const url = `${config.API_BASE_URL}/ticket/search?${params.toString()}`;
+            const response = await axios.get(url);
+            setTickets(response.data);
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleNavigate = (ticket) => {
         setTicket(ticket); // Set the selected ticket
@@ -175,6 +176,9 @@ function Tickets() {
             <AddTicketModal
                 show={addTicketModal}
                 handleClose={() => setAddTicketModal(false)}
+                reFetch={fetchTickets}
+                ticketModal={() => setTicketModal(true)}
+                setTicket={setTicket}
             />
         </Container>
     );

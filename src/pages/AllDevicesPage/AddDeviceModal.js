@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Modal, Form, Button, Alert } from 'react-bootstrap';
 import config from "../../config/config";
 import AddClassificatorModal from "./AddDeviceModals/AddClassificatorModal";
-import AddLocationModal from "../TicketsPage/AddTicketPage/AddLocationModal"; // Using the modal from ticketPage
+import AddLocationModal from "../TicketsPage/AddTicketModal/AddLocationModal"; // Using the modal from ticketPage
 function AddDeviceModal({ show, onHide, setRefresh }) {
     const [deviceName, setDeviceName] = useState('');
     const [department, setDepartment] = useState('');
