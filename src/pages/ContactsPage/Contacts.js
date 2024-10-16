@@ -60,7 +60,7 @@ function Contacts() {
     return (
         <>
             <div className="contact-search-menu">
-                <div className="d-flex justify-content-between align-items-center mb-4">
+                <div className="contact-search-menu-header mb-4">
                     <h1 className="mb-0">Contacts</h1>
                     <div className="d-flex">
                         <Button
