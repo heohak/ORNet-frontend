@@ -11,6 +11,14 @@
     box-shadow: 0px 5px 5px #cbcbcb;
 }
 
+.wiki-search-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 7%;
+    padding-right: 7%;
+}
+
 /* Container for wiki content */
 .wiki-container {
     padding-top: 130px;
