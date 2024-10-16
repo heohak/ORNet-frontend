@@ -19,42 +19,54 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, setRefre
         setAddError(null);
 
         try {
-            const maintenanceResponse = await axios.post(`${config.API_BASE_URL}/maintenance/add`, {
-                maintenanceName,
-                maintenanceDate,
-                comment
-            });
+            let maintenanceId;
 
-            if (maintenanceResponse.data && maintenanceResponse.data.token) {
-                const maintenanceId = maintenanceResponse.data.token;
+            if (clientId) {
+                // For clients, create maintenance and associate it separately
+                const maintenanceResponse = await axios.post(`${config.API_BASE_URL}/maintenance/add`, {
+                    maintenanceName,
+                    maintenanceDate,
+                    comment
+                });
 
-                if (clientId) {
+                if (maintenanceResponse.data && maintenanceResponse.data.token) {
+                    maintenanceId = maintenanceResponse.data.token;
                     await axios.put(`${config.API_BASE_URL}/client/maintenance/${clientId}/${maintenanceId}`);
-                } else if (locationId) {
-                    // Use the endpoint to add maintenance to a location
-                    await axios.put(`${config.API_BASE_URL}/location/maintenance/${locationId}`, {
-                        maintenanceId,
-                        maintenanceName,
-                        maintenanceDate,
-                        comment
-                    });
+                } else {
+                    throw new Error('Failed to create maintenance for client');
                 }
+            } else if (locationId) {
+                // For locations, use the endpoint that creates and associates maintenance
+                const response = await axios.put(`${config.API_BASE_URL}/location/maintenance/${locationId}`, {
+                    maintenanceName,
+                    maintenanceDate,
+                    comment
+                });
 
-                if (files.length > 0) {
-                    await uploadFiles(maintenanceId);
+                if (response.data && response.data.token) {
+                    maintenanceId = response.data.token;
+                } else {
+                    throw new Error('Failed to create maintenance for location');
                 }
-
-                setMaintenanceName('');
-                setMaintenanceDate('');
-                setComment('');
-                setFiles([]);
-
-                setRefresh(prev => !prev); // Trigger refresh
-                if (onAddMaintenance) {
-                    onAddMaintenance();
-                }
-                handleClose(); // Close modal
             }
+
+            // Upload files using the obtained maintenanceId
+            if (files.length > 0 && maintenanceId) {
+                await uploadFiles(maintenanceId);
+            }
+
+            // Reset form fields
+            setMaintenanceName('');
+            setMaintenanceDate('');
+            setComment('');
+            setFiles([]);
+
+            // Refresh data and close modal
+            setRefresh(prev => !prev);
+            if (onAddMaintenance) {
+                onAddMaintenance();
+            }
+            handleClose();
         } catch (error) {
             setAddError(error.message);
         }
