@@ -127,11 +127,11 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
                     {filteredDevices.map((device, index) => (
                         <Col md={4} key={device.id} className="mb-4"> {/* Adjust column size as needed */}
                             <Card className="h-100 position-relative all-page-card">
-                                <Card.Body className="all-page-cardBody">
+                                <Card.Body onClick={() => navigate(`/device/${device.id}`)} className="all-page-cardBody">
                                     <Card.Title
                                         className='all-page-cardTitle'
                                         style={{cursor: "pointer"}}
-                                        onClick={() => navigate(`/device/${device.id}`)}
+
                                     >
                                         {index + 1}. {device.deviceName}
                                         {device.writtenOffDate && (

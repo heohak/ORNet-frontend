@@ -26,24 +26,25 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
     const [aiModule, setAiModule] = useState({ version: '', updateDate: '' });
 
     useEffect(() => {
-        const fetchSoftware = async () => {
-            try {
-                const response = await axios.get(`${config.API_BASE_URL}/software/all`);
-                setSoftwareList(response.data.map(software => ({ value: software.id, label: software.name })));
-            } catch (error) {
-                setError(error.message);
-            }
-        };
-
         fetchSoftware();
     }, []);
+    const fetchSoftware = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/software/not-used`);
+            setSoftwareList(response.data.map(software => ({ value: software.id, label: software.name })));
+        } catch (error) {
+            setError(error.message);
+        }
+    };
 
     const handleAddExistingSoftware = async () => {
         if (selectedSoftware) {
             try {
                 await axios.put(`${config.API_BASE_URL}/software/add/client/${selectedSoftware.value}/${clientId}`);
                 setRefresh(prev => !prev); // Trigger refresh by toggling state
+                fetchSoftware();
                 handleClose();
+                setSelectedSoftware(null);
             } catch (error) {
                 setError(error.message);
             }
@@ -92,6 +93,7 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
                 setConsultationModule({ version: '', updateDate: '' });
                 setAiModule({ version: '', updateDate: '' });
                 setShowAddNewSoftwareModal(false);
+                handleClose();
             }
         } catch (error) {
             setError(error.message);

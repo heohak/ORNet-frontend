@@ -47,7 +47,7 @@ function EditSoftware() {
                 consultationModule,
                 aiModule
             });
-            navigate('/settings/software');
+            navigate(-1);
         } catch (error) {
             setError(error.message);
         }
@@ -69,7 +69,7 @@ function EditSoftware() {
     const handleDeleteSoftware = async () => {
         try {
             await axios.delete(`${config.API_BASE_URL}/software/${software.id}`);
-            navigate('/settings/software');
+            navigate(-1);
         } catch (error) {
             setError(error.message);
         }
@@ -357,7 +357,7 @@ function EditSoftware() {
                 <Button variant="danger" onClick={handleShowDeleteModal} className="ms-2">
                     Delete Software
                 </Button>
-                <Button variant="secondary" onClick={() => navigate('/settings/software')} className="ms-2">
+                <Button variant="secondary" onClick={() => navigate(-1)} className="ms-2">
                     Cancel
                 </Button>
             </Form>
