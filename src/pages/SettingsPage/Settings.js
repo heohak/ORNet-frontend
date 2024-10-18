@@ -81,7 +81,7 @@ function Settings() {
                         onClick={() => navigate('/settings/software')}
                         className="settings-button"
                     >
-                        Softwares
+                        Technical Information
                     </Button>
                 </Col>
             </Row>

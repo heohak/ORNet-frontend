@@ -104,7 +104,7 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
         <>
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Add Software to {client.shortName}</Modal.Title>
+                    <Modal.Title>Add Technical Information to {client.shortName}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Container>
@@ -115,19 +115,19 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
                             </Alert>
                         )}
                         <Form.Group className="mb-3">
-                            <Form.Label>Select Existing Software</Form.Label>
+                            <Form.Label>Select Existing Tech Info</Form.Label>
                             <Select
                                 options={softwareList}
                                 value={selectedSoftware}
                                 onChange={setSelectedSoftware}
-                                placeholder="Select existing software"
+                                placeholder="Select existing Tech Info"
                             />
                             <Form.Text className="text-muted">
-                                Can't find the software? <Button variant="link" onClick={() => setShowAddNewSoftwareModal(true)}>Add New</Button>
+                                Can't find the Tech Info? <Button variant="link" onClick={() => setShowAddNewSoftwareModal(true)}>Add New</Button>
                             </Form.Text>
                         </Form.Group>
                         <Button variant="success" onClick={handleAddExistingSoftware}>
-                            Add Selected Software
+                            Add Selected Tech Info
                         </Button>
                     </Container>
                 </Modal.Body>
@@ -141,7 +141,7 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
             {/* Modal for adding a new software */}
             <Modal show={showAddNewSoftwareModal} onHide={() => setShowAddNewSoftwareModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Add New Software</Modal.Title>
+                    <Modal.Title>Add New Technical Information</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form onSubmit={handleAddNewSoftware}>
@@ -392,7 +392,7 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
                             />
                         </Form.Group>
                         <Button variant="success" type="submit">
-                            Add Software
+                            Add Tech Info
                         </Button>
                     </Form>
                 </Modal.Body>

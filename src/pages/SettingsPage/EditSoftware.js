@@ -85,7 +85,7 @@ function EditSoftware() {
 
     return (
         <Container className="mt-5">
-            <h1>Edit Software</h1>
+            <h1>Edit Technical Information</h1>
             {error && (
                 <Alert variant="danger">
                     <Alert.Heading>Error</Alert.Heading>
@@ -352,10 +352,10 @@ function EditSoftware() {
                 </Form.Group>
 
                 <Button variant="success" onClick={handleUpdateSoftware}>
-                    Update Software
+                    Update Tech Info
                 </Button>
                 <Button variant="danger" onClick={handleShowDeleteModal} className="ms-2">
-                    Delete Software
+                    Delete Tech Info
                 </Button>
                 <Button variant="secondary" onClick={() => navigate(-1)} className="ms-2">
                     Cancel
@@ -365,17 +365,17 @@ function EditSoftware() {
             {/* Delete Confirmation Modal */}
             <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Confirm Software Deletion</Modal.Title>
+                    <Modal.Title>Confirm Technical Information Deletion</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {associatedClient ? (
                         <div>
-                            <p>This software is linked to the following client:</p>
+                            <p>This Technical Information is linked to the following client:</p>
                             <ul>
                                 <li>Client: {associatedClient.shortName}</li>
                             </ul>
                             <p style={{ color: 'red' }}>
-                                Deleting this software will affect the above client. Are you sure you want to proceed?
+                                Deleting this Technical Information will affect the above client. Are you sure you want to proceed?
                             </p>
                         </div>
                     ) : (
