@@ -178,16 +178,21 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
             // Make the API call to toggle the favorite status
             await axios.put(`${config.API_BASE_URL}/worker/favorite/${workerId}`);
 
-            // Fetch the updated list of workers to reflect the new order
-            setFilteredWorkers(prevWorkers =>
-                prevWorkers.map(worker =>
+            // Update the favorite status in the local state and re-sort the list
+            setFilteredWorkers((prevWorkers) => {
+                const updatedWorkers = prevWorkers.map((worker) =>
                     worker.id === workerId ? { ...worker, favorite: !worker.favorite } : worker
-                )
-            );
+                );
+
+                // Sort the updated workers to place favorites at the top
+                return updatedWorkers.sort((a, b) => (a.favorite === b.favorite) ? 0 : a.favorite ? -1 : 1);
+            });
         } catch (error) {
             console.log('Failed to update favorite status');
         }
     };
+
+
 
 
     return (

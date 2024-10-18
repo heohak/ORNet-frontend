@@ -75,7 +75,8 @@ function WorkerSearchFilter({setWorkers}) {
                     favorite: favorite || undefined
                 }
             });
-            setWorkers(response.data);
+            const sortedWorkers = response.data.sort((a, b) => (a.favorite === b.favorite) ? 0 : a.favorite ? -1 : 1);
+            setWorkers(sortedWorkers);
         } catch (error) {
             setError(error.message);
         }
