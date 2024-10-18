@@ -72,7 +72,7 @@ function Settings() {
                         onClick={() => navigate('/settings/client-worker-roles')}
                         className="settings-button"
                     >
-                        Customer Worker Roles
+                        Customer Contact Roles
                     </Button>
                 </Col>
                 <Col md={3} sm={6} className="mb-2">
