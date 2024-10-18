@@ -137,7 +137,9 @@ function OneDevice() {
         <Container className="mt-5">
             <Button
                 onClick={() => {
-                    if (location.state && location.state.from === 'all-devices') {
+                    if (location.state?.fromTicketId) {
+                        navigate(`/tickets/${location.state.fromTicketId}`);
+                    } else if (location.state && location.state.from === 'all-devices') {
                         navigate('/devices');
                     } else if (device && device.clientId) {
                         navigate(`/customer/${device.clientId}`);
@@ -148,6 +150,7 @@ function OneDevice() {
             >
                 Back
             </Button>
+
             <Row>
                 <Col md={6}>
                     <DeviceDetails
