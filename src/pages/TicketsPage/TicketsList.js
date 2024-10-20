@@ -1,44 +1,73 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Card, Button, Spinner, Alert } from 'react-bootstrap';
+import { Row, Col, Spinner, Alert, Button } from 'react-bootstrap';
 import axios from 'axios';
-import config from "../../config/config";
+import config from '../../config/config';
 
 const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
-    const [clientDetails, setClientDetails] = useState({});
-    const [clientLoading, setClientLoading] = useState(true);
+    const [locations, setLocations] = useState([]);
+    const [locationsLoading, setLocationsLoading] = useState(true);
+    const [locationsError, setLocationsError] = useState(null);
+    const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'ascending' });
 
+    // Function to format the date to DD.MM.YYYY
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-GB'); // This will format it to DD.MM.YYYY
+    };
+
+    // Fetch all locations when the component mounts
     useEffect(() => {
-        const fetchClientDetails = async () => {
+        const fetchLocations = async () => {
             try {
-                const clientIds = tickets.map(ticket => ticket.clientId);
-                const uniqueClientIds = [...new Set(clientIds)];
-
-                const clientDetailsResponses = await Promise.all(uniqueClientIds.map(clientId =>
-                    axios.get(`${config.API_BASE_URL}/client/${clientId}`)
-                ));
-
-                const clientDetailsMap = {};
-                clientDetailsResponses.forEach(response => {
-                    const client = response.data;
-                    clientDetailsMap[client.id] = client.fullName;
-                });
-
-                setClientDetails(clientDetailsMap);
-                setClientLoading(false);
-            } catch (error) {
-                console.error('Error fetching client details:', error);
-                setClientLoading(false);
+                const response = await axios.get(`${config.API_BASE_URL}/location/all`); // Adjust the endpoint as needed
+                const data = await response.data;
+                setLocations(data);
+                setLocationsLoading(false);
+            } catch (err) {
+                setLocationsError('Failed to load locations.');
+                setLocationsLoading(false);
             }
         };
 
-        if (tickets.length > 0) {
-            fetchClientDetails();
-        } else {
-            setClientLoading(false); // No tickets to fetch, stop loading
-        }
-    }, [tickets]);
+        fetchLocations();
+    }, []);
 
-    if (loading || clientLoading) {
+    // Sorting helper functions
+    const sortTickets = (tickets, key, direction) => {
+        const sortedTickets = [...tickets];
+        sortedTickets.sort((a, b) => {
+            if (key === 'date') {
+                const dateA = new Date(a.startDateTime);
+                const dateB = new Date(b.startDateTime);
+                return direction === 'ascending' ? dateA - dateB : dateB - dateA;
+            } else if (key === 'numeration') {
+                const [yearA, numberA] = a.baitNumeration.split('-');
+                const [yearB, numberB] = b.baitNumeration.split('-');
+                if (yearA === yearB) {
+                    return direction === 'ascending' ? numberA - numberB : numberB - numberA;
+                }
+                return direction === 'ascending' ? yearA - yearB : yearB - yearA;
+            } else if (key === 'clientName' || key === 'location' || key === 'title') {
+                const nameA = key === 'location' ? getLocationName(a.locationId) : a[key];
+                const nameB = key === 'location' ? getLocationName(b.locationId) : b[key];
+                if (nameA < nameB) return direction === 'ascending' ? -1 : 1;
+                if (nameA > nameB) return direction === 'ascending' ? 1 : -1;
+                return 0;
+            }
+            return 0;
+        });
+        return sortedTickets;
+    };
+
+    const handleSort = (key) => {
+        let direction = 'ascending';
+        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+            direction = 'descending';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    if (loading || locationsLoading) {
         return (
             <div className="text-center mt-5">
                 <Spinner animation="border" role="status">
@@ -48,12 +77,12 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
         );
     }
 
-    if (error) {
+    if (error || locationsError) {
         return (
             <div className="mt-5">
                 <Alert variant="danger">
                     <Alert.Heading>Error</Alert.Heading>
-                    <p>{error}</p>
+                    <p>{error || locationsError}</p>
                 </Alert>
             </div>
         );
@@ -69,38 +98,88 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
         );
     }
 
+    // Helper function to find location name by locationId
+    const getLocationName = (locationId) => {
+        const location = locations.find((loc) => loc.id === locationId);
+        return location ? location.name : 'Unknown Location';
+    };
+
+    // Sort tickets based on the current sort config
+    const sortedTickets = sortTickets(tickets, sortConfig.key, sortConfig.direction);
+
+    // Function to render sort arrows
+    const renderSortArrow = (key) => {
+        if (sortConfig.key === key) {
+            return sortConfig.direction === 'ascending' ? '▲' : '▼';
+        }
+        return '↕'; // Default for unsorted
+    };
+
     return (
-        <Row>
-            {tickets.map((ticket) => {
-                const status = statuses.find(status => status.id === ticket.statusId);
+        <div className="mt-3">
+            {/* Table header with sortable columns */}
+            <Row className="font-weight-bold text-center">
+                <Col md={1} onClick={() => handleSort('date')}>
+                    Date {renderSortArrow('date')}
+                </Col>
+                <Col md={1} onClick={() => handleSort('numeration')}>
+                    No. {renderSortArrow('numeration')}
+                </Col>
+                <Col md={3} onClick={() => handleSort('clientName')}>
+                    Client Name {renderSortArrow('clientName')}
+                </Col>
+                <Col md={2} onClick={() => handleSort('location')}>
+                    Location {renderSortArrow('location')}
+                </Col>
+                <Col md={3} onClick={() => handleSort('title')}>
+                    Title {renderSortArrow('title')}
+                </Col>
+                <Col md={1}>Status</Col>
+                <Col md={1}>Priority</Col>
+            </Row>
+
+            <hr />
+
+            {/* Ticket rows */}
+            {sortedTickets.map((ticket, index) => {
+                const status = statuses.find((status) => status.id === ticket.statusId);
                 const statusName = status?.status || 'Unknown Status';
-                const clientName = clientDetails[ticket.clientId] || 'Unknown Client';
-                const statusColor = status?.color || null;
+                const statusColor = status?.color || '#007bff';
+                const priorityColor = ticket.crisis ? 'red' : 'green'; // Crisis check
+
+                // Alternating background colors
+                const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff'; // Light grey and white
 
                 return (
-                    <Col md={4} key={ticket.id} className="mb-4">
-                        <Card className='all-page-card' onClick={() => onNavigate(ticket)}>
-                            <Card.Body className='all-page-cardBody'>
-                                <div className="position-absolute top-0 end-0 m-2">
-                                    <Button
-                                        style={{ backgroundColor: statusColor || "#007bff", borderColor: statusColor || "#007bff" }}
-                                        size=""
-                                        disabled
-                                    >
-                                        {statusName}
-                                    </Button>
-                                </div>
-                                <Card.Title className='all-page-cardTitle'>{ticket.title}</Card.Title>
-                                <Card.Text className='all-page-cardText'>
-                                    <strong>Client:</strong> {clientName}<br />
-                                    <strong>Start Time:</strong> {ticket.startDateTime}<br />
-                                </Card.Text>
-                            </Card.Body>
-                        </Card>
-                    </Col>
+                    <Row
+                        key={ticket.id}
+                        className="align-items-center text-center mb-2"
+                        style={{ backgroundColor: rowBgColor, cursor: 'pointer' }} // Apply background color
+                        onClick={() => onNavigate(ticket)}
+                    >
+                        <Col md={1}>{formatDate(ticket.startDateTime)}</Col>
+                        <Col md={1}>{ticket.baitNumeration}</Col>
+                        <Col md={3}>{ticket.clientName}</Col>
+                        <Col md={2}>{getLocationName(ticket.locationId)}</Col> {/* Look up location */}
+                        <Col md={3}>{ticket.title}</Col>
+                        <Col md={1}>
+                            <Button
+                                style={{ backgroundColor: statusColor, borderColor: statusColor }}
+                                disabled
+                            >
+                                {statusName}
+                            </Button>
+                        </Col>
+                        <Col md={1}>
+                            <Button
+                                style={{ backgroundColor: priorityColor, borderColor: priorityColor }}
+                                disabled
+                            ></Button>
+                        </Col>
+                    </Row>
                 );
             })}
-        </Row>
+        </div>
     );
 };
 
