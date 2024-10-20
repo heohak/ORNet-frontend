@@ -8,7 +8,6 @@ import config from "../../config/config";
 import NewTicket from "./SingleTicketModal/NewTicket";
 import AddTicketModal from "./AddTicketModal/AddTicketModal";
 
-
 function Tickets() {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -19,6 +18,8 @@ function Tickets() {
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const [statuses, setStatuses] = useState([]);
+    const [workTypes, setWorkTypes] = useState([]); // New state for work types
+    const [selectedWorkType, setSelectedWorkType] = useState(''); // New state for selected work type
     const [openStatus, setOpenStatus] = useState(null);
     const [closedStatusId, setClosedStatusId] = useState(0);
     const [closedStatus, setClosedStatus] = useState(null);
@@ -26,9 +27,9 @@ function Tickets() {
     const [ticketModal, setTicketModal] = useState(false); // to control modal state
     const [addTicketModal, setAddTicketModal] = useState(false);
 
+
     const navigate = useNavigate();
     const {ticketId} = useParams();
-
 
     // Fetch status classifications
     useEffect(() => {
@@ -44,16 +45,27 @@ function Tickets() {
         }
     };
 
+    // Fetch work types when the component mounts
+    useEffect(() => {
+        fetchWorkTypes();
+    }, []);
+
+    const fetchWorkTypes = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/work-type/classificator/all`); // Adjust the endpoint as needed
+            setWorkTypes(response.data);
+        } catch (error) {
+            console.error("Error fetching work types", error);
+        }
+    };
+
     // Find and set open and closed statuses once statuses are fetched
     useEffect(() => {
         const findOpenAndClosedStatuses = () => {
             // Ensure statuses are available before proceeding
             if (statuses.length > 0) {
-                // Filter for open and closed statuses
                 const open = statuses.find(status => status.status === 'Open');
                 const closed = statuses.find(status => status.status === 'Closed');
-
-                // Update state with the found statuses
                 if (open) {
                     setOpenStatus(open);
                     setFilter(open.id); // Set the filter to open status ID
@@ -80,7 +92,7 @@ function Tickets() {
 
     useEffect(() => {
         fetchTickets();
-    }, [filter, debouncedSearchQuery, crisis, paid]); // Include Paid in dependencies
+    }, [filter, debouncedSearchQuery, crisis, paid, selectedWorkType]); // Include selectedWorkType in dependencies
 
     useEffect(() => {
         if (ticketId) {
@@ -110,6 +122,9 @@ function Tickets() {
             if (paid) { // Append Paid parameter
                 params.append('paidWork', paid);
             }
+            if (selectedWorkType !== 'all') {
+                params.append('workTypeId', selectedWorkType); // Add work type to the filter
+            }
 
             const url = `${config.API_BASE_URL}/ticket/search?${params.toString()}`;
             const response = await axios.get(url);
@@ -120,7 +135,6 @@ function Tickets() {
             setLoading(false);
         }
     };
-
 
     const handleSearchChange = useCallback((query) => {
         setSearchQuery(query);
@@ -137,6 +151,10 @@ function Tickets() {
 
     const handlePaidChange = useCallback(() => { // New handler for Paid
         setPaid((prevPaid) => !prevPaid);
+    }, []);
+
+    const handleWorkTypeChange = useCallback((newWorkTypeId) => { // New handler for work type change
+        setSelectedWorkType(newWorkTypeId);
     }, []);
 
     const handleAddTicket = () => {
@@ -162,20 +180,23 @@ function Tickets() {
 
     return (
         <Container className="mt-5">
-            <div className="d-flex justify-content-between align-items-center mb-4">
+            <div className="mb-4">
                 <h1 className="mb-0">Tickets</h1>
-                <Button variant="success" onClick={handleAddTicket}>Add Ticket</Button>
             </div>
             <SearchBar
                 searchQuery={searchQuery}
                 onSearchChange={handleSearchChange}
                 onFilterChange={handleFilterChange}
                 onCrisisChange={handleCrisisChange}
-                onPaidChange={handlePaidChange} // Pass handler to SearchBar
+                onPaidChange={handlePaidChange}
+                onWorkTypeChange={handleWorkTypeChange} // Pass work type change handler
                 filter={filter}
                 crisis={crisis}
-                paid={paid} // Pass state to SearchBar
+                paid={paid}
                 statuses={statuses}
+                workTypes={workTypes} // Pass work types to SearchBar
+                selectedWorkType={selectedWorkType}
+                handleAddTicket={handleAddTicket}
             />
             <TicketsList
                 tickets={tickets}
@@ -184,7 +205,6 @@ function Tickets() {
                 error={error}
                 statuses={statuses}
             />
-            {/* Render the NewTicket modal only when the ticket is not null */}
             {ticket && (
                 <NewTicket
                     show={ticketModal}

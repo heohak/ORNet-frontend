@@ -22,7 +22,8 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
         locationId: '',
         baitNumeration: '',
         clientNumeration: '',
-        contactIds: []
+        contactIds: [],
+        deviceIds: ""
     });
 
     const [clients, setClients] = useState([]);
@@ -31,6 +32,7 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
     const [baitWorkers, setBaitWorkers] = useState([]);
     const [openStatusId, setOpenStatusId] = useState(null);
     const [workTypes, setWorkTypes] = useState([]);
+    const [devices, setDevices] = useState([]);
     const [selectedWorkTypes, setSelectedWorkTypes] = useState([]);
     const [error, setError] = useState(null);
     const [showWorkTypeModal, setShowWorkTypeModal] = useState(false);
@@ -46,7 +48,7 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
                     axios.get(`${config.API_BASE_URL}/ticket/classificator/all`),
                     axios.get(`${config.API_BASE_URL}/bait/worker/all`),
                     axios.get(`${config.API_BASE_URL}/client/all`),
-                    axios.get(`${config.API_BASE_URL}/work-type/classificator/all`)
+                    axios.get(`${config.API_BASE_URL}/work-type/classificator/all`),
                 ]);
                 const statuses = statusRes.data;
                 if (statuses.length > 0) {
@@ -69,11 +71,12 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
     }, []);
 
     useEffect(() => {
-        const fetchLocationsAndContacts = async () => {
+        const fetchLocationsAndContactsAndDevices = async () => {
             if (formData.clientId) {
                 try {
                     const locationRes = await axios.get(`${config.API_BASE_URL}/client/locations/${formData.clientId}`);
                     const contactRes = await axios.get(`${config.API_BASE_URL}/worker/${formData.clientId}`);
+                    const deviceRes = await axios.get (`${config.API_BASE_URL}/device/client/${formData.clientId}`)
 
                     const contactsWithRoles = await Promise.all(
                         contactRes.data.map(async contact => {
@@ -84,13 +87,14 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
 
                     setLocations(locationRes.data);
                     setContacts(contactsWithRoles);
+                    setDevices(deviceRes.data);
                 } catch (error) {
                     console.error('Error fetching locations or contacts:', error);
                 }
             }
         };
 
-        fetchLocationsAndContacts();
+        fetchLocationsAndContactsAndDevices();
     }, [formData.clientId]);
 
     const handleChange = (e) => {
@@ -118,6 +122,7 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
                 statusId: openStatusId,
                 clientId: formData.clientId,
                 workTypeIds: selectedWorkTypes.map(option => option.value), // Map selected work type objects to IDs
+                deviceIds: [formData.deviceId]
             };
 
             const response = await axios.post(`${config.API_BASE_URL}/ticket/add`, newTicket);
@@ -141,7 +146,8 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
             locationId: '',
             baitNumeration: '',
             clientNumeration: '',
-            contactIds: []
+            contactIds: [],
+            deviceId: ""
         }); // Reset form fields
         setSelectedWorkTypes([]); // Reset selected work types
     }
@@ -204,38 +210,6 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
             <Modal.Body>
                 {error && <Alert variant="danger">{error}</Alert>}
                 <Form onSubmit={handleSubmit}>
-                    <Row>
-                        <Col md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Title</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    value={formData.title}
-                                    onChange={handleChange}
-                                    id="title"
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Responsible</Form.Label>
-                                <Form.Control
-                                    as="select"
-                                    value={formData.baitWorkerId}
-                                    onChange={handleChange}
-                                    id="baitWorkerId"
-                                >
-                                    <option value="">Select Responsible</option>
-                                    {baitWorkers.map(baitWorker => (
-                                        <option key={baitWorker.id} value={baitWorker.id}>
-                                            {baitWorker.firstName + " " + baitWorker.lastName}
-                                        </option>
-                                    ))}
-                                </Form.Control>
-                            </Form.Group>
-                        </Col>
-                    </Row>
-
                     <Row>
                         <Col md={4}>
                             <Form.Group className="mb-3">
@@ -331,20 +305,86 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
                             </Form.Group>
                         </Col>
                     </Row>
-
                     <Row>
-                        <Col md={4}>
+                        <Col md={8}>
                             <Form.Group className="mb-3">
-                                <Form.Label>Our Numeration</Form.Label>
+                                <Form.Label>Title</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    value={formData.baitNumeration}
+                                    value={formData.title}
                                     onChange={handleChange}
-                                    id="baitNumeration"
+                                    id="title"
                                 />
                             </Form.Group>
                         </Col>
                         <Col md={4}>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Device</Form.Label>
+                                <Form.Control
+                                    as="select"
+                                    value={formData.deviceId}
+                                    onChange={handleChange}
+                                    id="deviceId"
+                                    disabled={!formData.clientId || devices.length === 0}
+                                >
+                                    {!formData.clientId ? (
+                                        <option value="">Pick a client before picking a device</option>
+                                    ) : devices.length === 0 ? (
+                                        <option value="">No devices found for this client</option>
+                                    ) : (
+                                        <>
+                                            <option value="">Select a Device</option>
+                                            {devices.map((device) => (
+                                                <option key={device.id} value={device.id}>
+                                                    {device.deviceName}
+                                                </option>
+                                            ))}
+                                        </>
+                                    )}
+                                </Form.Control>
+                            </Form.Group>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col md={7}>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Description</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    rows={4}
+                                    value={formData.description}
+                                    onChange={handleChange}
+                                    required
+                                    id="description"
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col md={5}>
+                            <Form.Group className="mb-3">
+                                <div className="d-flex mb-2">
+                                    <Form.Label className="align-items-centre mb-0">Selected Work Types</Form.Label>
+                                    <Button
+                                        variant="link"
+                                        onClick={() => setShowWorkTypeModal(true)}
+                                        className="text-primary py-0"
+                                    >
+                                        Add New Work Type
+                                    </Button>
+                                </div>
+                                <Select
+                                    isMulti
+                                    options={workTypes}
+                                    value={selectedWorkTypes}
+                                    onChange={setSelectedWorkTypes}
+                                    placeholder="Select work types"
+                                />
+                            </Form.Group>
+                        </Col>
+                    </Row>
+
+
+                    <Row>
+                        <Col md={3}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Client Numeration</Form.Label>
                                 <Form.Control
@@ -355,52 +395,26 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
                                 />
                             </Form.Group>
                         </Col>
+                        <Col md={4}></Col>
                         <Col md={4}>
                             <Form.Group className="mb-3">
-                                <Form.Label>Priority</Form.Label>
-                                <Form.Select
-                                    value={formData.crisis ? "true" : "false"}
+                                <Form.Label>Responsible</Form.Label>
+                                <Form.Control
+                                    as="select"
+                                    value={formData.baitWorkerId}
                                     onChange={handleChange}
-                                    id="crisis"
+                                    id="baitWorkerId"
                                 >
-                                    <option value="true">High</option>
-                                    <option value="false">Normal</option>
-                                </Form.Select>
+                                    <option value="">Select Responsible</option>
+                                    {baitWorkers.map(baitWorker => (
+                                        <option key={baitWorker.id} value={baitWorker.id}>
+                                            {baitWorker.firstName + " " + baitWorker.lastName}
+                                        </option>
+                                    ))}
+                                </Form.Control>
                             </Form.Group>
                         </Col>
                     </Row>
-
-                    <Form.Group className="mb-3">
-                        <Form.Label>Description</Form.Label>
-                        <Form.Control
-                            as="textarea"
-                            rows={3}
-                            value={formData.description}
-                            onChange={handleChange}
-                            required
-                            id="description"
-                        />
-                    </Form.Group>
-
-                    <Form.Group className="mb-3">
-                        <div className="d-flex mb-2">
-                            <Form.Label className="align-items-centre mb-0">Selected Work Types</Form.Label>
-                            <Button
-                                variant="link"
-                                onClick={() => setShowWorkTypeModal(true)}
-                                className="text-primary py-0"
-                            >
-                                Add New Work Type
-                            </Button>
-                        </div>
-                        <Select
-                            isMulti
-                            options={workTypes}
-                            value={selectedWorkTypes}
-                            onChange={setSelectedWorkTypes}
-                            placeholder="Select work types"
-                        />
-                    </Form.Group>
                 </Form>
             </Modal.Body>
             <Modal.Footer>
