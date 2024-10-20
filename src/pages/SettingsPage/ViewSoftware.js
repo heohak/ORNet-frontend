@@ -119,8 +119,8 @@ function ViewSoftware() {
     return (
         <Container className="mt-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1>Softwares</h1>
-                <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Software</Button>
+                <h1>Technical Information</h1>
+                <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Tech Info</Button>
             </div>
             <Row>
                 {softwareList.map((software) => (
@@ -140,7 +140,7 @@ function ViewSoftware() {
             <Button onClick={() => navigate('/settings')}>Back</Button>
             <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Add Software</Modal.Title>
+                    <Modal.Title>Add Technical Information</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Container>
@@ -400,7 +400,7 @@ function ViewSoftware() {
                             </Form.Group>
 
                             <Button variant="success" type="submit">
-                                Add Software
+                                Add Tech Info
                             </Button>
                         </Form>
                     </Container>

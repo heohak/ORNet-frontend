@@ -90,7 +90,7 @@ function App() {
                         <Route path="/settings/work-types/edit/:id" element={<EditWorkType />} />
                         <Route path="/history" element={<HistoryTable />} />
                         <Route path="/contacts" element={<Contacts />} />
-
+                        <Route path="/tickets/:ticketId" element={<Tickets />} />
                     </Routes>
                 </main>
                 <Footer />

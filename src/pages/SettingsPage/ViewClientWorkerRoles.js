@@ -73,7 +73,7 @@ function ViewClientWorkerRoles() {
     return (
         <Container className="mt-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1>Client Worker Roles</h1>
+                <h1>Customer Contact Roles</h1>
                 <Button variant='secondary' onClick={handleNavigate}>
                     See deleted
                 </Button>

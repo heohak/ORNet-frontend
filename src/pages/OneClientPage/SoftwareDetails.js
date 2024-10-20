@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 
-import {Button, Card, Col, Container, Row, Spinner, Table} from 'react-bootstrap';
+import {Alert, Button, Card, Col, Container, Row, Spinner, Table} from 'react-bootstrap';
 import AddClientSoftware from "./AddClientSoftware";
 import {useNavigate} from 'react-router-dom';
 import '../../css/OneClientPage/SoftwareDetails.css';
@@ -36,12 +36,13 @@ function SoftwareDetails({softwareList, clientId, setRefresh, client}) {
                 </Col>
                 <Col className="text-end">
                     <Button variant="primary" className="mb-0" onClick={() => setShowAddSoftwareModal(true)}>
-                        Add Software
+                        Add Tech Info
                     </Button>
                 </Col>
             </Row>
             <Row className="mt-1">
-                {softwareList.map(software => (
+                {softwareList.length > 0 ? (
+                softwareList.map(software => (
                     <Col md={4} key={software.id} className="mb-3">
                         <Card className="position-relative customer-page-card">
                             <Card.Body>
@@ -194,11 +195,13 @@ function SoftwareDetails({softwareList, clientId, setRefresh, client}) {
                                         </tbody>
                                     </Table>
                                 )}
-
                             </Card.Body>
                         </Card>
                     </Col>
-                ))}
+                    ))
+                ) : (
+                    <Alert className="mt-3" variant="info">No technical information available.</Alert>
+                )}
             </Row>
 
             <AddClientSoftware

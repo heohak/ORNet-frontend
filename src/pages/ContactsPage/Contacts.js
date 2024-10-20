@@ -17,7 +17,10 @@ function Contacts() {
         const fetchWorkers = async () => {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/worker/search`);
-                setWorkers(response.data);
+
+                const sortedWorkers = response.data.sort((a, b) => (a.favorite === b.favorite) ? 0 : a.favorite ? -1 : 1);
+
+                setWorkers(sortedWorkers);
             } catch (error) {
                 setError(error.message);
             } finally {

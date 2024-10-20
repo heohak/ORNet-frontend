@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import {useLocation, useNavigate} from "react-router-dom";
+import React, {useCallback, useEffect, useState} from 'react';
+import {useNavigate, useParams} from "react-router-dom";
 import axios from "axios";
-import { Container, Button } from "react-bootstrap";
+import {Button, Container} from "react-bootstrap";
 import SearchBar from "./SearchBar";
 import TicketsList from "./TicketsList";
 import config from "../../config/config";
@@ -25,6 +25,9 @@ function Tickets() {
     const [ticket, setTicket] = useState(null); // selected ticket
     const [ticketModal, setTicketModal] = useState(false); // to control modal state
     const [addTicketModal, setAddTicketModal] = useState(false);
+
+    const navigate = useNavigate();
+    const {ticketId} = useParams();
 
 
     // Fetch status classifications
@@ -79,6 +82,16 @@ function Tickets() {
         fetchTickets();
     }, [filter, debouncedSearchQuery, crisis, paid]); // Include Paid in dependencies
 
+    useEffect(() => {
+        if (ticketId) {
+            fetchTicketById(ticketId);
+            setTicketModal(true);
+        } else {
+            setTicketModal(false);
+            setTicket(null);
+        }
+    }, [ticketId]);
+
     const fetchTickets = async () => {
         if (filter === null) return;
         setLoading(true);
@@ -108,10 +121,6 @@ function Tickets() {
         }
     };
 
-    const handleNavigate = (ticket) => {
-        setTicket(ticket); // Set the selected ticket
-        setTicketModal(true); // Open the modal
-    };
 
     const handleSearchChange = useCallback((query) => {
         setSearchQuery(query);
@@ -134,9 +143,21 @@ function Tickets() {
         setAddTicketModal(true);
     };
 
+    const fetchTicketById = async (id) => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/${id}`);
+            setTicket(response.data);
+        } catch (error) {
+            console.error('Error fetching ticket by ID:', error);
+        }
+    };
+
+    const handleNavigate = (ticket) => {
+        navigate(`/tickets/${ticket.id}`);
+    };
+
     const closeTicketModal = () => {
-        setTicketModal(false);
-        setTicket(null); // Reset the ticket when closing the modal
+        navigate('/tickets');
     };
 
     return (

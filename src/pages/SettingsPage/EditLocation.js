@@ -170,7 +170,7 @@ function EditLocation() {
                         type="text"
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
-                        placeholder="Enter City"
+                        placeholder="Enter city"
                         required
                     />
                 </Form.Group>
@@ -180,7 +180,7 @@ function EditLocation() {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter district"
+                        placeholder="Enter email"
                         required
                     />
                 </Form.Group>
@@ -190,7 +190,7 @@ function EditLocation() {
                         type="text"
                         value={streetAddress}
                         onChange={(e) => setStreetAddress(e.target.value)}
-                        placeholder="Enter Street Address"
+                        placeholder="Enter street address"
                         required
                     />
                 </Form.Group>
@@ -200,7 +200,7 @@ function EditLocation() {
                         type="text"
                         value={postalCode}
                         onChange={(e) => setPostalCode(e.target.value)}
-                        placeholder="Enter Postal Code"
+                        placeholder="Enter postal code"
                         required
                         isInvalid={!!postalCodeError} // Display error styling if there's an error
                     />
