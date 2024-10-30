@@ -1,0 +1,26 @@
+.device-header-background {
+    background-color: #f8f9fa;
+    position: fixed;
+    width: 100%;
+    z-index: 999;
+    padding: 10px 0;
+}
+
+.device-name {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center content */
+    position: relative; /* Relative positioning for absolute children */
+    width: 100%; /* Allow full width for centering */
+}
+
+.device-name Button {
+    position: absolute; /* Allow button to sit on the left */
+    left: 0; /* Adjust left positioning as needed */
+}
+
+.device-title {
+    margin: 0; /* Remove default margin */
+    flex-grow: 1; /* Allow title to take available space */
+    text-align: center; /* Center the title text */
+}

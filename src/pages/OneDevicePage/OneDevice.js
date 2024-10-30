@@ -9,6 +9,7 @@ import LinkedDevices from "./LinkedDevices";
 import CommentsModal from "../../modals/CommentsModal";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCog} from "@fortawesome/free-solid-svg-icons";
+import '../../css/OneDevicePage/OneDevice.css';
 
 function OneDevice() {
     const { deviceId } = useParams();
@@ -137,90 +138,99 @@ function OneDevice() {
     }
 
     return (
-        <Container className="mt-5">
-            <Button
-                onClick={() => {
-                    if (location.state?.fromTicketId) {
-                        navigate(`/tickets/${location.state.fromTicketId}`);
-                    } else if (location.state && location.state.from === 'all-devices') {
-                        navigate('/devices');
-                    } else if (device && device.clientId) {
-                        navigate(`/customer/${device.clientId}`);
-                    } else {
-                        navigate(-1);
-                    }
-                }}
-            >
-                Back
-            </Button>
-
-            <Row className="mt-3 mb-2">
-                <Col md={6}>
-                    <h1>{device ? `${device.deviceName} Details` : 'Device Details'}</h1>
-                </Col>
-                <Col md={6}>
-                    <div className="d-flex">
-                        <h2>Maintenance Information</h2>
-                        <div className="ms-3" style={{alignContent: "center"}}>
-                            <Button variant="primary" onClick={() => setShowMaintenanceModal(true)}>Add Maintenance</Button>
-                        </div>
-                        <Button variant="link" onClick={() => setShowMaintenanceFieldModal(true)}>
-                            <FontAwesomeIcon icon={faCog} />
+        <>
+            <div className="device-header-background">
+                <Container>
+                    <div className="device-name">
+                        <Button
+                            onClick={() => {
+                                if (location.state?.fromTicketId) {
+                                    navigate(`/tickets/${location.state.fromTicketId}`);
+                                } else if (location.state && location.state.from === 'all-devices') {
+                                    navigate('/devices');
+                                } else if (device && device.clientId) {
+                                    navigate(`/customer/${device.clientId}`);
+                                } else {
+                                    navigate(-1);
+                                }
+                            }}
+                        >
+                            Back
                         </Button>
+                        <h1 className="device-title">{device ? `${device.deviceName} Details` : 'Device Details'}</h1>
                     </div>
-                </Col>
-            </Row>
-            <Row>
-                {device && device.writtenOffDate && (
-                    <div>
-                        <strong>Service Duration: </strong>
-                        {Math.floor((new Date(device.writtenOffDate) - new Date(device.introducedDate)) / (1000 * 60 * 60 * 24))} days
-                    </div>
-                )}
-            </Row>
+                </Container>
+            </div>
+            <Container className="mt-4 pt-5">
 
-            <Row>
-                <Col md={6}>
-                    <DeviceDetails
-                        device={device}
-                        navigate={navigate}
-                        setShowCommentsModal={setShowCommentsModal}
-                        setRefresh={setRefresh}
-                        onUploadSuccess={handleUploadSuccess}
-                    />
-                    <LinkedDevices
-                        linkedDevices={linkedDevices}
-                        showModal={showModal}
-                        setShowModal={setShowModal}
-                        availableLinkedDevices={availableLinkedDevices}
-                        selectedLinkedDeviceId={selectedLinkedDeviceId}
-                        setSelectedLinkedDeviceId={setSelectedLinkedDeviceId}
-                        handleLinkDevice={handleLinkDevice}
-                        deviceId={deviceId} // Pass deviceId as a prop
-                        setLinkedDevices={setLinkedDevices} // Pass setLinkedDevices as a prop
-                    />
-                </Col>
-                <Col md={6}>
-                    <MaintenanceInfo
-                        maintenanceInfo={maintenanceInfo}
-                        showMaintenanceModal={showMaintenanceModal}
-                        setShowMaintenanceModal={setShowMaintenanceModal}
-                        showMaintenanceFieldModal={showMaintenanceFieldModal}
-                        setShowMaintenanceFieldModal={setShowMaintenanceFieldModal}
-                        handleAddMaintenance={handleAddMaintenance}
-                        setMaintenanceName={setMaintenanceName}
-                        setMaintenanceDate={setMaintenanceDate}
-                        setMaintenanceComment={setMaintenanceComment}
-                        setFiles={setFiles} // Pass setFiles to MaintenanceInfo
-                    />
-                </Col>
-            </Row>
-            <CommentsModal
-                show={showCommentsModal}
-                handleClose={() => setShowCommentsModal(false)}
-                deviceId={deviceId} // Pass deviceId to CommentsModal
-            />
-        </Container>
+                <Row className="mt-3 mb-2">
+                    <Col md={6}>
+                        <h2>{device ? `${device.deviceName}` : 'Undefined'}</h2>
+                    </Col>
+                    <Col md={6}>
+                        <div className="d-flex">
+                            <h2>Maintenance Information</h2>
+                            <div className="ms-3" style={{alignContent: "center"}}>
+                                <Button variant="primary" onClick={() => setShowMaintenanceModal(true)}>Add Maintenance</Button>
+                            </div>
+                            <Button variant="link" onClick={() => setShowMaintenanceFieldModal(true)}>
+                                <FontAwesomeIcon icon={faCog} />
+                            </Button>
+                        </div>
+                    </Col>
+                </Row>
+                <Row>
+                    {device && device.writtenOffDate && (
+                        <div>
+                            <strong>Service Duration: </strong>
+                            {Math.floor((new Date(device.writtenOffDate) - new Date(device.introducedDate)) / (1000 * 60 * 60 * 24))} days
+                        </div>
+                    )}
+                </Row>
+
+                <Row>
+                    <Col md={6}>
+                        <DeviceDetails
+                            device={device}
+                            navigate={navigate}
+                            setShowCommentsModal={setShowCommentsModal}
+                            setRefresh={setRefresh}
+                            onUploadSuccess={handleUploadSuccess}
+                        />
+                        <LinkedDevices
+                            linkedDevices={linkedDevices}
+                            showModal={showModal}
+                            setShowModal={setShowModal}
+                            availableLinkedDevices={availableLinkedDevices}
+                            selectedLinkedDeviceId={selectedLinkedDeviceId}
+                            setSelectedLinkedDeviceId={setSelectedLinkedDeviceId}
+                            handleLinkDevice={handleLinkDevice}
+                            deviceId={deviceId} // Pass deviceId as a prop
+                            setLinkedDevices={setLinkedDevices} // Pass setLinkedDevices as a prop
+                        />
+                    </Col>
+                    <Col md={6}>
+                        <MaintenanceInfo
+                            maintenanceInfo={maintenanceInfo}
+                            showMaintenanceModal={showMaintenanceModal}
+                            setShowMaintenanceModal={setShowMaintenanceModal}
+                            showMaintenanceFieldModal={showMaintenanceFieldModal}
+                            setShowMaintenanceFieldModal={setShowMaintenanceFieldModal}
+                            handleAddMaintenance={handleAddMaintenance}
+                            setMaintenanceName={setMaintenanceName}
+                            setMaintenanceDate={setMaintenanceDate}
+                            setMaintenanceComment={setMaintenanceComment}
+                            setFiles={setFiles} // Pass setFiles to MaintenanceInfo
+                        />
+                    </Col>
+                </Row>
+                <CommentsModal
+                    show={showCommentsModal}
+                    handleClose={() => setShowCommentsModal(false)}
+                    deviceId={deviceId} // Pass deviceId to CommentsModal
+                />
+            </Container>
+        </>
     );
 }
 
