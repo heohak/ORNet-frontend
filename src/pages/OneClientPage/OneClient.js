@@ -120,10 +120,15 @@ function OneClient() {
 
     return (
         <>
-            <div className='client-name'>
-                <Button className='mt-2 mb-2 ms-2' onClick={() => navigate('/customers')}>Back</Button>
-                <h1 className="text-center flex-grow-1 me-2" >{client ? `${client.shortName} Details` : 'Client Details'}</h1>
+            <div className="client-header-background">
+                <Container>
+                    <div className="client-name">
+                        <Button onClick={() => navigate('/customers')}>Back</Button>
+                        <h1 className="client-title">{client ? `${client.shortName} Details` : 'Client Details'}</h1>
+                    </div>
+                </Container>
             </div>
+
             <Container className="mt-5 pt-5">
                 {loading && <Spinner animation="border" />}
                 {error && <Alert variant="danger">{error}</Alert>}
