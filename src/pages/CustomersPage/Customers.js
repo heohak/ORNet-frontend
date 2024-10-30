@@ -1,6 +1,19 @@
-import React, { useEffect, useState, useRef} from 'react';
+import React, { useEffect, useState} from 'react';
 import axios from 'axios';
-import { Container, Row, Col, Card, Button, Spinner, Alert, Form, InputGroup, Modal } from 'react-bootstrap';
+import {
+    Container,
+    Row,
+    Col,
+    Button,
+    Spinner,
+    Alert,
+    Form,
+    FormControl,
+    InputGroup,
+    Modal,
+    DropdownButton,
+    Dropdown
+} from 'react-bootstrap';
 import config from "../../config/config";
 import AddCustomer from "./AddCustomer";
 import GenerateReportModal from "../../modals/GenerateReportModal";
@@ -15,6 +28,7 @@ function Customers() {
     const [showAddCustomerModal, setShowAddCustomerModal] = useState(false);
     const [showGenerateReportModal, setShowGenerateReportModal] = useState(false);
     const [typingTimeout, setTypingTimeout] = useState(null);
+    const [sortConfig, setSortConfig] = useState({ key: 'shortName', direction: 'ascending' });
 
     useEffect(() => {
         fetchCustomers();
@@ -53,8 +67,8 @@ function Customers() {
         setSearchQuery(e.target.value);
     };
 
-    const handleFilterChange = (e) => {
-        setCustomerType(e.target.value);
+    const handleFilterChange = (type) => {
+        setCustomerType(type);
     };
 
 
@@ -69,6 +83,34 @@ function Customers() {
 
     const handleCloseGenerateReportModal = () => {
         setShowGenerateReportModal(false);
+    };
+
+    const handleSort = (key) => {
+        let direction = 'ascending';
+        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+            direction = 'descending';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const sortCustomers = (customers, key, direction) => {
+        const sortedCustomers = [...customers];
+        sortedCustomers.sort((a, b) => {
+            // Provide a fallback value of an empty string if a[key] or b[key] is undefined
+            const nameA = (a[key] || '').toString().toLowerCase();
+            const nameB = (b[key] || '').toString().toLowerCase();
+            if (nameA < nameB) return direction === 'ascending' ? -1 : 1;
+            if (nameA > nameB) return direction === 'ascending' ? 1 : -1;
+            return 0;
+        });
+        return sortedCustomers;
+    };
+
+    const renderSortArrow = (key) => {
+        if (sortConfig.key === key) {
+            return sortConfig.direction === 'ascending' ? '▲' : '▼';
+        }
+        return '↕';
     };
 
 
@@ -101,43 +143,73 @@ function Customers() {
             </Row>
 
             <Form className="mb-3">
-                <Row>
+                <Row className="mb-4 align-items-center">
                     <Col md={6}>
                         <InputGroup>
-                            <Form.Control
-                                type="text"
+                            <FormControl
                                 placeholder="Search customers..."
                                 value={searchQuery}
                                 onChange={handleSearchChange}
                             />
+                            <DropdownButton
+                                as={InputGroup.Append}
+                                variant="outline-secondary"
+                                title={customerType || 'All Types'}
+                                id="input-group-dropdown-type"
+                            >
+                                <Dropdown.Item onClick={() => handleFilterChange('')}>All Types</Dropdown.Item>
+                                <Dropdown.Item onClick={() => handleFilterChange('pathology')}>Pathology</Dropdown.Item>
+                                <Dropdown.Item onClick={() => handleFilterChange('surgery')}>Surgery</Dropdown.Item>
+                                <Dropdown.Item onClick={() => handleFilterChange('editor')}>Editor</Dropdown.Item>
+                            </DropdownButton>
                         </InputGroup>
                     </Col>
+                </Row>
+
+            </Form>
+            {/* Table-like row for customers */}
+            <div className="mt-3">
+                <Row className="font-weight-bold text-center">
+                    <Col md={4} onClick={() => handleSort('shortName')}>
+                        Short Name {renderSortArrow('shortName')}
+                    </Col>
+                    <Col md={4} onClick={() => handleSort('fullName')}>
+                        Full Name {renderSortArrow('fullName')}
+                    </Col>
                     <Col md={4}>
-                        <Form.Select value={customerType} onChange={handleFilterChange}>
-                            <option value="">Filter by Type</option>
-                            <option value="pathology">Pathology</option>
-                            <option value="surgery">Surgery</option>
-                            <option value="editor">Editor</option>
-                        </Form.Select>
+                        Type
                     </Col>
                 </Row>
-            </Form>
-            <Row>
-                {customer.map((customer) => (
-                    <Col md={3} sm={6} key={customer.id} className="mb-4">
-                        <Card className="h-100 position-relative all-page-card">
-                            <Card.Body onClick={() => window.location.href = `/customer/${customer.id}`} className="all-page-cardBody">
-                                <div className="mb-4">
-                                    <Card.Title className='all-page-cardTitle'>Name: {customer.shortName}</Card.Title>
-                                    <Card.Text className='all-page-cardText'>
-                                        <strong>Full name:</strong> {customer.fullName}
-                                    </Card.Text>
-                                </div>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                ))}
-            </Row>
+                <hr />
+                {sortCustomers(customer, sortConfig.key, sortConfig.direction).length === 0 ? (
+                    <Alert variant="info">No customers found.</Alert>
+                ) : (
+                    sortCustomers(customer, sortConfig.key, sortConfig.direction).map((customer, index) => {
+                        const customerTypes = [];
+                        if (customer.pathologyClient) customerTypes.push('Pathology');
+                        if (customer.surgeryClient) customerTypes.push('Surgery');
+                        if (customer.editorClient) customerTypes.push('Editor');
+                        const customerTypeDisplay = customerTypes.join(', ') || 'N/A';
+
+                        const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+
+
+                        return (
+                            <Row
+                                key={customer.id}
+                                className="align-items-center text-center mb-2"
+                                style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
+                                onClick={() => window.location.href = `/customer/${customer.id}`}
+                            >
+                                <Col md={4}>{customer.shortName}</Col>
+                                <Col md={4}>{customer.fullName}</Col>
+                                <Col md={4}>{customerTypeDisplay}</Col>
+                            </Row>
+                        );
+                    })
+                )}
+            </div>
+
             <Modal show={showAddCustomerModal} onHide={() => setShowAddCustomerModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add customer</Modal.Title>
