@@ -7,6 +7,8 @@ import DeviceDetails from "./DeviceDetails";
 import MaintenanceInfo from "./MaintenanceInfo";
 import LinkedDevices from "./LinkedDevices";
 import CommentsModal from "../../modals/CommentsModal";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCog} from "@fortawesome/free-solid-svg-icons";
 
 function OneDevice() {
     const { deviceId } = useParams();
@@ -17,6 +19,7 @@ function OneDevice() {
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
+    const [showMaintenanceFieldModal, setShowMaintenanceFieldModal] = useState(false);
     const [availableLinkedDevices, setAvailableLinkedDevices] = useState([]);
     const [selectedLinkedDeviceId, setSelectedLinkedDeviceId] = useState("");
     const [maintenanceName, setMaintenanceName] = useState("");
@@ -151,6 +154,31 @@ function OneDevice() {
                 Back
             </Button>
 
+            <Row className="mt-3 mb-2">
+                <Col md={6}>
+                    <h1>{device ? `${device.deviceName} Details` : 'Device Details'}</h1>
+                </Col>
+                <Col md={6}>
+                    <div className="d-flex">
+                        <h2>Maintenance Information</h2>
+                        <div className="ms-3" style={{alignContent: "center"}}>
+                            <Button variant="primary" onClick={() => setShowMaintenanceModal(true)}>Add Maintenance</Button>
+                        </div>
+                        <Button variant="link" onClick={() => setShowMaintenanceFieldModal(true)}>
+                            <FontAwesomeIcon icon={faCog} />
+                        </Button>
+                    </div>
+                </Col>
+            </Row>
+            <Row>
+                {device && device.writtenOffDate && (
+                    <div>
+                        <strong>Service Duration: </strong>
+                        {Math.floor((new Date(device.writtenOffDate) - new Date(device.introducedDate)) / (1000 * 60 * 60 * 24))} days
+                    </div>
+                )}
+            </Row>
+
             <Row>
                 <Col md={6}>
                     <DeviceDetails
@@ -177,6 +205,8 @@ function OneDevice() {
                         maintenanceInfo={maintenanceInfo}
                         showMaintenanceModal={showMaintenanceModal}
                         setShowMaintenanceModal={setShowMaintenanceModal}
+                        showMaintenanceFieldModal={showMaintenanceFieldModal}
+                        setShowMaintenanceFieldModal={setShowMaintenanceFieldModal}
                         handleAddMaintenance={handleAddMaintenance}
                         setMaintenanceName={setMaintenanceName}
                         setMaintenanceDate={setMaintenanceDate}

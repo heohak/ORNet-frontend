@@ -1,21 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { Alert, Button, Card, Col, Container, Row, Spinner, Badge } from "react-bootstrap";
-import config from "../../config/config";
+import { Row, Col, Spinner, Alert, Button, Container } from 'react-bootstrap';
+import axios from 'axios';
+import config from '../../config/config';
 import AddDeviceModal from './AddDeviceModal';
 import DeviceSearchFilter from './DeviceSearchFilter';
 import SummaryModal from './SummaryModal';
 import '../../css/AllDevicesPage/Devices.css';
+import {useNavigate} from "react-router-dom";
 
 function Devices() {
     const [devices, setDevices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showAddDeviceModal, setShowAddDeviceModal] = useState(false);
-    const [refresh, setRefresh] = useState(false); // State to trigger refresh
+    const [refresh, setRefresh] = useState(false);
     const [showSummaryModal, setShowSummaryModal] = useState(false);
     const [classificators, setClassificators] = useState({});
+    const [clients, setClients] = useState([]);
+    const [sortConfig, setSortConfig] = useState({ key: 'deviceName', direction: 'ascending' });
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -25,53 +27,117 @@ function Devices() {
                 const filteredDevices = response.data.filter(device => !device.writtenOffDate);
                 setDevices(filteredDevices);
             } catch (error) {
-                setError(error.message);
+                setError('Failed to load devices.');
             } finally {
                 setLoading(false);
             }
         };
 
-        const fetchClassificators = async() => {
+        const fetchClassificators = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/device/classificator/all`)
-
-                const classificators = {};
+                const response = await axios.get(`${config.API_BASE_URL}/device/classificator/all`);
+                const classificatorsData = {};
                 response.data.forEach(classificator => {
-                    classificators[classificator.id] = classificator.name;
+                    classificatorsData[classificator.id] = classificator.name;
                 });
-                setClassificators(classificators)
+                setClassificators(classificatorsData);
             } catch (error) {
                 console.error("Couldn't fetch device classificators", error);
             }
-        }
+        };
+
+        const fetchClients = async () => {
+            try {
+                const response = await axios.get(`${config.API_BASE_URL}/client/all`);
+                setClients(response.data);
+            } catch (error) {
+                console.error("Couldn't fetch clients", error);
+            }
+        };
 
         fetchDevices();
         fetchClassificators();
+        fetchClients();
     }, [refresh]);
+
+    const handleSort = (key) => {
+        let direction = 'ascending';
+        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+            direction = 'descending';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const sortDevices = (devices, key, direction) => {
+        const sortedDevices = [...devices];
+        sortedDevices.sort((a, b) => {
+            let valueA, valueB;
+
+            if (key === 'type') {
+                // Sorting by type using classificators
+                valueA = classificators[a.classificatorId] || 'Unknown Type';
+                valueB = classificators[b.classificatorId] || 'Unknown Type';
+            } else if (key === 'clientName') {
+                // Sorting by client name using getClientName helper
+                valueA = getClientName(a.clientId);
+                valueB = getClientName(b.clientId);
+            } else {
+                // Sorting by the specified key (e.g., deviceName or serialNumber)
+                valueA = a[key];
+                valueB = b[key];
+            }
+
+            // Sort in ascending or descending order
+            if (valueA < valueB) return direction === 'ascending' ? -1 : 1;
+            if (valueA > valueB) return direction === 'ascending' ? 1 : -1;
+            return 0;
+        });
+        return sortedDevices;
+    };
+
+
+    const getClientName = (clientId) => {
+        const client = clients.find(client => client.id === clientId);
+        return client ? client.shortName : 'Unknown Customer';
+    };
 
     if (loading) {
         return (
-            <Container className="text-center mt-5">
+            <div className="text-center mt-5">
                 <Spinner animation="border" role="status">
                     <span className="visually-hidden">Loading...</span>
                 </Spinner>
-            </Container>
+            </div>
         );
     }
 
     if (error) {
         return (
-            <Container className="mt-5">
+            <div className="mt-5">
                 <Alert variant="danger">
                     <Alert.Heading>Error</Alert.Heading>
                     <p>{error}</p>
                 </Alert>
-            </Container>
+            </div>
         );
+    }
+
+    const sortedDevices = sortDevices(devices, sortConfig.key, sortConfig.direction);
+
+    const renderSortArrow = (key) => {
+        if (sortConfig.key === key) {
+            return sortConfig.direction === 'ascending' ? '▲' : '▼';
+        }
+        return '↕';
+    };
+
+    const handleNavigate = (deviceId) => {
+        navigate(`/device/${deviceId}`)
     }
 
     return (
         <>
+            {/* Device Search Menu */}
             <div className="device-search-menu">
                 <div className="device-search-menu-header mb-4">
                     <h1 className="mb-0">Devices</h1>
@@ -86,38 +152,56 @@ function Devices() {
                 </div>
                 <DeviceSearchFilter setDevices={setDevices} />
             </div>
-            <Container className="mt-5 devices-container">
-                <Row>
-                    {devices.map((device) => (
-                        <Col md={4} key={device.id} className="mb-4">
-                            <Card className='all-page-card' onClick={() => navigate(`/device/${device.id}`, {state: {from: 'all-devices'}})}>
-                                <Card.Body className='all-page-cardBody'>
-                                    <Card.Title className='all-page-cardTitle'>
-                                        <strong>{device.deviceName}</strong>
-                                        {device.writtenOffDate && (
-                                            <Badge bg="danger" className="ms-2">Written Off</Badge> // Simple written-off indicator
-                                        )}</Card.Title>
-                                    <Card.Text className='all-page-cardText'>
-                                        <strong>Serial Number: </strong>{device.serialNumber}<br />
-                                        <strong>Type: </strong>{classificators[device.classificatorId] || "Unknown type"}
-                                    </Card.Text>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    ))}
+
+            {/* Table header and rows */}
+            <Container className="devices-container">
+                <Row className="font-weight-bold text-center">
+                    <Col md={3} onClick={() => handleSort('deviceName')}>
+                        Name {renderSortArrow('deviceName')}
+                    </Col>
+                    <Col md={3} onClick={() => handleSort('clientName')}>
+                        Customer {renderSortArrow('clientName')}
+                    </Col>
+                    <Col md={2} onClick={() => handleSort('type')}>
+                        Type {renderSortArrow('type')}
+                    </Col>
+                    <Col md={3} onClick={() => handleSort('serialNumber')}>
+                        Serial Number {renderSortArrow('serialNumber')}
+                    </Col>
                 </Row>
-                <AddDeviceModal
-                    show={showAddDeviceModal}
-                    onHide={() => setShowAddDeviceModal(false)}
-                    setRefresh={setRefresh}
-                />
-                <SummaryModal
-                    show={showSummaryModal}
-                    handleClose={() => setShowSummaryModal(false)}
-                    devices={devices}
-                />
+                <hr />
+
+                {/* Device Rows */}
+                {sortedDevices.map((device, index) => {
+                    const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                    return (
+                        <Row
+                            key={device.id}
+                            className="align-items-center text-center mb-2"
+                            style={{ backgroundColor: rowBgColor, cursor: 'pointer'}}
+                            onClick={() => handleNavigate(device.id)}
+                        >
+                            <Col md={3}>{device.deviceName}</Col>
+                            <Col md={3}>{getClientName(device.clientId)}</Col>
+                            <Col md={2}>{classificators[device.classificatorId] || 'Unknown Type'}</Col>
+                            <Col md={3}>{device.serialNumber}</Col>
+                        </Row>
+                    );
+                })}
             </Container>
-    </>
+
+            {/* Modals */}
+            <AddDeviceModal
+                show={showAddDeviceModal}
+                onHide={() => setShowAddDeviceModal(false)}
+                setRefresh={setRefresh}
+            />
+            <SummaryModal
+                show={showSummaryModal}
+                handleClose={() => setShowSummaryModal(false)}
+                devices={devices}
+            />
+        </>
     );
 }
 
