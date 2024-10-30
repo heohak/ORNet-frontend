@@ -119,7 +119,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
 
 
     return (
-        <Container className="mt-5">
+        <Container>
             {error && (
                 <Alert variant="danger">
                     <Alert.Heading>Error</Alert.Heading>
