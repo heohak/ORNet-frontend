@@ -4,10 +4,11 @@ import axios from 'axios';
 import config from "../../config/config";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
 // Define specific fields to display
 const specificFields = [
-    'fullName', 'shortName', 'pathologyClient', 'surgeryClient', 'editorClient', 'otherMedicalInformation', 'lastMaintenance', 'nextMaintenance'
+    'pathologyClient', 'surgeryClient', 'editorClient', 'otherMedicalDevices', 'lastMaintenance', 'nextMaintenance'
 ];
 
 function ClientDetails({ client, navigate }) {
@@ -50,20 +51,40 @@ function ClientDetails({ client, navigate }) {
     };
 
     const renderFields = (data) => {
-        return specificFields.map(key => {
-            if (data[key] !== null && visibleDeviceFields[key]) {
-                let displayValue = data[key];
-                if (typeof data[key] === 'boolean') {
-                    displayValue = data[key] ? 'Yes' : 'No';
-                }
-                return (
-                    <Card.Text key={key} className="mb-1">
-                        <strong>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}: </strong> {displayValue}
-                    </Card.Text>
-                );
-            }
-            return null;
-        });
+        const visibleFields = specificFields.filter(
+            key => visibleDeviceFields[key] && data[key] !== undefined && data[key] !== null && (typeof data[key] !== 'boolean' || data[key])
+        );
+
+        return (
+            <Row className="mb-3">
+                {/* Display FullName/ShortName at the top, in a larger font */}
+                {(visibleDeviceFields.fullName || visibleDeviceFields.shortName) && (
+                    <Col xs={12} className="mb-3">
+                        <Card.Text style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>
+                            {data.fullName}/{data.shortName}
+                        </Card.Text>
+                    </Col>
+                )}
+
+                {/* Render each field in a responsive column, filling available space without gaps */}
+                {visibleFields.map((key, index) => (
+                    <Col md={6} key={index} className="mb-2">
+                        <Card.Text>
+                            <strong>
+                                {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:
+                            </strong>
+                            <span className="ms-2">
+                            {typeof data[key] === 'boolean' ? (
+                                data[key] ? <FontAwesomeIcon icon={faCheck} /> : null
+                            ) : (
+                                data[key]
+                            )}
+                        </span>
+                        </Card.Text>
+                    </Col>
+                ))}
+            </Row>
+        );
     };
 
     const handleNavigate = () => {
@@ -91,30 +112,23 @@ function ClientDetails({ client, navigate }) {
                 <Card className="mb-4">
                     <Card.Body className="pt-2 pb-2">
                         <Row>
-                            <Col>
+                            <Col md={10}>
                                 {renderFields(client)}
                             </Col>
-                            <Col className='col-md-auto'>
-                                <Row>
-                                    <Col className='col-md-auto'>
-                                        <Button variant="link" onClick={() => setShowClientFieldModal(true)}>
-                                            <FontAwesomeIcon icon={faCog} />
-                                        </Button>
-                                    </Col>
-                                    <Col className="col-md-auto">
-                                        <Row>
-                                            <Button variant="primary" onClick={() => navigate(`/client/edit/${client.id}`)}>
-                                                Edit Customer
-                                            </Button>
-                                        </Row>
-                                        <Row>
-                                            <Button onClick={handleNavigate} className='mt-2'>See History</Button>
-                                        </Row>
-                                    </Col>
-                                </Row>
+                            <Col md={2} className="d-flex justify-content-end align-items-start text-end">
+                                <Button variant="link" onClick={() => setShowClientFieldModal(true)} className="me-2">
+                                    <FontAwesomeIcon icon={faCog} />
+                                </Button>
+                                <Button variant="primary" onClick={() => navigate(`/client/edit/${client.id}`)} className="me-2">
+                                    Edit Customer
+                                </Button>
+                                <Button variant="secondary" onClick={handleNavigate}>
+                                    See History
+                                </Button>
                             </Col>
                         </Row>
                     </Card.Body>
+
                 </Card>
             ) : (
                 <Alert variant="info">No client details available.</Alert>
@@ -126,16 +140,20 @@ function ClientDetails({ client, navigate }) {
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        {specificFields.map(key => (
-                            <Form.Check
-                                key={key}
-                                type="checkbox"
-                                label={key.replace(/([A-Z])/g, ' $1')}
-                                checked={visibleDeviceFields[key]}
-                                onChange={() => handleFieldToggle(key)}
-                            />
-                        ))}
+                        <Row>
+                            {specificFields.map(key => (
+                                <Col xs={6} key={key}>
+                                    <Form.Check
+                                        type="checkbox"
+                                        label={key.replace(/([A-Z])/g, ' $1')}
+                                        checked={visibleDeviceFields[key]}
+                                        onChange={() => handleFieldToggle(key)}
+                                    />
+                                </Col>
+                            ))}
+                        </Row>
                     </Form>
+
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowClientFieldModal(false)}>Close</Button>
