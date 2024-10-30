@@ -131,9 +131,6 @@ function Devices() {
         return '↕';
     };
 
-    const handleNavigate = (deviceId) => {
-        navigate(`/device/${deviceId}`)
-    }
 
     return (
         <>
@@ -179,7 +176,7 @@ function Devices() {
                             key={device.id}
                             className="align-items-center text-center mb-2"
                             style={{ backgroundColor: rowBgColor, cursor: 'pointer'}}
-                            onClick={() => handleNavigate(device.id)}
+                            onClick={() => navigate(`/device/${device.id}`, {state: {from: 'all-devices'}})}
                         >
                             <Col md={3}>{device.deviceName}</Col>
                             <Col md={3}>{getClientName(device.clientId)}</Col>
