@@ -103,7 +103,7 @@ const SearchBar = ({ searchQuery, onSearchChange, onFilterChange, onCrisisChange
 
             {/* Add Ticket Button */}
             <Col className="col-md-auto text-end">
-                <Button variant="success" onClick={() => handleAddTicket()}>
+                <Button variant="primary" onClick={() => handleAddTicket()}>
                     Add Ticket
                 </Button>
             </Col>
