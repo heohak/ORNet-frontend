@@ -12,17 +12,14 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 function ClientWorker({workers, client, clientId, setRefresh}) {
     const [showAddWorkerModal, setShowAddWorkerModal] = useState(false);
-    const [showEditWorkerModal, setShowEditWorkerModal] = useState(false); // State to control the EditWorkerModal
-    const [expandedWorkerId, setExpandedWorkerId] = useState(null);
+    const [showEditWorkerModal, setShowEditWorkerModal] = useState(false);
     const [workerLocations, setWorkerLocations] = useState({});
-    const [selectedWorkerId, setSelectedWorkerId] = useState(null);
     const [selectedWorker, setSelectedWorker] = useState(null); // State to hold the selected worker for editing
     const [roles, setRoles] = useState([]);
     const [selectedFilterRoleId, setSelectedFilterRoleId] = useState(''); // State for filtering
     const [filteredWorkers, setFilteredWorkers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [favoriteFilter, setFavoriteFilter] = useState(false);
-
 
     useEffect(() => {
         fetchRoles();
@@ -103,26 +100,6 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
         }
     };
 
-    const toggleWorkerDetails = async (workerId) => {
-        if (expandedWorkerId === workerId) {
-            setExpandedWorkerId(null);
-        } else {
-            setExpandedWorkerId(workerId);
-            if (!workerLocations[workerId]) {
-                try {
-                    const response = await axios.get(`${config.API_BASE_URL}/worker/location/${workerId}`);
-                    const location = response.data;
-                    setWorkerLocations(prevLocations => ({
-                        ...prevLocations,
-                        [workerId]: location
-                    }));
-                } catch (error) {
-                    console.error(`Error fetching location for worker ${workerId}:`, error);
-                }
-            }
-        }
-    };
-
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
     };
@@ -174,9 +151,6 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
             console.log('Failed to update favorite status');
         }
     };
-
-
-
 
     return (
         <>
@@ -240,51 +214,39 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
                                         justifyContent: 'space-between',
                                         alignItems: 'center'
                                     }}>
+                                        <Card.Title className='all-page-cardTitle'>
+                                            {worker.firstName} {worker.lastName}
+                                        </Card.Title>
                                         <div>
-                                            <Card.Title
-                                                className='all-page-cardTitle'>{worker.firstName} {worker.lastName}
-                                            </Card.Title>
-                                            <Card.Text className="all-page-cardText">
-                                                {/* Role icon and details */}
-                                                <FaUserTie className="me-1" /> {worker.roles.map(role => role.role).join(', ')} <br />
-
-                                                {/* Location with map pin icon */}
-                                                <FontAwesomeIcon icon={faMapMarkerAlt} className="me-2" /> {workerLocations[worker.id]?.name || "N/A"} <br />
-                                            </Card.Text>
-                                        </div>
-                                        <div>
-                                <span
-                                    style={{
-                                        cursor: 'pointer',
-                                        color: worker.favorite ? 'gold' : 'gray',
-                                        marginRight: '10px'
-                                    }}
-                                    onClick={() => toggleFavorite(worker.id)}
-                                >
-                                    {worker.favorite ? <FaStar/> : <FaRegStar/>}
-                                </span>
+                                            <span
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    color: worker.favorite ? 'gold' : 'gray',
+                                                    marginRight: '10px'
+                                                }}
+                                                onClick={() => toggleFavorite(worker.id)}
+                                            >
+                                                {worker.favorite ? <FaStar/> : <FaRegStar/>}
+                                            </span>
 
                                             <Button variant="link" onClick={() => handleEditWorker(worker)}>
                                                 <FontAwesomeIcon icon={faEdit} />
                                             </Button>
-                                            <Button variant="link" onClick={() => toggleWorkerDetails(worker.id)}>
-                                                {expandedWorkerId === worker.id ? '▲' : '▼'}
-                                            </Button>
                                         </div>
                                     </div>
-                                    {expandedWorkerId === worker.id && workerLocations[worker.id] && (
-                                        <div>
-                                            <Card.Text>
-                                                <FaUserTie className="me-1" /> {worker.title} <br />
-                                                {/* Phone icon and details */}
-                                                <FaPhone className="me-1" /> {worker.phoneNumber} <br />
+                                    <Card.Text className="all-page-cardText">
+                                        {/* Role and title */}
+                                        <FaUserTie className="me-1" /> {worker.roles.map(role => role.role).join(', ')} {worker.title ? `(${worker.title})` : ''} <br />
 
-                                                {/* Email icon and details */}
-                                                <FaEnvelope className="me-1" /> {worker.email}
-                                            </Card.Text>
+                                        {/* Location */}
+                                        <FontAwesomeIcon icon={faMapMarkerAlt} className="me-2" /> {workerLocations[worker.id]?.name || "N/A"} <br />
 
-                                        </div>
-                                    )}
+                                        {/* Phone */}
+                                        <FaPhone className="me-1" /> {worker.phoneNumber} <br />
+
+                                        {/* Email */}
+                                        <FaEnvelope className="me-1" /> {worker.email}
+                                    </Card.Text>
                                 </Card.Body>
                             </Card>
                         </Col>
