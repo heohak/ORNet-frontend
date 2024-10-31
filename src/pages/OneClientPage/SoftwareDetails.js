@@ -37,7 +37,7 @@ function SoftwareDetails({softwareList, clientId, setRefresh, client}) {
                     <h2 className="mt-1 mb-1">Technical information</h2>
                 </Col>
                 <Col className="text-end">
-                    <Button variant="success" className="mb-0" onClick={() => setShowAddSoftwareModal(true)}>
+                    <Button variant="primary" className="mb-0" onClick={() => setShowAddSoftwareModal(true)}>
                         Add Tech Info
                     </Button>
                 </Col>

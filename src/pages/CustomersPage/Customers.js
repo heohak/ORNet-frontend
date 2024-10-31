@@ -133,7 +133,7 @@ function Customers() {
                     <h1>Customers</h1>
                 </Col>
                 <Col className="text-end">
-                    <Button variant="success" className="me-2" onClick={handleAddCustomer}>
+                    <Button variant="primary" className="me-2" onClick={handleAddCustomer}>
                         Add Customer
                     </Button>
                     <Button variant="primary" onClick={handleGenerateReport}>

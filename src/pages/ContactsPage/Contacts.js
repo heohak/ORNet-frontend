@@ -5,6 +5,7 @@ import { Alert, Button, Card, Col, Container, Row, Spinner, Badge } from "react-
 import config from "../../config/config";
 import WorkerSearchFilter from './WorkerSearchFilter'; // This handles the search and filter
 import '../../css/Contacts.css';
+import {FaEnvelope, FaPhone, FaUserTie} from "react-icons/fa";
 
 function Contacts() {
     const [workers, setWorkers] = useState([]);
@@ -80,21 +81,30 @@ function Contacts() {
                 <Row>
                     {workers.map((worker) => (
                         <Col md={4} key={worker.id} className="mb-4">
-                            <Card className='all-page-card'>
+                            <Card className='h-100 position-relative customer-page-card'>
                                 <Card.Body className='all-page-cardBody'>
                                     <Card.Title className='all-page-cardTitle'>
-                                        <strong>{worker.firstName} {worker.lastName} {worker.favorite && <Badge bg="warning">Favorite</Badge>}</strong>
+                                        {worker.firstName} {worker.lastName}{' '}
+                                        {worker.favorite && <Badge bg="warning">Favorite</Badge>}
                                     </Card.Title>
                                     <Card.Text className='all-page-cardText'>
-                                        <strong>Email: </strong>{worker.email}<br />
-                                        <strong>Phone: </strong>{worker.phoneNumber}<br />
-                                        <strong>Title: </strong>{worker.title || "N/A"}<br />
+                                        {/* Title */}
+                                        {worker.title && (
+                                            <>
+                                                <FaUserTie className="me-1" /> {worker.title} <br />
+                                            </>
+                                        )}
+                                        {/* Phone */}
+                                        <FaPhone className="me-1" /> {worker.phoneNumber} <br />
+                                        {/* Email */}
+                                        <FaEnvelope className="me-1" /> {worker.email}
                                     </Card.Text>
                                 </Card.Body>
                             </Card>
                         </Col>
                     ))}
                 </Row>
+
             </Container>
         </>
     );

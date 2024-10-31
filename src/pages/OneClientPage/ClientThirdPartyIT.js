@@ -72,8 +72,8 @@ function ClientThirdPartyIT({ clientId, client }) {
                                     </div>
                                     <Card.Title className='all-page-cardTitle'>{thirdParty.name}</Card.Title>
                                     <Card.Text className='all-page-cardText'>
-                                        <FaEnvelope className="me-2" />{thirdParty.email}<br />
-                                        <FaPhone className="me-2" />{thirdParty.phone}
+                                        <FaPhone className="me-2" />{thirdParty.phone}<br/>
+                                        <FaEnvelope className="me-2" />{thirdParty.email}
                                     </Card.Text>
                                 </Card.Body>
                             </Card>
