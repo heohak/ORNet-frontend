@@ -212,6 +212,7 @@ function Tickets() {
                     firstTicket={ticket} // Pass the selected ticket to NewTicket
                     statuses={statuses}
                     isTicketClosed={closedStatusId === ticket.statusId}
+                    reFetch={fetchTickets}
                 />
             )}
             <AddTicketModal
