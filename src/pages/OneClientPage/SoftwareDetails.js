@@ -4,6 +4,8 @@ import {Alert, Button, Card, Col, Container, Row, Spinner, Table} from 'react-bo
 import AddClientSoftware from "./AddClientSoftware";
 import {useNavigate} from 'react-router-dom';
 import '../../css/OneClientPage/SoftwareDetails.css';
+import {faEdit} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 
 function SoftwareDetails({softwareList, clientId, setRefresh, client}) {
@@ -35,7 +37,7 @@ function SoftwareDetails({softwareList, clientId, setRefresh, client}) {
                     <h2 className="mt-1 mb-1">Technical information</h2>
                 </Col>
                 <Col className="text-end">
-                    <Button variant="primary" className="mb-0" onClick={() => setShowAddSoftwareModal(true)}>
+                    <Button variant="success" className="mb-0" onClick={() => setShowAddSoftwareModal(true)}>
                         Add Tech Info
                     </Button>
                 </Col>
@@ -51,9 +53,9 @@ function SoftwareDetails({softwareList, clientId, setRefresh, client}) {
                                         <Card.Title className='all-page-cardTitle'>{software.name}</Card.Title>
                                     </div>
                                     <div>
-                                        <Button variant="secondary"
+                                        <Button variant="link"
                                                 onClick={() => navigate(`/settings/software/edit/${software.id}`, {state: {software}})}>
-                                            Edit
+                                            <FontAwesomeIcon icon={faEdit} />
                                         </Button>
                                         <Button variant="link" onClick={() => toggleTechnicalInfo(software.id)}>
                                             {expandedSoftwareId === software.id ? '▲' : '▼'}

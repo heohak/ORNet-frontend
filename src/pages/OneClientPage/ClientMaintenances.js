@@ -23,7 +23,7 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
                     <h2 className="mt-1">Maintenances</h2>
                 </Col>
                 <Col className="text-end">
-                    <Button variant="primary" onClick={() => setShowAddMaintenanceModal(true)}>
+                    <Button variant="success" onClick={() => setShowAddMaintenanceModal(true)}>
                         Add Maintenance
                     </Button>
                 </Col>

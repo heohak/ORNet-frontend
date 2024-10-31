@@ -132,9 +132,6 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
                     </Container>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>
-                        Close
-                    </Button>
                 </Modal.Footer>
             </Modal>
 
