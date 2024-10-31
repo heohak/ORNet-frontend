@@ -126,7 +126,7 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
                     No. {renderSortArrow('numeration')}
                 </Col>
                 <Col md={3} onClick={() => handleSort('clientName')}>
-                    Client Name {renderSortArrow('clientName')}
+                    Customer {renderSortArrow('clientName')}
                 </Col>
                 <Col md={2} onClick={() => handleSort('location')}>
                     Location {renderSortArrow('location')}
