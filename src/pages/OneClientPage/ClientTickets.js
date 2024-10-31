@@ -1,17 +1,23 @@
-import React, {useState} from 'react';
-import { Container, Alert, Row, Col, Card, Badge } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Button, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import '../../css/Customers.css';
-import axios from "axios";
-import config from "../../config/config";
-import NewTicket from "../TicketsPage/SingleTicketModal/NewTicket";
+import config from '../../config/config';
+import NewTicket from '../TicketsPage/SingleTicketModal/NewTicket';
 
-function ClientTickets({tickets, statusMap}) {
+function ClientTickets({ tickets, statusMap }) {
     const navigate = useNavigate();
     const [ticketModal, setTicketModal] = useState(false);
     const [ticket, setTicket] = useState(null);
     const [statuses, setStatuses] = useState([]);
     const [closedStatusId, setClosedStatusId] = useState("");
+    const [locations, setLocations] = useState({});
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-GB');
+    };
 
     const handleTicketClick = (ticket) => {
         setTicket(ticket);
@@ -19,67 +25,107 @@ function ClientTickets({tickets, statusMap}) {
         fetchStatuses();
     };
 
-    const handleClose = () => {
-        setTicketModal(false);
-    }
-
-    const fetchStatuses = async() => {
+    const fetchStatuses = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`)
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`);
             const fetchedStatuses = response.data;
             setStatuses(fetchedStatuses);
-            if (fetchedStatuses.length > 0) {
-                // Filter close status
-                const closed = statuses.find(status => status.status === 'Closed');
-                if (closed) {
-                    setClosedStatusId(closed.id);
-                }
-            }
+
+            const closedStatus = fetchedStatuses.find((status) => status.status === 'Closed');
+            if (closedStatus) setClosedStatusId(closedStatus.id);
         } catch (error) {
-            console.error('Error fetching statuses', error);
+            console.error('Error fetching statuses:', error);
         }
+    };
+
+    const fetchLocations = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/location/all`);
+            const locationsData = response.data.reduce((acc, location) => {
+                acc[location.id] = location.name;
+                return acc;
+            }, {});
+            setLocations(locationsData);
+        } catch (error) {
+            console.error('Error fetching locations:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchLocations();
+    }, []);
+
+    const handleClose = () => {
+        setTicketModal(false);
     };
 
     return (
         <Container className="mt-1">
             <h2>Tickets</h2>
             {tickets.length > 0 ? (
-                <Row className="mt-2">
-                    {tickets.map(ticket => {
-                        const status = statusMap[ticket.statusId]; // Get status from statusMap
+                <>
+                    {/* Table header with columns */}
+                    <Row className="font-weight-bold text-center mt-2">
+                        <Col md={1}>No</Col>
+                        <Col md={2}>Title</Col>
+                        <Col md={2}>Date</Col>
+                        <Col md={2}>Location</Col>
+                        <Col md={2}>Status</Col>
+                        <Col md={2}>Priority</Col>
+                    </Row>
+                    <hr />
+
+                    {/* Tickets row structure */}
+                    {tickets.map((ticket, index) => {
+                        const status = statusMap[ticket.statusId];
+                        const priorityColor = ticket.crisis ? 'red' : 'green';
+                        const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+
                         return (
-                            <Col md={4} key={ticket.id} className="mb-3"> {/* Adjust column size as needed */}
-                                <Card
-                                    className="h-100 position-relative all-page-card"
-                                    style={{ cursor: 'pointer', borderRadius: '20px' }}
-                                    onClick={() => handleTicketClick(ticket)}
-                                >
-                                    <Card.Body className="all-page-cardBody">
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <Card.Title className='all-page-cardTitle' style={{ marginBottom: 0 }}>{ticket.title}</Card.Title>
-                                            {status && (
-                                                <Badge
-                                                    bg={status.color ? "none" : "primary"}
-                                                    style={{ backgroundColor: status.color }}
-                                                >
-                                                    {status.status}
-                                                </Badge>
-                                            )}
-                                        </div>
-                                    </Card.Body>
-                                </Card>
-                            </Col>
+                            <Row
+                                key={ticket.id}
+                                className="align-items-center text-center mb-2"
+                                style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
+                                onClick={() => handleTicketClick(ticket)}
+                            >
+                                <Col md={1}>{ticket.baitNumeration || 'N/A'}</Col>
+                                <Col md={2}>{ticket.title}</Col>
+                                <Col md={2}>{formatDate(ticket.startDateTime)}</Col>
+                                <Col md={2}>{locations[ticket.locationId] || 'Unknown Location'}</Col>
+                                <Col md={2}>
+                                    <Button
+                                        style={{
+                                            backgroundColor: status?.color || '#007bff',
+                                            borderColor: status?.color || '#007bff',
+                                        }}
+                                        disabled
+                                    >
+                                        {status?.status || 'Unknown Status'}
+                                    </Button>
+                                </Col>
+                                <Col md={2}>
+                                    <Button
+                                        style={{
+                                            backgroundColor: priorityColor,
+                                            borderColor: priorityColor,
+                                        }}
+                                        disabled
+                                    ></Button>
+                                </Col>
+                            </Row>
                         );
                     })}
-                </Row>
+                </>
             ) : (
                 <Alert variant="info">No tickets found for this client.</Alert>
             )}
+
+            {/* Modal for ticket details */}
             {ticketModal && ticket && statuses.length > 0 && (
                 <NewTicket
                     show={ticketModal}
                     onClose={handleClose}
-                    firstTicket={ticket} // Pass the selected ticket to NewTicket
+                    firstTicket={ticket}
                     statuses={statuses}
                     isTicketClosed={closedStatusId === ticket.statusId}
                 />
