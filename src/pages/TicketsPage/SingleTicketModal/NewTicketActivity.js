@@ -95,6 +95,23 @@ const NewTicketActivity = ({ ticket, reFetch }) => {
         }
     };
 
+    const formatDateString = (dateString) => {
+        const date = new Date(dateString);
+
+        // Get parts of the date
+        const options = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: false
+        };
+
+        // Format date into a readable string
+        return date.toLocaleString('en-US', options);
+    }
+
     return (
         <Card className="border-0 mt-2">
             <div className="scrollable-activity">
@@ -105,7 +122,7 @@ const NewTicketActivity = ({ ticket, reFetch }) => {
                                 <div className="d-flex">
                                     <strong>{activity.author || "Author"}</strong>
                                     <p className="text-muted ms-2 mb-0">
-                                        {new Date(activity.timestamp).toLocaleString()}
+                                        {formatDateString(activity.timestamp)}
                                     </p>
                                 </div>
                                 <div>

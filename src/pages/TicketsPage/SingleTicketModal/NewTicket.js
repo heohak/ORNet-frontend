@@ -110,8 +110,8 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed }) => {
             <Modal.Header closeButton>
                 <div className="w-100">
                     <Modal.Title>{ticket.title} {ticket.crisis && <Badge bg="danger">Priority</Badge>}</Modal.Title>
-                    <p className="text-muted mb-0">Location: {locationName}</p>
-                    <p className="text-muted mb-0">Customer: {ticket.clientName}</p>
+                    <p className="text-muted mb-0">{ticket.clientName}</p>
+                    <p className="text-muted mb-0">{locationName}</p>
                 </div>
             </Modal.Header>
             <Modal.Body>
