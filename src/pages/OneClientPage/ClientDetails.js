@@ -38,18 +38,19 @@ function ClientDetails({ client, navigate }) {
 
     const renderField = (label, value) => (
         fieldVisibility[label] && value !== false && (
-            <Col xs={12} md={6} className="mb-2">
-                <Card.Text className="d-flex justify-content-between align-items-center text-secondary">
-                    <span className="fw-semibold">
-                        {label.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}:
-                    </span>
+            <Col xs={12} md={6} className="mb-1">
+                <Card.Text className="d-flex justify-content-between align-items-center text-secondary" style={{ marginBottom: '0.2rem' }}>
+                <span className="fw-semibold" style={{ marginRight: '0.5rem' }}>
+                    {label.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}:
+                </span>
                     <span>
-                        {typeof value === 'boolean' ? (value ? <FontAwesomeIcon icon={faCheck} /> : null) : value}
-                    </span>
+                    {typeof value === 'boolean' ? (value ? <FontAwesomeIcon icon={faCheck} /> : null) : value}
+                </span>
                 </Card.Text>
             </Col>
         )
     );
+
 
     const handleNavigate = () => {
         if (client && client.id) {
@@ -84,7 +85,7 @@ function ClientDetails({ client, navigate }) {
                         </Row>
 
 
-                        <Row className="gy-2 gx-3 px-2">
+                        <Row className="gy-2 gx-2 px-2">
                             {renderField('pathologyClient', client.pathologyClient)}
                             {renderField('surgeryClient', client.surgeryClient)}
                             {renderField('editorClient', client.editorClient)}
@@ -92,6 +93,7 @@ function ClientDetails({ client, navigate }) {
                             {renderField('lastMaintenance', client.lastMaintenance)}
                             {renderField('nextMaintenance', client.nextMaintenance)}
                         </Row>
+
                         <Row className="mt-4 d-flex justify-content-end">
                             <Col xs="auto">
                                 <Button variant="link" onClick={() => setShowClientFieldModal(true)} className="text-primary me-2">
