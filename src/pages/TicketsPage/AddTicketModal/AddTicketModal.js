@@ -114,13 +114,6 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
-
-        // Ensure required fields like title are filled
-        if (!formData.title) {
-            setError("Title is required!");
-            return;
-        }
-
         try {
             let newTicket = {
                 ...formData,
