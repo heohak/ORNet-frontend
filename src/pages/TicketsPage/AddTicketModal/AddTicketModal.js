@@ -23,7 +23,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
         baitNumeration: '',
         clientNumeration: '',
         contactIds: [],
-        deviceId: undefined
+        deviceId: undefined,
     });
 
     const [clients, setClients] = useState([]);
@@ -100,36 +100,27 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
     }, [formData.clientId]);
 
     const handleChange = (e) => {
-        const { id, value } = e.target;
+        const {id, value } = e.target;
         let newValue = value;
-        if (id === 'crisis') {
-            newValue = value === "true";
-        } else if (id === 'contactIds') {
+        if (id === 'contactIds') {
             newValue = [value];
+        } else if (id === 'crisis') {
+            newValue = parseInt(value);
         }
-        setFormData(prevData => ({
-            ...prevData,
-            [id]: newValue
-        }));
+        setFormData( prevData => ({...prevData, [id]: newValue}));
     };
 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
-
-        // Ensure required fields like title are filled
-        if (!formData.title) {
-            setError("Title is required!");
-            return;
-        }
-
         try {
             let newTicket = {
                 ...formData,
                 statusId: openStatusId,
                 clientId: formData.clientId,
                 workTypeIds: selectedWorkTypes.map(option => option.value),
+                crisis: formData.crisis === 1,
                 ...(formData.deviceId ? { deviceIds: [formData.deviceId] } : {})
             };
 
@@ -387,7 +378,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
 
 
                     <Row>
-                        <Col md={3}>
+                        <Col md={4}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Client Numeration</Form.Label>
                                 <Form.Control
@@ -399,8 +390,20 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
                                 />
                             </Form.Group>
                         </Col>
-                        <Col md={4}></Col>
-                        <Col md={4}>
+                        <Col md={3}>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Priority</Form.Label>
+                                <Form.Select
+                                    id="crisis"
+                                    value={formData.crisis ? 1 : 0}
+                                    onChange={handleChange}
+                                >
+                                    <option value="1">High</option>
+                                    <option value="0">Normal</option>
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
+                        <Col md={5}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Responsible</Form.Label>
                                 <Form.Control

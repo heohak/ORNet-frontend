@@ -118,7 +118,7 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
     return (
         <div className="mt-3">
             {/* Table header with sortable columns */}
-            <Row className="font-weight-bold text-center">
+            <Row style={{fontWeight: "bold"}} className="font-weight-bold text-center">
                 <Col md={1} onClick={() => handleSort('date')}>
                     Date {renderSortArrow('date')}
                 </Col>
@@ -126,7 +126,7 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
                     No. {renderSortArrow('numeration')}
                 </Col>
                 <Col md={3} onClick={() => handleSort('clientName')}>
-                    Client Name {renderSortArrow('clientName')}
+                    Customer {renderSortArrow('clientName')}
                 </Col>
                 <Col md={2} onClick={() => handleSort('location')}>
                     Location {renderSortArrow('location')}
