@@ -64,13 +64,13 @@ function Contacts() {
         <>
             <div className="contact-search-menu">
                 <div className="contact-search-menu-header mb-4">
-                    <h1 className="mb-0">Contacts</h1>
+                    <h1 className="mb-0">Email List</h1>
                     <div className="d-flex">
                         <Button
                             variant="primary"
                             onClick={handleCopyEmails}
                         >
-                            {copied ? "Emails Copied!" : "Copy All Emails"}
+                            {copied ? "Emails Copied!" : "Copy Emails"}
                         </Button>
                     </div>
                 </div>

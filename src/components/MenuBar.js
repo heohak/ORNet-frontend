@@ -35,7 +35,7 @@ const MenuBar = () => {
                             <Nav.Link eventKey="/settings">Settings</Nav.Link>
                         </LinkContainer>
                         <LinkContainer to="/contacts">
-                            <Nav.Link eventKey="/contacts">Contacts</Nav.Link>
+                            <Nav.Link eventKey="/contacts">Email List</Nav.Link>
                         </LinkContainer>
                     </Nav>
                 </Navbar.Collapse>
