@@ -7,7 +7,8 @@ import config from "../../config/config"; // Import axios for making HTTP reques
 
 function ClientDevices({devices, client, clientId, setRefresh, locations}) {
     const [showAddDeviceModal, setShowAddDeviceModal] = useState(false);
-    const [classificators, setClassificators] = useState([]);
+    const [classificatorList, setClassificatorList] = useState([]);
+    const [classificators, setClassificators] = useState({});
     const [selectedClassificatorId, setSelectedClassificatorId] = useState('');
     const [writtenOff, setWrittenOff] = useState(false);
     const [filteredDevices, setFilteredDevices] = useState(devices);
@@ -30,7 +31,13 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
     const fetchClassificators = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/device/classificator/all`);
-            setClassificators(response.data);
+            setClassificatorList(response.data);
+            const classificatorMap = response.data.reduce((acc, classificator) => {
+                acc[classificator.id] = classificator.name;
+                return acc;
+            }, {});
+
+            setClassificators(classificatorMap);
         } catch (error) {
             console.error('Error fetching classificators:', error);
         }
@@ -99,7 +106,7 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
                 <Form.Control as="select" value={selectedClassificatorId}
                               onChange={(e) => setSelectedClassificatorId(e.target.value)}>
                     <option value="">All Classificators</option>
-                    {classificators.map((classificator) => (
+                    {classificatorList.map((classificator) => (
                         <option key={classificator.id} value={classificator.id}>{classificator.name}</option>
                     ))}
                 </Form.Control>
@@ -121,32 +128,38 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
                 </Col>
             </Row>
         </Form>
-
+            <Row className="font-weight-bold text-center mt-2">
+                <Col md={3}>
+                    Name
+                </Col>
+                <Col md={2}>
+                    Type
+                </Col>
+                <Col md={3}>
+                    Location
+                </Col>
+                <Col md={4}>
+                    Serial Number
+                </Col>
+            </Row>
+            <hr />
             {filteredDevices.length > 0 ? (
-                <Row className="mt-3">
-                    {filteredDevices.map((device, index) => (
-                        <Col md={4} key={device.id} className="mb-4"> {/* Adjust column size as needed */}
-                            <Card className="h-100 position-relative all-page-card">
-                                <Card.Body onClick={() => navigate(`/device/${device.id}`)} className="all-page-cardBody">
-                                    <Card.Title
-                                        className='all-page-cardTitle'
-                                        style={{cursor: "pointer"}}
-
-                                    >
-                                        {index + 1}. {device.deviceName}
-                                        {device.writtenOffDate && (
-                                            <Badge bg="danger" className="ms-2">Written Off</Badge> // Written-off indicator
-                                        )}
-                                    </Card.Title>
-                                    <Card.Text className="all-page-cardText">
-                                        <strong>Location:</strong> {locations[device.locationId] || 'Unknown'}<br/>
-                                        <strong>Room:</strong> {device.room ? device.room : 'N/A'}
-                                    </Card.Text>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    ))}
-                </Row>
+                    filteredDevices.map((device, index) => {
+                        const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                        return (
+                            <Row
+                                key={device.id}
+                                className="align-items-center text-center mb-2"
+                                style={{backgroundColor: rowBgColor, cursor: 'pointer'}}
+                                onClick={() => navigate(`/device/${device.id}`)}
+                            >
+                                <Col md={3}>{device.deviceName}</Col>
+                                <Col md={2}>{classificators[device.classificatorId] || 'Unknown Type'}</Col>
+                                <Col md={3}>{locations[device.locationId] || 'Unknown'}</Col>
+                                <Col md={4}>{device.serialNumber}</Col>
+                            </Row>
+                        );
+                    })
             ) : (
                 <Alert className="mt-3" variant="info">No devices available.</Alert>
             )}

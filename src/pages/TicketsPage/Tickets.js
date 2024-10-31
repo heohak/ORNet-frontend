@@ -120,7 +120,7 @@ function Tickets() {
                 params.append('crisis', crisis);
             }
             if (paid) { // Append Paid parameter
-                params.append('paidWork', paid);
+                params.append('paid', paid);
             }
             if (selectedWorkType !== 'all') {
                 params.append('workTypeId', selectedWorkType); // Add work type to the filter
@@ -212,14 +212,15 @@ function Tickets() {
                     firstTicket={ticket} // Pass the selected ticket to NewTicket
                     statuses={statuses}
                     isTicketClosed={closedStatusId === ticket.statusId}
+                    reFetch={fetchTickets}
                 />
             )}
             <AddTicketModal
                 show={addTicketModal}
                 handleClose={() => setAddTicketModal(false)}
                 reFetch={fetchTickets}
-                ticketModal={() => setTicketModal(true)}
                 setTicket={setTicket}
+                onNavigate={handleNavigate}
             />
         </Container>
     );

@@ -14,10 +14,11 @@ function MaintenanceInfo({
                              setMaintenanceName,
                              setMaintenanceDate,
                              setMaintenanceComment,
-                             setFiles
+                             setFiles,
+                             showMaintenanceFieldModal,
+                             setShowMaintenanceFieldModal
                          }) {
     const [visibleFields, setVisibleFields] = useState({});
-    const [showMaintenanceFieldModal, setShowMaintenanceFieldModal] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [showFileUploadModal, setShowFileUploadModal] = useState(false);
     const [selectedMaintenanceId, setSelectedMaintenanceId] = useState(null);
@@ -136,15 +137,6 @@ function MaintenanceInfo({
 
     return (
         <>
-            <div className="mb-5 mt-4" style={{display: "flex"}}>
-                <h2>Maintenance Information</h2>
-                <div className="ms-3" style={{alignContent: "center"}}>
-                    <Button variant="primary" onClick={() => setShowMaintenanceModal(true)}>Add Maintenance</Button>
-                </div>
-                <Button variant="link" onClick={() => setShowMaintenanceFieldModal(true)}>
-                    <FontAwesomeIcon icon={faCog} />
-                </Button>
-            </div>
             {maintenanceInfo.length > 0 ? (
                 maintenanceInfo.map((maintenance, index) => (
                     <Card key={index} className="mb-4">

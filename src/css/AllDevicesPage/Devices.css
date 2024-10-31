@@ -19,44 +19,13 @@
 }
 
 .devices-container {
-    padding-top: 130px;
-}
-
-.device-details-header {
-    margin-bottom: 5%;
-}
-
-/* Responsive Styles */
-
-
-@media (max-width: 1400px) {
-
-    .device-details-header {
-        margin-bottom: 13%;
-    }
-}
-
-@media (max-width: 1200px) {
-
-    .device-details-header {
-        margin-bottom: 15.5%;
-    }
-}
-@media (max-width: 990px) {
-
-    .device-details-header {
-        margin-bottom: 12%;
-    }
+    padding-top: 10rem;
 }
 
 @media (max-width: 768px) {
 
     .devices-container {
         padding-top: 150px;
-    }
-
-    .device-details-header {
-        margin-bottom: 5%;
     }
 }
 

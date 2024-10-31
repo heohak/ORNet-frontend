@@ -10,7 +10,7 @@ function AddCustomer({ onClose }) {
     const [pathologyCustomer, setPathologyCustomer] = useState(false);
     const [surgeryCustomer, setSurgeryCustomer] = useState(false);
     const [editorCustomer, setEditorCustomer] = useState(false);
-    const [otherMedicalInformation, setOtherMedicalInformation] = useState('');
+    const [otherMedicalDevices, setOtherMedicalDevices] = useState(false);
     const [lastMaintenance, setLastMaintenance] = useState('');
     const [nextMaintenance, setNextMaintenance] = useState('');
     const [locationOptions, setLocationOptions] = useState([]);
@@ -77,7 +77,7 @@ function AddCustomer({ onClose }) {
                 pathologyClient: pathologyCustomer,
                 surgeryClient: surgeryCustomer,
                 editorClient: editorCustomer,
-                otherMedicalInformation,
+                otherMedicalDevices,
                 lastMaintenance,
                 nextMaintenance
             });
@@ -193,11 +193,11 @@ function AddCustomer({ onClose }) {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
-                    <Form.Label>Other Medical Information</Form.Label>
-                    <Form.Control
-                        type="text"
-                        value={otherMedicalInformation}
-                        onChange={(e) => setOtherMedicalInformation(e.target.value)}
+                    <Form.Label>Other Medical Devices</Form.Label>
+                    <Form.Check
+                        type="checkbox"
+                        value={otherMedicalDevices}
+                        onChange={(e) => setOtherMedicalDevices(e.target.checked)}
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">

@@ -1,78 +1,64 @@
 import React, { useEffect, useState } from 'react';
-import {Card, Button, Modal, Form, Alert, Row, Col, Container} from 'react-bootstrap';
-import axios from 'axios';
-import config from "../../config/config";
+import { Card, Button, Modal, Form, Alert, Row, Col, Container } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCog } from '@fortawesome/free-solid-svg-icons';
+import { faCog, faCheck, faEdit, faHistory } from '@fortawesome/free-solid-svg-icons';
 
-// Define specific fields to display
-const specificFields = [
-    'fullName', 'shortName', 'pathologyClient', 'surgeryClient', 'editorClient', 'otherMedicalInformation', 'lastMaintenance', 'nextMaintenance'
-];
+// Define the default visibility of each field
+const defaultVisibility = {
+    pathologyClient: true,
+    surgeryClient: true,
+    editorClient: true,
+    otherMedicalDevices: true,
+    lastMaintenance: true,
+    nextMaintenance: true,
+};
 
 function ClientDetails({ client, navigate }) {
     const [showClientFieldModal, setShowClientFieldModal] = useState(false);
-    const [visibleDeviceFields, setVisibleDeviceFields] = useState({});
+    const [fieldVisibility, setFieldVisibility] = useState(defaultVisibility);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (client) {
-            initializeVisibleFields(client);
-        }
-    }, [client]);
-
-    const initializeVisibleFields = (data) => {
         const savedVisibilityState = localStorage.getItem('deviceVisibilityState');
         if (savedVisibilityState) {
-            setVisibleDeviceFields(JSON.parse(savedVisibilityState));
-        } else {
-            const initialVisibleFields = specificFields.reduce((acc, key) => {
-                if (key in data) {
-                    acc[key] = true;
-                }
-                return acc;
-            }, {});
-            setVisibleDeviceFields(initialVisibleFields);
+            setFieldVisibility(JSON.parse(savedVisibilityState));
         }
-    };
-
-
+    }, []);
 
     const handleFieldToggle = (field) => {
-        setVisibleDeviceFields(prevVisibleFields => {
-            const newVisibleFields = {
-                ...prevVisibleFields,
-                [field]: !prevVisibleFields[field]
+        setFieldVisibility((prevVisibility) => {
+            const updatedVisibility = {
+                ...prevVisibility,
+                [field]: !prevVisibility[field],
             };
-            localStorage.setItem('deviceVisibilityState', JSON.stringify(newVisibleFields));
-            return newVisibleFields;
+            localStorage.setItem('deviceVisibilityState', JSON.stringify(updatedVisibility));
+            return updatedVisibility;
         });
     };
 
-    const renderFields = (data) => {
-        return specificFields.map(key => {
-            if (data[key] !== null && visibleDeviceFields[key]) {
-                let displayValue = data[key];
-                if (typeof data[key] === 'boolean') {
-                    displayValue = data[key] ? 'Yes' : 'No';
-                }
-                return (
-                    <Card.Text key={key} className="mb-1">
-                        <strong>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}: </strong> {displayValue}
-                    </Card.Text>
-                );
-            }
-            return null;
-        });
-    };
+    const renderField = (label, value) => (
+        fieldVisibility[label] && value !== false && (
+            <Col xs={12} md={6} className="mb-1">
+                <Card.Text className="d-flex justify-content-between align-items-center text-secondary" style={{ marginBottom: '0.2rem' }}>
+                <span className="fw-semibold" style={{ marginRight: '0.5rem' }}>
+                    {label.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}:
+                </span>
+                    <span>
+                    {typeof value === 'boolean' ? (value ? <FontAwesomeIcon icon={faCheck} /> : null) : value}
+                </span>
+                </Card.Text>
+            </Col>
+        )
+    );
+
 
     const handleNavigate = () => {
         if (client && client.id) {
-            navigate('/history', { state: { endpoint: `client/history/${client.id}` } })
+            navigate('/history', { state: { endpoint: `client/history/${client.id}` } });
         } else {
-            setError("Client or client id is undefined")
+            setError('Client or client id is undefined');
         }
-    }
+    };
 
     if (error) {
         return (
@@ -88,30 +74,37 @@ function ClientDetails({ client, navigate }) {
     return (
         <>
             {client ? (
-                <Card className="mb-4">
-                    <Card.Body className="pt-2 pb-2">
-                        <Row>
+                <Card className="mb-4 shadow-sm border-0">
+                    <Card.Body className="pt-4 pb-4 px-4">
+                        <Row className="text-center mb-4">
                             <Col>
-                                {renderFields(client)}
+                                <Card.Text style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#343a40' }}>
+                                    {client.fullName}/{client.shortName}
+                                </Card.Text>
                             </Col>
-                            <Col className='col-md-auto'>
-                                <Row>
-                                    <Col className='col-md-auto'>
-                                        <Button variant="link" onClick={() => setShowClientFieldModal(true)}>
-                                            <FontAwesomeIcon icon={faCog} />
-                                        </Button>
-                                    </Col>
-                                    <Col className="col-md-auto">
-                                        <Row>
-                                            <Button variant="primary" onClick={() => navigate(`/client/edit/${client.id}`)}>
-                                                Edit Customer
-                                            </Button>
-                                        </Row>
-                                        <Row>
-                                            <Button onClick={handleNavigate} className='mt-2'>See History</Button>
-                                        </Row>
-                                    </Col>
-                                </Row>
+                        </Row>
+
+
+                        <Row className="gy-2 gx-2 px-2">
+                            {renderField('pathologyClient', client.pathologyClient)}
+                            {renderField('surgeryClient', client.surgeryClient)}
+                            {renderField('editorClient', client.editorClient)}
+                            {renderField('otherMedicalDevices', client.otherMedicalDevices)}
+                            {renderField('lastMaintenance', client.lastMaintenance)}
+                            {renderField('nextMaintenance', client.nextMaintenance)}
+                        </Row>
+
+                        <Row className="mt-4 d-flex justify-content-end">
+                            <Col xs="auto">
+                                <Button variant="link" onClick={() => setShowClientFieldModal(true)} className="text-primary me-2">
+                                    <FontAwesomeIcon icon={faCog} />
+                                </Button>
+                                <Button variant="link" onClick={() => navigate(`/client/edit/${client.id}`)} className="text-primary me-2">
+                                    <FontAwesomeIcon icon={faEdit} />
+                                </Button>
+                                <Button variant="link" onClick={handleNavigate} className="text-primary">
+                                    <FontAwesomeIcon icon={faHistory} />
+                                </Button>
                             </Col>
                         </Row>
                     </Card.Body>
@@ -122,23 +115,28 @@ function ClientDetails({ client, navigate }) {
 
             <Modal show={showClientFieldModal} onHide={() => setShowClientFieldModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Edit Visible Fields for {client.shortName}</Modal.Title>
+                    <Modal.Title>Edit Visible Fields for {client?.shortName}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        {specificFields.map(key => (
-                            <Form.Check
-                                key={key}
-                                type="checkbox"
-                                label={key.replace(/([A-Z])/g, ' $1')}
-                                checked={visibleDeviceFields[key]}
-                                onChange={() => handleFieldToggle(key)}
-                            />
-                        ))}
+                        <Row>
+                            {Object.keys(defaultVisibility).map((key) => (
+                                <Col xs={6} key={key} className="mb-2">
+                                    <Form.Check
+                                        type="checkbox"
+                                        label={key.replace(/([A-Z])/g, ' $1')}
+                                        checked={fieldVisibility[key]}
+                                        onChange={() => handleFieldToggle(key)}
+                                    />
+                                </Col>
+                            ))}
+                        </Row>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowClientFieldModal(false)}>Close</Button>
+                    <Button variant="secondary" onClick={() => setShowClientFieldModal(false)}>
+                        Close
+                    </Button>
                 </Modal.Footer>
             </Modal>
         </>

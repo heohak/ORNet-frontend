@@ -150,7 +150,6 @@ function AddThirdPartyIT({ clientId, onClose, setRefresh }) {
                         </Form.Group>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowThirdPartyModal(false)}>Cancel</Button>
                         <Button variant="primary" type='submit'>Add Third-Party IT</Button>
                     </Modal.Footer>
                 </Form>

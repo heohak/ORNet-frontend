@@ -5,24 +5,21 @@ import EditWorkerModal from './EditWorkerModal'; // Import the EditWorkerModal c
 import axios from 'axios';
 import config from "../../config/config";
 import Select from 'react-select';
-import {FaRegStar, FaStar} from 'react-icons/fa';
+import {FaEnvelope, FaPhone, FaRegStar, FaStar, FaUserTie} from 'react-icons/fa';
 import '../../css/Customers.css'
+import {faEdit, faMapMarkerAlt} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 function ClientWorker({workers, client, clientId, setRefresh}) {
     const [showAddWorkerModal, setShowAddWorkerModal] = useState(false);
-    const [showAddRoleModal, setShowAddRoleModal] = useState(false);
-    const [showEditWorkerModal, setShowEditWorkerModal] = useState(false); // State to control the EditWorkerModal
-    const [expandedWorkerId, setExpandedWorkerId] = useState(null);
+    const [showEditWorkerModal, setShowEditWorkerModal] = useState(false);
     const [workerLocations, setWorkerLocations] = useState({});
-    const [selectedWorkerId, setSelectedWorkerId] = useState(null);
     const [selectedWorker, setSelectedWorker] = useState(null); // State to hold the selected worker for editing
     const [roles, setRoles] = useState([]);
     const [selectedFilterRoleId, setSelectedFilterRoleId] = useState(''); // State for filtering
-    const [selectedRoles, setSelectedRoles] = useState([]); // State for adding roles in modal
     const [filteredWorkers, setFilteredWorkers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [favoriteFilter, setFavoriteFilter] = useState(false);
-
 
     useEffect(() => {
         fetchRoles();
@@ -103,45 +100,8 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
         }
     };
 
-    const toggleWorkerDetails = async (workerId) => {
-        if (expandedWorkerId === workerId) {
-            setExpandedWorkerId(null);
-        } else {
-            setExpandedWorkerId(workerId);
-            if (!workerLocations[workerId]) {
-                try {
-                    const response = await axios.get(`${config.API_BASE_URL}/worker/location/${workerId}`);
-                    const location = response.data;
-                    setWorkerLocations(prevLocations => ({
-                        ...prevLocations,
-                        [workerId]: location
-                    }));
-                } catch (error) {
-                    console.error(`Error fetching location for worker ${workerId}:`, error);
-                }
-            }
-        }
-    };
-
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
-    };
-
-    const handleAddRole = async (e) => {
-        e.preventDefault();
-        try {
-            const currentRolesResponse = await axios.get(`${config.API_BASE_URL}/worker/role/${selectedWorkerId}`);
-            const currentRoles = currentRolesResponse.data.map(role => role.id);
-            const roleIds = [...new Set([...currentRoles, ...selectedRoles.map(role => role.value)])];
-
-            await axios.put(`${config.API_BASE_URL}/worker/role/${selectedWorkerId}`, {roleIds});
-
-            setShowAddRoleModal(false);
-            setSelectedRoles([]); // Clear selected roles after submission
-            await fetchWorkers(); // Refresh the workers to reflect the updated roles
-        } catch (error) {
-            console.error('Error adding roles to worker:', error);
-        }
     };
 
     const handleEditWorker = (worker) => {
@@ -191,9 +151,6 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
             console.log('Failed to update favorite status');
         }
     };
-
-
-
 
     return (
         <>
@@ -249,7 +206,7 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
             {filteredWorkers.length > 0 ? (
                 <Row className="mt-3">
                     {filteredWorkers.map((worker) => (
-                        <Col md={6} key={worker.id} className="mb-4"> {/* Adjust column size as needed */}
+                        <Col md={4} key={worker.id} className="mb-4"> {/* Adjust column size as needed */}
                             <Card className="h-100 position-relative customer-page-card">
                                 <Card.Body className="all-page-cardBody">
                                     <div style={{
@@ -257,48 +214,39 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
                                         justifyContent: 'space-between',
                                         alignItems: 'center'
                                     }}>
+                                        <Card.Title className='all-page-cardTitle'>
+                                            {worker.firstName} {worker.lastName}
+                                        </Card.Title>
                                         <div>
-                                            <Card.Title
-                                                className='all-page-cardTitle'>{worker.firstName} {worker.lastName}</Card.Title>
-                                            <Card.Text className="all-page-cardText">
-                                                <strong>Role: </strong>{worker.roles.map(role => role.role).join(', ')}<br/>
-                                                <strong>Location: </strong>{workerLocations[worker.id]?.name || "N/A"}
-                                            </Card.Text>
-                                        </div>
-                                        <div>
-                                <span
-                                    style={{
-                                        cursor: 'pointer',
-                                        color: worker.favorite ? 'gold' : 'gray',
-                                        marginRight: '10px'
-                                    }}
-                                    onClick={() => toggleFavorite(worker.id)}
-                                >
-                                    {worker.favorite ? <FaStar/> : <FaRegStar/>}
-                                </span>
-                                            <Button variant="link" onClick={() => toggleWorkerDetails(worker.id)}>
-                                                {expandedWorkerId === worker.id ? '▲' : '▼'}
-                                            </Button>
+                                            <span
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    color: worker.favorite ? 'gold' : 'gray',
+                                                    marginRight: '10px'
+                                                }}
+                                                onClick={() => toggleFavorite(worker.id)}
+                                            >
+                                                {worker.favorite ? <FaStar/> : <FaRegStar/>}
+                                            </span>
+
                                             <Button variant="link" onClick={() => handleEditWorker(worker)}>
-                                                Edit
-                                            </Button>
-                                            <Button variant="link" onClick={() => {
-                                                setSelectedRoles(worker.roleIds.map(roleId => roles.find(role => role.value === roleId)));
-                                                setSelectedWorkerId(worker.id);
-                                                setShowAddRoleModal(true);
-                                            }}>
-                                                Add Role
+                                                <FontAwesomeIcon icon={faEdit} />
                                             </Button>
                                         </div>
                                     </div>
-                                    {expandedWorkerId === worker.id && workerLocations[worker.id] && (
-                                        <div>
-                                            <Card.Text
-                                                style={{marginBottom: 0}}><strong>Phone: </strong>{worker.phoneNumber}
-                                            </Card.Text>
-                                            <Card.Text><strong>Email: </strong>{worker.email}</Card.Text>
-                                        </div>
-                                    )}
+                                    <Card.Text className="all-page-cardText">
+                                        {/* Role and title */}
+                                        <FaUserTie className="me-1" /> {worker.roles.map(role => role.role).join(', ')} {worker.title ? `(${worker.title})` : ''} <br />
+
+                                        {/* Location */}
+                                        <FontAwesomeIcon icon={faMapMarkerAlt} className="me-2" /> {workerLocations[worker.id]?.name || "N/A"} <br />
+
+                                        {/* Phone */}
+                                        <FaPhone className="me-1" /> {worker.phoneNumber} <br />
+
+                                        {/* Email */}
+                                        <FaEnvelope className="me-1" /> {worker.email}
+                                    </Card.Text>
                                 </Card.Body>
                             </Card>
                         </Col>
@@ -327,28 +275,6 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
                     clientId={clientId}
                 />
             )}
-            <Modal show={showAddRoleModal} onHide={() => setShowAddRoleModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Add Role to Contact</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form onSubmit={handleAddRole}>
-                        <Form.Group controlId="roleSelect">
-                            <Form.Label>Select Role</Form.Label>
-                            <Select
-                                isMulti
-                                options={roles}
-                                value={selectedRoles}
-                                onChange={setSelectedRoles}
-                                placeholder="Select roles"
-                            />
-                        </Form.Group>
-                        <Button variant="primary" type="submit" className="mt-3">
-                            Add Roles
-                        </Button>
-                    </Form>
-                </Modal.Body>
-            </Modal>
         </>
     );
 }

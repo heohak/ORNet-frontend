@@ -10,7 +10,7 @@ import AddContactModal from "./AddContactModal";
 
 
 
-const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) => {
+const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => {
 
     const [formData, setFormData] = useState({
         title: '',
@@ -23,7 +23,7 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
         baitNumeration: '',
         clientNumeration: '',
         contactIds: [],
-        deviceIds: ""
+        deviceId: undefined,
     });
 
     const [clients, setClients] = useState([]);
@@ -38,6 +38,8 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
     const [showWorkTypeModal, setShowWorkTypeModal] = useState(false);
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [showContactModal, setShowContactModal] = useState(false);
+    const [submitType, setSubmitType] = useState(null);
+
 
     const navigate = useNavigate();
 
@@ -98,17 +100,14 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
     }, [formData.clientId]);
 
     const handleChange = (e) => {
-        const { id, value } = e.target;
+        const {id, value } = e.target;
         let newValue = value;
-        if (id === 'crisis') {
-            newValue = value === "true";
-        } else if (id === 'contactIds') {
+        if (id === 'contactIds') {
             newValue = [value];
+        } else if (id === 'crisis') {
+            newValue = parseInt(value);
         }
-        setFormData(prevData => ({
-            ...prevData,
-            [id]: newValue
-        }));
+        setFormData( prevData => ({...prevData, [id]: newValue}));
     };
 
 
@@ -116,24 +115,32 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
         e.preventDefault();
         setError(null);
         try {
-
             let newTicket = {
                 ...formData,
                 statusId: openStatusId,
                 clientId: formData.clientId,
-                workTypeIds: selectedWorkTypes.map(option => option.value), // Map selected work type objects to IDs
-                deviceIds: [formData.deviceId]
+                workTypeIds: selectedWorkTypes.map(option => option.value),
+                crisis: formData.crisis === 1,
+                ...(formData.deviceId ? { deviceIds: [formData.deviceId] } : {})
             };
 
             const response = await axios.post(`${config.API_BASE_URL}/ticket/add`, newTicket);
+
+            if (submitType === "submitAndView") {
+                const ticketId = parseInt(response.data.token);
+                const newTicketData = await axios.get(`${config.API_BASE_URL}/ticket/${ticketId}`);
+                setTicket(newTicketData.data);
+                onNavigate(newTicketData.data);
+            }
             reFetch();
             handleClose();
             resetFields();
-            return response;
+
         } catch (err) {
             setError(err.message);
         }
     };
+
 
     const resetFields = () => {
         setFormData({
@@ -147,7 +154,7 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
             baitNumeration: '',
             clientNumeration: '',
             contactIds: [],
-            deviceId: ""
+            deviceId: undefined
         }); // Reset form fields
         setSelectedWorkTypes([]); // Reset selected work types
     }
@@ -185,23 +192,6 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
         }
     };
 
-    const handleSubmitAndView = async (e) => {
-        e.preventDefault();
-        try {
-            const ticketResponse = await handleSubmit(e);
-            const ticketId = parseInt(ticketResponse.data.token);
-            const newTicket = await axios.get(`${config.API_BASE_URL}/ticket/${ticketId}`)
-            setTicket(newTicket.data);
-            ticketModal(); // Open the ticket modal to view the submitted ticket
-        } catch (error) {
-            console.error("Error submitting the ticket", error);
-        }
-    };
-
-
-
-
-
     return (
         <Modal show={show} onHide={handleClose} size="xl" centered>
             <Modal.Header closeButton>
@@ -213,7 +203,7 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
                     <Row>
                         <Col md={4}>
                             <Form.Group className="mb-3">
-                                <Form.Label>Client</Form.Label>
+                                <Form.Label>Customer</Form.Label>
                                 <Form.Control
                                     as="select"
                                     value={formData.clientId}
@@ -221,7 +211,7 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
                                     id="clientId"
                                     required
                                 >
-                                    {clients.length > 0 && <option value="">Select Client</option>}
+                                    {clients.length > 0 && <option value="">Select Customer</option>}
                                     {clients.map(client => (
                                         <option key={client.id} value={client.id}>
                                             {client.fullName}
@@ -250,9 +240,10 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
                                     onChange={handleChange}
                                     id="locationId"
                                     disabled={!formData.clientId}
+                                    required
                                 >
                                     {!formData.clientId ? (
-                                        <option value="">Pick a client before picking a location</option>
+                                        <option value="">Pick a customer before picking a location</option>
                                     ) : (
                                         <>
                                             <option value="">Select Location</option>
@@ -286,9 +277,10 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
                                     onChange={handleChange}
                                     id="contactIds"
                                     disabled={!formData.clientId}
+                                    required
                                 >
                                     {!formData.clientId ? (
-                                        <option value="">Pick a client before picking a contact</option>
+                                        <option value="">Pick a customer before picking a contact</option>
                                     ) : (
                                         <>
                                             <option value="">Select a Contact</option>
@@ -314,6 +306,7 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
                                     value={formData.title}
                                     onChange={handleChange}
                                     id="title"
+                                    required
                                 />
                             </Form.Group>
                         </Col>
@@ -328,7 +321,7 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
                                     disabled={!formData.clientId || devices.length === 0}
                                 >
                                     {!formData.clientId ? (
-                                        <option value="">Pick a client before picking a device</option>
+                                        <option value="">Pick a customer before picking a device</option>
                                     ) : devices.length === 0 ? (
                                         <option value="">No devices found for this client</option>
                                     ) : (
@@ -377,6 +370,7 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
                                     value={selectedWorkTypes}
                                     onChange={setSelectedWorkTypes}
                                     placeholder="Select work types"
+                                    required
                                 />
                             </Form.Group>
                         </Col>
@@ -384,7 +378,7 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
 
 
                     <Row>
-                        <Col md={3}>
+                        <Col md={4}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Client Numeration</Form.Label>
                                 <Form.Control
@@ -392,11 +386,24 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
                                     value={formData.clientNumeration}
                                     onChange={handleChange}
                                     id="clientNumeration"
+                                    required
                                 />
                             </Form.Group>
                         </Col>
-                        <Col md={4}></Col>
-                        <Col md={4}>
+                        <Col md={3}>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Priority</Form.Label>
+                                <Form.Select
+                                    id="crisis"
+                                    value={formData.crisis ? 1 : 0}
+                                    onChange={handleChange}
+                                >
+                                    <option value="1">High</option>
+                                    <option value="0">Normal</option>
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
+                        <Col md={5}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Responsible</Form.Label>
                                 <Form.Control
@@ -404,6 +411,7 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
                                     value={formData.baitWorkerId}
                                     onChange={handleChange}
                                     id="baitWorkerId"
+                                    required
                                 >
                                     <option value="">Select Responsible</option>
                                     {baitWorkers.map(baitWorker => (
@@ -415,16 +423,24 @@ const AddTicketModal = ({show, handleClose, reFetch, ticketModal, setTicket}) =>
                             </Form.Group>
                         </Col>
                     </Row>
+                    <Modal.Footer>
+                        <Button
+                            variant="secondary"
+                            onClick={() => setSubmitType("submitAndView")}
+                            type="submit" // This will trigger form validation
+                        >
+                            Submit and View
+                        </Button>
+                        <Button
+                            variant="primary"
+                            onClick={() => setSubmitType("submit")}
+                            type="submit" // This will trigger form validation
+                        >
+                            Submit
+                        </Button>
+                    </Modal.Footer>
                 </Form>
             </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" type="submit" onClick={handleSubmitAndView}>
-                    Submit and View
-                </Button>
-                <Button variant="success" type="submit" onClick={handleSubmit}>
-                    Submit
-                </Button>
-            </Modal.Footer>
 
             <AddWorkTypeModal
                 show={showWorkTypeModal}

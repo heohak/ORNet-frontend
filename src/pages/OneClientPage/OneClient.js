@@ -120,10 +120,15 @@ function OneClient() {
 
     return (
         <>
-            <div className='client-name'>
-                <Button className='mt-2 mb-2 ms-2' onClick={() => navigate('/customers')}>Back</Button>
-                <h1 className="text-center flex-grow-1 me-2" >{client ? `${client.shortName} Details` : 'Client Details'}</h1>
+            <div className="client-header-background">
+                <Container>
+                    <div className="client-name">
+                        <Button onClick={() => navigate('/customers')}>Back</Button>
+                        <h1 className="client-title">{client ? `${client.shortName} Details` : 'Client Details'}</h1>
+                    </div>
+                </Container>
             </div>
+
             <Container className="mt-5 pt-5">
                 {loading && <Spinner animation="border" />}
                 {error && <Alert variant="danger">{error}</Alert>}
@@ -134,6 +139,33 @@ function OneClient() {
                             navigate={navigate}
                         />
                         <Accordion defaultActiveKey="0" alwaysOpen onToggle={handleAccordionToggle}>
+
+                            <Accordion.Item eventKey="5" className="AccordionDevices" ref={(el) => accordionRefs.current[5] = el}>
+                                <Accordion.Header onClick={() => handleAccordionToggle(5)}>Devices</Accordion.Header>
+                                <Accordion.Body>
+                                    <ClientDevices
+                                        devices={devices}
+                                        client={client}
+                                        clientId={clientId}
+                                        setRefresh={setRefresh}
+                                        locations={locationsMap}
+                                    />
+                                </Accordion.Body>
+                            </Accordion.Item>
+
+                            <Accordion.Item eventKey="7" className="AccordionMaintenences" ref={(el) => accordionRefs.current[7] = el}>
+                                <Accordion.Header onClick={() => handleAccordionToggle(7)}>Maintenances</Accordion.Header>
+                                <Accordion.Body>
+                                    <ClientMaintenances
+                                        maintenances={maintenances}
+                                        clientId={clientId}
+                                        setRefresh={setRefresh}
+                                        client={client}
+                                    />
+                                </Accordion.Body>
+                            </Accordion.Item>
+
+
                             <Accordion.Item eventKey="1" className="AccordionLocations" ref={(el) => accordionRefs.current[1] = el}>
                                 <Accordion.Header onClick={() => handleAccordionToggle(1)}>Locations</Accordion.Header>
                                 <Accordion.Body>
@@ -142,17 +174,7 @@ function OneClient() {
                                 </Accordion.Body>
                             </Accordion.Item>
 
-                            <Accordion.Item eventKey="2" className="AccordionTechnicalInfo" ref={(el) => accordionRefs.current[2] = el}>
-                                <Accordion.Header onClick={() => handleAccordionToggle(2)}>Technical Information</Accordion.Header>
-                                <Accordion.Body>
-                                    <SoftwareDetails
-                                        softwareList={softwareList}
-                                        clientId={clientId}
-                                        setRefresh={setRefresh}
-                                        client={client}
-                                    />
-                                </Accordion.Body>
-                            </Accordion.Item>
+
 
                             <Accordion.Item eventKey="3" className="AccordionTickets" ref={(el) => accordionRefs.current[3] = el}>
                                 <Accordion.Header onClick={() => handleAccordionToggle(3)}>Tickets</Accordion.Header>
@@ -176,18 +198,7 @@ function OneClient() {
                                 </Accordion.Body>
                             </Accordion.Item>
 
-                            <Accordion.Item eventKey="5" className="AccordionDevices" ref={(el) => accordionRefs.current[5] = el}>
-                                <Accordion.Header onClick={() => handleAccordionToggle(5)}>Devices</Accordion.Header>
-                                <Accordion.Body>
-                                    <ClientDevices
-                                        devices={devices}
-                                        client={client}
-                                        clientId={clientId}
-                                        setRefresh={setRefresh}
-                                        locations={locationsMap}
-                                    />
-                                </Accordion.Body>
-                            </Accordion.Item>
+
 
                             <Accordion.Item eventKey="6" className="AccordionThirdPartyITs" ref={(el) => accordionRefs.current[6] = el}>
                                 <Accordion.Header onClick={() => handleAccordionToggle(6)}>Third Party ITs</Accordion.Header>
@@ -199,11 +210,13 @@ function OneClient() {
                                 </Accordion.Body>
                             </Accordion.Item>
 
-                            <Accordion.Item eventKey="7" className="AccordionMaintenences" ref={(el) => accordionRefs.current[7] = el}>
-                                <Accordion.Header onClick={() => handleAccordionToggle(7)}>Maintenances</Accordion.Header>
+
+
+                            <Accordion.Item eventKey="2" className="AccordionTechnicalInfo" ref={(el) => accordionRefs.current[2] = el}>
+                                <Accordion.Header onClick={() => handleAccordionToggle(2)}>Technical Information</Accordion.Header>
                                 <Accordion.Body>
-                                    <ClientMaintenances
-                                        maintenances={maintenances}
+                                    <SoftwareDetails
+                                        softwareList={softwareList}
                                         clientId={clientId}
                                         setRefresh={setRefresh}
                                         client={client}

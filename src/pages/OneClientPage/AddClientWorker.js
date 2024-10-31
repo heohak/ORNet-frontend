@@ -222,7 +222,6 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
                     </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowRoleModal(false)}>Cancel</Button>
                     <Button variant="primary" onClick={handleAddRole}>Add Role</Button>
                 </Modal.Footer>
             </Modal>

@@ -14,8 +14,10 @@ import config from "../../../config/config";
 import ToggleSwitch from "./ToggleSwitch";
 import TicketSectionButtons from "./TicketSectionButtons";
 import '../../../css/NewTicket.css';
+import { FaTrash } from "react-icons/fa";
+import TicketDeleteModal from "./TicketDeleteModal"; // Import trash icon
 
-const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed }) => {
+const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch }) => {
     const [ticket, setTicket] = useState(firstTicket);
     const [activeKey, setActiveKey] = useState('0');
     const [isClosed, setIsClosed] = useState(isTicketClosed);
@@ -23,6 +25,7 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed }) => {
     const [locationName, setLocationName] = useState('');
     const [paidTime, setPaidTime] = useState(ticket.paidTime);
     const [timeSpent, setTimeSpent] = useState(ticket.timeSpent);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
 
     useEffect(() => {
@@ -104,14 +107,20 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed }) => {
         return `${hours}H ${minutes}M`;
     };
 
+    const handleDelete = async() => {
+        await axios.delete(`${config.API_BASE_URL}/ticket/delete/${ticket.id}`);
+        reFetch();
+        onClose();
+    }
+
 
     return (
         <Modal id="custom-modal" show onHide={onClose} className="custom-width-modal" dialogClassName="custom-modal">
             <Modal.Header closeButton>
                 <div className="w-100">
                     <Modal.Title>{ticket.title} {ticket.crisis && <Badge bg="danger">Priority</Badge>}</Modal.Title>
-                    <p className="text-muted mb-0">Location: {locationName}</p>
-                    <p className="text-muted mb-0">Customer: {ticket.clientName}</p>
+                    <p className="text-muted mb-0">{ticket.clientName}</p>
+                    <p className="text-muted mb-0">{locationName}</p>
                 </div>
             </Modal.Header>
             <Modal.Body>
@@ -131,19 +140,32 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed }) => {
                         {/*{activeSection === 'response' && <NewTicketResponse ticket={ticket} />}*/}
                     </Col>
                     <Col md={4}>
-                        <Row className="justify-content-between mb-2">
+                        <Row className="mb-2 justify-content-between">
                             <Col className="col-md-auto">
-                                <NewTicketStatusDropdown
-                                    statuses={statuses}
-                                    ticket={ticket}
-                                    setIsClosed={setIsClosed}
-                                    reFetch={reFetchTicket}
+                                <div className="d-flex align-items-center">
+                                    <Col className="col-md-auto">
+                                        <NewTicketStatusDropdown
+                                            statuses={statuses}
+                                            ticket={ticket}
+                                            setIsClosed={setIsClosed}
+                                            reFetch={reFetchTicket}
+                                        />
+                                    </Col>
+                                    <Col className="col-md-auto px-2">
+                                        <ToggleSwitch ticket={ticket} reFetch={reFetchTicket} />
+                                    </Col>
+                                </div>
+                            </Col>
+                            <Col className="col-md-auto"> {/* Aligns trash icon to the right */}
+                                <FaTrash
+                                    style={{ cursor: "pointer" }}
+                                    onClick={() => setShowDeleteModal(true)} // Add your delete function here
+                                    title="Delete Ticket"
+                                    className="text-danger" // Optional: add a color class
                                 />
                             </Col>
-                            <Col className="col-md-auto d-flex align-items-center">
-                                <ToggleSwitch ticket={ticket} reFetch={reFetchTicket} />
-                            </Col>
                         </Row>
+
                         <NewTicketDetails
                             ticket={ticket}
                             activeKey={activeKey}
@@ -172,6 +194,11 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed }) => {
             </Modal.Body>
             <Modal.Footer>
             </Modal.Footer>
+            <TicketDeleteModal
+                show={showDeleteModal}
+                handleClose={() => setShowDeleteModal(false)}
+                handleDelete={handleDelete}
+            />
         </Modal>
     );
 };

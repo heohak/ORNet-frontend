@@ -15,7 +15,7 @@ function EditClient() {
         pathologyClient: false,
         surgeryClient: false,
         editorClient: false,
-        otherMedicalInformation: '',
+        otherMedicalDevices: false,
         lastMaintenance: '',
         nextMaintenance: '',
         locationIds: [],
@@ -291,11 +291,11 @@ function EditClient() {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
-                    <Form.Label>Other Medical Information</Form.Label>
-                    <Form.Control
-                        type="text"
-                        name="otherMedicalInformation"
-                        value={clientData.otherMedicalInformation}
+                    <Form.Label>Other Medical Devices</Form.Label>
+                    <Form.Check
+                        type="checkbox"
+                        name="otherMedicalDevices"
+                        checked={clientData.otherMedicalDevices}
                         onChange={handleInputChange}
                     />
                 </Form.Group>
