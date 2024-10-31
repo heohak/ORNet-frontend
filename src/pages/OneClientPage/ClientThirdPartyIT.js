@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import config from "../../config/config";
 import AddThirdPartyIT from "./AddThirdPartyIT";
 import '../../css/Customers.css';
+import {FaEdit, FaEnvelope, FaPhone} from "react-icons/fa";
 
 function ClientThirdPartyIT({ clientId, client }) {
     const [thirdPartyITs, setThirdPartyITs] = useState([]);
@@ -61,24 +62,22 @@ function ClientThirdPartyIT({ clientId, client }) {
                         <Col md={3} key={thirdParty.id} className="mb-4"> {/* Adjust column size as needed */}
                             <Card className="h-100 position-relative customer-page-card">
                                 <Card.Body className="all-page-cardBody">
-                                    <div className="mb-4">
-                                        <Card.Title className='all-page-cardTitle'>{thirdParty.name}</Card.Title>
-                                        <Card.Text className='all-page-cardText'>
-                                            <strong>Email:</strong> {thirdParty.email}<br />
-                                            <strong>Phone:</strong> {thirdParty.phone}
-                                        </Card.Text>
-                                    </div>
-                                    <div className="d-flex justify-content-end"> {/* Align buttons to the right */}
+                                    <div className="position-absolute top-0 end-0 m-2">
                                         <Button
-                                            variant="secondary"
+                                            variant="link"
                                             onClick={() => navigate(`/settings/third-party-its/edit/${thirdParty.id}`, { state: { thirdParty, clientId } })}
-                                            className="me-2"
                                         >
-                                            Edit
+                                            <FaEdit />
                                         </Button>
                                     </div>
+                                    <Card.Title className='all-page-cardTitle'>{thirdParty.name}</Card.Title>
+                                    <Card.Text className='all-page-cardText'>
+                                        <FaEnvelope className="me-2" />{thirdParty.email}<br />
+                                        <FaPhone className="me-2" />{thirdParty.phone}
+                                    </Card.Text>
                                 </Card.Body>
                             </Card>
+
                         </Col>
                     ))}
                 </Row>
