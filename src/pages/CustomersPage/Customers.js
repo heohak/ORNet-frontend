@@ -137,6 +137,13 @@ function Customers() {
                     <Button variant="primary" className="me-2" onClick={handleNewAddCustomer}>
                         Add Customer
                     </Button>
+                    {/* NewAddCustomer Modal */}
+                    {showNewAddCustomerModal && (
+                        <NewAddCustomer
+                            show={showNewAddCustomerModal}
+                            onClose={handleCloseNewAddCustomerModal}
+                        />
+                    )}
                     <Button variant="primary" onClick={handleGenerateReport}>
                         Generate Report
                     </Button>
@@ -211,14 +218,6 @@ function Customers() {
                 )}
             </div>
 
-            <Modal show={showNewAddCustomerModal} onHide={() => setShowNewAddCustomerModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Add customer</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <NewAddCustomer onClose={handleCloseNewAddCustomerModal} />
-                </Modal.Body>
-            </Modal>
 
             {/* Generate Report Modal */}
             <GenerateReportModal show={showGenerateReportModal} handleClose={handleCloseGenerateReportModal} />

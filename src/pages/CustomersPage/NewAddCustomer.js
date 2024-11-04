@@ -5,7 +5,7 @@ import Select from 'react-select';
 import config from "../../config/config";
 import AddContactModal from "./AddContactModal";
 
-function NewAddCustomer({ onClose }) {
+function NewAddCustomer({ show, onClose }) {
     const [fullName, setFullName] = useState('');
     const [shortName, setShortName] = useState('');
     const [pathologyCustomer, setPathologyCustomer] = useState(false);
@@ -180,7 +180,11 @@ function NewAddCustomer({ onClose }) {
     // Rest of the code remains unchanged (handleAddLocation, handleAddThirdParty, etc.)
 
     return (
-        <div>
+        <Modal show={show} onHide={onClose} size="lg">
+            <Modal.Header closeButton>
+                <Modal.Title className="w-100 text-center">Add New Customer</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
             {dateError && (
                 <Alert ref={dateErrorRef} variant="danger">
                     {dateError}
@@ -189,7 +193,7 @@ function NewAddCustomer({ onClose }) {
             <Form onSubmit={handleSubmit}>
                 {/* Row 1: Full Name and Short Name */}
                 <Row>
-                    <Col>
+                    <Col md={8}>
                         <Form.Group className="mb-3">
                             <Form.Label>Full Name</Form.Label>
                             <Form.Control
@@ -215,7 +219,7 @@ function NewAddCustomer({ onClose }) {
 
                 {/* Row 2: Locations and Country */}
                 <Row>
-                    <Col>
+                    <Col md={8}>
                         <Form.Group className="mb-3">
                             <Form.Label>Locations</Form.Label>
                             <Select
@@ -242,8 +246,8 @@ function NewAddCustomer({ onClose }) {
                 {/* Row 3: Add Location and Add Contact Buttons */}
                 <Row className="mb-3">
                     <Col>
-                        <Button variant="link" onClick={() => setShowLocationModal(true)}>Add Location</Button>
-                        <Button variant="link" onClick={() => setShowAddContactModal(true)}>Add Contact</Button>
+                        <Button variant="link" onClick={() => setShowLocationModal(true)}>Add New Location</Button>
+                        <Button variant="link" onClick={() => setShowAddContactModal(true)}>Add New Contact</Button>
                     </Col>
                 </Row>
 
@@ -264,19 +268,23 @@ function NewAddCustomer({ onClose }) {
                     <Form.Label>Customer Types</Form.Label>
                     <div className="border p-3">
                         <Row>
-                            <Col xs={6}>
+                            <Col xs={6} md={3}>
                                 <Form.Check
                                     type="checkbox"
                                     label="Pathology Customer"
                                     checked={pathologyCustomer}
                                     onChange={(e) => setPathologyCustomer(e.target.checked)}
                                 />
+                            </Col>
+                            <Col xs={6} md={3}>
                                 <Form.Check
                                     type="checkbox"
                                     label="Surgery Customer"
                                     checked={surgeryCustomer}
                                     onChange={(e) => setSurgeryCustomer(e.target.checked)}
                                 />
+                            </Col>
+                            <Col xs={6} md={3}>
                                 <Form.Check
                                     type="checkbox"
                                     label="Editor Customer"
@@ -284,19 +292,25 @@ function NewAddCustomer({ onClose }) {
                                     onChange={(e) => setEditorCustomer(e.target.checked)}
                                 />
                             </Col>
-                            <Col xs={6}>
+                            <Col xs={6} md={3}>
                                 <Form.Check
                                     type="checkbox"
                                     label="Other Medical Devices"
                                     checked={otherMedicalDevices}
                                     onChange={(e) => setOtherMedicalDevices(e.target.checked)}
                                 />
+                            </Col>
+                        </Row>
+                        <Row className="mt-3">
+                            <Col xs={6} md={3}>
                                 <Form.Check
                                     type="checkbox"
                                     label="Prospect"
                                     checked={prospect}
                                     onChange={(e) => setProspect(e.target.checked)}
                                 />
+                            </Col>
+                            <Col xs={6}>
                                 <Form.Check
                                     type="checkbox"
                                     label="Agreement"
@@ -308,9 +322,10 @@ function NewAddCustomer({ onClose }) {
                     </div>
                 </Form.Group>
 
+
                 {/* Row 5: Third Party ITs and Add Third Party Button */}
                 <Row className="mb-3">
-                    <Col>
+                    <Col md={8}>
                         <Form.Group>
                             <Form.Label>Third Party ITs</Form.Label>
                             <Select
@@ -322,7 +337,7 @@ function NewAddCustomer({ onClose }) {
                         </Form.Group>
                     </Col>
                     <Col xs="auto" className="d-flex align-items-end">
-                        <Button variant="link" onClick={() => setShowThirdPartyModal(true)}>Add Third Party</Button>
+                        <Button variant="link" onClick={() => setShowThirdPartyModal(true)}>Add New Third Party</Button>
                     </Col>
                 </Row>
 
@@ -332,6 +347,7 @@ function NewAddCustomer({ onClose }) {
                     <Button variant="success" type="submit">Add Customer</Button>
                 </div>
             </Form>
+            </Modal.Body>
 
             {/* Modal for adding a new location */}
             <Modal show={showLocationModal} onHide={() => setShowLocationModal(false)}>
@@ -465,7 +481,7 @@ function NewAddCustomer({ onClose }) {
 
             {/* Modals for Adding Location, Contact, and Third Party IT remain unchanged */}
             {/* ... */}
-        </div>
+        </Modal>
     );
 }
 
