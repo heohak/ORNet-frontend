@@ -5,23 +5,21 @@ import {
     Row,
     Col,
     Button,
-    Spinner,
     Alert,
     Form,
     FormControl,
     InputGroup,
-    Modal,
     DropdownButton,
     Dropdown
 } from 'react-bootstrap';
 import config from "../../config/config";
-import AddCustomer from "./AddCustomer";
 import NewAddCustomer from "./NewAddCustomer";
 import GenerateReportModal from "../../modals/GenerateReportModal";
 import '../../css/Customers.css';
+import noImg from '../../assets/no-img.jpg';
 
 function Customers() {
-    const [customer, setCustomer] = useState([]);
+    const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -30,6 +28,8 @@ function Customers() {
     const [showGenerateReportModal, setShowGenerateReportModal] = useState(false);
     const [typingTimeout, setTypingTimeout] = useState(null);
     const [sortConfig, setSortConfig] = useState({ key: 'shortName', direction: 'ascending' });
+    const [countryFlags, setCountryFlags] = useState({}); // Store flags in a state
+    const countryFlagApi = "https://restcountries.com/v3.1/alpha";
 
     useEffect(() => {
         fetchCustomers();
@@ -42,12 +42,32 @@ function Customers() {
             const response = await axios.get(`${config.API_BASE_URL}/client/search`, {
                 params: { q: query, clientType: type }
             });
-            setCustomer(response.data);
+            const customersData = response.data;
+
+            // Fetch country flags for all customers
+            const flags = await fetchCountryFlags(customersData);
+            setCountryFlags(flags); // Store fetched flags
+
+            setCustomers(customersData);
         } catch (error) {
             setError(error.message);
         } finally {
             setLoading(false);
         }
+    };
+
+    const fetchCountryFlags = async (customersData) => {
+        const flags = {};
+        for (const customer of customersData) {
+            const countryCode = customer.country; // Country code in cca3 format
+            try {
+                const response = await axios.get(`${countryFlagApi}/${countryCode}`);
+                flags[countryCode] = response.data[0].flags.png; // Store flag image URL
+            } catch (error) {
+                console.error(`Error fetching flag for ${countryCode}:`, error);
+            }
+        }
+        return flags;
     };
 
     useEffect(() => {
@@ -177,22 +197,31 @@ function Customers() {
             </Form>
             {/* Table-like row for customers */}
             <div className="mt-3">
-                <Row className="font-weight-bold text-center">
-                    <Col md={4} onClick={() => handleSort('shortName')}>
+                <Row className="font-weight-bold">
+                    <Col md={1}>
+                        Country {renderSortArrow('country')}
+                    </Col>
+                    <Col md={2} onClick={() => handleSort('shortName')}>
                         Short Name {renderSortArrow('shortName')}
                     </Col>
                     <Col md={4} onClick={() => handleSort('fullName')}>
                         Full Name {renderSortArrow('fullName')}
                     </Col>
-                    <Col md={4}>
+                    <Col md={2}>
                         Type
+                    </Col>
+                    <Col md={1}>
+                        Contact
+                    </Col>
+                    <Col className="text-end" md={2}>
+                        Activity
                     </Col>
                 </Row>
                 <hr />
-                {sortCustomers(customer, sortConfig.key, sortConfig.direction).length === 0 ? (
+                {sortCustomers(customers, sortConfig.key, sortConfig.direction).length === 0 ? (
                     <Alert variant="info">No customers found.</Alert>
                 ) : (
-                    sortCustomers(customer, sortConfig.key, sortConfig.direction).map((customer, index) => {
+                    sortCustomers(customers, sortConfig.key, sortConfig.direction).map((customer, index) => {
                         const customerTypes = [];
                         if (customer.pathologyClient) customerTypes.push('Pathology');
                         if (customer.surgeryClient) customerTypes.push('Surgery');
@@ -205,13 +234,28 @@ function Customers() {
                         return (
                             <Row
                                 key={customer.id}
-                                className="align-items-center text-center mb-2"
+                                className="align-items-center mb-2"
                                 style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
                                 onClick={() => window.location.href = `/customer/${customer.id}`}
                             >
-                                <Col md={4}>{customer.shortName}</Col>
+                                <Col md={1}>
+                                    <img
+                                        src={countryFlags[customer.country] ? countryFlags[customer.country] : noImg} // Adjust this path to point to your flag image
+                                        alt={`${customer.country} flag`}
+                                        style={{
+                                            width: '24px',
+                                            height: '24px',
+                                            borderRadius: '50%',
+                                            marginRight: '8px',
+                                        }}
+                                    />
+                                    {customer.country}
+                                </Col>
+                                <Col md={2}>{customer.shortName}</Col>
                                 <Col md={4}>{customer.fullName}</Col>
-                                <Col md={4}>{customerTypeDisplay}</Col>
+                                <Col md={2}>{customerTypeDisplay}</Col>
+                                <Col md={1}>Con</Col>
+                                <Col className="text-end" md={2}>19.02.24</Col>
                             </Row>
                         );
                     })
