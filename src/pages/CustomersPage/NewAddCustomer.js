@@ -4,6 +4,8 @@ import {Form, Button, Alert, Modal, Row, Col, Badge} from 'react-bootstrap';
 import Select from 'react-select';
 import config from "../../config/config";
 import AddContactModal from "./AddContactModal";
+import AsyncSelect from 'react-select/async';
+
 
 function NewAddCustomer({ show, onClose }) {
     const [fullName, setFullName] = useState('');
@@ -16,7 +18,6 @@ function NewAddCustomer({ show, onClose }) {
     const [agreement, setAgreement] = useState(false);
     const [lastMaintenance, setLastMaintenance] = useState('');
     const [nextMaintenance, setNextMaintenance] = useState('');
-    const [country, setCountry] = useState(''); // Added country state
     const [locationOptions, setLocationOptions] = useState([]);
     const [thirdPartyOptions, setThirdPartyOptions] = useState([]);
     const [selectedLocations, setSelectedLocations] = useState([]);
@@ -36,7 +37,6 @@ function NewAddCustomer({ show, onClose }) {
 
     const [countryOptions, setCountryOptions] = useState([]);
     const [selectedCountry, setSelectedCountry] = useState(null);
-    const [inputValue, setInputValue] = useState('');
 
     useEffect(() => {
         if (dateError && dateErrorRef.current) {
@@ -59,33 +59,32 @@ function NewAddCustomer({ show, onClose }) {
             console.error('Error fetching countries:', error);
         }
     };
-    const handleInputChange = async (inputValue) => {
-        setInputValue(inputValue);
-        if (inputValue.length > 0) {
-            try {
+    const handleChange = (selectedOption) => {
+        setSelectedCountry(selectedOption);
+    };
+
+    const loadCountryOptions = async (inputValue) => {
+        try {
+            if (inputValue.length > 0) {
                 const response = await axios.get(`https://restcountries.com/v3.1/name/${inputValue}`);
-                const options = response.data.map(country => ({
+                return response.data.map(country => ({
                     value: country.cca3,
                     label: country.name.common,
                 }));
-                setCountryOptions(options);
-            } catch (error) {
-                console.error('Error searching for countries:', error);
+            } else {
+                const response = await axios.get('https://restcountries.com/v3.1/all');
+                return response.data.map(country => ({
+                    value: country.cca3,
+                    label: country.name.common,
+                }));
             }
-        } else {
-            // If the input is cleared, fetch all countries again
-            fetchCountries();
+        } catch (error) {
+            console.error('Error fetching countries:', error);
+            return [];
         }
     };
-    const handleChange = (selectedOption) => {
-        if (selectedOption) {
-            setSelectedCountry(selectedOption);
-            setInputValue(selectedOption.label);
-        } else {
-            setSelectedCountry(null);
-            setInputValue('');
-        }
-    };
+
+
 
 
     useEffect(() => {
@@ -134,7 +133,8 @@ function NewAddCustomer({ show, onClose }) {
                 nextMaintenance,
                 prospect,
                 agreement,
-                country: selectedCountry.value
+                country: selectedCountry ? selectedCountry.value : '', // Use selectedCountry
+
             });
             const clientId = clientResponse.data.token;
 
@@ -296,15 +296,16 @@ function NewAddCustomer({ show, onClose }) {
                     <Col md={4}>
                         <Form.Group className="mb-3">
                             <Form.Label>Country</Form.Label>
-                            <Select
+                            <AsyncSelect
+                                cacheOptions
+                                defaultOptions
+                                loadOptions={loadCountryOptions}
                                 value={selectedCountry}
                                 onChange={handleChange}
-                                onInputChange={handleInputChange}
-                                options={countryOptions}
                                 placeholder="Select a country..."
                                 isClearable
-                                inputValue={inputValue}
                             />
+
                         </Form.Group>
                     </Col>
                 </Row>
@@ -594,8 +595,6 @@ function NewAddCustomer({ show, onClose }) {
                 locationOptions={locationOptions}
             />
 
-            {/* Modals for Adding Location, Contact, and Third Party IT remain unchanged */}
-            {/* ... */}
         </Modal>
     );
 }
