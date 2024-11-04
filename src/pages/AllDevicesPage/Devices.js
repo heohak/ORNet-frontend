@@ -83,8 +83,8 @@ function Devices() {
                 valueB = getClientName(b.clientId);
             } else {
                 // Sorting by the specified key (e.g., deviceName or serialNumber)
-                valueA = a[key];
-                valueB = b[key];
+                valueA = a[key] || ''; // Ensure value is a string
+                valueB = b[key] || '';
             }
 
             // Sort in ascending or descending order
@@ -156,14 +156,17 @@ function Devices() {
                     <Col md={3} onClick={() => handleSort('deviceName')}>
                         Name {renderSortArrow('deviceName')}
                     </Col>
-                    <Col md={3} onClick={() => handleSort('clientName')}>
-                        Customer {renderSortArrow('clientName')}
-                    </Col>
                     <Col md={2} onClick={() => handleSort('type')}>
                         Type {renderSortArrow('type')}
                     </Col>
-                    <Col md={3} onClick={() => handleSort('serialNumber')}>
+                    <Col md={3} onClick={() => handleSort('clientName')}>
+                        Customer {renderSortArrow('clientName')}
+                    </Col>
+                    <Col md={2} onClick={() => handleSort('serialNumber')}>
                         Serial Number {renderSortArrow('serialNumber')}
+                    </Col>
+                    <Col md={2} onClick={() => handleSort('version')}>
+                        Version {renderSortArrow('version')}
                     </Col>
                 </Row>
                 <hr />
@@ -179,9 +182,10 @@ function Devices() {
                             onClick={() => navigate(`/device/${device.id}`, {state: {from: 'all-devices'}})}
                         >
                             <Col md={3}>{device.deviceName}</Col>
-                            <Col md={3}>{getClientName(device.clientId)}</Col>
                             <Col md={2}>{classificators[device.classificatorId] || 'Unknown Type'}</Col>
-                            <Col md={3}>{device.serialNumber}</Col>
+                            <Col md={3}>{getClientName(device.clientId)}</Col>
+                            <Col md={2}>{device.serialNumber}</Col>
+                            <Col md={2}>{device.version || 'N/A'}</Col>
                         </Row>
                     );
                 })}
