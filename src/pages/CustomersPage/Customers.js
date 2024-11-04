@@ -44,11 +44,10 @@ function Customers() {
             });
             const customersData = response.data;
 
+            setCustomers(customersData);
             // Fetch country flags for all customers
             const flags = await fetchCountryFlags(customersData);
             setCountryFlags(flags); // Store fetched flags
-
-            setCustomers(customersData);
         } catch (error) {
             setError(error.message);
         } finally {

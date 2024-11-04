@@ -34,11 +34,59 @@ function NewAddCustomer({ show, onClose }) {
 
     const dateErrorRef = useRef(null);
 
+    const [countryOptions, setCountryOptions] = useState([]);
+    const [selectedCountry, setSelectedCountry] = useState(null);
+    const [inputValue, setInputValue] = useState('');
+
     useEffect(() => {
         if (dateError && dateErrorRef.current) {
             dateErrorRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }, [dateError]);
+
+    useEffect(() => {
+        fetchCountries();
+    },[]);
+    const fetchCountries = async () => {
+        try {
+            const response = await axios.get('https://restcountries.com/v3.1/all');
+            const options = response.data.map(country => ({
+                value: country.cca3, // This is the code you want to send to the backend
+                label: country.name.common, // This is what will be displayed in the dropdown
+            }));
+            setCountryOptions(options);
+        } catch (error) {
+            console.error('Error fetching countries:', error);
+        }
+    };
+    const handleInputChange = async (inputValue) => {
+        setInputValue(inputValue);
+        if (inputValue.length > 0) {
+            try {
+                const response = await axios.get(`https://restcountries.com/v3.1/name/${inputValue}`);
+                const options = response.data.map(country => ({
+                    value: country.cca3,
+                    label: country.name.common,
+                }));
+                setCountryOptions(options);
+            } catch (error) {
+                console.error('Error searching for countries:', error);
+            }
+        } else {
+            // If the input is cleared, fetch all countries again
+            fetchCountries();
+        }
+    };
+    const handleChange = (selectedOption) => {
+        if (selectedOption) {
+            setSelectedCountry(selectedOption);
+            setInputValue(selectedOption.label);
+        } else {
+            setSelectedCountry(null);
+            setInputValue('');
+        }
+    };
+
 
     useEffect(() => {
         const fetchLocationsAndThirdParties = async () => {
@@ -86,7 +134,7 @@ function NewAddCustomer({ show, onClose }) {
                 nextMaintenance,
                 prospect,
                 agreement,
-                country,
+                country: selectedCountry.value
             });
             const clientId = clientResponse.data.token;
 
@@ -225,13 +273,18 @@ function NewAddCustomer({ show, onClose }) {
                 <Row>
                     <Col md={8}>
                         <Form.Group className="mb-3">
-                            <Form.Label>
-                                Locations
-
-                            </Form.Label>
-                            <Button variant="link" onClick={() => setShowLocationModal(true)} style={{ paddingLeft: '5px', paddingBottom: '0.5px' }}>
-                                Add New Location
-                            </Button>
+                            <Row>
+                                <Col className="col-md-auto align-content-center">
+                                    <Form.Label className="mb-0">
+                                        Locations
+                                    </Form.Label>
+                                </Col>
+                                <Col className="col-md-auto px-0 py-0">
+                                    <Button variant="link" onClick={() => setShowLocationModal(true)}>
+                                        Add New Location
+                                    </Button>
+                                </Col>
+                            </Row>
                             <Select
                                 isMulti
                                 options={locationOptions}
@@ -243,24 +296,34 @@ function NewAddCustomer({ show, onClose }) {
                     <Col md={4}>
                         <Form.Group className="mb-3">
                             <Form.Label>Country</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={country}
-                                onChange={(e) => setCountry(e.target.value)}
-                                required
+                            <Select
+                                value={selectedCountry}
+                                onChange={handleChange}
+                                onInputChange={handleInputChange}
+                                options={countryOptions}
+                                placeholder="Select a country..."
+                                isClearable
+                                inputValue={inputValue}
                             />
                         </Form.Group>
                     </Col>
                 </Row>
 
                 {/* Contacts */}
+
                 <Form.Group className="mb-3">
-                    <Form.Label>
-                        Contacts
-                    </Form.Label>
-                    <Button variant="link" onClick={() => setShowAddContactModal(true)} style={{ paddingLeft: '5px', paddingBottom: '0.5px' }}>
-                        Add New Contact
-                    </Button>
+                    <Row>
+                        <Col className="col-md-auto align-content-center">
+                            <Form.Label className="mb-0">
+                                Contacts
+                            </Form.Label>
+                        </Col>
+                        <Col className="col-md-auto px-0 py-0">
+                            <Button variant="link" onClick={() => setShowAddContactModal(true)}>
+                                Add New Contact
+                            </Button>
+                        </Col>
+                    </Row>
                     <Row>
                         <Col md={8}>
                             <div style={{
