@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Form, Button, Alert, Modal, Row, Col } from 'react-bootstrap';
+import {Form, Button, Alert, Modal, Row, Col, Badge} from 'react-bootstrap';
 import Select from 'react-select';
 import config from "../../config/config";
 import AddContactModal from "./AddContactModal";
@@ -177,7 +177,11 @@ function NewAddCustomer({ show, onClose }) {
         setContacts(prevContacts => [...prevContacts, contact]);
     };
 
-    // Rest of the code remains unchanged (handleAddLocation, handleAddThirdParty, etc.)
+    // Function to remove a contact
+    const handleRemoveContact = (indexToRemove) => {
+        setContacts(prevContacts => prevContacts.filter((_, index) => index !== indexToRemove));
+    };
+
 
     return (
         <Modal show={show} onHide={onClose} size="lg">
@@ -221,7 +225,13 @@ function NewAddCustomer({ show, onClose }) {
                 <Row>
                     <Col md={8}>
                         <Form.Group className="mb-3">
-                            <Form.Label>Locations</Form.Label>
+                            <Form.Label>
+                                Locations
+
+                            </Form.Label>
+                            <Button variant="link" onClick={() => setShowLocationModal(true)} style={{ paddingLeft: '5px', paddingBottom: '0.5px' }}>
+                                Add New Location
+                            </Button>
                             <Select
                                 isMulti
                                 options={locationOptions}
@@ -230,7 +240,7 @@ function NewAddCustomer({ show, onClose }) {
                             />
                         </Form.Group>
                     </Col>
-                    <Col>
+                    <Col md={4}>
                         <Form.Group className="mb-3">
                             <Form.Label>Country</Form.Label>
                             <Form.Control
@@ -243,25 +253,67 @@ function NewAddCustomer({ show, onClose }) {
                     </Col>
                 </Row>
 
-                {/* Row 3: Add Location and Add Contact Buttons */}
-                <Row className="mb-3">
-                    <Col>
-                        <Button variant="link" onClick={() => setShowLocationModal(true)}>Add New Location</Button>
-                        <Button variant="link" onClick={() => setShowAddContactModal(true)}>Add New Contact</Button>
-                    </Col>
-                </Row>
-
-                {/* Display Added Contacts */}
-                {contacts.length > 0 && (
-                    <div className="mb-3">
-                        <h5>Contacts to Add:</h5>
-                        {contacts.map((contact, index) => (
-                            <div key={index}>
-                                {contact.firstName} {contact.lastName} - {contact.email}
+                {/* Contacts */}
+                <Form.Group className="mb-3">
+                    <Form.Label>
+                        Contacts
+                    </Form.Label>
+                    <Button variant="link" onClick={() => setShowAddContactModal(true)} style={{ paddingLeft: '5px', paddingBottom: '0.5px' }}>
+                        Add New Contact
+                    </Button>
+                    <Row>
+                        <Col md={8}>
+                            <div style={{
+                                border: '1px solid #ced4da',
+                                borderRadius: '.25rem',
+                                padding: '0.2rem 0.5rem',
+                                minHeight: '38px',
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                alignItems: 'center'
+                            }}>
+                                {contacts.length > 0 ? (
+                                    contacts.map((contact, index) => (
+                                        <Badge
+                                            key={index}
+                                            pill={false}
+                                            bg="none"
+                                            text="dark"
+                                            className="me-1 mb-1"
+                                            style={{
+                                                backgroundColor: '#dcd8dc', // Dark gray custom background color
+                                                color: '#6c757d',           // Gray text color
+                                                borderRadius: '0',          // No corner radius
+                                                fontSize: '90%',
+                                                fontWeight: 'normal',
+                                                padding: '1px 4px'
+                                            }}
+                                        >
+                                            {contact.firstName} {contact.lastName}
+                                            <Button
+                                                variant="link"
+                                                size="sm"
+                                                onClick={() => handleRemoveContact(index)}
+                                                style={{
+                                                    color: 'black',
+                                                    textDecoration: 'none',
+                                                    marginLeft: '5px',
+                                                    marginBottom: '4px',
+                                                    padding: '0',
+                                                    fontWeight: 'bold'
+                                                }}
+                                            >
+                                                &times;
+                                            </Button>
+                                        </Badge>
+                                    ))
+                                ) : (
+                                    <span style={{ color: '#6c757d' }}>No contacts added yet.</span>
+                                )}
                             </div>
-                        ))}
-                    </div>
-                )}
+                        </Col>
+                    </Row>
+                </Form.Group>
 
                 {/* Row 4: Grouped Checkboxes */}
                 <Form.Group className="mb-3">
