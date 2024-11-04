@@ -60,6 +60,17 @@ function ClientDetails({ client, navigate }) {
         }
     };
 
+    const renderTypes = () => {
+        const types = [
+            client.pathologyClient && "Pathology",
+            client.editorClient && "Editor",
+            client.surgeryClient && "Surgery",
+            client.otherMedicalDevices && "Other Medical Devices"
+        ].filter(Boolean); // Filter out any false or undefined values
+
+        return types.join(", ");
+    };
+
     if (error) {
         return (
             <Container className="mt-5">
@@ -74,41 +85,55 @@ function ClientDetails({ client, navigate }) {
     return (
         <>
             {client ? (
-                <Card className="mb-4 shadow-sm border-0">
-                    <Card.Body className="pt-4 pb-4 px-4">
-                        <Row className="text-center mb-4">
-                            <Col>
-                                <Card.Text style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#343a40' }}>
-                                    {client.fullName}/{client.shortName}
-                                </Card.Text>
-                            </Col>
-                        </Row>
+                <>
+                    <Row className="justify-content-between mb-2">
+                        <Col className="col-md-auto">
+                            <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#343a40' }}>
+                                {client.fullName}/{client.shortName}
+                            </div>
+                        </Col>
+                        <Col className="col-md-auto">
+                            <Button variant="link" onClick={() => setShowClientFieldModal(true)} className="text-primary me-2">
+                                <FontAwesomeIcon icon={faCog} />
+                            </Button>
+                            <Button variant="link" onClick={() => navigate(`/client/edit/${client.id}`)} className="text-primary me-2">
+                                <FontAwesomeIcon icon={faEdit} />
+                            </Button>
+                            <Button variant="link" onClick={handleNavigate} className="text-primary">
+                                <FontAwesomeIcon icon={faHistory} />
+                            </Button>
+                        </Col>
+                    </Row>
+                    <Row className="justify-content-between mb-3">
+                        <Col className="col-md-auto">
+                            <Row>
+                                <Col className="col-md-auto">
+                                    <div className="maintenance-box">
+                                        <div className="maintenance-text">Maintenance</div>
+                                    </div>
+                                </Col>
+                                <Col className="col-md-auto">
+                                    <Row className="maintenance-date-box">
+                                        <Col className="col-md-auto">
+                                            <div>
+                                                <div className="maintenance-text">Next: {client.nextMaintenance}</div>
+                                            </div>
+                                        </Col>
+                                        <Col className="col-md-auto">
+                                            <div>
+                                                <div className="maintenance-text">Last: {client.lastMaintenance}</div>
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                </Col>
+                            </Row>
+                        </Col>
+                        <Col className="col-md-auto align-content-center">
+                            <div className="maintenance-text">{renderTypes()}</div>
+                        </Col>
+                    </Row>
+                </>
 
-
-                        <Row className="gy-2 gx-2 px-2">
-                            {renderField('pathologyClient', client.pathologyClient)}
-                            {renderField('surgeryClient', client.surgeryClient)}
-                            {renderField('editorClient', client.editorClient)}
-                            {renderField('otherMedicalDevices', client.otherMedicalDevices)}
-                            {renderField('lastMaintenance', client.lastMaintenance)}
-                            {renderField('nextMaintenance', client.nextMaintenance)}
-                        </Row>
-
-                        <Row className="mt-4 d-flex justify-content-end">
-                            <Col xs="auto">
-                                <Button variant="link" onClick={() => setShowClientFieldModal(true)} className="text-primary me-2">
-                                    <FontAwesomeIcon icon={faCog} />
-                                </Button>
-                                <Button variant="link" onClick={() => navigate(`/client/edit/${client.id}`)} className="text-primary me-2">
-                                    <FontAwesomeIcon icon={faEdit} />
-                                </Button>
-                                <Button variant="link" onClick={handleNavigate} className="text-primary">
-                                    <FontAwesomeIcon icon={faHistory} />
-                                </Button>
-                            </Col>
-                        </Row>
-                    </Card.Body>
-                </Card>
             ) : (
                 <Alert variant="info">No client details available.</Alert>
             )}
