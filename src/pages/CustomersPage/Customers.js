@@ -16,6 +16,7 @@ import {
 } from 'react-bootstrap';
 import config from "../../config/config";
 import AddCustomer from "./AddCustomer";
+import NewAddCustomer from "./NewAddCustomer";
 import GenerateReportModal from "../../modals/GenerateReportModal";
 import '../../css/Customers.css';
 
@@ -25,7 +26,7 @@ function Customers() {
     const [error, setError] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [customerType, setCustomerType] = useState('');
-    const [showAddCustomerModal, setShowAddCustomerModal] = useState(false);
+    const [showNewAddCustomerModal, setShowNewAddCustomerModal] = useState(false);
     const [showGenerateReportModal, setShowGenerateReportModal] = useState(false);
     const [typingTimeout, setTypingTimeout] = useState(null);
     const [sortConfig, setSortConfig] = useState({ key: 'shortName', direction: 'ascending' });
@@ -59,8 +60,8 @@ function Customers() {
     }, [searchQuery, customerType]);
 
 
-    const handleAddCustomer = () => {
-        setShowAddCustomerModal(true);
+    const handleNewAddCustomer = () => {
+        setShowNewAddCustomerModal(true);
     };
 
     const handleSearchChange = (e) => {
@@ -72,8 +73,8 @@ function Customers() {
     };
 
 
-    const handleCloseAddCustomerModal = () => {
-        setShowAddCustomerModal(false);
+    const handleCloseNewAddCustomerModal = () => {
+        setShowNewAddCustomerModal(false);
         fetchCustomers(); // Refresh the customer list after adding a new customer
     };
 
@@ -133,7 +134,7 @@ function Customers() {
                     <h1>Customers</h1>
                 </Col>
                 <Col className="text-end">
-                    <Button variant="primary" className="me-2" onClick={handleAddCustomer}>
+                    <Button variant="primary" className="me-2" onClick={handleNewAddCustomer}>
                         Add Customer
                     </Button>
                     <Button variant="primary" onClick={handleGenerateReport}>
@@ -210,12 +211,12 @@ function Customers() {
                 )}
             </div>
 
-            <Modal show={showAddCustomerModal} onHide={() => setShowAddCustomerModal(false)}>
+            <Modal show={showNewAddCustomerModal} onHide={() => setShowNewAddCustomerModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add customer</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <AddCustomer onClose={handleCloseAddCustomerModal} />
+                    <NewAddCustomer onClose={handleCloseNewAddCustomerModal} />
                 </Modal.Body>
             </Modal>
 
