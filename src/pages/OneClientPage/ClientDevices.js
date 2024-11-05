@@ -83,7 +83,7 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
                         {'Devices'}
                     </h2>
                 </Col>
-                <Col className="text-end">
+                <Col className="col-md-auto">
                     <Button variant="primary" onClick={() => setShowAddDeviceModal(true)}>Add Device</Button>
                 </Col>
             </Row>

@@ -197,7 +197,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
 
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
-                                    <strong>Client Numeration</strong>
+                                    <strong>Customer No.</strong>
                                 </Col>
                                 <Col>
                                     {editMode ? (
@@ -254,7 +254,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Contacts</strong>
                                 </Col>
-                                <Col>
+                                <Col style={{minWidth: '250px'}}>
                                     {editMode ? (
                                         <Form.Group className="mb-3">
                                             <Select
@@ -273,7 +273,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Work Types</strong>
                                 </Col>
-                                <Col>
+                                <Col style={{minWidth: '250px'}}>
                                     {editMode ? (
                                         <Form.Group className="mb-3">
                                             <Select
@@ -292,7 +292,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Devices</strong>
                                 </Col>
-                                <Col>
+                                <Col style={{minWidth: '250px'}}>
                                     {editMode ? (
                                         <Form.Group className="mb-3">
                                             <Select
