@@ -68,13 +68,19 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
     };
 
     return (
-        <Container className="mt-1">
-            <h2>Tickets</h2>
+        <>
+            <Row className="mb-2">
+                <Col className="col-md-auto">
+                    <h2 className="mb-0" style={{paddingBottom: "20px"}}>
+                        Tickets
+                    </h2>
+                </Col>
+            </Row>
             {tickets.length > 0 ? (
                 <>
                     {/* Table header with columns */}
                     <Row className="font-weight-bold text-center mt-2">
-                        <Col md={1}>No</Col>
+                        <Col md={2}>No</Col>
                         <Col md={2}>Title</Col>
                         <Col md={2}>Date</Col>
                         <Col md={2}>Location</Col>
@@ -96,7 +102,7 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
                                 style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
                                 onClick={() => handleTicketClick(ticket)}
                             >
-                                <Col md={1}>{ticket.baitNumeration || 'N/A'}</Col>
+                                <Col md={2}>{ticket.baitNumeration || 'N/A'}</Col>
                                 <Col md={2}>{ticket.title}</Col>
                                 <Col md={2}>{formatDate(ticket.startDateTime)}</Col>
                                 <Col md={2}>{locations[ticket.locationId] || 'Unknown Location'}</Col>
@@ -139,7 +145,7 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
                     reFetch={fetchTickets}
                 />
             )}
-        </Container>
+        </>
     );
 }
 

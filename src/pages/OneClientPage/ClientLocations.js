@@ -18,7 +18,13 @@ function ClientLocations({ locations, setRefresh }) {
 
     return (
         <>
-            <h2 className="mt-1">Locations</h2>
+            <Row className="mb-2">
+                <Col className="col-md-auto">
+                    <h2 className="mb-0" style={{paddingBottom: "20px"}}>
+                        Locations
+                    </h2>
+                </Col>
+            </Row>
             {locations.length > 0 ? (
                 <div>
                     {/* Table header */}

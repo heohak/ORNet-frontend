@@ -41,11 +41,13 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
 
     return (
         <>
-            <Row className="d-flex justify-content-between align-items-center">
-                <Col>
-                    <h2 className="mt-1">Maintenances</h2>
+            <Row className="d-flex justify-content-between align-items-center mb-2">
+                <Col className="col-md-auto">
+                    <h2 className="mb-0" style={{paddingBottom: "20px"}}>
+                        Maintenances
+                    </h2>
                 </Col>
-                <Col className="text-end">
+                <Col className="col-md-auto">
                     <Button variant="primary" onClick={() => setShowAddMaintenanceModal(true)}>
                         Add Maintenance
                     </Button>

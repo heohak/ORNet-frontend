@@ -44,12 +44,12 @@ function ClientThirdPartyIT({ clientId, client }) {
     }
 
     return (
-        <div>
-            <Row className="d-flex justify-content-between align-items-center">
-                <Col>
-                    <h2 className="mt-1">Third-Party ITs</h2>
+        <>
+            <Row className="d-flex justify-content-between align-items-center mb-2">
+                <Col className="col-md-auto">
+                    <h2 className="mb-0" style={{paddingBottom: "20px"}}>Third-Party ITs</h2>
                 </Col>
-                <Col className="text-end">
+                <Col className="col-md-auto">
                     <Button variant="primary" onClick={() => setShowAddModal(true)}>
                         Add Third-Party IT
                     </Button>
@@ -92,7 +92,7 @@ function ClientThirdPartyIT({ clientId, client }) {
                     <AddThirdPartyIT clientId={clientId} onClose={() => setShowAddModal(false)} setRefresh={setRefresh} />
                 </Modal.Body>
             </Modal>
-        </div>
+        </>
     );
 }
 
