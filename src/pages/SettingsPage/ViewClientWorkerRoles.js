@@ -72,13 +72,23 @@ function ViewClientWorkerRoles() {
 
     return (
         <Container className="mt-5">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1>Customer Contact Roles</h1>
-                <Button variant='secondary' onClick={handleNavigate}>
-                    See deleted
-                </Button>
-                <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Role</Button>
-            </div>
+            <Row className="d-flex justify-content-between align-items-center mb-4">
+                <Col className="col-md-auto">
+                    <h1>Customer Contact Roles</h1>
+                </Col>
+                <Col className="col-md-auto">
+                    <Row>
+                        <Col className="col-md-auto">
+                            <Button variant='secondary' onClick={handleNavigate}>
+                                See Deleted
+                            </Button>
+                        </Col>
+                        <Col className="col-md-auto">
+                            <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Role</Button>
+                        </Col>
+                    </Row>
+                </Col>
+            </Row>
             <Row>
                 {roles.map((role) => (
                     <Col md={4} key={role.id} className="mb-4">

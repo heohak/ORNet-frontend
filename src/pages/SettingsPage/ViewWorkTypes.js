@@ -72,11 +72,21 @@ function ViewWorkTypes() {
 
     return (
         <Container className="mt-5">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1>Work Types</h1>
-                <Button variant="primary" onClick={handleNavigate}>See deleted</Button>
-                <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Work Type</Button>
-            </div>
+            <Row className="d-flex justify-content-between align-items-center mb-4">
+                <Col className="col-md-auto">
+                    <h1>Work Types</h1>
+                </Col>
+                <Col className="col-md-auto">
+                    <Row>
+                        <Col className="col-md-auto">
+                            <Button variant="secondary" onClick={handleNavigate}>See Deleted</Button>
+                        </Col>
+                        <Col className="col-md-auto">
+                            <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Work Type</Button>
+                        </Col>
+                    </Row>
+                </Col>
+            </Row>
             <Row>
                 {workTypes.map((workType) => (
                     <Col md={4} key={workType.id} className="mb-4">
