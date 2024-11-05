@@ -18,8 +18,9 @@ function DeviceDetails({ device, navigate, setShowCommentsModal, setRefresh }) {
     const [writtenOffDate, setWrittenOffDate] = useState(device?.writtenOffDate || "");
     const [isWrittenOff, setIsWrittenOff] = useState(!!device?.writtenOffDate);
     const [writtenOffComment, setWrittenOffComment] = useState('');
-    const [showReactivateModal, setShowReactivateModal] = useState(false)
+    const [showReactivateModal, setShowReactivateModal] = useState(false);
     const today = new Date().toISOString().split('T')[0];
+
 
     const defaultFields = [
         'deviceName',
@@ -201,6 +202,7 @@ function DeviceDetails({ device, navigate, setShowCommentsModal, setRefresh }) {
     };
 
 
+
     const handleReactivateDevice = async () => {
         try {
             await axios.put(`${config.API_BASE_URL}/device/reactivate/${device.id}`, null,
@@ -343,8 +345,8 @@ function DeviceDetails({ device, navigate, setShowCommentsModal, setRefresh }) {
                 <Modal.Header closeButton>
                     <Modal.Title>Add Written Off Date</Modal.Title>
                 </Modal.Header>
+                <Form onSubmit={handleAddWrittenOffDate}>
                 <Modal.Body>
-                    <Form>
                         <Form.Group controlId="writtenOffDate">
                             <Form.Label>Written Off Date</Form.Label>
                             <Form.Control
@@ -352,6 +354,7 @@ function DeviceDetails({ device, navigate, setShowCommentsModal, setRefresh }) {
                                 value={writtenOffDate}
                                 onChange={(e) => setWrittenOffDate(e.target.value)}
                                 max={today}
+                                required
                             />
                         </Form.Group>
                         <Form.Group controlId="writtenOffComment" className="mt-3">
@@ -364,12 +367,13 @@ function DeviceDetails({ device, navigate, setShowCommentsModal, setRefresh }) {
                                 placeholder="Enter reason for writing off the device"
                             />
                         </Form.Group>
-                    </Form>
+
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowWrittenOffModal(false)}>Close</Button>
-                    <Button variant="primary" onClick={handleAddWrittenOffDate}>Save</Button>
+                    <Button variant="primary" type="submit">Save</Button>
                 </Modal.Footer>
+                </Form>
             </Modal>
 
             <Modal show={showReactivateModal} onHide={() => setShowReactivateModal(false)}>
