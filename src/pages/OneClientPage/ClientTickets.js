@@ -6,7 +6,7 @@ import '../../css/Customers.css';
 import config from '../../config/config';
 import NewTicket from '../TicketsPage/SingleTicketModal/NewTicket';
 
-function ClientTickets({ tickets, statusMap }) {
+function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
     const navigate = useNavigate();
     const [ticketModal, setTicketModal] = useState(false);
     const [ticket, setTicket] = useState(null);
@@ -24,6 +24,14 @@ function ClientTickets({ tickets, statusMap }) {
         setTicketModal(true);
         fetchStatuses();
     };
+    const fetchTickets = async() => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/client/${clientId}`)
+            setTickets(response.data);
+        } catch (error) {
+            console.error("Error fetching Customer Tickets", error);
+        }
+    }
 
     const fetchStatuses = async () => {
         try {
@@ -128,6 +136,7 @@ function ClientTickets({ tickets, statusMap }) {
                     firstTicket={ticket}
                     statuses={statuses}
                     isTicketClosed={closedStatusId === ticket.statusId}
+                    reFetch={fetchTickets}
                 />
             )}
         </Container>

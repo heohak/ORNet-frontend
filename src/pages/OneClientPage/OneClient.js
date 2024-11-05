@@ -182,6 +182,8 @@ function OneClient() {
                                     <ClientTickets
                                         tickets={tickets}
                                         statusMap={statusMap}
+                                        clientId={clientId}
+                                        setTickets={setTickets}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
