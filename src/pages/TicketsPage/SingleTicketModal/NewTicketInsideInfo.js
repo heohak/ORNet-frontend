@@ -35,7 +35,15 @@ const NewTicketInsideInfo = ({ticket}) => {
                         style={{ width: '100%' }}
                     />
                 ) : (
-                    <p>{insideInfo}</p>
+                    <p>
+                        {insideInfo &&
+                        insideInfo.split("\n").map((line, index) => (
+                            <React.Fragment key={index}>
+                                {line}
+                                <br />
+                            </React.Fragment>
+                        ))}
+                    </p>
                 )}
 
                 {/* Icon */}

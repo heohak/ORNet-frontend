@@ -38,7 +38,15 @@ const NewTicketDescription = ({ticket}) => {
                         style={{ width: '100%' }}
                     />
                 ) : (
-                    <p>{description}</p>
+                    <p>
+                        {description &&
+                        description.split("\n").map((line, index) => (
+                            <React.Fragment key={index}>
+                                {line}
+                                <br />
+                            </React.Fragment>
+                        ))}
+                    </p>
                 )}
 
                 {/* Icon */}

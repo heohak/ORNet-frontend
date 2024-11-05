@@ -150,7 +150,15 @@ const NewTicketActivity = ({ ticket, reFetch }) => {
                                     className="mt-2"
                                 />
                             ) : (
-                                <p className="mb-0 bg-white p-0 rounded">{activity.activity}</p>
+                                <p className="mb-0 bg-white p-0 rounded">
+                                    {activity && activity.activity &&
+                                    activity.activity.split("\n").map((line, index) => (
+                                        <React.Fragment key={index}>
+                                            {line}
+                                            <br />
+                                        </React.Fragment>
+                                    ))}
+                                </p>
                             )}
                             <p style={{ fontStyle: 'italic', color: 'gray' }}>
                                 {activity.paid ? `Paid Time: ${formatTime(activity.timeSpent)}` : `Time Spent: ${formatTime(activity.timeSpent)}`}
