@@ -154,11 +154,11 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
 
     return (
         <>
-            <Row className="d-flex justify-content-between align-items-center">
-                <Col>
-                    <h2 className="mt-1 mb-1">Contacts</h2>
+            <Row className="d-flex justify-content-between align-items-center mb-2">
+                <Col className="col-md-auto">
+                    <h2 className="mb-0" style={{paddingBottom: "20px"}}>Contacts</h2>
                 </Col>
-                <Col className="text-end">
+                <Col className="col-md-auto">
                     <Button variant="primary" onClick={() => setShowAddWorkerModal(true)}>
                         Add Contact
                     </Button>
@@ -168,7 +168,7 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
             <Form className="mb-3">
                 <Row className="align-items-end">
                     <Col md={3}>
-                        <Form.Group controlId="search" className="mt-2">
+                        <Form.Group controlId="search">
                             <Form.Label>Search</Form.Label>
                             <Form.Control
                                 type="text"
@@ -179,7 +179,7 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
                         </Form.Group>
                     </Col>
                     <Col md={3}>
-                        <Form.Group controlId="roleFilter" className="mt-3">
+                        <Form.Group controlId="roleFilter">
                             <Form.Label>Filter by Role</Form.Label>
                             <Form.Control as="select" value={selectedFilterRoleId}
                                           onChange={(e) => setSelectedFilterRoleId(e.target.value)}>
@@ -191,7 +191,7 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
                         </Form.Group>
                     </Col>
                     <Col md={4}>
-                        <Form.Group controlId="favoriteFilter" className="mt-2 mb-1 d-flex align-items-end">
+                        <Form.Group controlId="favoriteFilter" className="d-flex align-items-end">
                             <Form.Check
                                 type="checkbox"
                                 label="Show Only Favorites"
