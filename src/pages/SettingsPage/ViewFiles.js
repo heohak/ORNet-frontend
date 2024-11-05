@@ -119,30 +119,34 @@ function ViewFiles() {
                 <Modal.Header closeButton>
                     <Modal.Title>Upload Files</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
-                    <Container>
-                        {error && (
-                            <Alert variant="danger">
-                                <Alert.Heading>Error</Alert.Heading>
-                                <p>{error}</p>
-                            </Alert>
-                        )}
-                        <Form onSubmit={handleUploadFiles}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Select Files</Form.Label>
-                                <Form.Control
-                                    type="file"
-                                    multiple
-                                    onChange={handleFileChange}
-                                    required
-                                />
-                            </Form.Group>
-                            <Button variant="success" type="submit" disabled={loading}>
-                                {loading ? 'Uploading...' : 'Upload Files'}
-                            </Button>
-                        </Form>
-                    </Container>
-                </Modal.Body>
+                <Form onSubmit={handleUploadFiles}>
+                    <Modal.Body>
+                        <Container>
+                            {error && (
+                                <Alert variant="danger">
+                                    <Alert.Heading>Error</Alert.Heading>
+                                    <p>{error}</p>
+                                </Alert>
+                            )}
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Select Files</Form.Label>
+                                    <Form.Control
+                                        type="file"
+                                        multiple
+                                        onChange={handleFileChange}
+                                        required
+                                    />
+                                </Form.Group>
+
+                        </Container>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
+                        <Button variant="primary" type="submit" disabled={loading}>
+                            {loading ? 'Uploading...' : 'Upload Files'}
+                        </Button>
+                    </Modal.Footer>
+                </Form>
             </Modal>
             <Button onClick={() => navigate(-1)}>Back</Button>
         </Container>

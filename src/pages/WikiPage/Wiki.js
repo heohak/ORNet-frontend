@@ -14,6 +14,10 @@ function Wiki() {
     const [solution, setSolution] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [typingTimeout, setTypingTimeout] = useState(null);
+
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [deleteWikiId, setDeleteWikiId] = useState(null);
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -61,10 +65,16 @@ function Wiki() {
         }
     };
 
-    const handleDeleteWiki = async (id) => {
+    const openDeleteConfirmModal = (id) => {
+        setDeleteWikiId(id);
+        setShowDeleteConfirm(true);
+    };
+
+    const handleDeleteWiki = async () => {
         try {
-            await axios.delete(`${config.API_BASE_URL}/wiki/${id}`);
+            await axios.delete(`${config.API_BASE_URL}/wiki/${deleteWikiId}`);
             fetchWikis();
+            setShowDeleteConfirm(false);
         } catch (error) {
             setError(error.message);
         }
@@ -116,7 +126,7 @@ function Wiki() {
                                         variant="danger"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            handleDeleteWiki(wiki.id);
+                                            openDeleteConfirmModal(wiki.id);
                                         }}
                                     >
                                         Delete
@@ -156,6 +166,25 @@ function Wiki() {
                     <Modal.Footer>
                         <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
                         <Button variant="primary" onClick={handleAddWiki}>Add Wiki</Button>
+                    </Modal.Footer>
+                </Modal>
+
+
+                {/* Delete Confirmation Modal */}
+                <Modal show={showDeleteConfirm} onHide={() => setShowDeleteConfirm(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Confirm Deletion</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <p>Are you sure you want to delete this wiki entry?</p>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="danger" onClick={handleDeleteWiki}>
+                            Confirm Delete
+                        </Button>
                     </Modal.Footer>
                 </Modal>
             </Container>

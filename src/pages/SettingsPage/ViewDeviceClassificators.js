@@ -71,13 +71,23 @@ function ViewDeviceClassificators() {
     return (
         <Container className="mt-5">
 
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1>Device Classificators</h1>
-                <Button variant="secondary" onClick={handleNavigate}>
-                    See deleted
-                </Button>
-                <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Classificator</Button>
-            </div>
+            <Row className="d-flex justify-content-between align-items-center mb-4">
+                <Col className="col-md-auto">
+                    <h1>Device Classificators</h1>
+                </Col>
+                <Col className="col-md-auto">
+                    <Row>
+                        <Col className="col-md-auto">
+                            <Button variant="secondary" onClick={handleNavigate}>
+                                See Deleted
+                            </Button>
+                        </Col>
+                        <Col className="col-md-auto">
+                            <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Classificator</Button>
+                        </Col>
+                    </Row>
+                </Col>
+            </Row>
             <Row>
                 {classificators.map((classificator) => (
                     <Col md={4} key={classificator.id} className="mb-4">

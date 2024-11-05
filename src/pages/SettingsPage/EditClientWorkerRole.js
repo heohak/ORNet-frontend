@@ -84,7 +84,7 @@ function EditClientWorkerRole() {
     return (
         <Container className="mt-5">
             <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                <h1>Edit Client Worker Role</h1>
+                <h1>Edit Customer Contact Role</h1>
                 <Button variant="secondary" onClick={handleNavigate} className="mt-3 ms-3">
                     See history
                 </Button>

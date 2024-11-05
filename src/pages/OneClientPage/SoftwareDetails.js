@@ -31,13 +31,13 @@ function SoftwareDetails({softwareList, clientId, setRefresh, client}) {
 
 
     return (
-        <Container className="mt-1">
+        <>
             <Row className="d-flex justify-content-between align-items-center">
-                <Col>
-                    <h2 className="mt-1 mb-1">Technical information</h2>
+                <Col className="col-md-auto">
+                    <h2 className="mb-0" style={{paddingBottom: "20px"}}>Technical information</h2>
                 </Col>
-                <Col className="text-end">
-                    <Button variant="primary" className="mb-0" onClick={() => setShowAddSoftwareModal(true)}>
+                <Col className="col-md-auto">
+                    <Button variant="primary" onClick={() => setShowAddSoftwareModal(true)}>
                         Add Tech Info
                     </Button>
                 </Col>
@@ -213,7 +213,7 @@ function SoftwareDetails({softwareList, clientId, setRefresh, client}) {
                 setRefresh={setRefresh}
                 client={client}
             />
-        </Container>
+        </>
     );
 }
 

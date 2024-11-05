@@ -77,20 +77,20 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
 
     return (
         <>
-            <Row className="d-flex justify-content-between align-items-center">
-                <Col>
-                    <h2 className="mb-2">
+            <Row className="d-flex justify-content-between align-items-center mb-2">
+                <Col className="col-md-auto">
+                    <h2 className="mb-0" style={{paddingBottom: "20px"}}>
                         {'Devices'}
                     </h2>
                 </Col>
-                <Col className="text-end">
+                <Col className="col-md-auto">
                     <Button variant="primary" onClick={() => setShowAddDeviceModal(true)}>Add Device</Button>
                 </Col>
             </Row>
         <Form className="mb-e">
             <Row className="align-items-end">
                 <Col md={3}>
-            <Form.Group controlId="search" className="mt-3">
+            <Form.Group controlId="search">
                 <Form.Label>Search</Form.Label>
                 <Form.Control
                     type="text"
@@ -101,7 +101,7 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
             </Form.Group>
                 </Col>
                 <Col md={3}>
-            <Form.Group controlId="classificatorFilter" className="mt-3">
+            <Form.Group controlId="classificatorFilter">
                 <Form.Label>Filter by Classificator</Form.Label>
                 <Form.Control as="select" value={selectedClassificatorId}
                               onChange={(e) => setSelectedClassificatorId(e.target.value)}>
@@ -115,7 +115,7 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
                 <Col md={4}>
 
 
-            <Form.Group controlId="written-off-filter" className="mt-3">
+            <Form.Group controlId="written-off-filter">
                 <Form.Check
                     type="switch"
                     id="written-off-switch"

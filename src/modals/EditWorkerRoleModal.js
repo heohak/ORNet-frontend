@@ -17,7 +17,7 @@ function EditWorkerRoleModal({ show, handleClose, workerList }) {
                                 <div>
                                     <strong>Contact: {worker.firstName + " " + worker.lastName}</strong>
                                     <br />
-                                    <small className="text-muted">Client: {worker.employerFullName}</small>
+                                    <small className="text-muted">Customer: {worker.employerFullName}</small>
                                 </div>
                             </ListGroup.Item>
                         ))}

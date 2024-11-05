@@ -6,7 +6,7 @@ import '../../css/Customers.css';
 import config from '../../config/config';
 import NewTicket from '../TicketsPage/SingleTicketModal/NewTicket';
 
-function ClientTickets({ tickets, statusMap }) {
+function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
     const navigate = useNavigate();
     const [ticketModal, setTicketModal] = useState(false);
     const [ticket, setTicket] = useState(null);
@@ -24,6 +24,14 @@ function ClientTickets({ tickets, statusMap }) {
         setTicketModal(true);
         fetchStatuses();
     };
+    const fetchTickets = async() => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/client/${clientId}`)
+            setTickets(response.data);
+        } catch (error) {
+            console.error("Error fetching Customer Tickets", error);
+        }
+    }
 
     const fetchStatuses = async () => {
         try {
@@ -60,13 +68,19 @@ function ClientTickets({ tickets, statusMap }) {
     };
 
     return (
-        <Container className="mt-1">
-            <h2>Tickets</h2>
+        <>
+            <Row className="mb-2">
+                <Col className="col-md-auto">
+                    <h2 className="mb-0" style={{paddingBottom: "20px"}}>
+                        Tickets
+                    </h2>
+                </Col>
+            </Row>
             {tickets.length > 0 ? (
                 <>
                     {/* Table header with columns */}
                     <Row className="font-weight-bold text-center mt-2">
-                        <Col md={1}>No</Col>
+                        <Col md={2}>No</Col>
                         <Col md={2}>Title</Col>
                         <Col md={2}>Date</Col>
                         <Col md={2}>Location</Col>
@@ -88,7 +102,7 @@ function ClientTickets({ tickets, statusMap }) {
                                 style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
                                 onClick={() => handleTicketClick(ticket)}
                             >
-                                <Col md={1}>{ticket.baitNumeration || 'N/A'}</Col>
+                                <Col md={2}>{ticket.baitNumeration || 'N/A'}</Col>
                                 <Col md={2}>{ticket.title}</Col>
                                 <Col md={2}>{formatDate(ticket.startDateTime)}</Col>
                                 <Col md={2}>{locations[ticket.locationId] || 'Unknown Location'}</Col>
@@ -128,9 +142,10 @@ function ClientTickets({ tickets, statusMap }) {
                     firstTicket={ticket}
                     statuses={statuses}
                     isTicketClosed={closedStatusId === ticket.statusId}
+                    reFetch={fetchTickets}
                 />
             )}
-        </Container>
+        </>
     );
 }
 

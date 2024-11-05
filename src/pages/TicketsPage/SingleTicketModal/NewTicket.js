@@ -38,6 +38,7 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch }) 
         },[ticket.locationId]);
 
     const reFetchTicket = async() => {
+        reFetch();
         try {
             const response = await axios.get(`${config.API_BASE_URL}/ticket/${ticket.id}`)
             setTicket(response.data);

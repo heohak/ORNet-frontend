@@ -156,7 +156,7 @@ function EditBaitWorker() {
 
             <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Confirm Worker Deletion</Modal.Title>
+                    <Modal.Title>Confirm Bait Worker Deletion</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <p>Are you sure you want to delete this worker?</p>
@@ -166,7 +166,7 @@ function EditBaitWorker() {
                             <ul>
                                 {relatedTickets.map((ticket) => (
                                     <li key={ticket.id}>
-                                        Ticket ID: {ticket.id}, Name: {ticket.title}, Client: {ticket.clientName}
+                                        Ticket ID: {ticket.id}, Name: {ticket.title}, Customer: {ticket.clientName}
                                     </li>
                                 ))}
                             </ul>
