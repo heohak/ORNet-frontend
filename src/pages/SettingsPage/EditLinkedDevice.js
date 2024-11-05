@@ -17,11 +17,24 @@ function EditLinkedDevice() {
     const [error, setError] = useState(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+    const [customer, setCustomer] = useState(null);
+    const [deviceLocation, setDeviceLocation] = useState(null);
+
     // Fetch the device to which the linked device is connected when the delete modal is shown
     const showDeleteModal = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/linked/device/device/${linkedDevice.id}`);
             setConnectedDevice(response.data); // This will store the connected device information
+
+            // Fetch customer and location information if available
+            if (response.data.clientId) {
+                const customerResponse = await axios.get(`${config.API_BASE_URL}/client/${response.data.clientId}`);
+                setCustomer(customerResponse.data);
+            }
+            if (response.data.locationId) {
+                const locationResponse = await axios.get(`${config.API_BASE_URL}/location/${response.data.locationId}`);
+                setDeviceLocation(locationResponse.data);
+            }
         } catch (error) {
             setError('Failed to fetch the connected device');
         }
@@ -119,11 +132,21 @@ function EditLinkedDevice() {
                 </Modal.Header>
                 <Modal.Body>
                     {connectedDevice ? (
-                        <p>
-                            This linked device is connected to the following device: <strong>{connectedDevice.deviceName}</strong>.
-                            <br />
-                            Are you sure you want to delete it?
-                        </p>
+                        <>
+                            <p>
+                                This linked device is connected to: <br />
+                                <strong>{connectedDevice.deviceName}</strong>
+                                {customer || deviceLocation ? (
+                                    <>
+                                        {' ('}
+                                        {customer ? customer.shortName : 'Unknown Customer'}
+                                        {deviceLocation ? `, ${deviceLocation.name}` : ''}
+                                        {')'}
+                                    </>
+                                ) : null}
+                            </p>
+                            <p>Are you sure you want to delete it?</p>
+                        </>
                     ) : (
                         <p>Are you sure you want to delete this linked device?</p>
                     )}
