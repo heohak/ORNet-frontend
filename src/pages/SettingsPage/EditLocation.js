@@ -226,18 +226,18 @@ function EditLocation() {
                     <p>Are you sure you want to delete this location?</p>
                     {relatedClients.length > 0 || relatedWorkers.length > 0 ? (
                         <>
-                            <p>This location is linked to the following clients and workers and cannot be deleted:</p>
+                            <p>This location is linked to the following customers and contacts and cannot be deleted:</p>
                             <ul>
                                 {relatedClients.map((client) => (
-                                    <li key={client.id}>Client: {client.shortName}</li>
+                                    <li key={client.id}>Customer: {client.shortName}</li>
                                 ))}
                                 {relatedWorkers.map((worker) => (
-                                    <li key={worker.id}>Worker: {worker.firstName} {worker.lastName}</li>
+                                    <li key={worker.id}>Contact: {worker.firstName} {worker.lastName}</li>
                                 ))}
                             </ul>
                         </>
                     ) : (
-                        <p>No related clients or workers found. You can proceed with deletion.</p>
+                        <p>No related customers or contacts found. You can proceed with deletion.</p>
                     )}
                 </Modal.Body>
                 <Modal.Footer>

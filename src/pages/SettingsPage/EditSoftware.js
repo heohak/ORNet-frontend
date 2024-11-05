@@ -370,16 +370,16 @@ function EditSoftware() {
                 <Modal.Body>
                     {associatedClient ? (
                         <div>
-                            <p>This Technical Information is linked to the following client:</p>
+                            <p>This Technical Information is linked to the following customers:</p>
                             <ul>
-                                <li>Client: {associatedClient.shortName}</li>
+                                <li>Customer: {associatedClient.shortName}</li>
                             </ul>
                             <p style={{ color: 'red' }}>
-                                Deleting this Technical Information will affect the above client. Are you sure you want to proceed?
+                                Deleting this Technical Information will affect the above customer. Are you sure you want to proceed?
                             </p>
                         </div>
                     ) : (
-                        <p>Loading client information...</p>
+                        <p>Loading customer information...</p>
                     )}
                 </Modal.Body>
                 <Modal.Footer>
