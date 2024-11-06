@@ -232,7 +232,7 @@ function NewAddCustomer({ show, onClose }) {
 
 
     return (
-        <Modal show={show} onHide={onClose} size="lg">
+        <Modal show={show} onHide={onClose} size="xl">
             <Modal.Header closeButton>
                 <Modal.Title className="w-100 text-center">Add New Customer</Modal.Title>
             </Modal.Header>
@@ -310,23 +310,22 @@ function NewAddCustomer({ show, onClose }) {
                     </Col>
                 </Row>
 
-                {/* Contacts */}
-
-                <Form.Group className="mb-3">
-                    <Row>
-                        <Col className="col-md-auto align-content-center">
-                            <Form.Label className="mb-0">
-                                Contacts
-                            </Form.Label>
-                        </Col>
-                        <Col className="col-md-auto px-0 py-0">
-                            <Button variant="link" onClick={() => setShowAddContactModal(true)}>
-                                Add New Contact
-                            </Button>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col md={8}>
+                {/* Contacts and Third Party ITs */}
+                <Row className="mb-3">
+                    <Col md={8}>
+                        <Form.Group className="mb-3">
+                            <Row>
+                                <Col className="col-md-auto align-content-center">
+                                    <Form.Label className="mb-0">
+                                        Contacts
+                                    </Form.Label>
+                                </Col>
+                                <Col className="col-md-auto px-0 py-0">
+                                    <Button variant="link" onClick={() => setShowAddContactModal(true)}>
+                                        Add New Contact
+                                    </Button>
+                                </Col>
+                            </Row>
                             <div style={{
                                 border: '1px solid #ced4da',
                                 borderRadius: '.25rem',
@@ -345,9 +344,9 @@ function NewAddCustomer({ show, onClose }) {
                                             text="dark"
                                             className="me-1 mb-1"
                                             style={{
-                                                backgroundColor: '#dcd8dc', // Dark gray custom background color
-                                                color: '#6c757d',           // Gray text color
-                                                borderRadius: '0',          // No corner radius
+                                                backgroundColor: '#dcd8dc',
+                                                color: '#6c757d',
+                                                borderRadius: '0',
                                                 fontSize: '90%',
                                                 fontWeight: 'normal',
                                                 padding: '1px 4px'
@@ -375,9 +374,33 @@ function NewAddCustomer({ show, onClose }) {
                                     <span style={{ color: '#6c757d' }}>No contacts added yet.</span>
                                 )}
                             </div>
-                        </Col>
-                    </Row>
-                </Form.Group>
+                        </Form.Group>
+                    </Col>
+
+                    <Col md={4}>
+                        <Form.Group>
+                            <Row>
+                                <Col className="col-md-auto align-content-center">
+                                    <Form.Label className="mb-0">
+                                        Third Party ITs
+                                    </Form.Label>
+                                </Col>
+                                <Col className="col-md-auto px-0 py-0">
+                                    <Button variant="link" onClick={() => setShowThirdPartyModal(true)}>
+                                        Add New Third Party
+                                    </Button>
+                                </Col>
+                            </Row>
+                            <Select
+                                isMulti
+                                options={thirdPartyOptions}
+                                value={selectedThirdParties}
+                                onChange={setSelectedThirdParties}
+                            />
+                        </Form.Group>
+                    </Col>
+                </Row>
+
 
                 {/* Row 4: Grouped Checkboxes */}
                 <Form.Group className="mb-3">
@@ -438,24 +461,6 @@ function NewAddCustomer({ show, onClose }) {
                     </div>
                 </Form.Group>
 
-
-                {/* Row 5: Third Party ITs and Add Third Party Button */}
-                <Row className="mb-3">
-                    <Col md={8}>
-                        <Form.Group>
-                            <Form.Label>Third Party ITs</Form.Label>
-                            <Select
-                                isMulti
-                                options={thirdPartyOptions}
-                                value={selectedThirdParties}
-                                onChange={setSelectedThirdParties}
-                            />
-                        </Form.Group>
-                    </Col>
-                    <Col xs="auto" className="d-flex align-items-end">
-                        <Button variant="link" onClick={() => setShowThirdPartyModal(true)}>Add New Third Party</Button>
-                    </Col>
-                </Row>
 
                 {/* Bottom: Cancel and Add Buttons */}
                 <div className="d-flex justify-content-end">
