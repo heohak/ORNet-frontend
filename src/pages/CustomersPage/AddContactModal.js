@@ -10,7 +10,7 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
     const [email, setEmail] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [title, setTitle] = useState('');
-    const [locationId, setLocationId] = useState(null);
+    const [selectedLocation, setSelectedLocation] = useState(null);
     const [roles, setRoles] = useState([]);
     const [showRoleModal, setShowRoleModal] = useState(false);
     const [newRole, setNewRole] = useState({ role: '' });
@@ -44,7 +44,7 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
         }
         setPhoneNumberError('');
 
-        if (!firstName || !lastName || !email || !phoneNumber || !title || !locationId || selectedRoles.length === 0) {
+        if (!firstName || !lastName || !email || !phoneNumber || !title || !selectedLocation || selectedRoles.length === 0) {
             setError('Please fill in all fields.');
             return;
         }
@@ -57,7 +57,7 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
             email,
             phoneNumber,
             title,
-            locationId,
+            locationId: selectedLocation.value,
             roles: selectedRoles.map(role => ({ id: role.value, role: role.label })),
         };
 
@@ -70,7 +70,7 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
         setEmail('');
         setPhoneNumber('');
         setTitle('');
-        setLocationId(null);
+        setSelectedLocation(null);
         setSelectedRoles([]);
     };
 
@@ -169,11 +169,14 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
                             <Form.Label>Location</Form.Label>
                             <Select
                                 options={locationOptions}
-                                value={locationOptions.find(loc => loc.value === locationId)}
-                                onChange={selectedOption => setLocationId(selectedOption.value)}
+                                value={selectedLocation}
+                                onChange={setSelectedLocation}
+                                placeholder="Select a location"
+                                isClearable
                                 required
                             />
                         </Form.Group>
+
                         {/* Roles */}
                         <Form.Group className="mb-3">
                             <Form.Label>Roles</Form.Label>
