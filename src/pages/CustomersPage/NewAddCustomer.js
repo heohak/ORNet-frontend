@@ -5,6 +5,7 @@ import Select from 'react-select';
 import config from "../../config/config";
 import AddContactModal from "./AddContactModal";
 import AsyncSelect from 'react-select/async';
+import { validatePhoneAndPostalCode } from '../../utils/Validation';
 
 
 function NewAddCustomer({ show, onClose }) {
@@ -25,7 +26,17 @@ function NewAddCustomer({ show, onClose }) {
     const [dateError, setDateError] = useState(null);
 
     const [showLocationModal, setShowLocationModal] = useState(false);
-    const [newLocation, setNewLocation] = useState({ name: '', country: '', district: '', postalCode: '', streetAddress: '', city: '', phone: '' });
+    const [newLocation, setNewLocation] = useState({
+        name: '',
+        city: '',
+        country: '',
+        email: '',
+        postalCode: '',
+        streetAddress: '',
+        phone: ''
+    });
+    const [phoneNumberError, setPhoneNumberError] = useState('');
+    const [postalCodeError, setPostalCodeError] = useState('');
 
     const [showThirdPartyModal, setShowThirdPartyModal] = useState(false);
     const [newThirdParty, setNewThirdParty] = useState({ name: '', email: '', phone: '' });
@@ -34,6 +45,7 @@ function NewAddCustomer({ show, onClose }) {
     const [showAddContactModal, setShowAddContactModal] = useState(false);
 
     const dateErrorRef = useRef(null);
+    const [error, setError] = useState(null);
 
     const [countryOptions, setCountryOptions] = useState([]);
     const [selectedCountry, setSelectedCountry] = useState(null);
@@ -173,27 +185,53 @@ function NewAddCustomer({ show, onClose }) {
         }
     };
 
-    const handleAddLocation = async () => {
-        const { name, country, district, postalCode, streetAddress, city, phone } = newLocation;
+    const handleAddLocation = async (e) => {
+        e.preventDefault();
 
+        const { name, city, country, email, postalCode, streetAddress, phone } = newLocation;
 
-        const combinedAddress = `${streetAddress}, ${city}, ${district}, ${postalCode}, ${country}`;
+        // Validate phone number and postal code
+        const isValid = validatePhoneAndPostalCode(
+            phone,
+            postalCode,
+            setPhoneNumberError,
+            setPostalCodeError,
+            () => setNewLocation({ ...newLocation, phone }),
+            () => setNewLocation({ ...newLocation, postalCode })
+        );
 
-        try {
-            const response = await axios.post(`${config.API_BASE_URL}/location/add`, {
-                name,
-                address: combinedAddress,
-                phone,
-            });
+        if (isValid) {
+            try {
+                const response = await axios.post(`${config.API_BASE_URL}/location/add`, {
+                    name,
+                    country,
+                    city,
+                    streetAddress,
+                    postalCode,
+                    phone,
+                    email
+                });
 
-            const addedLocation = response.data;
-            const newLocationOption = { value: addedLocation.id, label: addedLocation.name };
-            setLocationOptions(prevLocations => [...prevLocations, newLocationOption]);
-            setSelectedLocations(prevSelected => [...prevSelected, newLocationOption]); // Automatically select the new location
-            setNewLocation({ name: '', country: '', district: '', postalCode: '', streetAddress: '', city: '', phone: '' });
-            setShowLocationModal(false);
-        } catch (error) {
-            console.error('Error adding location:', error);
+                const addedLocation = response.data;
+                const newLocationOption = { value: addedLocation.id, label: addedLocation.name };
+                setLocationOptions(prevLocations => [...prevLocations, newLocationOption]);
+                setSelectedLocations(prevSelected => [...prevSelected, newLocationOption]); // Automatically select the new location
+                setNewLocation({
+                    name: '',
+                    city: '',
+                    country: '',
+                    email: '',
+                    postalCode: '',
+                    streetAddress: '',
+                    phone: ''
+                });
+                setPhoneNumberError('');
+                setPostalCodeError('');
+                setShowLocationModal(false);
+            } catch (error) {
+                console.error('Error adding location:', error);
+                setError('Error adding location.');
+            }
         }
     };
 
@@ -470,83 +508,96 @@ function NewAddCustomer({ show, onClose }) {
             </Form>
             </Modal.Body>
 
-            {/* Modal for adding a new location */}
+            {/* Location Modal */}
             <Modal show={showLocationModal} onHide={() => setShowLocationModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Add New Location</Modal.Title>
+                    <Modal.Title>Add Location</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
-                    <Form onSubmit={(e) => { e.preventDefault(); handleAddLocation(); }}>
-                        <Form.Group className="mb-3">
+                <Form onSubmit={handleAddLocation}>
+                    <Modal.Body>
+                        <Form.Group controlId="formName">
                             <Form.Label>Name</Form.Label>
                             <Form.Control
                                 type="text"
                                 value={newLocation.name}
                                 onChange={(e) => setNewLocation({ ...newLocation, name: e.target.value })}
+                                placeholder="Enter name"
                                 required
                             />
                         </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Country</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={newLocation.country}
-                                onChange={(e) => setNewLocation({ ...newLocation, country: e.target.value })}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
+                        <Form.Group controlId="formCity" className="mt-3">
                             <Form.Label>City</Form.Label>
                             <Form.Control
                                 type="text"
                                 value={newLocation.city}
                                 onChange={(e) => setNewLocation({ ...newLocation, city: e.target.value })}
+                                placeholder="Enter city"
                                 required
                             />
                         </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>District</Form.Label>
+                        <Form.Group controlId="formCountry" className="mt-3">
+                            <Form.Label>Country</Form.Label>
                             <Form.Control
                                 type="text"
-                                value={newLocation.district}
-                                onChange={(e) => setNewLocation({ ...newLocation, district: e.target.value })}
+                                value={newLocation.country}
+                                onChange={(e) => setNewLocation({ ...newLocation, country: e.target.value })}
+                                placeholder="Enter country"
                                 required
                             />
                         </Form.Group>
-                        <Form.Group className="mb-3">
+                        <Form.Group controlId="formEmail" className="mt-3">
+                            <Form.Label>Email</Form.Label>
+                            <Form.Control
+                                type="email"
+                                value={newLocation.email}
+                                onChange={(e) => setNewLocation({ ...newLocation, email: e.target.value })}
+                                placeholder="Enter email"
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formPostalCode" className="mt-3">
                             <Form.Label>Postal Code</Form.Label>
                             <Form.Control
                                 type="text"
                                 value={newLocation.postalCode}
                                 onChange={(e) => setNewLocation({ ...newLocation, postalCode: e.target.value })}
+                                placeholder="Enter postal code"
                                 required
+                                isInvalid={!!postalCodeError}
                             />
+                            <Form.Control.Feedback type="invalid">
+                                {postalCodeError}
+                            </Form.Control.Feedback>
                         </Form.Group>
-                        <Form.Group className="mb-3">
+                        <Form.Group controlId="formStreetAddress" className="mt-3">
                             <Form.Label>Street Address</Form.Label>
                             <Form.Control
                                 type="text"
                                 value={newLocation.streetAddress}
                                 onChange={(e) => setNewLocation({ ...newLocation, streetAddress: e.target.value })}
+                                placeholder="Enter street address"
                                 required
                             />
                         </Form.Group>
-                        <Form.Group className="mb-3">
+                        <Form.Group controlId="formPhone" className="mt-3">
                             <Form.Label>Phone</Form.Label>
                             <Form.Control
                                 type="text"
                                 value={newLocation.phone}
                                 onChange={(e) => setNewLocation({ ...newLocation, phone: e.target.value })}
-                                required
+                                placeholder="Enter phone number"
+                                isInvalid={!!phoneNumberError}
                             />
+                            <Form.Control.Feedback type="invalid">
+                                {phoneNumberError}
+                            </Form.Control.Feedback>
                         </Form.Group>
-
-                        <Modal.Footer>
-                            <Button variant="secondary" onClick={() => setShowLocationModal(false)}>Cancel</Button>
-                            <Button variant="primary" type='submit'>Add Location</Button>
-                        </Modal.Footer>
-                    </Form>
-                </Modal.Body>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowLocationModal(false)}>Cancel</Button>
+                        <Button variant="primary" type="submit">Add Location</Button>
+                    </Modal.Footer>
+                </Form>
             </Modal>
 
             {/* Modal for adding a new third-party IT */}
@@ -597,7 +648,7 @@ function NewAddCustomer({ show, onClose }) {
                 show={showAddContactModal}
                 handleClose={() => setShowAddContactModal(false)}
                 onSave={handleAddContact}
-                locationOptions={locationOptions}
+                locationOptions={selectedLocations}
             />
 
         </Modal>
