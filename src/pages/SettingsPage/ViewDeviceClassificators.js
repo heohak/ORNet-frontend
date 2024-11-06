@@ -109,24 +109,24 @@ function ViewDeviceClassificators() {
                 <Modal.Header closeButton>
                     <Modal.Title>Add Device Classificator</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group controlId="formName">
-                            <Form.Label>Name</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                placeholder="Enter name"
-                                required
-                            />
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
-                    <Button variant="primary" onClick={handleAddClassificator}>Add Classificator</Button>
-                </Modal.Footer>
+                <Form onSubmit={handleAddClassificator}>
+                    <Modal.Body>
+                            <Form.Group controlId="formName">
+                                <Form.Label>Name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="Enter name"
+                                    required
+                                />
+                            </Form.Group>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
+                        <Button variant="primary" type="submit">Add Classificator</Button>
+                    </Modal.Footer>
+            </Form>
             </Modal>
         </Container>
     );

@@ -103,24 +103,24 @@ function ViewTicketStatusClassificators() {
                 <Modal.Header closeButton>
                     <Modal.Title>Add Classificator</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group controlId="formStatus">
-                            <Form.Label>Status</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={status}
-                                onChange={(e) => setStatus(e.target.value)}
-                                placeholder="Enter status"
-                                required
-                            />
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
-                    <Button variant="primary" onClick={handleAddClassificator}>Add Classificator</Button>
-                </Modal.Footer>
+                <Form onSubmit={handleAddClassificator}>
+                    <Modal.Body>
+                            <Form.Group controlId="formStatus">
+                                <Form.Label>Status</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={status}
+                                    onChange={(e) => setStatus(e.target.value)}
+                                    placeholder="Enter status"
+                                    required
+                                />
+                            </Form.Group>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
+                        <Button variant="primary" type="submit">Add Classificator</Button>
+                    </Modal.Footer>
+            </Form>
             </Modal>
             <Button onClick={() => navigate('/settings')}>Back</Button>
         </Container>
