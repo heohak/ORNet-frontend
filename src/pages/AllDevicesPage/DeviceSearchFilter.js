@@ -111,7 +111,7 @@ function DeviceSearchFilter({ setDevices }) {
                     </Col>
                 </Row>
             )}
-            <Row className="mb-3" style={{maxWidth: '70%', margin: '0 auto'}}>
+            <Row className="mb-3">
                 <Col>
                     <Form.Control
                         type="text"
@@ -162,14 +162,14 @@ function DeviceSearchFilter({ setDevices }) {
                         ))}
                     </Form.Control>
                 </Col>
-                <Col className="col-md-auto">
+                <Col className="col-md-auto d-flex">
                     <Form.Check
                         type="switch"
                         id="written-off-switch"
                         label="Written-off"
                         checked={writtenOff}
                         onChange={(e) => setWrittenOff(e.target.checked)}
-                        className="mb-4"
+                        className="align-content-center"
                     />
                 </Col>
             </Row>

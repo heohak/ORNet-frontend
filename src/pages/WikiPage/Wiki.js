@@ -92,24 +92,26 @@ function Wiki() {
 
     return (
         <>
-            <div className="wiki-search-menu">
-                <div className="wiki-search-menu-header mb-3">
-                    <h1 className="mb-0">Wiki</h1>
-                    <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Wiki</Button>
-                </div>
-                <Row className="wiki-search-bar mb-3">
+            <Container className="mt-5">
+                <Row className="d-flex justify-content-between mb-4">
+                    <Col className="col-md-auto">
+                        <h1 className="mb-0">Wiki</h1>
+                    </Col>
+                </Row>
+                <Row className="d-flex justify-content-between mb-4">
                     <Col md={8}>
                         <Form.Control
                             type="text"
                             placeholder="Search wiki..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-
                         />
                     </Col>
+                    <Col className="text-end">
+                        <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Wiki</Button>
+                    </Col>
                 </Row>
-            </div>
-            <Container className=" mt-5 wiki-container">
+
                 {error && (
                     <Alert variant="danger">
                         <Alert.Heading>Error</Alert.Heading>

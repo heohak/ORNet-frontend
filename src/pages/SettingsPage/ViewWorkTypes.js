@@ -103,23 +103,24 @@ function ViewWorkTypes() {
                 <Modal.Header closeButton>
                     <Modal.Title>Add Work Type</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group controlId="formWorkType">
-                            <Form.Label>Work Type</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={workType}
-                                onChange={(e) => setWorkType(e.target.value)}
-                                placeholder="Enter work type"
-                            />
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
-                    <Button variant="primary" onClick={handleAddWorkType}>Add Work Type</Button>
-                </Modal.Footer>
+                <Form onSubmit={handleAddWorkType}>
+                    <Modal.Body>
+                            <Form.Group controlId="formWorkType">
+                                <Form.Label>Work Type</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={workType}
+                                    onChange={(e) => setWorkType(e.target.value)}
+                                    placeholder="Enter work type"
+                                    required
+                                />
+                            </Form.Group>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
+                        <Button variant="primary" type="submit">Add Work Type</Button>
+                    </Modal.Footer>
+                </Form>
             </Modal>
             <Button onClick={() => navigate('/settings')}>Back</Button>
         </Container>

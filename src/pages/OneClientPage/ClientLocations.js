@@ -16,6 +16,8 @@ function ClientLocations({ locations, setRefresh }) {
         setSelectedLocation(null);
     };
 
+    const sortedLocations = [...locations].sort((a, b) => a.name.localeCompare(b.name));
+
     return (
         <>
             <Row className="mb-2">
@@ -36,7 +38,7 @@ function ClientLocations({ locations, setRefresh }) {
                     <hr />
 
                     {/* Location rows */}
-                    {locations.map((location, index) => {
+                    {sortedLocations.map((location, index) => {
                         const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
                         return (
                             <Row

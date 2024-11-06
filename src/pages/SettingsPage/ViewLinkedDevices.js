@@ -102,50 +102,54 @@ function ViewLinkedDevices() {
                 <Modal.Header closeButton>
                     <Modal.Title>Add Linked Device</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group controlId="formName">
-                            <Form.Label>Name</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                placeholder="Enter name"
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formManufacturer">
-                            <Form.Label>Manufacturer</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={manufacturer}
-                                onChange={(e) => setManufacturer(e.target.value)}
-                                placeholder="Enter manufacturer"
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formProductCode">
-                            <Form.Label>Product Code</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={productCode}
-                                onChange={(e) => setProductCode(e.target.value)}
-                                placeholder="Enter product code"
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formSerialNumber">
-                            <Form.Label>Serial Number</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={serialNumber}
-                                onChange={(e) => setSerialNumber(e.target.value)}
-                                placeholder="Enter serial number"
-                            />
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
-                    <Button variant="primary" onClick={handleAddLinkedDevice}>Add Linked Device</Button>
-                </Modal.Footer>
+                <Form onSubmit={handleAddLinkedDevice}>
+                    <Modal.Body>
+                            <Form.Group controlId="formName">
+                                <Form.Label>Name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="Enter name"
+                                    required
+                                />
+                            </Form.Group>
+                            <Form.Group controlId="formManufacturer">
+                                <Form.Label>Manufacturer</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={manufacturer}
+                                    onChange={(e) => setManufacturer(e.target.value)}
+                                    placeholder="Enter manufacturer"
+                                    required
+                                />
+                            </Form.Group>
+                            <Form.Group controlId="formProductCode">
+                                <Form.Label>Product Code</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={productCode}
+                                    onChange={(e) => setProductCode(e.target.value)}
+                                    placeholder="Enter product code"
+                                    required
+                                />
+                            </Form.Group>
+                            <Form.Group controlId="formSerialNumber">
+                                <Form.Label>Serial Number</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={serialNumber}
+                                    onChange={(e) => setSerialNumber(e.target.value)}
+                                    placeholder="Enter serial number"
+                                    required
+                                />
+                            </Form.Group>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
+                        <Button variant="primary" type="submit">Add Linked Device</Button>
+                    </Modal.Footer>
+                </Form>
             </Modal>
             <Button onClick={() => navigate('/settings')}>Back</Button>
         </Container>

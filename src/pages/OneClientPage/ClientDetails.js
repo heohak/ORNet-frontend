@@ -51,6 +51,13 @@ function ClientDetails({ client, navigate }) {
         )
     );
 
+    // Estonia date formatter
+    const estoniaDateFormat = new Intl.DateTimeFormat('et-EE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+
 
     const handleNavigate = () => {
         if (client && client.id) {
@@ -116,12 +123,12 @@ function ClientDetails({ client, navigate }) {
                                     <Row className="maintenance-date-box">
                                         <Col className="col-md-auto">
                                             <div>
-                                                <div className="maintenance-text">Next: {client.nextMaintenance}</div>
+                                                <div className="maintenance-text">Next: {client.nextMaintenance ? estoniaDateFormat.format(new Date(client.nextMaintenance)) : 'N/A'}</div>
                                             </div>
                                         </Col>
                                         <Col className="col-md-auto">
                                             <div>
-                                                <div className="maintenance-text">Last: {client.lastMaintenance}</div>
+                                                <div className="maintenance-text">Last: {client.lastMaintenance ? estoniaDateFormat.format(new Date(client.lastMaintenance)) : 'N/A'}</div>
                                             </div>
                                         </Col>
                                     </Row>
