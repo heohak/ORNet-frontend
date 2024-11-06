@@ -12,6 +12,12 @@ function LocationMaintenances({ show, handleClose, location, setRefresh }) {
     const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
     const [selectedMaintenanceId, setSelectedMaintenanceId] = useState(null);
 
+    const estoniaDateFormat = new Intl.DateTimeFormat('et-EE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+
     useEffect(() => {
         if (location && show) {
             fetchLocationMaintenances();
@@ -21,13 +27,14 @@ function LocationMaintenances({ show, handleClose, location, setRefresh }) {
     const fetchLocationMaintenances = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/location/maintenances/${location.id}`);
-            setMaintenances(response.data);
+            const sortedMaintenances = response.data.sort((a, b) => new Date(b.maintenanceDate) - new Date(a.maintenanceDate));
+            setMaintenances(sortedMaintenances);
         } catch (error) {
             console.error('Error fetching maintenances for location:', error);
         }
     };
 
-    const handleMaintenanceCardClick = (maintenanceId) => {
+    const handleMaintenanceClick = (maintenanceId) => {
         setSelectedMaintenanceId(maintenanceId);
         setShowMaintenanceModal(true);
     };
@@ -49,24 +56,34 @@ function LocationMaintenances({ show, handleClose, location, setRefresh }) {
                             </Button>
                         </Col>
                     </Row>
-                    <Row className="mt-3">
-                        {maintenances.length > 0 ? (
-                            maintenances.map((maintenance) => (
-                                <Col md={4} key={maintenance.id} className="mb-4">
-                                    <Card className="h-100 position-relative customer-page-card" onClick={() => handleMaintenanceCardClick(maintenance.id)}>
-                                        <Card.Body className="all-page-cardBody">
-                                            <Card.Title className='all-page-cardTitle'>{maintenance.maintenanceName}</Card.Title>
-                                            <Card.Text className='all-page-cardText'>
-                                                <strong>Date:</strong> {maintenance.maintenanceDate}<br />
-                                            </Card.Text>
-                                        </Card.Body>
-                                    </Card>
-                                </Col>
-                            ))
-                        ) : (
-                            <Alert className="mt-3" variant="info">No maintenances available for this location.</Alert>
-                        )}
+
+                    {/* Sortable Table Headers */}
+                    <Row className="font-weight-bold text-center mt-3">
+                        <Col md={6}>Maintenance Name</Col>
+                        <Col md={6}>Date</Col>
                     </Row>
+                    <hr />
+
+                    {/* Maintenance List */}
+                    {maintenances.length > 0 ? (
+                        maintenances.map((maintenance, index) => {
+                            const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                            return (
+                                <Row
+                                    key={maintenance.id}
+                                    className="align-items-center text-center mb-2"
+                                    style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
+                                    onClick={() => handleMaintenanceClick(maintenance.id)}
+                                >
+                                    <Col md={6}>{maintenance.maintenanceName}</Col>
+                                    <Col md={6}>{estoniaDateFormat.format(new Date(maintenance.maintenanceDate))}</Col>
+                                </Row>
+                            );
+                        })
+                    ) : (
+                        <Alert className="mt-3" variant="info">No maintenances available for this location.</Alert>
+                    )}
+
                 </Modal.Body>
             </Modal>
 
