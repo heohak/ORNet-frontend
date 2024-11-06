@@ -113,7 +113,7 @@ function WorkerSearchFilter({setWorkers}) {
                     </Col>
                 </Row>
             )}
-            <Row className="mb-3" style={{maxWidth: '70%', margin: '0 auto'}}>
+            <Row className="mb-3">
                 <Col>
                     <Form.Control
                         type="text"
@@ -164,14 +164,14 @@ function WorkerSearchFilter({setWorkers}) {
                         ))}
                     </Form.Control>
                 </Col>
-                <Col className="col-md-auto">
+                <Col className="col-md-auto d-flex">
                     <FormCheck
                         type="switch"
                         id="favorite-switch"
                         label="Favorite"
                         checked={favorite}
                         onChange={(e) => setFavorite(e.target.checked)}
-                        className="mb-4"
+                        className="align-content-center"
                     />
                 </Col>
             </Row>

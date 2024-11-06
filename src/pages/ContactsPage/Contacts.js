@@ -64,18 +64,20 @@ function Contacts() {
     return (
         <>
             <div className="contact-search-menu">
-                <div className="contact-search-menu-header mb-4">
-                    <h1 className="mb-0">Email List</h1>
-                    <div className="d-flex">
-                        <Button
-                            variant="primary"
-                            onClick={handleCopyEmails}
-                        >
-                            {copied ? "Emails Copied!" : "Copy Emails"}
-                        </Button>
+                <div className="contact-search-menu-items">
+                    <div className="contact-search-menu-header mb-4">
+                        <h1 className="mb-0">Email List</h1>
+                        <div className="d-flex">
+                            <Button
+                                variant="primary"
+                                onClick={handleCopyEmails}
+                            >
+                                {copied ? "Emails Copied!" : "Copy Emails"}
+                            </Button>
+                        </div>
                     </div>
+                    <WorkerSearchFilter setWorkers={setWorkers} />
                 </div>
-                <WorkerSearchFilter setWorkers={setWorkers} />
             </div>
             <Container className="mt-5 contacts-container">
                 <Row>
