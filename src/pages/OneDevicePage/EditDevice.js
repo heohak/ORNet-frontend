@@ -16,6 +16,7 @@ function EditDevice() {
         room: '',
         serialNumber: '',
         licenseNumber: '',
+        version: '',
         versionUpdateDate: '',
         firstIPAddress: '',
         secondIPAddress: '',
@@ -203,6 +204,15 @@ function EditDevice() {
                         type="text"
                         name="licenseNumber"
                         value={deviceData.licenseNumber}
+                        onChange={handleInputChange}
+                    />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Version</Form.Label>
+                    <Form.Control
+                        type="text"
+                        name="version"
+                        value={deviceData.version}
                         onChange={handleInputChange}
                     />
                 </Form.Group>
