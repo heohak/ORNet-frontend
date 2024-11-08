@@ -440,63 +440,51 @@ function NewAddCustomer({ show, onClose }) {
                 </Row>
 
 
-                {/* Row 4: Grouped Checkboxes */}
-                <Form.Group className="mb-3">
-                    <Form.Label>Customer Types</Form.Label>
-                    <div className="border p-3">
-                        <Row>
-                            <Col xs={6} md={3}>
-                                <Form.Check
-                                    type="checkbox"
-                                    label="Pathology Customer"
-                                    checked={pathologyCustomer}
-                                    onChange={(e) => setPathologyCustomer(e.target.checked)}
-                                />
-                            </Col>
-                            <Col xs={6} md={3}>
-                                <Form.Check
-                                    type="checkbox"
-                                    label="Surgery Customer"
-                                    checked={surgeryCustomer}
-                                    onChange={(e) => setSurgeryCustomer(e.target.checked)}
-                                />
-                            </Col>
-                            <Col xs={6} md={3}>
-                                <Form.Check
-                                    type="checkbox"
-                                    label="Editor Customer"
-                                    checked={editorCustomer}
-                                    onChange={(e) => setEditorCustomer(e.target.checked)}
-                                />
-                            </Col>
-                            <Col xs={6} md={3}>
-                                <Form.Check
-                                    type="checkbox"
-                                    label="Other Medical Devices"
-                                    checked={otherMedicalDevices}
-                                    onChange={(e) => setOtherMedicalDevices(e.target.checked)}
-                                />
-                            </Col>
-                        </Row>
-                        <Row className="mt-3">
-                            <Col xs={6} md={3}>
-                                <Form.Check
-                                    type="checkbox"
-                                    label="Prospect"
-                                    checked={prospect}
-                                    onChange={(e) => setProspect(e.target.checked)}
-                                />
-                            </Col>
-                            <Col xs={6}>
-                                <Form.Check
-                                    type="checkbox"
-                                    label="Agreement"
-                                    checked={agreement}
-                                    onChange={(e) => setAgreement(e.target.checked)}
-                                />
-                            </Col>
-                        </Row>
-                    </div>
+                {/* Customer Types: Header and Checkboxes on the Same Line */}
+                <Form.Group className="mb-3 d-flex align-items-center">
+                    <Form.Label className="me-3 mb-0">Customer Types:</Form.Label>
+                    <Form.Check
+                        inline
+                        type="checkbox"
+                        label="Pathology"
+                        checked={pathologyCustomer}
+                        onChange={(e) => setPathologyCustomer(e.target.checked)}
+                    />
+                    <Form.Check
+                        inline
+                        type="checkbox"
+                        label="Surgery"
+                        checked={surgeryCustomer}
+                        onChange={(e) => setSurgeryCustomer(e.target.checked)}
+                    />
+                    <Form.Check
+                        inline
+                        type="checkbox"
+                        label="Editor"
+                        checked={editorCustomer}
+                        onChange={(e) => setEditorCustomer(e.target.checked)}
+                    />
+                    <Form.Check
+                        inline
+                        type="checkbox"
+                        label="Other Medical Devices"
+                        checked={otherMedicalDevices}
+                        onChange={(e) => setOtherMedicalDevices(e.target.checked)}
+                    />
+                    <Form.Check
+                        inline
+                        type="checkbox"
+                        label="Prospect"
+                        checked={prospect}
+                        onChange={(e) => setProspect(e.target.checked)}
+                    />
+                    <Form.Check
+                        inline
+                        type="checkbox"
+                        label="Agreement"
+                        checked={agreement}
+                        onChange={(e) => setAgreement(e.target.checked)}
+                    />
                 </Form.Group>
 
 
