@@ -40,6 +40,8 @@ function EditClient() {
     const [phoneNumberError, setPhoneNumberError] = useState('');
     const [postalCodeError, setPostalCodeError] = useState('');
     const errorRef = useRef(null);
+    const [isSubmittingLocation, setIsSubmittingLocation] = useState(false);
+
 
     const fetchClientData = async () => {
         try {
@@ -150,6 +152,8 @@ function EditClient() {
 
     const handleAddLocation = async (e) => {
         e.preventDefault();
+        if (isSubmittingLocation) return; // Prevent multiple submissions
+        setIsSubmittingLocation(true);
         const { name, city, country, email, postalCode, streetAddress, phone } = newLocation;
         const isValid = validatePhoneAndPostalCode(
             phone,
@@ -159,6 +163,11 @@ function EditClient() {
             () => setNewLocation({ ...newLocation, phone }),
             () => setNewLocation({ ...newLocation, postalCode })
         );
+
+        if (!isValid) {
+            setIsSubmittingLocation(false); // Reset submitting state if validation fails
+            return;
+        }
 
 
         if (isValid) {
@@ -190,6 +199,8 @@ function EditClient() {
             } catch (error) {
                 setError('Error adding location.');
                 console.error('Error adding location:', error);
+            } finally {
+                setIsSubmittingLocation(false);
             }
         }
     };
@@ -489,7 +500,9 @@ function EditClient() {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={() => setShowLocationModal(false)}>Cancel</Button>
-                        <Button variant="primary" type="submit">Add Location</Button>
+                        <Button variant="primary" type="submit" disabled={isSubmittingLocation}>
+                            {isSubmittingLocation ? 'Adding...' : 'Add Location'}
+                        </Button>
                     </Modal.Footer>
                 </Form>
             </Modal>

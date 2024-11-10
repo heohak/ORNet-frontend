@@ -18,6 +18,8 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
     const [showRoleModal, setShowRoleModal] = useState(false);
     const [newRole, setNewRole] = useState({ role: '' });
     const [phoneNumberError, setPhoneNumberError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSubmittingRole, setIsSubmittingRole] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -38,11 +40,14 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         setError(null);
         const trimmedPhoneNumber = phoneNumber.trim();
         // Check if the phone number contains only digits
         if (!/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
             setPhoneNumberError('Phone number must contain only numbers and spaces, and may start with a +.');
+            setIsSubmitting(false);
             return;
         }
         // Reset the error message if validation passes
@@ -88,11 +93,15 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
             onClose(); // Close the modal after adding the worker
         } catch (error) {
             setError(error.message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
 
     const handleAddRole = async () => {
+        if (isSubmittingRole) return;
+        setIsSubmittingRole(true);
         const { role } = newRole;
 
         if (!role.trim()) {
@@ -114,7 +123,8 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
             setShowRoleModal(false);
         } catch (error) {
             setError('Error adding role.');
-            console.error('Error adding role:', error);
+        } finally {
+            setIsSubmittingRole(false);
         }
     };
 
@@ -200,8 +210,8 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
                         Can't find the role? <Button variant="link" onClick={() => setShowRoleModal(true)}>Add New</Button>
                     </Form.Text>
                 </Form.Group>
-                <Button variant="success" type="submit">
-                    Add Contact
+                <Button variant="success" type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? 'Adding...' : 'Add Contact'}
                 </Button>
             </Form>
 
@@ -222,7 +232,9 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
                     </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="primary" onClick={handleAddRole}>Add Role</Button>
+                    <Button variant="primary" onClick={handleAddRole} disabled={isSubmittingRole}>
+                        {isSubmittingRole ? 'Adding...' : 'Add Role'}
+                    </Button>
                 </Modal.Footer>
             </Modal>
         </Container>

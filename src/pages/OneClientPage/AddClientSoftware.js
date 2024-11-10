@@ -25,6 +25,10 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
     const [consultationModule, setConsultationModule] = useState({ version: '', updateDate: '' });
     const [aiModule, setAiModule] = useState({ version: '', updateDate: '' });
 
+    const [isSubmittingMainForm, setIsSubmittingMainForm] = useState(false);
+    const [isSubmittingModalForm, setIsSubmittingModalForm] = useState(false);
+
+
     useEffect(() => {
         fetchSoftware();
     }, []);
@@ -38,6 +42,8 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
     };
 
     const handleAddExistingSoftware = async () => {
+        if (isSubmittingMainForm) return;
+        setIsSubmittingMainForm(true);
         if (selectedSoftware) {
             try {
                 await axios.put(`${config.API_BASE_URL}/software/add/client/${selectedSoftware.value}/${clientId}`);
@@ -47,14 +53,19 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
                 setSelectedSoftware(null);
             } catch (error) {
                 setError(error.message);
+            } finally {
+                setIsSubmittingMainForm(false);
             }
         } else {
             setError('Please select a software');
+            setIsSubmittingMainForm(false);
         }
     };
 
     const handleAddNewSoftware = async (e) => {
         e.preventDefault();
+        if (isSubmittingModalForm) return;
+        setIsSubmittingModalForm(true)
         setError(null);
 
         try {
@@ -97,6 +108,8 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
             }
         } catch (error) {
             setError(error.message);
+        } finally {
+            setIsSubmittingModalForm(false);
         }
     };
 
@@ -126,8 +139,8 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
                                 Can't find the Tech Info? <Button variant="link" onClick={() => setShowAddNewSoftwareModal(true)}>Add New</Button>
                             </Form.Text>
                         </Form.Group>
-                        <Button variant="success" onClick={handleAddExistingSoftware}>
-                            Add Selected Tech Info
+                        <Button variant="success" onClick={handleAddExistingSoftware} disabled={isSubmittingMainForm}>
+                            {isSubmittingMainForm ? 'Adding...' : 'Add Selected Tech Info'}
                         </Button>
                     </Container>
                 </Modal.Body>
@@ -140,8 +153,9 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
                 <Modal.Header closeButton>
                     <Modal.Title>Add New Technical Information</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+
                     <Form onSubmit={handleAddNewSoftware}>
+                        <Modal.Body>
                         <Form.Group className="mb-3">
                             <Form.Label>Name</Form.Label>
                             <Form.Control
@@ -388,16 +402,20 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
                                 onChange={(e) => setAiModule({ ...aiModule, updateDate: e.target.value })}
                             />
                         </Form.Group>
-                        <Button variant="success" type="submit">
-                            Add Tech Info
-                        </Button>
-                    </Form>
+
+
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowAddNewSoftwareModal(false)}>
                         Close
                     </Button>
+                    <Button variant="success" type="submit" disabled={isSubmittingModalForm}>
+                        {isSubmittingModalForm ? 'Adding...' : 'Add Tech Info'}
+                    </Button>
+
+
                 </Modal.Footer>
+            </Form>
             </Modal>
         </>
     );

@@ -7,19 +7,24 @@ function AddThirdPartyITModal({ show, onHide, onNewThirdPartyIT }) {
     const [newThirdParty, setNewThirdParty] = useState({ name: '', email: '', phone: '' });
     const [error, setError] = useState(null);
     const [phoneNumberError, setPhoneNumberError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleAddThirdParty = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         const trimmedPhoneNumber = newThirdParty.phone.trim();
 
         if (!/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
             setPhoneNumberError('Phone number must contain only numbers and spaces, and may start with a +.');
+            setIsSubmitting(false);
             return;
         }
 
         const { name, email, phone } = newThirdParty;
         if (!name.trim() || !email.trim() || !phone.trim()) {
             setError('Please fill in all fields for the new third-party IT.');
+            setIsSubmitting(false);
             return;
         }
 
@@ -40,6 +45,8 @@ function AddThirdPartyITModal({ show, onHide, onNewThirdPartyIT }) {
             onHide();
         } catch (error) {
             setError('Error adding third-party IT.');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -85,7 +92,9 @@ function AddThirdPartyITModal({ show, onHide, onNewThirdPartyIT }) {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={onHide}>Cancel</Button>
-                    <Button variant="primary" type="submit">Add Third-Party IT</Button>
+                    <Button variant="primary" type="submit" disabled={isSubmitting}>
+                        {isSubmitting ? 'Adding...' : 'Add Third-Party IT'}
+                    </Button>
                 </Modal.Footer>
             </Form>
         </Modal>

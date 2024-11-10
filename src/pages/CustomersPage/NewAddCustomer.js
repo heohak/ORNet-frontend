@@ -50,6 +50,11 @@ function NewAddCustomer({ show, onClose }) {
     const [countryOptions, setCountryOptions] = useState([]);
     const [selectedCountry, setSelectedCountry] = useState(null);
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSubmittingLocation, setIsSubmittingLocation] = useState(false);
+    const [isSubmittingThirdParty, setIsSubmittingThirdParty] = useState(false);
+
+
     useEffect(() => {
         if (dateError && dateErrorRef.current) {
             dateErrorRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -119,17 +124,22 @@ function NewAddCustomer({ show, onClose }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+
         const today = new Date().toISOString().split("T")[0];
 
         // Ensure Last Maintenance is not in the future
         if (new Date(lastMaintenance) > new Date(today)) {
             setDateError('Last Maintenance date cannot be in the future.');
+            setIsSubmitting(false);
             return;
         }
 
         // Ensure Next Maintenance is after Last Maintenance
         if (new Date(nextMaintenance) < new Date(lastMaintenance)) {
             setDateError('Next maintenance date cannot be before the last maintenance date.');
+            setIsSubmitting(false);
             return;
         }
 
@@ -182,11 +192,16 @@ function NewAddCustomer({ show, onClose }) {
             onClose(); // Close the modal after adding the customer
         } catch (error) {
             console.error('Error adding customer:', error);
+            setError('Error adding customer.');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     const handleAddLocation = async (e) => {
         e.preventDefault();
+        if (isSubmittingLocation) return;
+        setIsSubmittingLocation(true);
 
         const { name, city, country, email, postalCode, streetAddress, phone } = newLocation;
 
@@ -199,6 +214,11 @@ function NewAddCustomer({ show, onClose }) {
             () => setNewLocation({ ...newLocation, phone }),
             () => setNewLocation({ ...newLocation, postalCode })
         );
+
+        if (!isValid) {
+            setIsSubmittingLocation(false);
+            return;
+        }
 
         if (isValid) {
             try {
@@ -231,12 +251,17 @@ function NewAddCustomer({ show, onClose }) {
             } catch (error) {
                 console.error('Error adding location:', error);
                 setError('Error adding location.');
+            } finally {
+                setIsSubmittingLocation(false);
             }
         }
     };
 
 
     const handleAddThirdParty = async () => {
+        if (isSubmittingThirdParty) return;
+        setIsSubmittingThirdParty(true);
+
         const { name, email, phone } = newThirdParty;
 
 
@@ -256,6 +281,8 @@ function NewAddCustomer({ show, onClose }) {
             setShowThirdPartyModal(false);
         } catch (error) {
             console.error('Error adding third-party IT:', error);
+        } finally {
+            setIsSubmittingThirdParty(false);
         }
     };
 
@@ -491,7 +518,9 @@ function NewAddCustomer({ show, onClose }) {
                 {/* Bottom: Cancel and Add Buttons */}
                 <div className="d-flex justify-content-end">
                     <Button variant="secondary" className="me-2" onClick={onClose}>Cancel</Button>
-                    <Button variant="success" type="submit">Add Customer</Button>
+                    <Button variant="success" type="submit" disabled={isSubmitting}>
+                        {isSubmitting ? 'Adding...' : 'Add Customer'}
+                    </Button>
                 </div>
             </Form>
             </Modal.Body>
@@ -583,7 +612,10 @@ function NewAddCustomer({ show, onClose }) {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={() => setShowLocationModal(false)}>Cancel</Button>
-                        <Button variant="primary" type="submit">Add Location</Button>
+                        <Button variant="primary" type="submit" disabled={isSubmittingLocation}>
+                            {isSubmittingLocation ? 'Adding...' : 'Add Location'}
+                        </Button>
+
                     </Modal.Footer>
                 </Form>
             </Modal>
@@ -625,7 +657,9 @@ function NewAddCustomer({ show, onClose }) {
 
                         <Modal.Footer>
                             <Button variant="secondary" onClick={() => setShowThirdPartyModal(false)}>Cancel</Button>
-                            <Button variant="primary" type="submit">Add Third-Party IT</Button>
+                            <Button variant="primary" type="submit" disabled={isSubmittingThirdParty}>
+                                {isSubmittingThirdParty ? 'Adding...' : 'Add Third-Party IT'}
+                            </Button>
                         </Modal.Footer>
                     </Form>
                 </Modal.Body>
