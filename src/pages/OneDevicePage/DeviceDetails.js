@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import {Card, Button, Modal, Form, Alert, Col, Row} from 'react-bootstrap';
 import { FaPlus } from 'react-icons/fa';
 import axios from 'axios';
@@ -20,6 +21,7 @@ function DeviceDetails({ device, navigate, setShowCommentsModal, setRefresh }) {
     const [writtenOffComment, setWrittenOffComment] = useState('');
     const [showReactivateModal, setShowReactivateModal] = useState(false);
     const today = new Date().toISOString().split('T')[0];
+    const location = useLocation();
 
 
     const defaultFields = [
@@ -246,7 +248,7 @@ function DeviceDetails({ device, navigate, setShowCommentsModal, setRefresh }) {
                                     </Col>
                                     <Col className="col-md-auto">
                                         <Row>
-                                            <Button variant="primary" onClick={() => navigate(`/device/edit/${localDevice.id}`)}>
+                                            <Button variant="primary" onClick={() => navigate(`/device/edit/${localDevice.id}`, {state: location.state})}>
                                                 Edit Device
                                             </Button>
                                         </Row>

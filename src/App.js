@@ -8,7 +8,6 @@ import Customers from './pages/CustomersPage/Customers';
 import Home from './pages/HomePage/Home';
 import ClientDevices from './pages/OneClientPage/ClientDevices';
 import Tickets from './pages/TicketsPage/Tickets';
-import AddCustomer from './pages/CustomersPage/AddCustomer';
 import AddClientWorker from './pages/OneClientPage/AddClientWorker';
 import Devices from './pages/AllDevicesPage/Devices';
 import OneDevice from './pages/OneDevicePage/OneDevice';
@@ -56,7 +55,6 @@ function App() {
                         <Route path="/customers" element={<Customers />} />
                         <Route path="/clients/:clientId/devices" element={<ClientDevices />} />
                         <Route path="/tickets" element={<Tickets />} />
-                        <Route path="/add-client" element={<AddCustomer />} />
                         <Route path="/add-client-worker" element={<AddClientWorker />} />
                         <Route path="/devices" element={<Devices />} />
                         <Route path="/device/:deviceId" element={<OneDevice />} />

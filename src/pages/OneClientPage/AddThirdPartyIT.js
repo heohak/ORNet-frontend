@@ -12,6 +12,9 @@ function AddThirdPartyIT({ clientId, onClose, setRefresh }) {
     const [showThirdPartyModal, setShowThirdPartyModal] = useState(false);
     const [phoneNumberError, setPhoneNumberError] = useState('');
     const [newThirdParty, setNewThirdParty] = useState({ name: '', email: '', phone: '' });
+    const [isSubmittingMainForm, setIsSubmittingMainForm] = useState(false);
+    const [isSubmittingModalForm, setIsSubmittingModalForm] = useState(false);
+
 
     useEffect(() => {
         const fetchThirdParties = async () => {
@@ -28,10 +31,13 @@ function AddThirdPartyIT({ clientId, onClose, setRefresh }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isSubmittingMainForm) return;
+        setIsSubmittingMainForm(true);
         setError(null);
 
         if (!selectedThirdParty) {
             setError("Please select a third-party IT.");
+            setIsSubmittingMainForm(false);
             return;
         }
 
@@ -41,16 +47,21 @@ function AddThirdPartyIT({ clientId, onClose, setRefresh }) {
             onClose(); // Close the modal after adding the third-party IT
         } catch (error) {
             setError(error.message);
+        } finally {
+            setIsSubmittingMainForm(false);
         }
     };
 
     const handleAddThirdParty = async (e) => {
         e.preventDefault();
+        if (isSubmittingModalForm) return;
+        setIsSubmittingModalForm(true);
         const trimmedPhoneNumber = newThirdParty.phone.trim();
 
         // Check if the phone number contains only digits and allowed characters
         if (!/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
             setPhoneNumberError('Phone number must contain only numbers and spaces, and may start with a +.');
+            setIsSubmittingModalForm(false);
             return false;
         }
 
@@ -62,6 +73,7 @@ function AddThirdPartyIT({ clientId, onClose, setRefresh }) {
 
         if (!name.trim() || !email.trim() || !phone.trim()) {
             setError('Please fill in all fields for the new third-party IT.');
+            setIsSubmittingModalForm(false);
             return;
         }
 
@@ -81,6 +93,8 @@ function AddThirdPartyIT({ clientId, onClose, setRefresh }) {
         } catch (error) {
             setError('Error adding third-party IT.');
             console.error('Error adding third-party IT:', error);
+        } finally {
+            setIsSubmittingModalForm(false);
         }
     };
 
@@ -105,9 +119,10 @@ function AddThirdPartyIT({ clientId, onClose, setRefresh }) {
                         Can't find the third-party IT? <Button variant="link" onClick={() => setShowThirdPartyModal(true)}>Add New</Button>
                     </Form.Text>
                 </Form.Group>
-                <Button variant="success" type="submit">
-                    Add Third-Party IT
+                <Button variant="success" type="submit" disabled={isSubmittingMainForm}>
+                    {isSubmittingMainForm ? 'Adding...' : 'Add Third-Party IT'}
                 </Button>
+
             </Form>
 
             {/* Modal for adding a new third-party IT */}
@@ -150,7 +165,10 @@ function AddThirdPartyIT({ clientId, onClose, setRefresh }) {
                         </Form.Group>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="primary" type='submit'>Add Third-Party IT</Button>
+                        <Button variant="success" type="submit" disabled={isSubmittingModalForm}>
+                            {isSubmittingModalForm ? 'Adding...' : 'Add Third-Party IT'}
+                        </Button>
+
                     </Modal.Footer>
                 </Form>
             </Modal>

@@ -9,6 +9,7 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, setRefre
     const [comment, setComment] = useState('');
     const [files, setFiles] = useState([]);
     const [addError, setAddError] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleFileChange = (e) => {
         setFiles(e.target.files);
@@ -16,6 +17,8 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, setRefre
 
     const handleAddMaintenance = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         setAddError(null);
 
         try {
@@ -69,6 +72,8 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, setRefre
             handleClose();
         } catch (error) {
             setAddError(error.message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -135,8 +140,8 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, setRefre
                             onChange={handleFileChange}
                         />
                     </Form.Group>
-                    <Button variant="success" type="submit">
-                        Add Maintenance
+                    <Button variant="success" type="submit" disabled={isSubmitting}>
+                        {isSubmitting ? 'Adding...' : 'Add Maintenance'}
                     </Button>
                 </Form>
             </Modal.Body>

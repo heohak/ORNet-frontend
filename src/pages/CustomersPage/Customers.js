@@ -55,6 +55,14 @@ function Customers() {
         }
     };
 
+    const capitalizeFirstLetter = (string) => {
+        if (string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+        return '';
+    };
+
+
     const fetchCountryFlags = async (customersData) => {
         const flags = {};
         for (const customer of customersData) {
@@ -181,7 +189,7 @@ function Customers() {
                             <DropdownButton
                                 as={InputGroup.Append}
                                 variant="outline-secondary"
-                                title={customerType || 'All Types'}
+                                title={customerType ? capitalizeFirstLetter(customerType) : 'All Types'}
                                 id="input-group-dropdown-type"
                             >
                                 <Dropdown.Item onClick={() => handleFilterChange('')}>All Types</Dropdown.Item>

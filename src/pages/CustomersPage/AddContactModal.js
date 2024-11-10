@@ -16,8 +16,11 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
     const [newRole, setNewRole] = useState({ role: '' });
     const [selectedRoles, setSelectedRoles] = useState([]);
     const [phoneNumberError, setPhoneNumberError] = useState('');
-
     const [error, setError] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSubmittingRole, setIsSubmittingRole] = useState(false);
+
+
 
     // Fetch roles when the component mounts
     useEffect(() => {
@@ -35,17 +38,21 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        if (isSubmitting) return; // Prevent multiple submissions
+        setIsSubmitting(true);
 
         // Phone number validation
         const trimmedPhoneNumber = phoneNumber.trim();
         if (!/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
             setPhoneNumberError('Phone number must contain only numbers and spaces, and may start with a +.');
+            setIsSubmitting(false);
             return;
         }
         setPhoneNumberError('');
 
         if (!firstName || !lastName || !email || !phoneNumber || !title || !selectedLocation || selectedRoles.length === 0) {
             setError('Please fill in all fields.');
+            setIsSubmitting(false);
             return;
         }
 
@@ -60,21 +67,28 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
             locationId: selectedLocation.value,
             roles: selectedRoles.map(role => ({ id: role.value, role: role.label })),
         };
-
-        onSave(newContact);
-        handleClose();
-
-        // Reset form fields
-        setFirstName('');
-        setLastName('');
-        setEmail('');
-        setPhoneNumber('');
-        setTitle('');
-        setSelectedLocation(null);
-        setSelectedRoles([]);
+        try {
+            onSave(newContact);
+            handleClose();
+            // Reset form fields
+            setFirstName('');
+            setLastName('');
+            setEmail('');
+            setPhoneNumber('');
+            setTitle('');
+            setSelectedLocation(null);
+            setSelectedRoles([]);
+        } catch (error) {
+            setError('Error adding contact.');
+            console.error('Error adding contact:', error);
+        } finally {
+            setIsSubmitting(false); // Reset the submitting state
+        }
     };
 
     const handleAddRole = async () => {
+        if (isSubmittingRole) return;
+        setIsSubmittingRole(true);
         const { role } = newRole;
 
         if (!role.trim()) {
@@ -97,6 +111,8 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
         } catch (error) {
             setError('Error adding role.');
             console.error('Error adding role:', error);
+        } finally {
+            setIsSubmittingRole(false);
         }
     };
 
@@ -192,9 +208,10 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
                                 <Button variant="link" onClick={() => setShowRoleModal(true)}>Add New</Button>
                             </Form.Text>
                         </Form.Group>
-                        <Button variant="primary" type="submit">
-                            Add Contact
+                        <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? 'Adding...' : 'Add Contact'}
                         </Button>
+
                     </Form>
                 </Modal.Body>
             </Modal>
@@ -220,7 +237,9 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowRoleModal(false)}>Cancel</Button>
-                    <Button variant="primary" onClick={handleAddRole}>Add Role</Button>
+                    <Button variant="primary" onClick={handleAddRole} disabled={isSubmittingRole}>
+                        {isSubmittingRole ? 'Adding...' : 'Add Role'}
+                    </Button>
                 </Modal.Footer>
             </Modal>
         </>

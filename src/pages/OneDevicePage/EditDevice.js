@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Container, Form, Button, Alert } from 'react-bootstrap';
 import config from "../../config/config";
 
 function EditDevice() {
     const { deviceId } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const [deviceData, setDeviceData] = useState({
         deviceName: '',
         clientId: '',
@@ -16,6 +17,7 @@ function EditDevice() {
         room: '',
         serialNumber: '',
         licenseNumber: '',
+        version: '',
         versionUpdateDate: '',
         firstIPAddress: '',
         secondIPAddress: '',
@@ -95,7 +97,7 @@ function EditDevice() {
         e.preventDefault();
         try {
             await axios.put(`${config.API_BASE_URL}/device/update/${deviceId}`, deviceData);
-            navigate(`/device/${deviceId}`); // Redirect to the device details page
+            navigate(`/device/${deviceId}`, {state: location.state}); // Redirect to the device details page
         } catch (error) {
             setError(error.message);
         }
@@ -207,6 +209,15 @@ function EditDevice() {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
+                    <Form.Label>Version</Form.Label>
+                    <Form.Control
+                        type="text"
+                        name="version"
+                        value={deviceData.version}
+                        onChange={handleInputChange}
+                    />
+                </Form.Group>
+                <Form.Group className="mb-3">
                     <Form.Label>Version Update Date</Form.Label>
                     <Form.Control
                         type="date"
@@ -275,7 +286,7 @@ function EditDevice() {
                 ))}
 
                 <Button variant="success" type="submit">Save Changes</Button>
-                <Button variant="secondary" className="ms-3" onClick={() => navigate(`/device/${deviceId}`)}>Cancel</Button>
+                <Button variant="secondary" className="ms-3" onClick={() => navigate(`/device/${deviceId}`, {state: location.state})}>Cancel</Button>
             </Form>
         </Container>
     );
