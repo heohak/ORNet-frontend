@@ -13,7 +13,7 @@ import ClientMaintenances from "./ClientMaintenances";
 import ClientLocations from "./ClientLocations";
 import '../../css/Customers.css';
 import '../../css/OneClientPage/OneClient.css';
-import CustomerActivity from "./CustomerActivity";
+import CustomerActivity from "./Activity/CustomerActivity";
 
 function OneClient() {
     const { clientId } = useParams();
@@ -48,7 +48,7 @@ function OneClient() {
                     axios.get(`${config.API_BASE_URL}/client/maintenance/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/ticket/classificator/all`),
                     axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`),
-                    axios.get(`${config.API_BASE_URL}/client/comments/${clientId}`)
+                    axios.get(`${config.API_BASE_URL}/client/activities/${clientId}`)
                 ]);
 
                 setClient(clientRes.data);

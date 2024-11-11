@@ -1,5 +1,6 @@
 import {Alert, Col, Row} from "react-bootstrap";
 import React, {useState} from "react";
+import ActivityModal from "./ActivityModal";
 
 
 const CustomerActivity = ({ activities, setActivities }) => {
@@ -7,8 +8,8 @@ const CustomerActivity = ({ activities, setActivities }) => {
     const [showModal, setShowModal] = useState(false);
 
 
-    const handleRowClick = (location) => {
-        setSelectedActivity(location);
+    const handleRowClick = (activity) => {
+        setSelectedActivity(activity);
         setShowModal(true);
     };
 
@@ -50,11 +51,11 @@ const CustomerActivity = ({ activities, setActivities }) => {
                                 style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
                                 onClick={() => handleRowClick(activity)}
                             >
-                                <Col md={4}>{activity.title}</Col>
-                                <Col md={5}>
-                                    {activity.streetAddress}
-                                </Col>
-                                <Col md={3}>{activity.phone}</Col>
+                                <Col md={3}>{activity.title}</Col>
+                                <Col md={3}>Contact?</Col>
+                                <Col md={3}>{activity.endDateTime}</Col>
+                                <Col md={3}>{activity.statusId}</Col>
+
                             </Row>
                         );
                     })}
@@ -62,6 +63,13 @@ const CustomerActivity = ({ activities, setActivities }) => {
             ) : (
                 <Alert className="mt-3" variant="info">No activities available.</Alert>
             )}
+            {selectedActivity &&
+                <ActivityModal
+                    activity={selectedActivity}
+                    show={showModal}
+                    handleClose={() => setShowModal(false)}
+                />
+            }
         </>
     );
 }
