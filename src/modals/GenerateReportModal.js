@@ -87,9 +87,37 @@ function GenerateReportModal({ show, handleClose }) {
             link.click();
             link.remove();
 
-            handleClose(); // Close modal on successful report generation
+            handleClose();
         } catch (error) {
-            setError('Error generating report.');
+            console.error('Error generating report:', error);
+
+            if (error.response) {
+                const { status, data } = error.response;
+
+                switch (status) {
+                    case 400:
+                        setError(data.message || 'Invalid input data. Please check your inputs.');
+                        break;
+                    case 401:
+                        setError('You are not authorized to generate this report. Please log in.');
+                        break;
+                    case 403:
+                        setError('You do not have permission to generate this report.');
+                        break;
+                    case 404:
+                        setError('The report service is unavailable. Please try again later.');
+                        break;
+                    case 500:
+                        setError('An internal server error occurred. Please try again later.');
+                        break;
+                    default:
+                        setError(data.message || 'An error occurred while generating the report.');
+                }
+            } else if (error.request) {
+                setError('No response from the server. Please check your network connection.');
+            } else {
+                setError('An error occurred while setting up the report request.');
+            }
         } finally {
             setLoading(false);
         }

@@ -22,6 +22,7 @@ const NewTicketStatusDropdown = ({ ticket, statuses, setIsClosed, reFetch }) => 
             await updateTicketStatus(status);
             setIsClosed(false);
         }
+        reFetch();
     };
 
     const handleRootCauseSubmit = async () => {
@@ -39,10 +40,10 @@ const NewTicketStatusDropdown = ({ ticket, statuses, setIsClosed, reFetch }) => 
             });
 
             setIsClosed(true);
-            reFetch();
             setStatusName(newStatus.status);
             setStatusColor(newStatus.color);
             setShowModal(false); // Hide the modal after submission
+            reFetch();
         } catch (error) {
             console.error("Error updating the ticket status", error);
         }

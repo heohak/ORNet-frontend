@@ -6,9 +6,13 @@ import config from "../../../config/config";
 function AddClassificatorModal({ show, onHide, onClassificatorAdded }) {
     const [name, setName] = useState('');
     const [error, setError] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return; // Prevent multiple submissions
+        setIsSubmitting(true);
         setError(null);
 
         if (!name) {
@@ -25,6 +29,8 @@ function AddClassificatorModal({ show, onHide, onClassificatorAdded }) {
             onHide();
         } catch (error) {
             setError(error.message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -50,9 +56,11 @@ function AddClassificatorModal({ show, onHide, onClassificatorAdded }) {
                             required
                         />
                     </Form.Group>
-                    <Button variant="success" type="submit">
-                        Add Classificator
-                    </Button>
+                    <Modal.Footer>
+                        <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? 'Adding...' : 'Add Classificator'}
+                        </Button>
+                    </Modal.Footer>
                 </Form>
             </Modal.Body>
         </Modal>

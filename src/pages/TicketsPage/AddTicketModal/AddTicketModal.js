@@ -39,6 +39,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [showContactModal, setShowContactModal] = useState(false);
     const [submitType, setSubmitType] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
 
     const navigate = useNavigate();
@@ -113,6 +114,8 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return; // Prevent multiple submissions
+        setIsSubmitting(true);
         setError(null);
         try {
             let newTicket = {
@@ -138,6 +141,8 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
 
         } catch (err) {
             setError(err.message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -170,16 +175,13 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
         }
     };
 
-    const handleLocationAdded = async () => {
-        if (formData.clientId) {
-            try {
-                const response = await axios.get(`${config.API_BASE_URL}/client/locations/${formData.clientId}`);
-                setLocations(response.data);
-            } catch (error) {
-                console.error('Error fetching locations:', error);
-            }
-        }
+    const handleLocationAdded = (addedLocation) => {
+        // Update the locations state by adding the new location
+        setLocations(prevLocations => [...prevLocations, addedLocation]);
+        // Optionally set the newly added location as the selected location
+        setFormData(prevData => ({ ...prevData, locationId: addedLocation.id }));
     };
+
 
     const handleContactAdded = async () => {
         if (formData.clientId) {
@@ -427,16 +429,18 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
                         <Button
                             variant="secondary"
                             onClick={() => setSubmitType("submitAndView")}
-                            type="submit" // This will trigger form validation
+                            type="submit"
+                            disabled={isSubmitting}
                         >
-                            Submit and View
+                            {isSubmitting && submitType === "submitAndView" ? 'Submitting...' : 'Submit and View'}
                         </Button>
                         <Button
                             variant="primary"
                             onClick={() => setSubmitType("submit")}
-                            type="submit" // This will trigger form validation
+                            type="submit"
+                            disabled={isSubmitting}
                         >
-                            Submit
+                            {isSubmitting && submitType === "submit" ? 'Submitting...' : 'Submit'}
                         </Button>
                     </Modal.Footer>
                 </Form>
@@ -449,7 +453,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
             />
             <AddLocationModal
                 show={showLocationModal}
-                handleClose={() => setShowLocationModal(false)}
+                onHide={() => setShowLocationModal(false)}
                 onAdd={handleLocationAdded}
                 clientId={formData.clientId}
             />

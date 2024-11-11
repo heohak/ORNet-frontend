@@ -61,7 +61,7 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
             </Row>
 
             {/* Sortable Table Headers */}
-            <Row className="font-weight-bold text-center mt-2">
+            <Row style={{fontWeight: "bold"}} className="font-weight-bold text-center">
                 <Col md={6} onClick={() => handleSort('maintenanceName')}>
                     Maintenance Name {renderSortArrow('maintenanceName')}
                 </Col>

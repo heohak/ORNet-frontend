@@ -79,7 +79,7 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
             {tickets.length > 0 ? (
                 <>
                     {/* Table header with columns */}
-                    <Row className="font-weight-bold text-center mt-2">
+                    <Row style={{fontWeight: "bold"}} className="font-weight-bold text-center mt-2">
                         <Col md={2}>No</Col>
                         <Col md={2}>Title</Col>
                         <Col md={2}>Date</Col>

@@ -128,7 +128,7 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
                 </Col>
             </Row>
         </Form>
-            <Row className="font-weight-bold text-center mt-2">
+            <Row style={{fontWeight: "bold"}} className="font-weight-bold text-center mt-2">
                 <Col md={3}>
                     Name
                 </Col>

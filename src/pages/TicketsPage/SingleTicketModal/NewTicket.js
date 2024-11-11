@@ -137,7 +137,7 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch }) 
                         )}
                         <TicketSectionButtons activeSection={activeSection} onSectionChange={setActiveSection}/>
                         {activeSection === 'activity' && <NewTicketActivity ticket={ticket} reFetch={reFetchTicket} />}
-                        {activeSection === 'info' && <NewTicketInsideInfo ticket={ticket} />}
+                        {activeSection === 'info' && <NewTicketInsideInfo ticket={ticket} reFetch={reFetchTicket} />}
                         {/*{activeSection === 'response' && <NewTicketResponse ticket={ticket} />}*/}
                     </Col>
                     <Col md={4}>
