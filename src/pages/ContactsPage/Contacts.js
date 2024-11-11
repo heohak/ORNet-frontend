@@ -81,7 +81,10 @@ function Contacts() {
             </div>
             <Container className="mt-5 contacts-container">
                 <Row>
-                    {workers.map((worker) => (
+                    {workers.length === 0 ? (
+                        <Alert variant="info">No contacts found.</Alert>
+                        ) : (
+                    workers.map((worker) => (
                         <Col md={4} key={worker.id} className="mb-4">
                             <Card className='h-100 position-relative customer-page-card'>
                                 <Card.Body className='all-page-cardBody'>
@@ -104,7 +107,8 @@ function Contacts() {
                                 </Card.Body>
                             </Card>
                         </Col>
-                    ))}
+                    ))
+                        )}
                 </Row>
 
             </Container>
