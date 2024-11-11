@@ -327,6 +327,9 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                         </Col>
                     </Row>
                     <Modal.Footer>
+                        <Button variant="secondary" onClick={handleClose}>
+                            Cancel
+                        </Button>
                         <Button variant="primary" type="submit">Submit</Button>
                     </Modal.Footer>
                 </Form>
