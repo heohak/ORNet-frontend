@@ -10,6 +10,12 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
     const [selectedMaintenanceId, setSelectedMaintenanceId] = useState(null);
     const [sortConfig, setSortConfig] = useState({ key: 'maintenanceName', direction: 'ascending' });
 
+    const estoniaDateFormat = new Intl.DateTimeFormat('et-EE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+
     const handleSort = (key) => {
         let direction = 'ascending';
         if (sortConfig.key === key && sortConfig.direction === 'ascending') {
@@ -77,7 +83,7 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
                             onClick={() => handleMaintenanceClick(maintenance.id)}
                         >
                             <Col md={6}>{maintenance.maintenanceName}</Col>
-                            <Col md={6}>{maintenance.maintenanceDate}</Col>
+                            <Col md={6}>{estoniaDateFormat.format(new Date(maintenance.maintenanceDate))}</Col>
                         </Row>
                     );
                 })

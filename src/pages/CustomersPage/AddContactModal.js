@@ -10,14 +10,17 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
     const [email, setEmail] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [title, setTitle] = useState('');
-    const [locationId, setLocationId] = useState(null);
+    const [selectedLocation, setSelectedLocation] = useState(null);
     const [roles, setRoles] = useState([]);
     const [showRoleModal, setShowRoleModal] = useState(false);
     const [newRole, setNewRole] = useState({ role: '' });
     const [selectedRoles, setSelectedRoles] = useState([]);
     const [phoneNumberError, setPhoneNumberError] = useState('');
-
     const [error, setError] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSubmittingRole, setIsSubmittingRole] = useState(false);
+
+
 
     // Fetch roles when the component mounts
     useEffect(() => {
@@ -35,17 +38,21 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        if (isSubmitting) return; // Prevent multiple submissions
+        setIsSubmitting(true);
 
         // Phone number validation
         const trimmedPhoneNumber = phoneNumber.trim();
         if (!/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
             setPhoneNumberError('Phone number must contain only numbers and spaces, and may start with a +.');
+            setIsSubmitting(false);
             return;
         }
         setPhoneNumberError('');
 
-        if (!firstName || !lastName || !email || !phoneNumber || !title || !locationId || selectedRoles.length === 0) {
+        if (!firstName || !lastName || !email || !phoneNumber || !title || !selectedLocation || selectedRoles.length === 0) {
             setError('Please fill in all fields.');
+            setIsSubmitting(false);
             return;
         }
 
@@ -57,24 +64,31 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
             email,
             phoneNumber,
             title,
-            locationId,
+            locationId: selectedLocation.value,
             roles: selectedRoles.map(role => ({ id: role.value, role: role.label })),
         };
-
-        onSave(newContact);
-        handleClose();
-
-        // Reset form fields
-        setFirstName('');
-        setLastName('');
-        setEmail('');
-        setPhoneNumber('');
-        setTitle('');
-        setLocationId(null);
-        setSelectedRoles([]);
+        try {
+            onSave(newContact);
+            handleClose();
+            // Reset form fields
+            setFirstName('');
+            setLastName('');
+            setEmail('');
+            setPhoneNumber('');
+            setTitle('');
+            setSelectedLocation(null);
+            setSelectedRoles([]);
+        } catch (error) {
+            setError('Error adding contact.');
+            console.error('Error adding contact:', error);
+        } finally {
+            setIsSubmitting(false); // Reset the submitting state
+        }
     };
 
     const handleAddRole = async () => {
+        if (isSubmittingRole) return;
+        setIsSubmittingRole(true);
         const { role } = newRole;
 
         if (!role.trim()) {
@@ -97,6 +111,8 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
         } catch (error) {
             setError('Error adding role.');
             console.error('Error adding role:', error);
+        } finally {
+            setIsSubmittingRole(false);
         }
     };
 
@@ -169,11 +185,14 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
                             <Form.Label>Location</Form.Label>
                             <Select
                                 options={locationOptions}
-                                value={locationOptions.find(loc => loc.value === locationId)}
-                                onChange={selectedOption => setLocationId(selectedOption.value)}
+                                value={selectedLocation}
+                                onChange={setSelectedLocation}
+                                placeholder="Select a location"
+                                isClearable
                                 required
                             />
                         </Form.Group>
+
                         {/* Roles */}
                         <Form.Group className="mb-3">
                             <Form.Label>Roles</Form.Label>
@@ -189,9 +208,10 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
                                 <Button variant="link" onClick={() => setShowRoleModal(true)}>Add New</Button>
                             </Form.Text>
                         </Form.Group>
-                        <Button variant="primary" type="submit">
-                            Add Contact
+                        <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? 'Adding...' : 'Add Contact'}
                         </Button>
+
                     </Form>
                 </Modal.Body>
             </Modal>
@@ -217,7 +237,9 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowRoleModal(false)}>Cancel</Button>
-                    <Button variant="primary" onClick={handleAddRole}>Add Role</Button>
+                    <Button variant="primary" onClick={handleAddRole} disabled={isSubmittingRole}>
+                        {isSubmittingRole ? 'Adding...' : 'Add Role'}
+                    </Button>
                 </Modal.Footer>
             </Modal>
         </>

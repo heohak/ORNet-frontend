@@ -134,24 +134,27 @@ function Devices() {
 
     return (
         <>
-            {/* Device Search Menu */}
-            <div className="device-search-menu">
-                <div className="device-search-menu-header mb-4">
-                    <h1 className="mb-0">Devices</h1>
-                    <div className="d-flex">
+            <Container className="mt-5">
+                <Row>
+                    <Col>
+                        <h1 className="mb-0">Devices</h1>
+                    </Col>
+                    <Col className="text-end">
                         <Button variant="primary" className="me-2" onClick={() => setShowSummaryModal(true)}>
                             Show Summary
                         </Button>
                         <Button variant="primary" onClick={() => setShowAddDeviceModal(true)}>
                             Add Device
                         </Button>
-                    </div>
-                </div>
-                <DeviceSearchFilter setDevices={setDevices} />
-            </div>
+                    </Col>
+                </Row>
+                <Row className="mt-4">
+                    <DeviceSearchFilter setDevices={setDevices} />
+                </Row>
+
 
             {/* Table header and rows */}
-            <Container className="devices-container">
+
                 <Row className="font-weight-bold text-center">
                     <Col md={3} onClick={() => handleSort('deviceName')}>
                         Name {renderSortArrow('deviceName')}

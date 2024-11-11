@@ -28,6 +28,9 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
     const [newClassificator, setNewClassificator] = useState('');
     const [showIPFields, setShowIPFields] = useState(false);
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSubmittingClassificator, setIsSubmittingClassificator] = useState(false);
+
 
 
     useEffect(() => {
@@ -50,10 +53,13 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         setError(null);
 
         if (!deviceName || !serialNumber.match(/^\d+$/)) {
             setError("Please provide a valid device name and serial number (only numbers).");
+            setIsSubmitting(false);
             return;
         }
 
@@ -87,12 +93,19 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
             window.location.reload();
         } catch (error) {
             setError(error.message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     const handleAddClassificator = async () => {
+
+        if (isSubmittingClassificator || !newClassificator.trim()) return;
+        setIsSubmittingClassificator(true);
+
         if (newClassificator.trim() === '') {
             setError('Please enter a valid classificator name.');
+            setIsSubmittingClassificator(false);
             return;
         }
 
@@ -113,7 +126,9 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
             setShowClassificatorModal(false);
         } catch (error) {
             setError('Error adding classificator.');
-            console.error('Error adding classificator:', error);
+
+        } finally {
+            setIsSubmittingClassificator(false);
         }
     };
 
@@ -272,8 +287,8 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                 </Form.Group>
 
 
-                <Button variant="success" type="submit">
-                    Add Device
+                <Button variant="success" type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? 'Adding...' : 'Add Device'}
                 </Button>
             </Form>
 
@@ -294,7 +309,13 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowClassificatorModal(false)}>Cancel</Button>
-                    <Button variant="primary" onClick={handleAddClassificator}>Add Classificator</Button>
+                    <Button
+                        variant="primary"
+                        onClick={handleAddClassificator}
+                        disabled={isSubmittingClassificator}
+                    >
+                        {isSubmittingClassificator ? 'Adding...' : 'Add Classificator'}
+                    </Button>
                 </Modal.Footer>
             </Modal>
 
