@@ -8,13 +8,11 @@ import {useNavigate} from "react-router-dom";
 
 const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, reFetch }) => {
     const [responsibleName, setResponsibleName] = useState('');
-    const [locationName, setLocationName] = useState('');
     const [availableWorkTypes, setAvailableWorkTypes] = useState([]);
     const [selectedWorkTypes, setSelectedWorkTypes] = useState([]);
     const [baitWorkers, setBaitWorkers] = useState([]);  // Holds all workers fetched from the backend
     const [editMode, setEditMode] = useState(false);  // Track edit mode
     const [editedActivity, setEditedActivity] = useState(activity);  // Copy of ticket for editing
-    const [locations, setLocations] = useState([]);
     const [selectedContacts, setSelectedContacts] = useState([]);  // Selected contacts
     const [availableContacts, setAvailableContacts] = useState([]);
     const [selectedDevices, setSelectedDevices] = useState([]);
@@ -27,7 +25,6 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
         fetchWorkTypes();
         fetchContacts();
         fetchBaitWorkers();  // Fetch all workers for the dropdown
-        fetchLocations();
         fetchDevices();
     }, []);
 
@@ -42,14 +39,6 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
             console.error("Error fetching customer devices", error);
         }
     };
-    const fetchLocations = async () => {
-        try {
-            const response = await axios.get(`${config.API_BASE_URL}/client/locations/${activity.clientId}`);
-            setLocations(response.data);
-        } catch (error) {
-            console.error('Error fetching locations', error);
-        }
-    }
 
     const fetchResponsibleName = async () => {
         try {
@@ -129,10 +118,7 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
             if (selectedWorker) {
                 setResponsibleName(`${selectedWorker.firstName} ${selectedWorker.lastName}`);
             }
-            const selectedLocation = locations.find(location => location.id === parseInt(editedActivity.locationId))
-            if (selectedLocation) {
-                setLocationName(selectedLocation.name);
-            }
+
 
             setEditedActivity({ ...editedActivity, crisis: editedActivity.crisis});
 
@@ -179,7 +165,6 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
                     </Accordion.Header>
                     <Accordion.Body>
                         <div>
-
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Customer No.</strong>
@@ -235,77 +220,77 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
                                 </Col>
                             </Row>
 
-                            {/*<Row className="mb-2">*/}
-                            {/*    <Col xs="auto" style={{ minWidth: '165px' }}>*/}
-                            {/*        <strong>Contacts</strong>*/}
-                            {/*    </Col>*/}
-                            {/*    <Col style={{minWidth: '250px'}}>*/}
-                            {/*        {editMode ? (*/}
-                            {/*            <Form.Group className="mb-3">*/}
-                            {/*                <Select*/}
-                            {/*                    isMulti*/}
-                            {/*                    options={availableContacts}*/}
-                            {/*                    value={selectedContacts}*/}
-                            {/*                    onChange={setSelectedContacts}*/}
-                            {/*                    placeholder="Select Contacts"*/}
-                            {/*                />*/}
-                            {/*            </Form.Group>*/}
-                            {/*        ): selectedContacts.map(contact => contact.label).join(', ')}*/}
-                            {/*    </Col>*/}
-                            {/*</Row>*/}
+                            <Row className="mb-2">
+                                <Col xs="auto" style={{ minWidth: '165px' }}>
+                                    <strong>Contacts</strong>
+                                </Col>
+                                <Col style={{minWidth: '250px'}}>
+                                    {editMode ? (
+                                        <Form.Group className="mb-3">
+                                            <Select
+                                                isMulti
+                                                options={availableContacts}
+                                                value={selectedContacts}
+                                                onChange={setSelectedContacts}
+                                                placeholder="Select Contacts"
+                                            />
+                                        </Form.Group>
+                                    ): selectedContacts.map(contact => contact.label).join(', ')}
+                                </Col>
+                            </Row>
 
-                            {/*<Row className="mb-2">*/}
-                            {/*    <Col xs="auto" style={{ minWidth: '165px' }}>*/}
-                            {/*        <strong>Work Types</strong>*/}
-                            {/*    </Col>*/}
-                            {/*    <Col style={{minWidth: '250px'}}>*/}
-                            {/*        {editMode ? (*/}
-                            {/*            <Form.Group className="mb-3">*/}
-                            {/*                <Select*/}
-                            {/*                    isMulti*/}
-                            {/*                    options={availableWorkTypes}*/}
-                            {/*                    value={selectedWorkTypes}*/}
-                            {/*                    onChange={setSelectedWorkTypes}*/}
-                            {/*                    placeholder="Select Work Types"*/}
-                            {/*                />*/}
-                            {/*            </Form.Group>*/}
-                            {/*        ): selectedWorkTypes.map(workType => workType.label).join(', ')}*/}
-                            {/*    </Col>*/}
-                            {/*</Row>*/}
+                            <Row className="mb-2">
+                                <Col xs="auto" style={{ minWidth: '165px' }}>
+                                    <strong>Work Types</strong>
+                                </Col>
+                                <Col style={{minWidth: '250px'}}>
+                                    {editMode ? (
+                                        <Form.Group className="mb-3">
+                                            <Select
+                                                isMulti
+                                                options={availableWorkTypes}
+                                                value={selectedWorkTypes}
+                                                onChange={setSelectedWorkTypes}
+                                                placeholder="Select Work Types"
+                                            />
+                                        </Form.Group>
+                                    ): selectedWorkTypes.map(workType => workType.label).join(', ')}
+                                </Col>
+                            </Row>
 
-                            {/*<Row className="mb-2">*/}
-                            {/*    <Col xs="auto" style={{ minWidth: '165px' }}>*/}
-                            {/*        <strong>Devices</strong>*/}
-                            {/*    </Col>*/}
-                            {/*    <Col style={{minWidth: '250px'}}>*/}
-                            {/*        {editMode ? (*/}
-                            {/*            <Form.Group className="mb-3">*/}
-                            {/*                <Select*/}
-                            {/*                    isMulti*/}
-                            {/*                    options={availableDevices}*/}
-                            {/*                    value={selectedDevices}*/}
-                            {/*                    onChange={setSelectedDevices}*/}
-                            {/*                    placeholder="Select Devices"*/}
-                            {/*                />*/}
-                            {/*            </Form.Group>*/}
-                            {/*        ) : (*/}
-                            {/*            selectedDevices.length > 0 ? (*/}
-                            {/*                selectedDevices.map((device, index) => (*/}
-                            {/*                    <React.Fragment key={device.value}>*/}
-                            {/*                          <span*/}
-                            {/*                              onClick={() => navigate(`/device/${device.value}`, { state: { fromTicketId: ticket.id } })}*/}
-                            {/*                              style={{ color: 'blue', cursor: 'pointer' }} // Styling for clickable text*/}
-                            {/*                          >*/}
-                            {/*                            {device.label}*/}
-                            {/*                          </span>*/}
-                            {/*                        {index < selectedDevices.length - 1 && ', '}*/}
-                            {/*                    </React.Fragment>*/}
-                            {/*                ))) : (*/}
-                            {/*                <span style={{ fontStyle: 'italic', color: 'gray' }}>No Devices</span>*/}
-                            {/*            ))*/}
-                            {/*        }*/}
-                            {/*    </Col>*/}
-                            {/*</Row>*/}
+                            <Row className="mb-2">
+                                <Col xs="auto" style={{ minWidth: '165px' }}>
+                                    <strong>Devices</strong>
+                                </Col>
+                                <Col style={{minWidth: '250px'}}>
+                                    {editMode ? (
+                                        <Form.Group className="mb-3">
+                                            <Select
+                                                isMulti
+                                                options={availableDevices}
+                                                value={selectedDevices}
+                                                onChange={setSelectedDevices}
+                                                placeholder="Select Devices"
+                                            />
+                                        </Form.Group>
+                                    ) : (
+                                        selectedDevices.length > 0 ? (
+                                            selectedDevices.map((device, index) => (
+                                                <React.Fragment key={device.value}>
+                                                      <span
+                                                          onClick={() => navigate(`/device/${device.value}`)}
+                                                          style={{ color: 'blue', cursor: 'pointer' }} // Styling for clickable text
+                                                      >
+                                                        {device.label}
+                                                      </span>
+                                                    {index < selectedDevices.length - 1 && ', '}
+                                                </React.Fragment>
+                                            ))) : (
+                                            <span style={{ fontStyle: 'italic', color: 'gray' }}>No Devices</span>
+                                        ))
+                                    }
+                                </Col>
+                            </Row>
 
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>

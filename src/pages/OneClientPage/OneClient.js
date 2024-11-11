@@ -171,6 +171,7 @@ function OneClient() {
                                     <CustomerActivity
                                         activities={activities}
                                         setActivities={setActivities}
+                                        clientId={clientId}
                                     />
                                 </Accordion.Body>
 

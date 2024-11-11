@@ -6,7 +6,7 @@ import ToggleSwitch from "../../TicketsPage/SingleTicketModal/ToggleSwitch";
 import {FaTrash} from "react-icons/fa";
 import ModalFiles from "./ModalFiles";
 import ModalDetails from "./ModalDetails";
-const ActivityModal = ({ activity, show, handleClose }) => {
+const ActivityModal = ({ activity, handleClose, reFetch }) => {
     const [activeKey, setActiveKey] = useState('0');
 
 
@@ -21,7 +21,6 @@ const ActivityModal = ({ activity, show, handleClose }) => {
             <Modal id="custom-modal" show onHide={handleClose} className="custom-width-modal" dialogClassName="custom-modal">
                 <Modal.Header closeButton>
                     <div className="w-100">
-                        <Modal.Title>{activity.title}</Modal.Title>
                         <p className="text-muted mb-0">Kliendi nimi</p>
                         <p className="text-muted mb-0">Lok nimi</p>
                     </div>
@@ -29,6 +28,7 @@ const ActivityModal = ({ activity, show, handleClose }) => {
                 <Modal.Body>
                     <Row>
                         <Col md={8}>
+                            <h1>{activity.title}</h1>
                             <p>{activity.description}</p>
                         </Col>
                         <Col md={4}>
@@ -62,7 +62,7 @@ const ActivityModal = ({ activity, show, handleClose }) => {
                                 activeKey={activeKey}
                                 handleAccordionToggle={handleAccordionToggle}
                                 eventKey="0"
-                                //reFetch={reFetchTicket}
+                                reFetch={reFetch}
                             />
                             <ModalFiles
                                 activity={activity}

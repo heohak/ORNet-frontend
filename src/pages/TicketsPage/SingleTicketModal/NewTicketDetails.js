@@ -8,13 +8,11 @@ import {useNavigate} from "react-router-dom";
 
 const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, reFetch }) => {
     const [responsibleName, setResponsibleName] = useState('');
-    const [locationName, setLocationName] = useState('');
     const [availableWorkTypes, setAvailableWorkTypes] = useState([]);
     const [selectedWorkTypes, setSelectedWorkTypes] = useState([]);
     const [baitWorkers, setBaitWorkers] = useState([]);  // Holds all workers fetched from the backend
     const [editMode, setEditMode] = useState(false);  // Track edit mode
     const [editedTicket, setEditedTicket] = useState(ticket);  // Copy of ticket for editing
-    const [locations, setLocations] = useState([]);
     const [selectedContacts, setSelectedContacts] = useState([]);  // Selected contacts
     const [availableContacts, setAvailableContacts] = useState([]);
     const [selectedDevices, setSelectedDevices] = useState([]);
@@ -27,7 +25,6 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
         fetchWorkTypes();
         fetchContacts();
         fetchBaitWorkers();  // Fetch all workers for the dropdown
-        fetchLocations();
         fetchDevices();
     }, []);
 
@@ -42,14 +39,6 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
             console.error("Error fetching customer devices", error);
         }
     };
-    const fetchLocations = async () => {
-        try {
-            const response = await axios.get(`${config.API_BASE_URL}/client/locations/${ticket.clientId}`);
-            setLocations(response.data);
-        } catch (error) {
-            console.error('Error fetching locations', error);
-        }
-    }
 
     const fetchResponsibleName = async () => {
         try {
@@ -128,10 +117,6 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
             const selectedWorker = baitWorkers.find(worker => worker.id === parseInt(editedTicket.baitWorkerId));
             if (selectedWorker) {
                 setResponsibleName(`${selectedWorker.firstName} ${selectedWorker.lastName}`);
-            }
-            const selectedLocation = locations.find(location => location.id === parseInt(editedTicket.locationId))
-            if (selectedLocation) {
-                setLocationName(selectedLocation.name);
             }
 
             setEditedTicket({ ...editedTicket, crisis: editedTicket.crisis});

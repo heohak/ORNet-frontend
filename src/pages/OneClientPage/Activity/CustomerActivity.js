@@ -1,13 +1,24 @@
 import {Alert, Col, Row} from "react-bootstrap";
 import React, {useState} from "react";
 import ActivityModal from "./ActivityModal";
+import axios from "axios";
+import config from "../../../config/config";
 
 
-const CustomerActivity = ({ activities, setActivities }) => {
+const CustomerActivity = ({ activities, setActivities, clientId }) => {
     const [selectedActivity, setSelectedActivity] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [locationName, setLocationName] = useState('');
 
 
+    const reFetchActivities = async() => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/client/activities/${clientId}`)
+            setActivities(response.data);
+        } catch (error) {
+            console.error('Error fetching activities', error);
+        }
+    }
     const handleRowClick = (activity) => {
         setSelectedActivity(activity);
         setShowModal(true);
@@ -66,8 +77,8 @@ const CustomerActivity = ({ activities, setActivities }) => {
             {selectedActivity &&
                 <ActivityModal
                     activity={selectedActivity}
-                    show={showModal}
-                    handleClose={() => setShowModal(false)}
+                    handleClose={handleCloseModal}
+                    reFetch={reFetchActivities}
                 />
             }
         </>
