@@ -16,13 +16,16 @@ function MaintenanceInfo({
                              setMaintenanceComment,
                              setFiles,
                              showMaintenanceFieldModal,
-                             setShowMaintenanceFieldModal
+                             setShowMaintenanceFieldModal,
+                            isSubmitting
                          }) {
     const [visibleFields, setVisibleFields] = useState({});
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [showFileUploadModal, setShowFileUploadModal] = useState(false);
     const [selectedMaintenanceId, setSelectedMaintenanceId] = useState(null);
     const [maintenanceFiles, setMaintenanceFiles] = useState({});
+    const [isSubmittingFileUpload, setIsSubmittingFileUpload] = useState(false);
+
 
     const defaultFields = [
         'maintenanceName',
@@ -113,6 +116,10 @@ function MaintenanceInfo({
     };
 
     const handleFileUpload = async () => {
+        if (isSubmittingFileUpload) return;
+        setIsSubmittingFileUpload(true);
+
+
         if (selectedFiles.length === 0 || !selectedMaintenanceId) {
             return;
         }
@@ -132,6 +139,8 @@ function MaintenanceInfo({
             fetchAllMaintenanceFiles(); // Refresh file list after upload
         } catch (error) {
             console.error('Error uploading files:', error);
+        } finally {
+            setIsSubmittingFileUpload(false);
         }
     };
 
@@ -207,7 +216,14 @@ function MaintenanceInfo({
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowMaintenanceModal(false)}>Cancel</Button>
-                    <Button variant="primary" onClick={handleAddMaintenance}>Add Maintenance</Button>
+                    <Button
+                        variant="primary"
+                        onClick={handleAddMaintenance}
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? 'Adding...' : 'Add Maintenance'}
+                    </Button>
+
                 </Modal.Footer>
             </Modal>
 
@@ -263,7 +279,14 @@ function MaintenanceInfo({
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowFileUploadModal(false)}>Cancel</Button>
-                    <Button variant="primary" onClick={handleFileUpload}>Upload</Button>
+                    <Button
+                        variant="primary"
+                        onClick={handleFileUpload}
+                        disabled={isSubmittingFileUpload}
+                    >
+                        {isSubmittingFileUpload ? 'Uploading...' : 'Upload'}
+                    </Button>
+
                 </Modal.Footer>
             </Modal>
         </>

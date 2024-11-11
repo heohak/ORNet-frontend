@@ -17,6 +17,7 @@ function Wiki() {
 
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [deleteWikiId, setDeleteWikiId] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const navigate = useNavigate();
 
@@ -51,6 +52,8 @@ function Wiki() {
     };
 
     const handleAddWiki = async () => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         try {
             await axios.post(`${config.API_BASE_URL}/wiki/add`, {
                 problem,
@@ -62,6 +65,8 @@ function Wiki() {
             setSolution('');
         } catch (error) {
             setError(error.message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -167,7 +172,14 @@ function Wiki() {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
-                        <Button variant="primary" onClick={handleAddWiki}>Add Wiki</Button>
+                        <Button
+                            variant="primary"
+                            onClick={handleAddWiki}
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? 'Adding...' : 'Add Wiki'}
+                        </Button>
+
                     </Modal.Footer>
                 </Modal>
 

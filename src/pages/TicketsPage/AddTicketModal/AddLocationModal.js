@@ -1,70 +1,176 @@
 import React, { useState } from 'react';
-import { Modal, Button, Form } from 'react-bootstrap';
+import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import axios from 'axios';
-import config from "../../../config/config";
+import config from '../../../config/config';
+import { validatePhoneAndPostalCode } from '../../../utils/Validation';
 
-const AddLocationModal = ({ show, handleClose, onAdd, clientId }) => {
-    const [name, setName] = useState('');
-    const [address, setAddress] = useState('');
-    const [phone, setPhone] = useState('');
+function AddLocationModal({ show, onHide, onAdd }) {
+    const [newLocation, setNewLocation] = useState({
+        name: '',
+        city: '',
+        country: '',
+        email: '',
+        postalCode: '',
+        streetAddress: '',
+        phone: ''
+    });
+    const [phoneNumberError, setPhoneNumberError] = useState('');
+    const [postalCodeError, setPostalCodeError] = useState('');
+    const [isSubmittingLocation, setIsSubmittingLocation] = useState(false);
+    const [error, setError] = useState(null);
 
+    const handleAddLocation = async (e) => {
+        e.preventDefault();
+        if (isSubmittingLocation) return;
+        setIsSubmittingLocation(true);
 
-    const handleAddLocation = async () => {
+        const { name, city, country, email, postalCode, streetAddress, phone } = newLocation;
+
+        // Validate phone number and postal code
+        const isValid = validatePhoneAndPostalCode(
+            phone,
+            postalCode,
+            setPhoneNumberError,
+            setPostalCodeError,
+            () => setNewLocation({ ...newLocation, phone }),
+            () => setNewLocation({ ...newLocation, postalCode })
+        );
+
+        if (!isValid) {
+            setIsSubmittingLocation(false);
+            return;
+        }
+
         try {
             const response = await axios.post(`${config.API_BASE_URL}/location/add`, {
                 name,
-                address,
-                phone
+                country,
+                city,
+                streetAddress,
+                postalCode,
+                phone,
+                email
             });
-            const locationId = response.data.id
-            await axios.put(`${config.API_BASE_URL}/client/${clientId}/${locationId}`)
-            setName('');
-            setAddress('');
-            setPhone('');
-            onAdd(); // Refresh location list in parent component
-            handleClose();
+
+            const addedLocation = response.data;
+            onAdd(addedLocation); // Pass the new location back to the parent component
+
+            // Reset form fields
+            setNewLocation({
+                name: '',
+                city: '',
+                country: '',
+                email: '',
+                postalCode: '',
+                streetAddress: '',
+                phone: ''
+            });
+            setPhoneNumberError('');
+            setPostalCodeError('');
+            onHide();
         } catch (error) {
-            console.error('Error adding new work type:', error);
+            console.error('Error adding location:', error);
+            setError('Error adding location.');
+        } finally {
+            setIsSubmittingLocation(false);
         }
     };
 
     return (
-        <Modal show={show} onHide={handleClose}>
+        <Modal show={show} onHide={onHide}>
             <Modal.Header closeButton>
-                <Modal.Title>Add New Location</Modal.Title>
+                <Modal.Title>Add Location</Modal.Title>
             </Modal.Header>
-            <Modal.Body>
-                <Form.Group controlId="newWorkType">
-                    <Form.Label>Name</Form.Label>
-                    <Form.Control
-                        type="location"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                    />
-                    <Form.Label>Address</Form.Label>
-                    <Form.Control
-                        type="location"
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                    />
-                    <Form.Label>Phone Number</Form.Label>
-                    <Form.Control
-                        type="location"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                    />
-                </Form.Group>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
-                    Close
-                </Button>
-                <Button variant="primary" onClick={handleAddLocation}>
-                    Add Location
-                </Button>
-            </Modal.Footer>
+            <Form onSubmit={handleAddLocation}>
+                <Modal.Body>
+                    {error && <Alert variant="danger">{error}</Alert>}
+                    <Form.Group controlId="formName">
+                        <Form.Label>Name</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.name}
+                            onChange={(e) => setNewLocation({ ...newLocation, name: e.target.value })}
+                            placeholder="Enter name"
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group controlId="formCity" className="mt-3">
+                        <Form.Label>City</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.city}
+                            onChange={(e) => setNewLocation({ ...newLocation, city: e.target.value })}
+                            placeholder="Enter city"
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group controlId="formCountry" className="mt-3">
+                        <Form.Label>Country</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.country}
+                            onChange={(e) => setNewLocation({ ...newLocation, country: e.target.value })}
+                            placeholder="Enter country"
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group controlId="formEmail" className="mt-3">
+                        <Form.Label>Email</Form.Label>
+                        <Form.Control
+                            type="email"
+                            value={newLocation.email}
+                            onChange={(e) => setNewLocation({ ...newLocation, email: e.target.value })}
+                            placeholder="Enter email"
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group controlId="formPostalCode" className="mt-3">
+                        <Form.Label>Postal Code</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.postalCode}
+                            onChange={(e) => setNewLocation({ ...newLocation, postalCode: e.target.value })}
+                            placeholder="Enter postal code"
+                            required
+                            isInvalid={!!postalCodeError}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {postalCodeError}
+                        </Form.Control.Feedback>
+                    </Form.Group>
+                    <Form.Group controlId="formStreetAddress" className="mt-3">
+                        <Form.Label>Street Address</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.streetAddress}
+                            onChange={(e) => setNewLocation({ ...newLocation, streetAddress: e.target.value })}
+                            placeholder="Enter street address"
+                            required
+                        />
+                    </Form.Group>
+                    <Form.Group controlId="formPhone" className="mt-3">
+                        <Form.Label>Phone</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={newLocation.phone}
+                            onChange={(e) => setNewLocation({ ...newLocation, phone: e.target.value })}
+                            placeholder="Enter phone number"
+                            isInvalid={!!phoneNumberError}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {phoneNumberError}
+                        </Form.Control.Feedback>
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={onHide}>Cancel</Button>
+                    <Button variant="primary" type="submit" disabled={isSubmittingLocation}>
+                        {isSubmittingLocation ? 'Adding...' : 'Add Location'}
+                    </Button>
+                </Modal.Footer>
+            </Form>
         </Modal>
     );
-};
+}
 
 export default AddLocationModal;

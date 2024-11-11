@@ -27,6 +27,8 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
     const [showAddClassificatorModal, setShowAddClassificatorModal] = useState(false);
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [showIPFields, setShowIPFields] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
 
     const resetForm = () => {
         setDeviceName('');
@@ -70,19 +72,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
         fetchClassificators();
     }, []);
 
-    useEffect(() => {
-        const fetchLocations = async () => {
-            if (clientId) {
-                try {
-                    const response = await axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`);
-                    setLocations(response.data);
-                } catch (error) {
-                    console.error('Error fetching locations:', error);
-                }
-            }
-        };
-        fetchLocations();
-    },[clientId]);
+
 
     const fetchLocations = async () => {
         if (clientId) {
@@ -94,12 +84,21 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
             }
         }
     };
+    useEffect(() => {
+
+        fetchLocations();
+    },[clientId]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (isSubmitting) return; // Prevent multiple submissions
+        setIsSubmitting(true);
         setError(null);
 
         if (!deviceName || !serialNumber.match(/^\d+$/)) {
             setError("Please provide a valid device name and serial number (only numbers).");
+            setIsSubmitting(false); // Reset isSubmitting
             return;
         }
 
@@ -132,6 +131,8 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
             onHide(); // Close the modal after adding the device
         } catch (error) {
             setError(error.message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -139,6 +140,12 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
         setClassificators((prev) => [...prev, newClassificator]);
         setDeviceClassificatorId(newClassificator.id);
     };
+
+    const handleLocationAdded = (addedLocation) => {
+        setLocations((prevLocations) => [...prevLocations, addedLocation]);
+        setLocationId(addedLocation.id); // Optionally select the new location
+    };
+
 
     return (
         <>
@@ -343,9 +350,11 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                                 onChange={(e) => setIntroducedDate(e.target.value)}
                             />
                         </Form.Group>
-                        <Button variant="success" type="submit">
-                            Add Device
-                        </Button>
+                        <Modal.Footer>
+                            <Button variant="primary" type="submit" disabled={isSubmitting}>
+                                {isSubmitting ? 'Adding...' : 'Add Device'}
+                            </Button>
+                        </Modal.Footer>
                     </Form>
                 </Modal.Body>
             </Modal>
@@ -354,13 +363,13 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
             onHide={() => setShowAddClassificatorModal(false)}
             onClassificatorAdded={handleClassificatorAdded}
         />
-        <AddLocationModal
-            show={showLocationModal}
-            handleClose={() => setShowLocationModal(false)}
-            onAdd={fetchLocations}
-            clientId={clientId}
-        />
-    </>
+            <AddLocationModal
+                show={showLocationModal}
+                onHide={() => setShowLocationModal(false)}
+                onAdd={handleLocationAdded}
+            />
+
+        </>
     );
 }
 
