@@ -243,7 +243,8 @@ function DeviceDetails({ device, navigate, setShowCommentsModal, setRefresh }) {
                                 <Row>
                                     <Col className='col-md-auto'>
                                         <Button variant="link" className="me-2" onClick={() => setShowDeviceFieldModal(true)}>
-                                            <FontAwesomeIcon icon={faCog} />
+                                            <FontAwesomeIcon icon={faCog}
+                                            title="Edit visible fields"/>
                                         </Button>
                                     </Col>
                                     <Col className="col-md-auto">

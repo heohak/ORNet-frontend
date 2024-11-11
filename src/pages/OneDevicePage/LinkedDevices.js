@@ -194,7 +194,8 @@ function LinkedDevices({
                                     <Card.Title style={{display: "flex", justifyContent: "space-between"}}>
                                         {linkedDevice.name}
                                         <Button variant="link" onClick={() => openFieldModal(linkedDevice.id)}>
-                                            <FontAwesomeIcon icon={faCog} />
+                                            <FontAwesomeIcon icon={faCog}
+                                            title="Edit visible fields"/>
                                         </Button>
                                     </Card.Title>
                                     {renderFields(linkedDevice.id, {

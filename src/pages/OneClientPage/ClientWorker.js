@@ -230,7 +230,8 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
                                             </span>
 
                                             <Button variant="link" onClick={() => handleEditWorker(worker)}>
-                                                <FontAwesomeIcon icon={faEdit} />
+                                                <FontAwesomeIcon icon={faEdit}
+                                                                 title="Edit contact"/>
                                             </Button>
                                         </div>
                                     </div>

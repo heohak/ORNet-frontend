@@ -67,7 +67,8 @@ function ClientThirdPartyIT({ clientId, client }) {
                                             variant="link"
                                             onClick={() => navigate(`/settings/third-party-its/edit/${thirdParty.id}`, { state: { thirdParty, clientId } })}
                                         >
-                                            <FaEdit />
+                                            <FaEdit
+                                            title="Edit Third Party IT"/>
                                         </Button>
                                     </div>
                                     <Card.Title className='all-page-cardTitle'>{thirdParty.name}</Card.Title>

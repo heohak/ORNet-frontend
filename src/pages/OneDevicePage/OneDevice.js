@@ -181,7 +181,8 @@ function OneDevice() {
                                 <Button variant="primary" onClick={() => setShowMaintenanceModal(true)}>Add Maintenance</Button>
                             </div>
                             <Button variant="link" onClick={() => setShowMaintenanceFieldModal(true)}>
-                                <FontAwesomeIcon icon={faCog} />
+                                <FontAwesomeIcon icon={faCog}
+                                title="Edit visible fields"/>
                             </Button>
                         </div>
                     </Col>
