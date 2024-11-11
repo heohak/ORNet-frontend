@@ -3,11 +3,13 @@ import React, {useEffect, useState} from "react";
 import ActivityModal from "./ActivityModal";
 import axios from "axios";
 import config from "../../../config/config";
+import AddActivityModal from "./AddActivityModal";
 
 
 const CustomerActivity = ({ activities, setActivities, clientId, clientName, locations, contacts }) => {
     const [selectedActivity, setSelectedActivity] = useState(null);
-    const [showModal, setShowModal] = useState(false);
+    const [showActivityModal, setShowActivityModal] = useState(false);
+    const [showAddModal, setShowAddModal] = useState(false);
     const [statuses, setStatuses] = useState([]);
 
 
@@ -33,11 +35,11 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
     }
     const handleRowClick = (activity) => {
         setSelectedActivity(activity);
-        setShowModal(true);
+        setShowActivityModal(true);
     };
 
     const handleCloseModal = () => {
-        setShowModal(false);
+        setShowActivityModal(false);
         setSelectedActivity(null);
     };
 
@@ -46,11 +48,14 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
 
     return (
         <>
-            <Row className="mb-2">
+            <Row className="d-flex justify-content-between align-items-center mb-2">
                 <Col className="col-md-auto">
                     <h2 className="mb-0" style={{paddingBottom: "20px"}}>
-                        Activities
+                        {'Activities'}
                     </h2>
+                </Col>
+                <Col className="col-md-auto">
+                    <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Activity</Button>
                 </Col>
             </Row>
             {activities.length > 0 ? (
@@ -114,6 +119,15 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
                     statuses={statuses}
                 />
             }
+            <AddActivityModal
+                show={showAddModal}
+                handleClose={() => setShowAddModal(false)}
+                reFetch={reFetchActivities}
+                clientId={clientId}
+                clientContacts={contacts}
+                clientLocations={locations}
+                clientName={clientName}
+            />
         </>
     );
 }
