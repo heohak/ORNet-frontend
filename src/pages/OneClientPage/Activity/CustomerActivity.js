@@ -1,15 +1,27 @@
-import {Alert, Col, Row} from "react-bootstrap";
-import React, {useState} from "react";
+import {Alert, Button, Col, Row} from "react-bootstrap";
+import React, {useEffect, useState} from "react";
 import ActivityModal from "./ActivityModal";
 import axios from "axios";
 import config from "../../../config/config";
 
 
-const CustomerActivity = ({ activities, setActivities, clientId }) => {
+const CustomerActivity = ({ activities, setActivities, clientId, clientName, locations, contacts }) => {
     const [selectedActivity, setSelectedActivity] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [locationName, setLocationName] = useState('');
+    const [statuses, setStatuses] = useState([]);
 
+
+    useEffect(() => {
+        fetchStatuses();
+    },[]);
+    const fetchStatuses = async() => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`)
+            setStatuses(response.data);
+        } catch (error) {
+            console.error('Error fetching ticket classificators', error);
+        }
+    }
 
     const reFetchActivities = async() => {
         try {
@@ -55,6 +67,14 @@ const CustomerActivity = ({ activities, setActivities, clientId }) => {
                     {/* Activity rows */}
                     {activities.map((activity, index) => {
                         const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                        const contactNames = activity.contactIds
+                            .map(contactId => {
+                                const contact = contacts.find(c => c.id === contactId);
+                                return contact ? (contact.firstName + " " + contact.lastName) : null; // Handle cases where a contact might not be found
+                            })
+                            .filter(name => name) // Filter out null values if any contacts were not found
+                            .join(', '); // Join names with a comma for display
+                        const status = statuses.find(status => status.id === activity.statusId)
                         return (
                             <Row
                                 key={activity.id}
@@ -63,9 +83,19 @@ const CustomerActivity = ({ activities, setActivities, clientId }) => {
                                 onClick={() => handleRowClick(activity)}
                             >
                                 <Col md={3}>{activity.title}</Col>
-                                <Col md={3}>Contact?</Col>
+                                <Col md={3}>{contactNames}</Col>
                                 <Col md={3}>{activity.endDateTime}</Col>
-                                <Col md={3}>{activity.statusId}</Col>
+                                <Col md={3}>
+                                    <Button
+                                    style={{
+                                        backgroundColor: status?.color || '#007bff',
+                                        borderColor: status?.color || '#007bff',
+                                    }}
+                                    disabled
+                                >
+                                    {status?.status || 'Unknown Status'}
+                                    </Button>
+                                </Col>
 
                             </Row>
                         );
@@ -79,6 +109,9 @@ const CustomerActivity = ({ activities, setActivities, clientId }) => {
                     activity={selectedActivity}
                     handleClose={handleCloseModal}
                     reFetch={reFetchActivities}
+                    clientName={clientName}
+                    locations={locations}
+                    statuses={statuses}
                 />
             }
         </>

@@ -172,6 +172,9 @@ function OneClient() {
                                         activities={activities}
                                         setActivities={setActivities}
                                         clientId={clientId}
+                                        clientName={client.fullName}
+                                        locations={locations}
+                                        contacts={workers}
                                     />
                                 </Accordion.Body>
 
