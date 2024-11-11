@@ -155,7 +155,7 @@ function Devices() {
 
             {/* Table header and rows */}
 
-                <Row className="font-weight-bold text-center">
+                <Row style={{fontWeight: "bold"}} className="font-weight-bold text-center">
                     <Col md={3} onClick={() => handleSort('deviceName')}>
                         Name {renderSortArrow('deviceName')}
                     </Col>
@@ -175,7 +175,10 @@ function Devices() {
                 <hr />
 
                 {/* Device Rows */}
-                {sortedDevices.map((device, index) => {
+                {sortedDevices.length === 0 ? (
+                    <Alert variant="info"> No devices found.</Alert>
+                    ) : (
+                sortedDevices.map((device, index) => {
                     const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
                     return (
                         <Row
@@ -191,7 +194,8 @@ function Devices() {
                             <Col md={2}>{device.version || 'N/A'}</Col>
                         </Row>
                     );
-                })}
+                })
+                    )}
             </Container>
 
             {/* Modals */}

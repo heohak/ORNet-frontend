@@ -31,6 +31,8 @@ function OneDevice() {
     const [refresh, setRefresh] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
+    const [isSubmittingMaintenance, setIsSubmittingMaintenance] = useState(false);
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -82,6 +84,9 @@ function OneDevice() {
     };
 
     const handleAddMaintenance = async () => {
+        if (isSubmittingMaintenance) return;
+        setIsSubmittingMaintenance(true);
+
         try {
             const maintenanceResponse = await axios.post(`${config.API_BASE_URL}/maintenance/add`, {
                 maintenanceName,
@@ -109,6 +114,8 @@ function OneDevice() {
         } catch (error) {
             console.error('Error adding maintenance:', error);
             setError(error.message);
+        } finally {
+            setIsSubmittingMaintenance(false);
         }
     };
 
@@ -174,7 +181,8 @@ function OneDevice() {
                                 <Button variant="primary" onClick={() => setShowMaintenanceModal(true)}>Add Maintenance</Button>
                             </div>
                             <Button variant="link" onClick={() => setShowMaintenanceFieldModal(true)}>
-                                <FontAwesomeIcon icon={faCog} />
+                                <FontAwesomeIcon icon={faCog}
+                                title="Edit visible fields"/>
                             </Button>
                         </div>
                     </Col>
@@ -221,6 +229,7 @@ function OneDevice() {
                             setMaintenanceDate={setMaintenanceDate}
                             setMaintenanceComment={setMaintenanceComment}
                             setFiles={setFiles} // Pass setFiles to MaintenanceInfo
+                            isSubmitting={isSubmittingMaintenance}
                         />
                     </Col>
                 </Row>

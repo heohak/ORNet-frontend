@@ -6,13 +6,13 @@ import config from "../../../config/config";
 import Select from "react-select";
 import {useNavigate} from "react-router-dom";
 
-const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, reFetch }) => {
+const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, reFetch }) => {
     const [responsibleName, setResponsibleName] = useState('');
     const [availableWorkTypes, setAvailableWorkTypes] = useState([]);
     const [selectedWorkTypes, setSelectedWorkTypes] = useState([]);
     const [baitWorkers, setBaitWorkers] = useState([]);  // Holds all workers fetched from the backend
     const [editMode, setEditMode] = useState(false);  // Track edit mode
-    const [editedTicket, setEditedTicket] = useState(ticket);  // Copy of ticket for editing
+    const [editedActivity, setEditedActivity] = useState(activity);  // Copy of ticket for editing
     const [selectedContacts, setSelectedContacts] = useState([]);  // Selected contacts
     const [availableContacts, setAvailableContacts] = useState([]);
     const [selectedDevices, setSelectedDevices] = useState([]);
@@ -31,10 +31,10 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
 
     const fetchDevices = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/device/client/${ticket.clientId}`);
+            const response = await axios.get(`${config.API_BASE_URL}/device/client/${activity.clientId}`);
             const fetchedDevices = response.data.map(device => ({value: device.id, label: device.deviceName}))
             setAvailableDevices(fetchedDevices);
-            setSelectedDevices(ticket.deviceIds.map(deviceId => fetchedDevices.find(device => device.value === deviceId)));
+            setSelectedDevices(activity.deviceIds.map(deviceId => fetchedDevices.find(device => device.value === deviceId)));
         } catch (error) {
             console.error("Error fetching customer devices", error);
         }
@@ -42,7 +42,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
 
     const fetchResponsibleName = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/bait/worker/${ticket.baitWorkerId}`);
+            const response = await axios.get(`${config.API_BASE_URL}/bait/worker/${activity.baitWorkerId}`);
             const fullName = response.data.firstName + " " + response.data.lastName;
             setResponsibleName(fullName);
         } catch (error) {
@@ -52,10 +52,10 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
 
     const fetchContacts = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/worker/${ticket.clientId}`);
+            const response = await axios.get(`${config.API_BASE_URL}/worker/${activity.clientId}`);
             const fetchedContacts = response.data.map(contact => ({value: contact.id, label: `${contact.firstName} ${contact.lastName}`}))
             setAvailableContacts(fetchedContacts);
-            setSelectedContacts(editedTicket.contactIds.map(contactId => fetchedContacts.find(contact => contact.value === contactId)));
+            setSelectedContacts(editedActivity.contactIds.map(contactId => fetchedContacts.find(contact => contact.value === contactId)));
         } catch (error) {
             console.error('Error fetching ticket contacts', error);
         }
@@ -66,7 +66,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
             const response = await axios.get(`${config.API_BASE_URL}/work-type/classificator/all`)
             const fetchedWorkTypes = response.data.map(workType => ({value: workType.id, label: workType.workType}))
             setAvailableWorkTypes(fetchedWorkTypes)
-            setSelectedWorkTypes(editedTicket.workTypeIds.map(workTypeId => fetchedWorkTypes.find(workType => workType.value === workTypeId)))
+            setSelectedWorkTypes(editedActivity.workTypeIds.map(workTypeId => fetchedWorkTypes.find(workType => workType.value === workTypeId)))
         } catch (error) {
             console.error('Error fetching ticket work types', error);
         }
@@ -101,25 +101,26 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
             newValue = parseInt(value);  // Convert the value to an integer
         }
 
-        setEditedTicket({ ...editedTicket, [name]: newValue });
+        setEditedActivity({ ...editedActivity, [name]: newValue });
     };
 
     // Save updated information to the backend
     const handleSaveChanges = async () => {
         try {
-            await axios.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`, {
-                ...editedTicket,
+            await axios.put(`${config.API_BASE_URL}/client-activity/update/${activity.id}`, {
+                ...editedActivity,
                 contactIds: selectedContacts.map(contact => contact.value),
                 workTypeIds: selectedWorkTypes.map(workType => workType.value),
                 deviceIds: selectedDevices.map(device => device.value)
             });
 
-            const selectedWorker = baitWorkers.find(worker => worker.id === parseInt(editedTicket.baitWorkerId));
+            const selectedWorker = baitWorkers.find(worker => worker.id === parseInt(editedActivity.baitWorkerId));
             if (selectedWorker) {
                 setResponsibleName(`${selectedWorker.firstName} ${selectedWorker.lastName}`);
             }
 
-            setEditedTicket({ ...editedTicket, crisis: editedTicket.crisis});
+
+            setEditedActivity({ ...editedActivity, crisis: editedActivity.crisis});
 
             setEditMode(false);
             reFetch();
@@ -166,22 +167,6 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                         <div>
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
-                                    <strong>Numeration</strong>
-                                </Col>
-                                <Col>
-                                    {editMode ? (
-                                        <Form.Control
-                                            type="text"
-                                            name="baitNumeration"
-                                            value={editedTicket.baitNumeration}
-                                            onChange={handleInputChange}
-                                        />
-                                    ) : editedTicket.baitNumeration}
-                                </Col>
-                            </Row>
-
-                            <Row className="mb-2">
-                                <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Customer No.</strong>
                                 </Col>
                                 <Col>
@@ -189,10 +174,10 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                         <Form.Control
                                             type="text"
                                             name="clientNumeration"
-                                            value={editedTicket.clientNumeration}
+                                            value={editedActivity.clientNumeration}
                                             onChange={handleInputChange}
                                         />
-                                    ) : editedTicket.clientNumeration}
+                                    ) : editedActivity.clientNumeration}
                                 </Col>
                             </Row>
 
@@ -204,7 +189,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                     {editMode ? (
                                         <Form.Select
                                             name="baitWorkerId"
-                                            value={editedTicket.baitWorkerId}
+                                            value={editedActivity.baitWorkerId}
                                             onChange={handleInputChange}
                                         >
                                             {baitWorkers.map(worker => (
@@ -225,13 +210,13 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                     {editMode ? (
                                         <Form.Select
                                             name="crisis"
-                                            value={editedTicket.crisis ? 1 : 0}
+                                            value={editedActivity.crisis ? 1 : 0}
                                             onChange={handleInputChange}
                                         >
                                             <option value="1">High</option>
                                             <option value="0">Normal</option>
                                         </Form.Select>
-                                    ) : (editedTicket.crisis ? "High" : "Normal")}
+                                    ) : (editedActivity.crisis ? "High" : "Normal")}
                                 </Col>
                             </Row>
 
@@ -293,14 +278,14 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                             selectedDevices.map((device, index) => (
                                                 <React.Fragment key={device.value}>
                                                       <span
-                                                          onClick={() => navigate(`/device/${device.value}`, { state: { fromTicketId: ticket.id } })}
+                                                          onClick={() => navigate(`/device/${device.value}`)}
                                                           style={{ color: 'blue', cursor: 'pointer' }} // Styling for clickable text
                                                       >
                                                         {device.label}
                                                       </span>
                                                     {index < selectedDevices.length - 1 && ', '}
                                                 </React.Fragment>
-                                        ))) : (
+                                            ))) : (
                                             <span style={{ fontStyle: 'italic', color: 'gray' }}>No Devices</span>
                                         ))
                                     }
@@ -312,7 +297,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                     <strong>Created</strong>
                                 </Col>
                                 <Col>
-                                    {formatDateString(ticket.startDateTime)}
+                                    {formatDateString(activity.startDateTime)}
                                 </Col>
                             </Row>
 
@@ -321,7 +306,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                     <strong>Updated</strong>
                                 </Col>
                                 <Col>
-                                    {formatDateString(ticket.updateDateTime)}
+                                    {formatDateString(activity.updateDateTime)}
                                 </Col>
                             </Row>
 
@@ -333,4 +318,4 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
     );
 };
 
-export default NewTicketDetails;
+export default ModalDetails;

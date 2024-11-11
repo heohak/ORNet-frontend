@@ -55,7 +55,8 @@ function SoftwareDetails({softwareList, clientId, setRefresh, client}) {
                                     <div>
                                         <Button variant="link"
                                                 onClick={() => navigate(`/settings/software/edit/${software.id}`, {state: {software}})}>
-                                            <FontAwesomeIcon icon={faEdit} />
+                                            <FontAwesomeIcon icon={faEdit}
+                                                             title="Edit Technical information"/>
                                         </Button>
                                         <Button variant="link" onClick={() => toggleTechnicalInfo(software.id)}>
                                             {expandedSoftwareId === software.id ? '▲' : '▼'}

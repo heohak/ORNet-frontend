@@ -101,13 +101,16 @@ function ClientDetails({ client, navigate }) {
                         </Col>
                         <Col className="col-md-auto">
                             <Button variant="link" onClick={() => setShowClientFieldModal(true)} className="text-primary me-2">
-                                <FontAwesomeIcon icon={faCog} />
+                                <FontAwesomeIcon icon={faCog}
+                                                title="Edit visible fields"/>
                             </Button>
                             <Button variant="link" onClick={() => navigate(`/client/edit/${client.id}`)} className="text-primary me-2">
-                                <FontAwesomeIcon icon={faEdit} />
+                                <FontAwesomeIcon icon={faEdit}
+                                                 title="Edit Customer"/>
                             </Button>
                             <Button variant="link" onClick={handleNavigate} className="text-primary">
-                                <FontAwesomeIcon icon={faHistory} />
+                                <FontAwesomeIcon icon={faHistory}
+                                                 title="View history"/>
                             </Button>
                         </Col>
                     </Row>

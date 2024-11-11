@@ -123,7 +123,10 @@ function ViewLocations() {
                 </Container>
             ) : (
                 <Row>
-                    {locations.map((location) => (
+                    {locations.length === 0 ? (
+                        <Alert variant="info">No Locations found.</Alert>
+                        ) : (
+                    locations.map((location) => (
                         <Col md={4} key={location.id} className="mb-4">
                             <Card>
                                 <Card.Body>
@@ -145,7 +148,8 @@ function ViewLocations() {
                                 </Card.Body>
                             </Card>
                         </Col>
-                    ))}
+                    ))
+                        )}
                 </Row>
             )}
             <Button onClick={() => navigate('/settings')}>Back</Button>
