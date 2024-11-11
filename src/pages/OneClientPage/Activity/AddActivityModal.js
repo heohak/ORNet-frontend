@@ -1,12 +1,8 @@
 import React, {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
 import axios from "axios";
 import config from "../../../config/config";
 import {Alert, Button, Col, Form, Modal, Row} from "react-bootstrap";
 import Select from "react-select";
-
-
-
 
 const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations, clientContacts, clientName}) => {
 
@@ -22,10 +18,9 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
         clientNumeration: '',
         contactIds: [],
         deviceId: undefined,
-        deadline: undefined
+        endDateTime: undefined
     });
 
-    const [clients, setClients] = useState([]);
     const [locations, setLocations] = useState(clientLocations);
     const [contacts, setContacts] = useState(clientContacts);
     const [baitWorkers, setBaitWorkers] = useState([]);
@@ -34,13 +29,6 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
     const [devices, setDevices] = useState([]);
     const [selectedWorkTypes, setSelectedWorkTypes] = useState([]);
     const [error, setError] = useState(null);
-    const [showWorkTypeModal, setShowWorkTypeModal] = useState(false);
-    const [showLocationModal, setShowLocationModal] = useState(false);
-    const [showContactModal, setShowContactModal] = useState(false);
-    const [submitType, setSubmitType] = useState(null);
-
-
-    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -70,7 +58,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
     }, []);
 
     useEffect(() => {
-        const fetchLocationsAndContactsAndDevices = async () => {
+        const fetchContactsAndDevices = async () => {
             if (formData.clientId) {
                 try {
                     const deviceRes = await axios.get (`${config.API_BASE_URL}/device/client/${formData.clientId}`)
@@ -90,7 +78,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
             }
         };
 
-        fetchLocationsAndContactsAndDevices();
+        fetchContactsAndDevices();
     }, [formData.clientId]);
 
     const handleChange = (e) => {
@@ -114,7 +102,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                 statusId: openStatusId,
                 workTypeIds: selectedWorkTypes.map(option => option.value),
                 crisis: formData.crisis === 1,
-                endDateTime: formData.deadline,
+                endDateTime: formData.endDateTime,
                 ...(formData.deviceId ? { deviceIds: [formData.deviceId] } : {})
             };
 
@@ -142,7 +130,8 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
             baitNumeration: '',
             clientNumeration: '',
             contactIds: [],
-            deviceId: undefined
+            deviceId: undefined,
+            endDateTime: undefined
         }); // Reset form fields
         setSelectedWorkTypes([]); // Reset selected work types
     }
@@ -162,10 +151,10 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                     <Row>
                         <Col md={4}>
                             <Form.Group className="mb-3">
-                                <Form.Label>Maintenance Date</Form.Label>
+                                <Form.Label>Deadline</Form.Label>
                                 <Form.Control
                                     type="date"
-                                    value={formData.deadline}
+                                    value={formData.endDateTime}
                                     onChange={handleChange}
                                     required
                                 />
