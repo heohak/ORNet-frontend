@@ -30,7 +30,7 @@ function ClientLocations({ locations, setRefresh }) {
             {locations.length > 0 ? (
                 <div>
                     {/* Table header */}
-                    <Row className="font-weight-bold text-center mt-2">
+                    <Row style={{fontWeight: "bold"}} className="font-weight-bold text-center mt-2">
                         <Col md={4}>Name</Col>
                         <Col md={5}>Address</Col>
                         <Col md={3}>Phone</Col>

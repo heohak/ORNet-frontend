@@ -155,7 +155,7 @@ function Devices() {
 
             {/* Table header and rows */}
 
-                <Row className="font-weight-bold text-center">
+                <Row style={{fontWeight: "bold"}} className="font-weight-bold text-center">
                     <Col md={3} onClick={() => handleSort('deviceName')}>
                         Name {renderSortArrow('deviceName')}
                     </Col>

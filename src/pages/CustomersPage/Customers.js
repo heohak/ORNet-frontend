@@ -259,7 +259,7 @@ function Customers() {
             {!loading && (
                 <>
                     <div className="mt-3">
-                        <Row className="font-weight-bold">
+                        <Row style={{fontWeight: "bold"}} className="font-weight-bold text-center">
                             <Col md={1} onClick={() => handleSort('country')}>
                                 Country {renderSortArrow('country')}
                             </Col>
@@ -295,7 +295,7 @@ function Customers() {
                                 return (
                                     <Row
                                         key={customer.id}
-                                        className="align-items-center mb-2"
+                                        className="align-items-center text-center mb-2"
                                         style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
                                         onClick={() => window.location.href = `/customer/${customer.id}`}
                                     >
