@@ -5,7 +5,7 @@ import axios from "axios";
 import config from "../../../config/config";
 
 
-const NewTicketInsideInfo = ({ticket}) => {
+const NewTicketInsideInfo = ({ ticket, reFetch }) => {
     const [isEditing, setIsEditing] = useState(false);  // Edit mode state
     const [insideInfo, setInsideInfo] = useState(ticket.insideInfo);  // Local state for inside info
 
@@ -16,6 +16,7 @@ const NewTicketInsideInfo = ({ticket}) => {
                 insideInfo: insideInfo
             });
             setIsEditing(false); // Exit edit mode after saving
+            reFetch();
         } catch (error) {
             console.error("Error updating Internal Comments", error);
         }
