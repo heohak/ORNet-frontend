@@ -102,7 +102,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                 statusId: openStatusId,
                 workTypeIds: selectedWorkTypes.map(option => option.value),
                 crisis: formData.crisis === 1,
-                endDateTime: formData.endDateTime,
+                endDateTime: new Date(formData.endDateTime),
                 ...(formData.deviceId ? { deviceIds: [formData.deviceId] } : {})
             };
 
@@ -156,6 +156,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                                     type="date"
                                     value={formData.endDateTime}
                                     onChange={handleChange}
+                                    id="endDateTime"
                                     required
                                 />
                             </Form.Group>
