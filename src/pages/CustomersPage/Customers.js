@@ -34,11 +34,13 @@ function Customers() {
     const [countryFlags, setCountryFlags] = useState({});
     const [availableCountries, setAvailableCountries] = useState([]);
     const [selectedCountry, setSelectedCountry] = useState('');
+    const [activityDates, setActivityDates] = useState({});
     const countryFlagApi = "https://restcountries.com/v3.1/alpha";
     const navigate = useNavigate();
     useEffect(() => {
         fetchAvailableCountries();
         fetchCustomers();
+        fetchActivityDates();
     }, []);
 
     const fetchCustomers = async (query = '', type = '', country = '') => {
@@ -72,6 +74,15 @@ function Customers() {
         }
     };
 
+    const fetchActivityDates = async() => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/client/activity/dates`)
+            setActivityDates(response.data);
+        } catch (error) {
+            console.error('Error fetching activity dates', error);
+        }
+    }
+
     const capitalizeFirstLetter = (string) => {
         if (string) {
             return string.charAt(0).toUpperCase() + string.slice(1);
@@ -93,6 +104,35 @@ function Customers() {
             }
         }));
         setCountryFlags(flags); // Update state once all fetches are done
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) {
+            return "N/A"
+        }
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-GB'); // This will format it to DD.MM.YYYY
+    };
+
+    const getDeadlineColor = (endDateTime) => {
+        const now = new Date();
+        const endDate = new Date(endDateTime);
+
+        // If endDate is before today
+        if (endDate < now) {
+            return 'red';
+        }
+
+        // Calculate the difference in milliseconds and convert to days
+        const diffInDays = (endDate - now) / (1000 * 60 * 60 * 24);
+
+        // If the end date is within a week
+        if (diffInDays <= 7) {
+            return 'orange';
+        }
+
+        // If the end date is more than a week away
+        return 'green';
     };
 
 
@@ -294,6 +334,8 @@ function Customers() {
                                 if (customer.surgeryClient) customerTypes.push('Surgery');
                                 if (customer.editorClient) customerTypes.push('Editor');
                                 const customerTypeDisplay = customerTypes.join('/') || 'N/A';
+                                const deadlineColor = getDeadlineColor(activityDates[customer.id]?.endDateTime)
+                                console.log(activityDates[customer.id])
 
                                 const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
 
@@ -332,7 +374,19 @@ function Customers() {
                                                 />
                                             </div>
                                         </Col>
-                                        <Col className="text-end" md={2}>19.02.24</Col>
+                                        <Col className="text-end" md={2}>
+                                             <span
+                                                 style={{
+                                                     display: 'inline-block',
+                                                     width: '12px',
+                                                     height: '12px',
+                                                     borderRadius: '50%',
+                                                     backgroundColor: deadlineColor,
+                                                     marginRight: '8px',
+                                                 }}
+                                             />
+                                            {formatDate(activityDates[customer.id]?.updateDateTime)  || "N/A"}
+                                        </Col>
                                     </Row>
                                 );
                             })
