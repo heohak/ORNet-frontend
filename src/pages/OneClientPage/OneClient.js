@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import {useParams, useNavigate, useLocation} from 'react-router-dom';
 import axios from 'axios';
 import {Container, Spinner, Alert, Accordion, Button} from 'react-bootstrap';
 import config from "../../config/config";
@@ -17,6 +17,7 @@ import CustomerActivity from "./Activity/CustomerActivity";
 
 function OneClient() {
     const { clientId } = useParams();
+    const location = useLocation();
     const [client, setClient] = useState(null);
     const [devices, setDevices] = useState([]);
     const [workers, setWorkers] = useState([]);
@@ -84,6 +85,15 @@ function OneClient() {
 
         fetchData();
     }, [clientId, refresh]); // Add refresh as a dependency
+
+
+    useEffect(() => {
+        if (location.state?.openAccordion === 'contacts') {
+            // Use handleAccordionToggle directly to open and scroll to the desired accordion
+            handleAccordionToggle('1');
+
+        }
+    }, [location]);
 
     const handleAccordionToggle = (eventKey) => {
         const index = parseInt(eventKey, 10);

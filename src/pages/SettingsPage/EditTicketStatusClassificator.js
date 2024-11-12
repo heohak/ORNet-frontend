@@ -6,6 +6,7 @@ import config from '../../config/config';
 import EditTicketStatusAndWorkTypeModal from "../../modals/EditTicketStatusAndWorkTypeModal";
 import DeleteConfirmationModal from "../../modals/DeleteConfirmationModal";
 
+
 function EditTicketStatusClassificator() {
     const navigate = useNavigate();
     const { id } = useParams();
@@ -14,12 +15,14 @@ function EditTicketStatusClassificator() {
     const [ticketList, setTicketList] = useState([]);
     const [showEditTicketStatusModal, setShowEditTicketStatusModal] = useState(false);
     const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
+    const [color, setColor] = useState('');
 
     useEffect(() => {
         const fetchClassificator = async () => {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/${id}`);
                 setStatus(response.data.status);
+                setColor(response.data.color);
             } catch (error) {
                 setError('Error fetching ticket status classificator');
             }
@@ -28,9 +31,10 @@ function EditTicketStatusClassificator() {
         fetchClassificator();
     }, [id]);
 
-    const handleUpdate = async () => {
+    const handleUpdate = async (e) => {
+        e.preventDefault();
         try {
-            await axios.put(`${config.API_BASE_URL}/ticket/classificator/update/${id}`, { status });
+            await axios.put(`${config.API_BASE_URL}/ticket/classificator/update/${id}`, { status, color });
             navigate('/settings/ticket-status-classificators');
         } catch (error) {
             setError('Error updating ticket status classificator');
@@ -88,7 +92,7 @@ function EditTicketStatusClassificator() {
                     <p>{error}</p>
                 </Alert>
             )}
-            <Form>
+            <Form onSubmit={handleUpdate}>
                 <Form.Group controlId="formStatus">
                     <Form.Label>Status</Form.Label>
                     <Form.Control
@@ -99,16 +103,28 @@ function EditTicketStatusClassificator() {
                         required
                     />
                 </Form.Group>
-                <Button variant="primary" className="mt-3" onClick={handleUpdate}>Update</Button>
+
+                <Form.Group controlId="formColor" className="mt-3">
+                    <Form.Label>Color</Form.Label>
+                    <Form.Control
+                        type="color"
+                        value={color}
+                        onChange={(e) => setColor(e.target.value)}
+                        title="Choose a color"
+                        required
+                    />
+                </Form.Group>
+                <Button variant="secondary" className="mt-3" onClick={() => navigate('/settings/ticket-status-classificators')}>
+                    Back
+                </Button>
+                <Button variant="primary" className="mt-3 ms-3" type="submit">Update</Button>
                 {(id !== '1' && id !== '2') && (
-                    <Button variant="danger" className="mt-3 ms-3" onClick={handleDelete}>
+                    <Button variant="danger" className="mt-3 ms-2" onClick={handleDelete}>
                         Delete
                     </Button>
                 )}
             </Form>
-            <Button variant="secondary" className="mt-3" onClick={() => navigate('/settings/ticket-status-classificators')}>
-                Back
-            </Button>
+
             <EditTicketStatusAndWorkTypeModal
                 show={showEditTicketStatusModal}
                 handleClose={() => setShowEditTicketStatusModal(false)}

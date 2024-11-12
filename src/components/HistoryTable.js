@@ -164,7 +164,34 @@ function HistoryTable() {
 
     // Combine base headers with dynamic attribute keys
     const allHeaders = [...baseHeaders, ...attributeKeys];
-    const booleanHeaders = ['surgeryClient', 'editorClient', 'pathologyClient']
+    const booleanHeaders = [
+        'surgeryCustomer',
+        'editorCustomer',
+        'pathologyCustomer',
+        'surgeryClient',
+        'editorClient',
+        'pathologyClient',
+    ];
+
+    function formatHeaderLabel(header) {
+        // Remove 'Id' or 'Ids' suffix
+        header = header.replace(/Ids?$/, '');
+
+        // Replace 'client' with 'customer', case-insensitive
+        header = header.replace(/client/gi, 'Customer');
+
+        // Insert spaces before capital letters (for camelCase)
+        header = header.replace(/([a-z])([A-Z])/g, '$1 $2');
+
+        // Capitalize the first letter of each word
+        header = header.replace(/\b\w/g, char => char.toUpperCase());
+
+        // Trim whitespace
+        header = header.trim();
+
+        return header;
+    }
+
 
     return (
         <>
@@ -180,7 +207,7 @@ function HistoryTable() {
                     <tr>
                         {allHeaders.map((header, index) => (
                             <th key={index}>
-                                {header.replace(/$|Id/, '')} {/* Remove 'Id' or 'Ids' suffix */}
+                                {formatHeaderLabel(header)}
                             </th>
                         ))}
                     </tr>
@@ -199,8 +226,7 @@ function HistoryTable() {
                                                         header === 'commentIds' ? item[header].map(id => comments[id] || id).join(', ') :
                                                             header === 'locationIds' ? item[header].map(id => locationNames[id] || id).join(', ') :
                                                                 header === 'thirdPartyIds' ? item[header].map(id => thirdPartyNames[id] || id).join(', ') :
-                                                                    booleanHeaders.includes(header) && item[header] ? 'Yes' :
-                                                                        booleanHeaders.includes(header) ? 'No' :
+                                                                    booleanHeaders.includes(header) ? (item[header] ? 'Yes' : 'No') :
                                                                 item[header]}
                                 </td>
                             ))}

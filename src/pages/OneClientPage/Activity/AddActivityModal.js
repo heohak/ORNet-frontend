@@ -122,7 +122,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
         setFormData({
             title: '',
             description: '',
-            clientId: '',
+            clientId: clientId,
             crisis: false,
             workTypeIds: [],
             baitWorkerId: '',
@@ -327,6 +327,9 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                         </Col>
                     </Row>
                     <Modal.Footer>
+                        <Button variant="secondary" onClick={handleClose}>
+                            Cancel
+                        </Button>
                         <Button variant="primary" type="submit">Submit</Button>
                     </Modal.Footer>
                 </Form>

@@ -53,7 +53,8 @@ function EditLinkedDevice() {
 
     const hideDeleteModal = () => setShowDeleteConfirm(false);
 
-    const handleUpdateLinkedDevice = async () => {
+    const handleUpdateLinkedDevice = async (e) => {
+        e.preventDefault();
         try {
             await axios.put(`${config.API_BASE_URL}/linked/device/update/${linkedDevice.id}`, {
                 name,
@@ -76,7 +77,7 @@ function EditLinkedDevice() {
                     <p>{error}</p>
                 </Alert>
             )}
-            <Form>
+            <Form onSubmit={handleUpdateLinkedDevice}>
                 <Form.Group controlId="formName">
                     <Form.Label>Name</Form.Label>
                     <Form.Control
@@ -84,6 +85,7 @@ function EditLinkedDevice() {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Enter name"
+                        required
                     />
                 </Form.Group>
                 <Form.Group controlId="formManufacturer" className="mt-3">
@@ -93,6 +95,7 @@ function EditLinkedDevice() {
                         value={manufacturer}
                         onChange={(e) => setManufacturer(e.target.value)}
                         placeholder="Enter manufacturer"
+                        required
                     />
                 </Form.Group>
                 <Form.Group controlId="formProductCode" className="mt-3">
@@ -102,6 +105,7 @@ function EditLinkedDevice() {
                         value={productCode}
                         onChange={(e) => setProductCode(e.target.value)}
                         placeholder="Enter product code"
+                        required
                     />
                 </Form.Group>
                 <Form.Group controlId="formSerialNumber" className="mt-3">
@@ -111,10 +115,11 @@ function EditLinkedDevice() {
                         value={serialNumber}
                         onChange={(e) => setSerialNumber(e.target.value)}
                         placeholder="Enter serial number"
+                        required
                     />
                 </Form.Group>
 
-                <Button variant="primary" className="mt-3" onClick={handleUpdateLinkedDevice}>
+                <Button variant="primary" className="mt-3" type="submit">
                     Update Linked Device
                 </Button>
                 <Button variant="danger" className="mt-3 ms-2" onClick={showDeleteModal}>

@@ -53,13 +53,38 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
     const fetchContacts = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/worker/${ticket.clientId}`);
-            const fetchedContacts = response.data.map(contact => ({value: contact.id, label: `${contact.firstName} ${contact.lastName}`}))
+
+            const contactsWithRoles = await Promise.all(
+                response.data.map(async contact => {
+                    const rolesRes = await axios.get(`${config.API_BASE_URL}/worker/role/${contact.id}`);
+                    return {
+                        ...contact,
+                        roles: rolesRes.data.map(role => role.role),
+                    };
+                })
+            );
+
+            const fetchedContacts = contactsWithRoles.map(contact => ({
+                value: contact.id,
+                label: `${contact.firstName} ${contact.lastName}`,
+                favorite: contact.favorite,
+                roles: contact.roles,
+                contactData: contact, // Include the full contact data if needed
+            }));
+
             setAvailableContacts(fetchedContacts);
-            setSelectedContacts(editedTicket.contactIds.map(contactId => fetchedContacts.find(contact => contact.value === contactId)));
+
+            // Map selected contacts using the updated fetchedContacts
+            setSelectedContacts(
+                editedTicket.contactIds.map(contactId =>
+                    fetchedContacts.find(contact => contact.value === contactId)
+                )
+            );
         } catch (error) {
             console.error('Error fetching ticket contacts', error);
         }
-    }
+    };
+
 
     const fetchWorkTypes = async () => {
         try {
@@ -239,18 +264,32 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Contacts</strong>
                                 </Col>
-                                <Col style={{minWidth: '250px'}}>
+                                <Col style={{ minWidth: '250px' }}>
                                     {editMode ? (
                                         <Form.Group className="mb-3">
                                             <Select
                                                 isMulti
-                                                options={availableContacts}
-                                                value={selectedContacts}
-                                                onChange={setSelectedContacts}
+                                                options={availableContacts.map(contact => ({
+                                                    value: contact.value,
+                                                    label: `${contact.favorite ? '★ ' : ''}${contact.label}${contact.roles && contact.roles.length > 0 ? ' - Roles: ' + contact.roles.join(', ') : ''}`,
+                                                }))}
+                                                value={selectedContacts.map(contact => ({
+                                                    value: contact.value,
+                                                    label: `${contact.favorite ? '★ ' : ''}${contact.label}${contact.roles && contact.roles.length > 0 ? ' - Roles: ' + contact.roles.join(', ') : ''}`,
+                                                }))}
+                                                onChange={selected => {
+                                                    setSelectedContacts(
+                                                        selected.map(option =>
+                                                            availableContacts.find(contact => contact.value === option.value)
+                                                        )
+                                                    );
+                                                }}
                                                 placeholder="Select Contacts"
                                             />
                                         </Form.Group>
-                                    ): selectedContacts.map(contact => contact.label).join(', ')}
+                                    ) : (
+                                        selectedContacts.map(contact => contact.label).join(', ')
+                                    )}
                                 </Col>
                             </Row>
 

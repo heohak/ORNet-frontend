@@ -5,6 +5,7 @@ import {Container, Form, Button, Alert, ListGroup, Row, Col, Modal} from 'react-
 import config from '../../config/config';
 import { validatePhoneAndPostalCode } from '../../utils/Validation';
 import AddThirdPartyITModal from "./AddThirdPartyITModal";
+import AsyncSelect from "react-select/async";
 
 function EditClient() {
     const { clientId } = useParams();
@@ -41,6 +42,9 @@ function EditClient() {
     const [postalCodeError, setPostalCodeError] = useState('');
     const errorRef = useRef(null);
     const [isSubmittingLocation, setIsSubmittingLocation] = useState(false);
+    const [selectedCountry, setSelectedCountry] = useState(null);
+
+
 
 
     const fetchClientData = async () => {
@@ -65,6 +69,22 @@ function EditClient() {
             setError(error.message);
         }
     };
+    const loadCountryOptions = async (inputValue) => {
+        try {
+            const response = inputValue
+                ? await axios.get(`https://restcountries.com/v3.1/name/${inputValue}`)
+                : await axios.get('https://restcountries.com/v3.1/all');
+
+            return response.data.map((country) => ({
+                value: country.cca3,
+                label: country.name.common,
+            }));
+        } catch (error) {
+            console.error('Error fetching countries:', error);
+            return [];
+        }
+    };
+
 
     useEffect(() => {
 
@@ -77,6 +97,16 @@ function EditClient() {
         fetchLocations();
         fetchAllThirdPartyITs()
     }, [clientId, error]);
+
+    // After fetching client data
+    useEffect(() => {
+        if (clientData.country) {
+            loadCountryOptions('').then((options) => {
+                const countryOption = options.find(option => option.value === clientData.country);
+                setSelectedCountry(countryOption || null);
+            });
+        }
+    }, [clientData.country]);
 
     const fetchLocations = async () => {
         try {
@@ -130,6 +160,13 @@ function EditClient() {
             [name]: type === 'checkbox' ? checked : value,
         });
     };
+
+    const handleCountryChange = (selectedOption) => {
+        setSelectedCountry(selectedOption);
+        setClientData({ ...clientData, country: selectedOption ? selectedOption.value : '' });
+    };
+
+
 
     const handleLocationAdd = (e) => {
         const locationId = e.target.value;
@@ -368,6 +405,20 @@ function EditClient() {
                         Can't find the location? <Button variant="link" onClick={() => setShowLocationModal(true)}>Add New</Button>
                     </Form.Text>
                 </Form.Group>
+
+                <Form.Group className="mb-3">
+                    <Form.Label>Country</Form.Label>
+                    <AsyncSelect
+                        cacheOptions
+                        defaultOptions
+                        loadOptions={loadCountryOptions}
+                        value={selectedCountry}
+                        onChange={handleCountryChange}
+                        placeholder="Select a country..."
+                        isClearable
+                    />
+                </Form.Group>
+
 
                 {/* Third Party IT Management */}
                 <Form.Group className="mb-3">

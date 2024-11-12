@@ -18,7 +18,8 @@ function EditClientWorkerRole() {
     const [showEditWorkerRoleModal, setShowEditWorkerRoleModal] = useState(false);
     const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
 
-    const handleUpdateRole = async () => {
+    const handleUpdateRole = async (e) => {
+        e.preventDefault();
         try {
             await axios.put(`${config.API_BASE_URL}/worker/classificator/update/${role.id}`, {
                 role: roleName,
@@ -95,7 +96,7 @@ function EditClientWorkerRole() {
                     <p>{error}</p>
                 </Alert>
             )}
-            <Form>
+            <Form onSubmit={handleUpdateRole}>
                 <Form.Group controlId="formRole">
                     <Form.Label>Role</Form.Label>
                     <Form.Control
@@ -103,9 +104,10 @@ function EditClientWorkerRole() {
                         value={roleName}
                         onChange={(e) => setRoleName(e.target.value)}
                         placeholder="Enter role"
+                        required
                     />
                 </Form.Group>
-                <Button variant="primary" className="mt-3" onClick={handleUpdateRole}>
+                <Button variant="primary" className="mt-3" type="submit">
                     Update Role
                 </Button>
                 <Button variant="danger" className="mt-3 ms-2" onClick={handleDeleteRole}>

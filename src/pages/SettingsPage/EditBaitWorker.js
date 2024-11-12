@@ -37,7 +37,8 @@ function EditBaitWorker() {
         fetchWorker();
     }, [baitWorkerId]);
 
-    const handleUpdateWorker = async () => {
+    const handleUpdateWorker = async (e) => {
+        e.preventDefault();
         try {
             await axios.put(`${config.API_BASE_URL}/bait/worker/update/${baitWorkerId}`, {
                 firstName,
@@ -97,7 +98,7 @@ function EditBaitWorker() {
         <Container className="mt-5">
             <h1>Edit Worker</h1>
             {error && <Alert variant="danger">{error}</Alert>}
-            <Form>
+            <Form onSubmit={handleUpdateWorker}>
                 <Form.Group controlId="formFirstName">
                     <Form.Label>First Name</Form.Label>
                     <Form.Control
@@ -105,6 +106,7 @@ function EditBaitWorker() {
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         placeholder="Enter first name"
+                        required
                     />
                 </Form.Group>
                 <Form.Group controlId="formLastName" className="mt-3">
@@ -114,6 +116,7 @@ function EditBaitWorker() {
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
                         placeholder="Enter last name"
+                        required
                     />
                 </Form.Group>
                 <Form.Group controlId="formEmail" className="mt-3">
@@ -123,6 +126,7 @@ function EditBaitWorker() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Enter email"
+                        required
                     />
                 </Form.Group>
                 <Form.Group controlId="formPhoneNumber" className="mt-3">
@@ -132,6 +136,7 @@ function EditBaitWorker() {
                         value={phoneNumber}
                         onChange={(e) => setPhoneNumber(e.target.value)}
                         placeholder="Enter phone number"
+                        required
                     />
                 </Form.Group>
                 <Form.Group controlId="formTitle" className="mt-3">
@@ -141,9 +146,10 @@ function EditBaitWorker() {
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder="Enter title"
+                        required
                     />
                 </Form.Group>
-                <Button variant="primary" className="mt-3" onClick={handleUpdateWorker}>
+                <Button variant="primary" className="mt-3" type="submit">
                     Update Worker
                 </Button>
                 <Button variant="danger" className="mt-3 ms-3" onClick={handleShowDeleteModal}>

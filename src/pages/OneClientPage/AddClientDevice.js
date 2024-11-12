@@ -30,7 +30,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmittingClassificator, setIsSubmittingClassificator] = useState(false);
-
+    const today = new Date().toISOString().split('T')[0];
 
 
     useEffect(() => {
@@ -272,6 +272,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                     <Form.Control
                         type="date"
                         value={versionUpdateDate}
+                        max={today}
                         onChange={(e) => setVersionUpdateDate(e.target.value)}
                     />
                 </Form.Group>
@@ -282,6 +283,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                     <Form.Control
                         type="date"
                         value={introducedDate}
+                        max={today}
                         onChange={(e) => setIntroducedDate(e.target.value)}
                     />
                 </Form.Group>

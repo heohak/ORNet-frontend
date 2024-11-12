@@ -17,6 +17,9 @@ import NewAddCustomer from "./NewAddCustomer";
 import GenerateReportModal from "../../modals/GenerateReportModal";
 import '../../css/Customers.css';
 import noImg from '../../assets/no-img.jpg';
+import personIcon from '../../assets/thumbnail_person icon.png';
+import {useNavigate} from "react-router-dom";
+
 
 function Customers() {
     const [customers, setCustomers] = useState([]);
@@ -31,11 +34,13 @@ function Customers() {
     const [countryFlags, setCountryFlags] = useState({});
     const [availableCountries, setAvailableCountries] = useState([]);
     const [selectedCountry, setSelectedCountry] = useState('');
+    const [activityDates, setActivityDates] = useState({});
     const countryFlagApi = "https://restcountries.com/v3.1/alpha";
-
+    const navigate = useNavigate();
     useEffect(() => {
         fetchAvailableCountries();
         fetchCustomers();
+        fetchActivityDates();
     }, []);
 
     const fetchCustomers = async (query = '', type = '', country = '') => {
@@ -51,9 +56,8 @@ function Customers() {
             const customersData = response.data;
 
             setCustomers(customersData);
-            // Fetch country flags for all customers
-            const flags = await fetchCountryFlags(customersData);
-            setCountryFlags(flags);
+
+            fetchCountryFlags(customersData); // Fetch flags separately
         } catch (error) {
             setError(error.message);
         } finally {
@@ -70,6 +74,15 @@ function Customers() {
         }
     };
 
+    const fetchActivityDates = async() => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/client/activity/dates`)
+            setActivityDates(response.data);
+        } catch (error) {
+            console.error('Error fetching activity dates', error);
+        }
+    }
+
     const capitalizeFirstLetter = (string) => {
         if (string) {
             return string.charAt(0).toUpperCase() + string.slice(1);
@@ -79,17 +92,49 @@ function Customers() {
 
     const fetchCountryFlags = async (customersData) => {
         const flags = {};
-        for (const customer of customersData) {
-            const countryCode = customer.country; // Country code in cca3 format
-            try {
-                const response = await axios.get(`${countryFlagApi}/${countryCode}`);
-                flags[countryCode] = response.data[0].flags.png; // Store flag image URL
-            } catch (error) {
-                console.error(`Error fetching flag for ${countryCode}:`, error);
+        await Promise.all(customersData.map(async (customer) => {
+            const countryCode = customer.country;
+            if (!flags[countryCode]) { // Avoid duplicate fetches
+                try {
+                    const response = await axios.get(`${countryFlagApi}/${countryCode}`);
+                    flags[countryCode] = response.data[0].flags.png;
+                } catch (error) {
+                    console.error(`Error fetching flag for ${countryCode}:`, error);
+                }
             }
-        }
-        return flags;
+        }));
+        setCountryFlags(flags); // Update state once all fetches are done
     };
+
+    const formatDate = (dateString) => {
+        if (!dateString) {
+            return "N/A"
+        }
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-GB'); // This will format it to DD.MM.YYYY
+    };
+
+    const getDeadlineColor = (endDateTime) => {
+        const now = new Date();
+        const endDate = new Date(endDateTime);
+
+        // If endDate is before today
+        if (endDate < now) {
+            return 'red';
+        }
+
+        // Calculate the difference in milliseconds and convert to days
+        const diffInDays = (endDate - now) / (1000 * 60 * 60 * 24);
+
+        // If the end date is within a week
+        if (diffInDays <= 7) {
+            return 'orange';
+        }
+
+        // If the end date is more than a week away
+        return 'green';
+    };
+
 
 
 
@@ -288,7 +333,9 @@ function Customers() {
                                 if (customer.pathologyClient) customerTypes.push('Pathology');
                                 if (customer.surgeryClient) customerTypes.push('Surgery');
                                 if (customer.editorClient) customerTypes.push('Editor');
-                                const customerTypeDisplay = customerTypes.join(', ') || 'N/A';
+                                const customerTypeDisplay = customerTypes.join('/') || 'N/A';
+                                const deadlineColor = getDeadlineColor(activityDates[customer.id]?.endDateTime)
+                                console.log(activityDates[customer.id])
 
                                 const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
 
@@ -297,7 +344,7 @@ function Customers() {
                                         key={customer.id}
                                         className="align-items-center text-center mb-2"
                                         style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
-                                        onClick={() => window.location.href = `/customer/${customer.id}`}
+                                        onClick={() => navigate(`/customer/${customer.id}`, { state: { openAccordion: 'contacts' } })}
                                     >
                                         <Col md={1}>
                                             <img
@@ -315,8 +362,31 @@ function Customers() {
                                         <Col md={2}>{customer.shortName}</Col>
                                         <Col md={4}>{customer.fullName}</Col>
                                         <Col md={2}>{customerTypeDisplay}</Col>
-                                        <Col md={1}>Con</Col>
-                                        <Col className="text-end" md={2}>19.02.24</Col>
+                                        <Col className="d-flex justify-content-center" md={1}>
+                                            <div style={{background: '#d6d6ee', width: '24px', height: '24px', borderRadius: '6px'}}>
+                                                <img
+                                                    src={personIcon}
+                                                    alt="person_icon.png"
+                                                    style={{
+                                                      width: '20px',
+                                                      height: '20px'
+                                                    }}
+                                                />
+                                            </div>
+                                        </Col>
+                                        <Col className="text-end" md={2}>
+                                             <span
+                                                 style={{
+                                                     display: 'inline-block',
+                                                     width: '12px',
+                                                     height: '12px',
+                                                     borderRadius: '50%',
+                                                     backgroundColor: deadlineColor,
+                                                     marginRight: '8px',
+                                                 }}
+                                             />
+                                            {formatDate(activityDates[customer.id]?.updateDateTime)  || "N/A"}
+                                        </Col>
                                     </Row>
                                 );
                             })
