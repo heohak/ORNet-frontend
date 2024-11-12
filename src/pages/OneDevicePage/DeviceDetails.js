@@ -22,7 +22,8 @@ function DeviceDetails({ device, navigate, setShowCommentsModal, setRefresh }) {
     const [showReactivateModal, setShowReactivateModal] = useState(false);
     const today = new Date().toISOString().split('T')[0];
     const location = useLocation();
-
+    const [dateError, setDateError] = useState(null);
+    const introducedDate = device?.introducedDate;
 
     const defaultFields = [
         'deviceName',
@@ -190,7 +191,13 @@ function DeviceDetails({ device, navigate, setShowCommentsModal, setRefresh }) {
         setShowAddFieldForm(false);
     };
 
-    const handleAddWrittenOffDate = async () => {
+    const handleAddWrittenOffDate = async (e) => {
+        e.preventDefault();
+        if (new Date(writtenOffDate) < new Date(introducedDate)) {
+            setDateError('Written Off Date cannot be before the Introduced Date.');
+            return;
+        }
+
         try {
             await axios.put(`${config.API_BASE_URL}/device/written-off/${device.id}`,
                 { writtenOffDate }, // Sending the writtenOffDate in the request body
@@ -199,6 +206,7 @@ function DeviceDetails({ device, navigate, setShowCommentsModal, setRefresh }) {
             setIsWrittenOff(true); // Mark the device as written off
             setRefresh(prev => !prev); // Refresh data
             setShowWrittenOffModal(false); // Close modal
+            setDateError(null);
         } catch (error) {
             console.error('Error updating written off date:', error);
         }
@@ -351,6 +359,7 @@ function DeviceDetails({ device, navigate, setShowCommentsModal, setRefresh }) {
                 </Modal.Header>
                 <Form onSubmit={handleAddWrittenOffDate}>
                 <Modal.Body>
+                    {dateError && <Alert variant="danger">{dateError}</Alert>}
                         <Form.Group controlId="writtenOffDate">
                             <Form.Label>Written Off Date</Form.Label>
                             <Form.Control
@@ -361,6 +370,7 @@ function DeviceDetails({ device, navigate, setShowCommentsModal, setRefresh }) {
                                 required
                             />
                         </Form.Group>
+
                         <Form.Group controlId="writtenOffComment" className="mt-3">
                             <Form.Label>Comment</Form.Label>
                             <Form.Control
