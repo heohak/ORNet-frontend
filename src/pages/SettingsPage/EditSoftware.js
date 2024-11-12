@@ -29,7 +29,8 @@ function EditSoftware() {
 
     const [error, setError] = useState(null);
 
-    const handleUpdateSoftware = async () => {
+    const handleUpdateSoftware = async (e) => {
+        e.preventDefault();
         try {
             await axios.put(`${config.API_BASE_URL}/software/update/${software.id}`, {
                 name,
@@ -92,7 +93,7 @@ function EditSoftware() {
                     <p>{error}</p>
                 </Alert>
             )}
-            <Form>
+            <Form onSubmit={handleUpdateSoftware}>
                 <Form.Group className="mb-3">
                     <Form.Label>Name</Form.Label>
                     <Form.Control
@@ -351,7 +352,7 @@ function EditSoftware() {
                     />
                 </Form.Group>
 
-                <Button variant="success" onClick={handleUpdateSoftware}>
+                <Button variant="success" type="submit">
                     Update Tech Info
                 </Button>
                 <Button variant="danger" onClick={handleShowDeleteModal} className="ms-2">

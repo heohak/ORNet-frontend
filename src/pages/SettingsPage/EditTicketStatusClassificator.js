@@ -28,7 +28,8 @@ function EditTicketStatusClassificator() {
         fetchClassificator();
     }, [id]);
 
-    const handleUpdate = async () => {
+    const handleUpdate = async (e) => {
+        e.preventDefault();
         try {
             await axios.put(`${config.API_BASE_URL}/ticket/classificator/update/${id}`, { status });
             navigate('/settings/ticket-status-classificators');
@@ -88,7 +89,7 @@ function EditTicketStatusClassificator() {
                     <p>{error}</p>
                 </Alert>
             )}
-            <Form>
+            <Form onSubmit={handleUpdate}>
                 <Form.Group controlId="formStatus">
                     <Form.Label>Status</Form.Label>
                     <Form.Control
@@ -99,7 +100,7 @@ function EditTicketStatusClassificator() {
                         required
                     />
                 </Form.Group>
-                <Button variant="primary" className="mt-3" onClick={handleUpdate}>Update</Button>
+                <Button variant="primary" className="mt-3" type="submit">Update</Button>
                 {(id !== '1' && id !== '2') && (
                     <Button variant="danger" className="mt-3 ms-3" onClick={handleDelete}>
                         Delete
