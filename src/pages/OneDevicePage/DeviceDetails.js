@@ -126,6 +126,7 @@ function DeviceDetails({ device, navigate, setShowCommentsModal, setRefresh }) {
         const abbreviations = ['IP', 'API', 'ID']; // Add more abbreviations as needed
 
         return label
+            .replace(/clientName/, 'Customer Name')
             // Split camelCase and concatenate words, keeping abbreviations like "IP" intact
             .replace(/([a-z])([A-Z])/g, '$1 $2')  // Insert space between lowercase and uppercase (e.g., "FirstIP" -> "First IP")
             .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')  // Insert space between uppercase groups and camelCase (e.g., "IPAddress" -> "IP Address")
