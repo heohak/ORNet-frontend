@@ -122,7 +122,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
         setFormData({
             title: '',
             description: '',
-            clientId: '',
+            clientId: clientId,
             crisis: false,
             workTypeIds: [],
             baitWorkerId: '',
