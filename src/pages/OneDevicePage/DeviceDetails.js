@@ -1,22 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import {
-    Card,
-    Button,
-    Modal,
-    Form,
-    Alert,
-    Col,
-    Row,
-    Tabs,
-    Tab,
-} from 'react-bootstrap';
-import { FaPlus, FaTrash } from 'react-icons/fa';
+import React, {useEffect, useState} from 'react';
+import {useLocation} from 'react-router-dom';
+import {Alert, Button, Card, Col, Form, Modal, Row, Tab, Tabs,} from 'react-bootstrap';
+import {FaTrash} from 'react-icons/fa';
 import axios from 'axios';
 import config from '../../config/config';
-import DeviceFileList from './DeviceFileList';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCog } from '@fortawesome/free-solid-svg-icons';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faCog, faEdit, faHistory, faComments} from '@fortawesome/free-solid-svg-icons';
 import '../../css/AllDevicesPage/Devices.css';
 import DeviceStatusManager from './DeviceStatusManager';
 
@@ -234,7 +223,7 @@ function DeviceDetails({
         setFieldsConfig((prevConfig) =>
             prevConfig.map((field) =>
                 field.key === key
-                    ? { ...field, visible: !field.visible }
+                    ? {...field, visible: !field.visible}
                     : field
             )
         );
@@ -243,7 +232,7 @@ function DeviceDetails({
         setTimeout(() => {
             const updatedFields = fieldsConfig.map((field) =>
                 field.key === key
-                    ? { ...field, visible: !field.visible }
+                    ? {...field, visible: !field.visible}
                     : field
             );
             const visibleFieldsArray = updatedFields
@@ -277,7 +266,7 @@ function DeviceDetails({
             return;
         }
 
-        const attribute = { [newField.key]: newField.value };
+        const attribute = {[newField.key]: newField.value};
 
         try {
             if (newField.addToAll) {
@@ -352,7 +341,7 @@ function DeviceDetails({
         }
 
         // Reset newField state and close the add field form
-        setNewField({ key: '', value: '', addToAll: false });
+        setNewField({key: '', value: '', addToAll: false});
         setFieldError(null);
     };
 
@@ -367,7 +356,7 @@ function DeviceDetails({
             );
 
             // Update localDevice state
-            const updatedAttributes = { ...localDevice.attributes };
+            const updatedAttributes = {...localDevice.attributes};
             delete updatedAttributes[fieldToDelete];
             setLocalDevice((prevDevice) => ({
                 ...prevDevice,
@@ -420,7 +409,7 @@ function DeviceDetails({
     const handleNavigate = () => {
         if (device && device.id) {
             navigate('/history', {
-                state: { endpoint: `device/history/${device.id}` },
+                state: {endpoint: `device/history/${device.id}`},
             });
         } else {
             console.error('Device or device id is undefined');
@@ -437,52 +426,43 @@ function DeviceDetails({
                                 {renderFields()}
                             </Col>
                             <Col className="col-md-auto">
-                                <Row>
-                                    <Col className="col-md-auto">
-                                        <Button
-                                            variant="link"
-                                            className="me-2"
-                                            onClick={() => setShowDeviceFieldModal(true)}
-                                            title="Manage Fields"
-                                        >
-                                            <FontAwesomeIcon icon={faCog} />
-                                        </Button>
-                                    </Col>
-                                    <Col className="col-md-auto">
-                                        <Row>
-                                            <Button
-                                                variant="primary"
-                                                onClick={() =>
-                                                    navigate(`/device/edit/${localDevice.id}`, {
-                                                        state: locationHook.state,
-                                                    })
-                                                }
-                                            >
-                                                Edit Device
-                                            </Button>
-                                        </Row>
-                                        <Row>
-                                            <Button
-                                                onClick={handleNavigate}
-                                                className="mt-2 mb-2"
-                                            >
-                                                See History
-                                            </Button>
-                                        </Row>
-                                    </Col>
-                                </Row>
+                                <div className="d-flex">
+                                    <Button
+                                        variant="link"
+                                        className="text-primary me-2"
+                                        onClick={() => setShowDeviceFieldModal(true)}
+                                        title="Manage Fields"
+                                    >
+                                        <FontAwesomeIcon icon={faCog}/>
+                                    </Button>
+                                    <Button
+                                        variant="link"
+                                        className="text-primary me-2"
+                                        onClick={() => navigate(`/device/edit/${localDevice.id}`, { state: locationHook.state })}
+                                        title="Edit Device"
+                                    >
+                                        <FontAwesomeIcon icon={faEdit}/>
+                                    </Button>
+                                    <Button
+                                        variant="link"
+                                        className="text-primary"
+                                        onClick={handleNavigate}
+                                        title="View History"
+                                    >
+                                        <FontAwesomeIcon icon={faHistory}/>
+                                    </Button>
+                                    <Button
+                                        variant="link"
+                                        className="text-primary"
+                                        onClick={() => setShowCommentsModal(true)}
+                                        title="View Comments"
+                                    >
+                                        <FontAwesomeIcon icon={faComments}/>
+                                    </Button>
+                                </div>
                             </Col>
+
                         </Row>
-
-
-
-                        <Button
-                            variant="info"
-                            onClick={() => setShowCommentsModal(true)}
-                        >
-                            View Comments
-                        </Button>
-
 
                         <DeviceStatusManager
                             deviceId={localDevice.id}
@@ -603,7 +583,7 @@ function DeviceDetails({
                                                 }}
                                                 title="Delete Attribute"
                                             >
-                                                <FaTrash />
+                                                <FaTrash/>
                                             </Button>
                                         </div>
                                     ))}

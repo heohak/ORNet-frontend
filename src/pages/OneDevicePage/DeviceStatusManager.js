@@ -72,7 +72,7 @@ function DeviceStatusManager({ deviceId, introducedDate, writtenOffDate, setRefr
                 </Button>
             ) : (
                 <Button
-                    variant="warning ms-2"
+                    variant="warning"
                     onClick={() => {
                         setCurrentWrittenOffDate('');
                         setWrittenOffComment('');
