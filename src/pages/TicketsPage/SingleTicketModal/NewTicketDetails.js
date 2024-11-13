@@ -224,14 +224,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                     <strong>Numeration</strong>
                                 </Col>
                                 <Col>
-                                    {editMode ? (
-                                        <Form.Control
-                                            type="text"
-                                            name="baitNumeration"
-                                            value={editedTicket.baitNumeration}
-                                            onChange={handleInputChange}
-                                        />
-                                    ) : editedTicket.baitNumeration}
+                                    {editedTicket.baitNumeration}
                                 </Col>
                             </Row>
 
