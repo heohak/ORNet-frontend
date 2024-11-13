@@ -473,7 +473,7 @@ function DeviceDetails({
                                 </Row>
                             </Col>
                         </Row>
-                        <DeviceFileList deviceId={localDevice.id} />
+
 
 
                         <Button

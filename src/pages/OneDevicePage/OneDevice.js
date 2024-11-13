@@ -1,18 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from 'axios';
-import {useParams, useNavigate, useLocation} from 'react-router-dom';
-import {Container, Spinner, Alert, Row, Col, Button} from 'react-bootstrap';
+import {useLocation, useNavigate, useParams} from 'react-router-dom';
+import {Alert, Button, Col, Container, Row, Spinner} from 'react-bootstrap';
 import config from "../../config/config";
 import DeviceDetails from "./DeviceDetails";
 import MaintenanceInfo from "./MaintenanceInfo";
 import LinkedDevices from "./LinkedDevices";
 import CommentsModal from "../../modals/CommentsModal";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCog} from "@fortawesome/free-solid-svg-icons";
 import '../../css/OneDevicePage/OneDevice.css';
+import DeviceFileList from "./DeviceFileList";
 
 function OneDevice() {
-    const { deviceId } = useParams();
+    const {deviceId} = useParams();
     const [device, setDevice] = useState(null);
     const [linkedDevices, setLinkedDevices] = useState([]);
     const [maintenanceInfo, setMaintenanceInfo] = useState([]);
@@ -22,15 +21,10 @@ function OneDevice() {
     const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
     const [showMaintenanceFieldModal, setShowMaintenanceFieldModal] = useState(false);
     const [availableLinkedDevices, setAvailableLinkedDevices] = useState([]);
-    const [maintenanceName, setMaintenanceName] = useState("");
-    const [maintenanceDate, setMaintenanceDate] = useState("");
-    const [maintenanceComment, setMaintenanceComment] = useState("");
-    const [files, setFiles] = useState([]);
     const [showCommentsModal, setShowCommentsModal] = useState(false);
     const [refresh, setRefresh] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
-    const [isSubmittingMaintenance, setIsSubmittingMaintenance] = useState(false);
 
 
     useEffect(() => {
@@ -71,42 +65,6 @@ function OneDevice() {
         fetchData();
     }, [deviceId, refresh]);
 
-
-    const handleAddMaintenance = async () => {
-        if (isSubmittingMaintenance) return;
-        setIsSubmittingMaintenance(true);
-
-        try {
-            const maintenanceResponse = await axios.post(`${config.API_BASE_URL}/maintenance/add`, {
-                maintenanceName,
-                maintenanceDate,
-                comment: maintenanceComment,
-            });
-            const maintenanceId = maintenanceResponse.data.token;
-
-            await axios.put(`${config.API_BASE_URL}/device/maintenance/${deviceId}/${maintenanceId}`);
-
-            if (files.length > 0) {
-                const formData = new FormData();
-                files.forEach(file => formData.append('files', file));
-                await axios.put(`${config.API_BASE_URL}/maintenance/upload/${maintenanceId}`, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                });
-            }
-
-            const response = await axios.get(`${config.API_BASE_URL}/device/maintenances/${deviceId}`);
-            setMaintenanceInfo(response.data);
-            setShowMaintenanceModal(false);
-            setFiles([]); // Clear files after upload
-        } catch (error) {
-            console.error('Error adding maintenance:', error);
-            setError(error.message);
-        } finally {
-            setIsSubmittingMaintenance(false);
-        }
-    };
 
     const handleUploadSuccess = () => {
         setRefresh(!refresh); // Toggle refresh state to trigger re-fetch
@@ -159,23 +117,6 @@ function OneDevice() {
             </div>
             <Container className="mt-4 pt-5">
 
-                <Row className="mt-3 mb-2">
-                    <Col md={6}>
-                        <h2>{device ? `${device.deviceName}` : 'Undefined'}</h2>
-                    </Col>
-                    <Col md={6}>
-                        <div className="d-flex">
-                            <h2>Maintenance Information</h2>
-                            <div className="ms-3" style={{alignContent: "center"}}>
-                                <Button variant="primary" onClick={() => setShowMaintenanceModal(true)}>Add Maintenance</Button>
-                            </div>
-                            <Button variant="link" onClick={() => setShowMaintenanceFieldModal(true)}>
-                                <FontAwesomeIcon icon={faCog}
-                                title="Edit visible fields"/>
-                            </Button>
-                        </div>
-                    </Col>
-                </Row>
                 <Row>
                     {device && device.writtenOffDate && (
                         <div>
@@ -206,24 +147,24 @@ function OneDevice() {
                     <Col md={6}>
                         <MaintenanceInfo
                             maintenanceInfo={maintenanceInfo}
+                            setMaintenanceInfo={setMaintenanceInfo}
                             showMaintenanceModal={showMaintenanceModal}
                             setShowMaintenanceModal={setShowMaintenanceModal}
                             showMaintenanceFieldModal={showMaintenanceFieldModal}
                             setShowMaintenanceFieldModal={setShowMaintenanceFieldModal}
-                            handleAddMaintenance={handleAddMaintenance}
-                            setMaintenanceName={setMaintenanceName}
-                            setMaintenanceDate={setMaintenanceDate}
-                            setMaintenanceComment={setMaintenanceComment}
-                            setFiles={setFiles} // Pass setFiles to MaintenanceInfo
-                            isSubmitting={isSubmittingMaintenance}
+                            deviceId={deviceId}
                         />
                     </Col>
                 </Row>
                 <CommentsModal
                     show={showCommentsModal}
                     handleClose={() => setShowCommentsModal(false)}
-                    deviceId={deviceId} // Pass deviceId to CommentsModal
+                    deviceId={deviceId}
                 />
+                <DeviceFileList
+                    deviceId={deviceId}
+                />
+
             </Container>
         </>
     );

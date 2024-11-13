@@ -2,22 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { Card, Button, Modal, Form, Alert, ListGroup } from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../config/config";
+import FileList from "../../modals/FileList";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCog} from "@fortawesome/free-solid-svg-icons";
-import FileList from "../../modals/FileList";
 
 function MaintenanceInfo({
                              maintenanceInfo,
+                             setMaintenanceInfo,
                              showMaintenanceModal,
                              setShowMaintenanceModal,
-                             handleAddMaintenance,
-                             setMaintenanceName,
-                             setMaintenanceDate,
-                             setMaintenanceComment,
-                             setFiles,
                              showMaintenanceFieldModal,
                              setShowMaintenanceFieldModal,
-                            isSubmitting
+    deviceId
                          }) {
     const [visibleFields, setVisibleFields] = useState({});
     const [selectedFiles, setSelectedFiles] = useState([]);
@@ -25,6 +21,16 @@ function MaintenanceInfo({
     const [selectedMaintenanceId, setSelectedMaintenanceId] = useState(null);
     const [maintenanceFiles, setMaintenanceFiles] = useState({});
     const [isSubmittingFileUpload, setIsSubmittingFileUpload] = useState(false);
+
+    // Add the following state variables at the beginning of the MaintenanceInfo component
+
+    const [maintenanceName, setMaintenanceName] = useState("");
+    const [maintenanceDate, setMaintenanceDate] = useState("");
+    const [maintenanceComment, setMaintenanceComment] = useState("");
+    const [files, setFiles] = useState([]);
+    const [isSubmittingMaintenance, setIsSubmittingMaintenance] = useState(false);
+    const [error, setError] = useState(null); // To handle errors within MaintenanceInfo
+
 
 
     const defaultFields = [
@@ -103,6 +109,8 @@ function MaintenanceInfo({
         );
     };
 
+
+
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
         setSelectedFiles([...selectedFiles, ...files]);
@@ -144,8 +152,58 @@ function MaintenanceInfo({
         }
     };
 
+    // Add the handleAddMaintenance function inside MaintenanceInfo.js
+
+    const handleAddMaintenance = async () => {
+        if (isSubmittingMaintenance) return;
+        setIsSubmittingMaintenance(true);
+
+        try {
+            const maintenanceResponse = await axios.post(`${config.API_BASE_URL}/maintenance/add`, {
+                maintenanceName,
+                maintenanceDate,
+                comment: maintenanceComment,
+            });
+            const maintenanceId = maintenanceResponse.data.token;
+            await axios.put(`${config.API_BASE_URL}/device/maintenance/${deviceId}/${maintenanceId}`);
+
+            if (files.length > 0) {
+                const formData = new FormData();
+                files.forEach(file => formData.append('files', file));
+                await axios.put(`${config.API_BASE_URL}/maintenance/upload/${maintenanceId}`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+            }
+
+            const response = await axios.get(`${config.API_BASE_URL}/device/maintenances/${deviceId}`);
+            setMaintenanceInfo(response.data);
+            setShowMaintenanceModal(false);
+            setFiles([]); // Clear files after upload
+        } catch (error) {
+            console.error('Error adding maintenance:', error);
+            setError(error.message);
+        } finally {
+            setIsSubmittingMaintenance(false);
+        }
+    };
+
+
     return (
+
         <>
+            <div className="d-flex justify-content-between align-items-center mb-3">
+                <h2>Maintenance Information</h2>
+                <Button variant="link" onClick={() => setShowMaintenanceFieldModal(true)}>
+                    <FontAwesomeIcon icon={faCog}
+                                     title="Edit visible fields"/>
+                </Button>
+                <Button variant="primary" onClick={() => setShowMaintenanceModal(true)}>
+                    Add Maintenance
+                </Button>
+
+            </div>
             {maintenanceInfo.length > 0 ? (
                 maintenanceInfo.map((maintenance, index) => (
                     <Card key={index} className="mb-4">
@@ -168,17 +226,25 @@ function MaintenanceInfo({
                     <Modal.Title>Add Maintenance</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                    {error && (
+                        <Alert variant="danger">
+                            {error}
+                        </Alert>
+                    )}
                     <Form.Group controlId="maintenanceName">
                         <Form.Label>Maintenance Name</Form.Label>
                         <Form.Control
                             type="text"
+                            value={maintenanceName}
                             onChange={(e) => setMaintenanceName(e.target.value)}
+                            placeholder="Enter maintenance name"
                         />
                     </Form.Group>
                     <Form.Group controlId="maintenanceDate">
                         <Form.Label>Maintenance Date</Form.Label>
                         <Form.Control
                             type="date"
+                            value={maintenanceDate}
                             onChange={(e) => setMaintenanceDate(e.target.value)}
                         />
                     </Form.Group>
@@ -187,7 +253,9 @@ function MaintenanceInfo({
                         <Form.Control
                             as="textarea"
                             rows={3}
+                            value={maintenanceComment}
                             onChange={(e) => setMaintenanceComment(e.target.value)}
+                            placeholder="Enter comment"
                         />
                     </Form.Group>
                     <Form.Group controlId="maintenanceFiles">
@@ -199,7 +267,7 @@ function MaintenanceInfo({
                         />
                     </Form.Group>
                     <ListGroup className="mt-3">
-                        {selectedFiles.map(file => (
+                        {files.map(file => (
                             <ListGroup.Item style={{ display: "flex", justifyContent: "space-between" }} key={file.name}>
                                 {file.name}
                                 <Button
@@ -219,11 +287,10 @@ function MaintenanceInfo({
                     <Button
                         variant="primary"
                         onClick={handleAddMaintenance}
-                        disabled={isSubmitting}
+                        disabled={isSubmittingMaintenance}
                     >
-                        {isSubmitting ? 'Adding...' : 'Add Maintenance'}
+                        {isSubmittingMaintenance ? 'Adding...' : 'Add Maintenance'}
                     </Button>
-
                 </Modal.Footer>
             </Modal>
 
