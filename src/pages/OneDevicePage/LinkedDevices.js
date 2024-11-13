@@ -7,7 +7,7 @@ import axios from 'axios';
 import config from "../../config/config";
 import CommentsModal from "../../modals/CommentsModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCog } from "@fortawesome/free-solid-svg-icons";
+import { faCog, faComments } from "@fortawesome/free-solid-svg-icons";
 
 function LinkedDevices({
                            linkedDevices,
@@ -380,14 +380,19 @@ function LinkedDevices({
                         <ListGroup.Item key={linkedDevice.id}>
                             <Card>
                                 <Card.Body>
-                                    <Card.Title style={{ display: "flex", justifyContent: "space-between" }}>
+                                    <Card.Title style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                         {linkedDevice.name}
-                                        <Button variant="link" onClick={() => openFieldModal(linkedDevice.id)}>
-                                            <FontAwesomeIcon icon={faCog} title="Edit visible fields" />
-                                        </Button>
+                                        <div>
+                                            <Button variant="link" onClick={() => openFieldModal(linkedDevice.id)}>
+                                                <FontAwesomeIcon icon={faCog} title="Edit visible fields" />
+                                            </Button>
+                                            <Button variant="link" onClick={() => openCommentsModal(linkedDevice.id)}>
+                                                <FontAwesomeIcon icon={faComments} title="View Comments" />
+                                            </Button>
+                                        </div>
                                     </Card.Title>
                                     {renderFields(linkedDevice.id)}
-                                    <Button variant="info" onClick={() => openCommentsModal(linkedDevice.id)}>View Comments</Button>
+                                    {/* Removed the "View Comments" button below */}
                                 </Card.Body>
                             </Card>
                         </ListGroup.Item>
