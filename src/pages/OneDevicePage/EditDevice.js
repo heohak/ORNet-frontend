@@ -30,6 +30,7 @@ function EditDevice() {
     const [locations, setLocations] = useState([]);
     const [classificators, setClassificators] = useState([]);
     const [error, setError] = useState(null);
+    const today = new Date().toISOString().split('T')[0];
 
     useEffect(() => {
         const fetchDeviceData = async () => {
@@ -269,6 +270,7 @@ function EditDevice() {
                         name="introducedDate"
                         value={deviceData.introducedDate}
                         onChange={handleInputChange}
+                        max={today}
                     />
                 </Form.Group>
 

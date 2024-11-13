@@ -205,6 +205,7 @@ function OneDevice() {
                                         showMaintenanceFieldModal={showMaintenanceFieldModal}
                                         setShowMaintenanceFieldModal={setShowMaintenanceFieldModal}
                                         deviceId={deviceId}
+                                        setRefresh={handleRefresh}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
