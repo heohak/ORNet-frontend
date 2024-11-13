@@ -1,18 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import axios from 'axios';
-import {useParams, useNavigate, useLocation} from 'react-router-dom';
-import {Container, Spinner, Alert, Row, Col, Button} from 'react-bootstrap';
+import {useLocation, useNavigate, useParams} from 'react-router-dom';
+import {Alert, Button, Col, Container, Row, Spinner, Accordion} from 'react-bootstrap';
 import config from "../../config/config";
 import DeviceDetails from "./DeviceDetails";
 import MaintenanceInfo from "./MaintenanceInfo";
 import LinkedDevices from "./LinkedDevices";
 import CommentsModal from "../../modals/CommentsModal";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCog} from "@fortawesome/free-solid-svg-icons";
 import '../../css/OneDevicePage/OneDevice.css';
+import DeviceFileList from "./DeviceFileList";
 
 function OneDevice() {
-    const { deviceId } = useParams();
+    const {deviceId} = useParams();
     const [device, setDevice] = useState(null);
     const [linkedDevices, setLinkedDevices] = useState([]);
     const [maintenanceInfo, setMaintenanceInfo] = useState([]);
@@ -22,16 +21,12 @@ function OneDevice() {
     const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
     const [showMaintenanceFieldModal, setShowMaintenanceFieldModal] = useState(false);
     const [availableLinkedDevices, setAvailableLinkedDevices] = useState([]);
-    const [selectedLinkedDeviceId, setSelectedLinkedDeviceId] = useState("");
-    const [maintenanceName, setMaintenanceName] = useState("");
-    const [maintenanceDate, setMaintenanceDate] = useState("");
-    const [maintenanceComment, setMaintenanceComment] = useState("");
-    const [files, setFiles] = useState([]);
     const [showCommentsModal, setShowCommentsModal] = useState(false);
     const [refresh, setRefresh] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
-    const [isSubmittingMaintenance, setIsSubmittingMaintenance] = useState(false);
+
+    const accordionRefs = useRef([]);
 
 
     useEffect(() => {
@@ -72,56 +67,39 @@ function OneDevice() {
         fetchData();
     }, [deviceId, refresh]);
 
-    const handleLinkDevice = async () => {
-        try {
-            await axios.put(`${config.API_BASE_URL}/linked/device/link/${selectedLinkedDeviceId}/${deviceId}`);
-            const response = await axios.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
-            setLinkedDevices(response.data);
-            setShowModal(false);
-        } catch (error) {
-            setError(error.message);
-        }
-    };
+    const handleAccordionToggle = (eventKey) => {
+        const index = parseInt(eventKey, 10);
+        if (accordionRefs.current[index]) {
+            setTimeout(() => {
+                const elementPosition = accordionRefs.current[index].getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.scrollY - 100; // Adjust offset as needed
 
-    const handleAddMaintenance = async () => {
-        if (isSubmittingMaintenance) return;
-        setIsSubmittingMaintenance(true);
-
-        try {
-            const maintenanceResponse = await axios.post(`${config.API_BASE_URL}/maintenance/add`, {
-                maintenanceName,
-                maintenanceDate,
-                comment: maintenanceComment,
-            });
-            const maintenanceId = maintenanceResponse.data.token;
-
-            await axios.put(`${config.API_BASE_URL}/device/maintenance/${deviceId}/${maintenanceId}`);
-
-            if (files.length > 0) {
-                const formData = new FormData();
-                files.forEach(file => formData.append('files', file));
-                await axios.put(`${config.API_BASE_URL}/maintenance/upload/${maintenanceId}`, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth',
                 });
-            }
+            }, 100); // Delay for smooth scrolling
+        }
+    };
+    // Function to handle refreshing data
+    const handleRefresh = () => {
+        setRefresh(!refresh);
+    };
 
-            const response = await axios.get(`${config.API_BASE_URL}/device/maintenances/${deviceId}`);
-            setMaintenanceInfo(response.data);
-            setShowMaintenanceModal(false);
-            setFiles([]); // Clear files after upload
-        } catch (error) {
-            console.error('Error adding maintenance:', error);
-            setError(error.message);
-        } finally {
-            setIsSubmittingMaintenance(false);
+    const handleBackNavigation = () => {
+        if (location.state?.fromTicketId) {
+            navigate(`/tickets/${location.state.fromTicketId}`);
+        } else if (location.state && location.state.from === 'all-devices') {
+            navigate('/devices');
+        } else if (device && device.clientId) {
+            navigate(`/customer/${device.clientId}`);
+        } else {
+            navigate(-1);
         }
     };
 
-    const handleUploadSuccess = () => {
-        setRefresh(!refresh); // Toggle refresh state to trigger re-fetch
-    };
+
+
 
     if (loading) {
         return (
@@ -146,97 +124,112 @@ function OneDevice() {
 
     return (
         <>
+            {/* Header Section */}
             <div className="device-header-background">
                 <Container>
-                    <div className="device-name">
-                        <Button
-                            onClick={() => {
-                                if (location.state?.fromTicketId) {
-                                    navigate(`/tickets/${location.state.fromTicketId}`);
-                                } else if (location.state && location.state.from === 'all-devices') {
-                                    navigate('/devices');
-                                } else if (device && device.clientId) {
-                                    navigate(`/customer/${device.clientId}`);
-                                } else {
-                                    navigate(-1);
-                                }
-                            }}
-                        >
-                            Back
-                        </Button>
-                        <h1 className="device-title">{device ? `${device.deviceName} Details` : 'Device Details'}</h1>
+                    <div className="device-name d-flex align-items-center justify-content-between">
+                        <Button onClick={handleBackNavigation}>Back</Button>
+                        <h1 className="device-title">
+                            {device ? `${device.deviceName} Details` : 'Device Details'}
+                        </h1>
+                        {/* Placeholder for possible future header items */}
+                        <div></div>
                     </div>
                 </Container>
             </div>
-            <Container className="mt-4 pt-5">
 
-                <Row className="mt-3 mb-2">
-                    <Col md={6}>
-                        <h2>{device ? `${device.deviceName}` : 'Undefined'}</h2>
-                    </Col>
-                    <Col md={6}>
-                        <div className="d-flex">
-                            <h2>Maintenance Information</h2>
-                            <div className="ms-3" style={{alignContent: "center"}}>
-                                <Button variant="primary" onClick={() => setShowMaintenanceModal(true)}>Add Maintenance</Button>
-                            </div>
-                            <Button variant="link" onClick={() => setShowMaintenanceFieldModal(true)}>
-                                <FontAwesomeIcon icon={faCog}
-                                title="Edit visible fields"/>
-                            </Button>
-                        </div>
-                    </Col>
-                </Row>
-                <Row>
+            {/* Main Content */}
+            <Container className="mt-4 pt-5">
+                {/* Service Duration */}
+                <Row className="mb-4">
                     {device && device.writtenOffDate && (
-                        <div>
+                        <Col>
                             <strong>Service Duration: </strong>
-                            {Math.floor((new Date(device.writtenOffDate) - new Date(device.introducedDate)) / (1000 * 60 * 60 * 24))} days
-                        </div>
+                            {Math.floor(
+                                (new Date(device.writtenOffDate) - new Date(device.introducedDate)) /
+                                (1000 * 60 * 60 * 24)
+                            )} days
+                        </Col>
                     )}
                 </Row>
 
-                <Row>
-                    <Col md={6}>
+                {/* Device Details */}
+                <Row className="mb-4">
+                    <Col>
                         <DeviceDetails
                             device={device}
                             navigate={navigate}
                             setShowCommentsModal={setShowCommentsModal}
-                            setRefresh={setRefresh}
-                            onUploadSuccess={handleUploadSuccess}
-                        />
-                        <LinkedDevices
-                            linkedDevices={linkedDevices}
-                            showModal={showModal}
-                            setShowModal={setShowModal}
-                            availableLinkedDevices={availableLinkedDevices}
-                            selectedLinkedDeviceId={selectedLinkedDeviceId}
-                            setSelectedLinkedDeviceId={setSelectedLinkedDeviceId}
-                            handleLinkDevice={handleLinkDevice}
-                            deviceId={deviceId} // Pass deviceId as a prop
-                            setLinkedDevices={setLinkedDevices} // Pass setLinkedDevices as a prop
-                        />
-                    </Col>
-                    <Col md={6}>
-                        <MaintenanceInfo
-                            maintenanceInfo={maintenanceInfo}
-                            showMaintenanceModal={showMaintenanceModal}
-                            setShowMaintenanceModal={setShowMaintenanceModal}
-                            showMaintenanceFieldModal={showMaintenanceFieldModal}
-                            setShowMaintenanceFieldModal={setShowMaintenanceFieldModal}
-                            handleAddMaintenance={handleAddMaintenance}
-                            setMaintenanceName={setMaintenanceName}
-                            setMaintenanceDate={setMaintenanceDate}
-                            setMaintenanceComment={setMaintenanceComment}
-                            setFiles={setFiles} // Pass setFiles to MaintenanceInfo
-                            isSubmitting={isSubmittingMaintenance}
+                            setRefresh={handleRefresh}
+                            onUploadSuccess={handleRefresh}
                         />
                     </Col>
                 </Row>
+
+                {/* Accordion Sections */}
+                <Row>
+                    <Col>
+                        <Accordion defaultActiveKey="0" alwaysOpen onToggle={handleAccordionToggle}>
+                            {/* Linked Devices */}
+                            <Accordion.Item
+                                eventKey="1"
+                                className="AccordionLinkedDevices"
+                                ref={(el) => (accordionRefs.current[1] = el)}
+                            >
+                                <Accordion.Header>Linked Devices</Accordion.Header>
+                                <Accordion.Body>
+                                    <LinkedDevices
+                                        linkedDevices={linkedDevices}
+                                        showModal={showModal}
+                                        setShowModal={setShowModal}
+                                        availableLinkedDevices={availableLinkedDevices}
+                                        deviceId={deviceId}
+                                        setLinkedDevices={setLinkedDevices}
+                                    />
+                                </Accordion.Body>
+                            </Accordion.Item>
+
+                            {/* Maintenance Info */}
+                            <Accordion.Item
+                                eventKey="2"
+                                className="AccordionMaintenanceInfo"
+                                ref={(el) => (accordionRefs.current[2] = el)}
+                            >
+                                <Accordion.Header>Maintenance Information</Accordion.Header>
+                                <Accordion.Body>
+                                    <MaintenanceInfo
+                                        maintenanceInfo={maintenanceInfo}
+                                        setMaintenanceInfo={setMaintenanceInfo}
+                                        showMaintenanceModal={showMaintenanceModal}
+                                        setShowMaintenanceModal={setShowMaintenanceModal}
+                                        showMaintenanceFieldModal={showMaintenanceFieldModal}
+                                        setShowMaintenanceFieldModal={setShowMaintenanceFieldModal}
+                                        deviceId={deviceId}
+                                        setRefresh={handleRefresh}
+                                    />
+                                </Accordion.Body>
+                            </Accordion.Item>
+
+                            {/* Device Files */}
+                            <Accordion.Item
+                                eventKey="3"
+                                className="AccordionDeviceFiles"
+                                ref={(el) => (accordionRefs.current[3] = el)}
+                            >
+                                <Accordion.Header>Device Files</Accordion.Header>
+                                <Accordion.Body>
+                                    <DeviceFileList deviceId={deviceId} />
+                                </Accordion.Body>
+                            </Accordion.Item>
+                        </Accordion>
+                    </Col>
+                </Row>
+
+                {/* Comments Modal */}
                 <CommentsModal
                     show={showCommentsModal}
                     handleClose={() => setShowCommentsModal(false)}
-                    deviceId={deviceId} // Pass deviceId to CommentsModal
+                    deviceId={deviceId}
                 />
             </Container>
         </>

@@ -1,10 +1,10 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import config from "../../config/config";
 import FileUploadModal from "../../modals/FileUploadModal";
 import FileList from "../../modals/FileList";
-import {Button} from "react-bootstrap";
-
+import { Button } from "react-bootstrap";
+import { FaUpload } from 'react-icons/fa'; // Import the upload icon
 
 const DeviceFileList = ({ deviceId }) => {
     const [files, setFiles] = useState([]);
@@ -23,18 +23,28 @@ const DeviceFileList = ({ deviceId }) => {
         }
     }
 
-
     return (
         <>
-            <div>
-                <h1>File Management</h1>
+            {/* Header Section with Title and Upload Icon */}
+            <div className="d-flex align-items-center mb-3">
+                <h2 className="mb-0">File Management</h2> {/* File Management Title */}
+                <Button
+                    variant="link"
+                    onClick={() => setShowUploadModal(true)}
+                    aria-label="Upload Files"
+                    className="ms-2 text-primary p-0"
+                    title="Upload files"
+                >
+                    <FaUpload/>
+                </Button>
             </div>
-            <Button variant="outline-primary" onClick={() => setShowUploadModal(true)}>
-                Upload Files
-            </Button>
+
+            {/* File List */}
             <div>
-                <FileList files={files}/>
+                <FileList files={files} />
             </div>
+
+            {/* Upload Files Modal */}
             <FileUploadModal
                 show={showUploadModal}
                 handleClose={() => setShowUploadModal(false)}

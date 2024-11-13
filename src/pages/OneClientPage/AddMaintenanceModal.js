@@ -1,9 +1,10 @@
+// AddMaintenanceModal.js
 import React, { useState } from 'react';
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../config/config";
 
-function AddMaintenanceModal({ show, handleClose, clientId, locationId, setRefresh, onAddMaintenance }) {
+function AddMaintenanceModal({ show, handleClose, clientId, locationId, deviceId, setRefresh, onAddMaintenance }) {
     const [maintenanceName, setMaintenanceName] = useState('');
     const [maintenanceDate, setMaintenanceDate] = useState('');
     const [comment, setComment] = useState('');
@@ -51,6 +52,20 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, setRefre
                 } else {
                     throw new Error('Failed to create maintenance for location');
                 }
+            } else if (deviceId) {
+                // For devices, create maintenance and associate it
+                const maintenanceResponse = await axios.post(`${config.API_BASE_URL}/maintenance/add`, {
+                    maintenanceName,
+                    maintenanceDate,
+                    comment
+                });
+
+                if (maintenanceResponse.data && maintenanceResponse.data.token) {
+                    maintenanceId = maintenanceResponse.data.token;
+                    await axios.put(`${config.API_BASE_URL}/device/maintenance/${deviceId}/${maintenanceId}`);
+                } else {
+                    throw new Error('Failed to create maintenance for device');
+                }
             }
 
             // Upload files using the obtained maintenanceId
@@ -65,10 +80,8 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, setRefre
             setFiles([]);
 
             // Refresh data and close modal
-            setRefresh(prev => !prev);
-            if (onAddMaintenance) {
-                onAddMaintenance();
-            }
+            if (setRefresh) setRefresh(prev => !prev);
+            if (onAddMaintenance) onAddMaintenance();
             handleClose();
         } catch (error) {
             setAddError(error.message);
