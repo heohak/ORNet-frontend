@@ -22,7 +22,6 @@ function OneDevice() {
     const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
     const [showMaintenanceFieldModal, setShowMaintenanceFieldModal] = useState(false);
     const [availableLinkedDevices, setAvailableLinkedDevices] = useState([]);
-    const [selectedLinkedDeviceId, setSelectedLinkedDeviceId] = useState("");
     const [maintenanceName, setMaintenanceName] = useState("");
     const [maintenanceDate, setMaintenanceDate] = useState("");
     const [maintenanceComment, setMaintenanceComment] = useState("");
@@ -72,16 +71,6 @@ function OneDevice() {
         fetchData();
     }, [deviceId, refresh]);
 
-    const handleLinkDevice = async () => {
-        try {
-            await axios.put(`${config.API_BASE_URL}/linked/device/link/${selectedLinkedDeviceId}/${deviceId}`);
-            const response = await axios.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
-            setLinkedDevices(response.data);
-            setShowModal(false);
-        } catch (error) {
-            setError(error.message);
-        }
-    };
 
     const handleAddMaintenance = async () => {
         if (isSubmittingMaintenance) return;
@@ -210,11 +199,8 @@ function OneDevice() {
                             showModal={showModal}
                             setShowModal={setShowModal}
                             availableLinkedDevices={availableLinkedDevices}
-                            selectedLinkedDeviceId={selectedLinkedDeviceId}
-                            setSelectedLinkedDeviceId={setSelectedLinkedDeviceId}
-                            handleLinkDevice={handleLinkDevice}
-                            deviceId={deviceId} // Pass deviceId as a prop
-                            setLinkedDevices={setLinkedDevices} // Pass setLinkedDevices as a prop
+                            deviceId={deviceId}
+                            setLinkedDevices={setLinkedDevices}
                         />
                     </Col>
                     <Col md={6}>

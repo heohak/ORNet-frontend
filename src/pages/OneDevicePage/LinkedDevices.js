@@ -12,12 +12,10 @@ function LinkedDevices({
                            showModal,
                            setShowModal,
                            availableLinkedDevices,
-                           selectedLinkedDeviceId,
-                           setSelectedLinkedDeviceId,
-                           handleLinkDevice,
                            deviceId,
                            setLinkedDevices
                        }) {
+    const [selectedLinkedDeviceId, setSelectedLinkedDeviceId] = useState("");
     const [visibleFields, setVisibleFields] = useState({});
     const [showFieldModal, setShowFieldModal] = useState(false);
     const [showAddNewDeviceForm, setShowAddNewDeviceForm] = useState(false);
@@ -31,8 +29,8 @@ function LinkedDevices({
     const [newField, setNewField] = useState({ key: '', value: '' });
     const [showAddFieldForm, setShowAddFieldForm] = useState(false);
     const [currentDeviceId, setCurrentDeviceId] = useState(null);
-    const [showCommentsModal, setShowCommentsModal] = useState(false); // State for comments modal
-    const [commentsDeviceId, setCommentsDeviceId] = useState(null); // State for current device ID for comments
+    const [showCommentsModal, setShowCommentsModal] = useState(false);
+    const [commentsDeviceId, setCommentsDeviceId] = useState(null);
 
     const defaultFields = [
         'name',
@@ -170,6 +168,24 @@ function LinkedDevices({
     const openCommentsModal = (deviceId) => {
         setCommentsDeviceId(deviceId);
         setShowCommentsModal(true);
+    };
+
+    const handleLinkDevice = async () => {
+        if (!selectedLinkedDeviceId) {
+            alert('Please select a device to link.');
+            return;
+        }
+        try {
+            await axios.put(`${config.API_BASE_URL}/linked/device/link/${selectedLinkedDeviceId}/${deviceId}`);
+            const response = await axios.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
+            setLinkedDevices(response.data);
+            setShowModal(false);
+            setSelectedLinkedDeviceId(""); // Reset selection after linking
+        } catch (error) {
+            console.error('Error linking device:', error);
+            alert('Failed to link the device. Please try again.');
+            // Optionally, set an error state to display to the user
+        }
     };
 
     return (
