@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import axios from 'axios';
 import {useLocation, useNavigate, useParams} from 'react-router-dom';
-import {Alert, Button, Col, Container, Row, Spinner} from 'react-bootstrap';
+import {Alert, Button, Col, Container, Row, Spinner, Accordion} from 'react-bootstrap';
 import config from "../../config/config";
 import DeviceDetails from "./DeviceDetails";
 import MaintenanceInfo from "./MaintenanceInfo";
@@ -25,6 +25,8 @@ function OneDevice() {
     const [refresh, setRefresh] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
+
+    const accordionRefs = useRef([]);
 
 
     useEffect(() => {
@@ -65,10 +67,39 @@ function OneDevice() {
         fetchData();
     }, [deviceId, refresh]);
 
+    const handleAccordionToggle = (eventKey) => {
+        const index = parseInt(eventKey, 10);
+        if (accordionRefs.current[index]) {
+            setTimeout(() => {
+                const elementPosition = accordionRefs.current[index].getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.scrollY - 100; // Adjust offset as needed
 
-    const handleUploadSuccess = () => {
-        setRefresh(!refresh); // Toggle refresh state to trigger re-fetch
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth',
+                });
+            }, 100); // Delay for smooth scrolling
+        }
     };
+    // Function to handle refreshing data
+    const handleRefresh = () => {
+        setRefresh(!refresh);
+    };
+
+    const handleBackNavigation = () => {
+        if (location.state?.fromTicketId) {
+            navigate(`/tickets/${location.state.fromTicketId}`);
+        } else if (location.state && location.state.from === 'all-devices') {
+            navigate('/devices');
+        } else if (device && device.clientId) {
+            navigate(`/customer/${device.clientId}`);
+        } else {
+            navigate(-1);
+        }
+    };
+
+
+
 
     if (loading) {
         return (
@@ -93,78 +124,112 @@ function OneDevice() {
 
     return (
         <>
+            {/* Header Section */}
             <div className="device-header-background">
                 <Container>
-                    <div className="device-name">
-                        <Button
-                            onClick={() => {
-                                if (location.state?.fromTicketId) {
-                                    navigate(`/tickets/${location.state.fromTicketId}`);
-                                } else if (location.state && location.state.from === 'all-devices') {
-                                    navigate('/devices');
-                                } else if (device && device.clientId) {
-                                    navigate(`/customer/${device.clientId}`);
-                                } else {
-                                    navigate(-1);
-                                }
-                            }}
-                        >
-                            Back
-                        </Button>
-                        <h1 className="device-title">{device ? `${device.deviceName} Details` : 'Device Details'}</h1>
+                    <div className="device-name d-flex align-items-center justify-content-between">
+                        <Button onClick={handleBackNavigation}>Back</Button>
+                        <h1 className="device-title">
+                            {device ? `${device.deviceName} Details` : 'Device Details'}
+                        </h1>
+                        {/* Placeholder for possible future header items */}
+                        <div></div>
                     </div>
                 </Container>
             </div>
-            <Container className="mt-4 pt-5">
 
-                <Row>
+            {/* Main Content */}
+            <Container className="mt-4 pt-5">
+                {/* Service Duration */}
+                <Row className="mb-4">
                     {device && device.writtenOffDate && (
-                        <div>
+                        <Col>
                             <strong>Service Duration: </strong>
-                            {Math.floor((new Date(device.writtenOffDate) - new Date(device.introducedDate)) / (1000 * 60 * 60 * 24))} days
-                        </div>
+                            {Math.floor(
+                                (new Date(device.writtenOffDate) - new Date(device.introducedDate)) /
+                                (1000 * 60 * 60 * 24)
+                            )} days
+                        </Col>
                     )}
                 </Row>
 
-                <Row>
-                    <Col md={6}>
+                {/* Device Details */}
+                <Row className="mb-4">
+                    <Col>
                         <DeviceDetails
                             device={device}
                             navigate={navigate}
                             setShowCommentsModal={setShowCommentsModal}
-                            setRefresh={setRefresh}
-                            onUploadSuccess={handleUploadSuccess}
-                        />
-                        <LinkedDevices
-                            linkedDevices={linkedDevices}
-                            showModal={showModal}
-                            setShowModal={setShowModal}
-                            availableLinkedDevices={availableLinkedDevices}
-                            deviceId={deviceId}
-                            setLinkedDevices={setLinkedDevices}
-                        />
-                    </Col>
-                    <Col md={6}>
-                        <MaintenanceInfo
-                            maintenanceInfo={maintenanceInfo}
-                            setMaintenanceInfo={setMaintenanceInfo}
-                            showMaintenanceModal={showMaintenanceModal}
-                            setShowMaintenanceModal={setShowMaintenanceModal}
-                            showMaintenanceFieldModal={showMaintenanceFieldModal}
-                            setShowMaintenanceFieldModal={setShowMaintenanceFieldModal}
-                            deviceId={deviceId}
+                            setRefresh={handleRefresh}
+                            onUploadSuccess={handleRefresh}
                         />
                     </Col>
                 </Row>
+
+                {/* Accordion Sections */}
+                <Row>
+                    <Col>
+                        <Accordion defaultActiveKey="0" alwaysOpen onToggle={handleAccordionToggle}>
+                            {/* Linked Devices */}
+                            <Accordion.Item
+                                eventKey="1"
+                                className="AccordionLinkedDevices"
+                                ref={(el) => (accordionRefs.current[1] = el)}
+                            >
+                                <Accordion.Header>Linked Devices</Accordion.Header>
+                                <Accordion.Body>
+                                    <LinkedDevices
+                                        linkedDevices={linkedDevices}
+                                        showModal={showModal}
+                                        setShowModal={setShowModal}
+                                        availableLinkedDevices={availableLinkedDevices}
+                                        deviceId={deviceId}
+                                        setLinkedDevices={setLinkedDevices}
+                                    />
+                                </Accordion.Body>
+                            </Accordion.Item>
+
+                            {/* Maintenance Info */}
+                            <Accordion.Item
+                                eventKey="2"
+                                className="AccordionMaintenanceInfo"
+                                ref={(el) => (accordionRefs.current[2] = el)}
+                            >
+                                <Accordion.Header>Maintenance Information</Accordion.Header>
+                                <Accordion.Body>
+                                    <MaintenanceInfo
+                                        maintenanceInfo={maintenanceInfo}
+                                        setMaintenanceInfo={setMaintenanceInfo}
+                                        showMaintenanceModal={showMaintenanceModal}
+                                        setShowMaintenanceModal={setShowMaintenanceModal}
+                                        showMaintenanceFieldModal={showMaintenanceFieldModal}
+                                        setShowMaintenanceFieldModal={setShowMaintenanceFieldModal}
+                                        deviceId={deviceId}
+                                    />
+                                </Accordion.Body>
+                            </Accordion.Item>
+
+                            {/* Device Files */}
+                            <Accordion.Item
+                                eventKey="3"
+                                className="AccordionDeviceFiles"
+                                ref={(el) => (accordionRefs.current[3] = el)}
+                            >
+                                <Accordion.Header>Device Files</Accordion.Header>
+                                <Accordion.Body>
+                                    <DeviceFileList deviceId={deviceId} />
+                                </Accordion.Body>
+                            </Accordion.Item>
+                        </Accordion>
+                    </Col>
+                </Row>
+
+                {/* Comments Modal */}
                 <CommentsModal
                     show={showCommentsModal}
                     handleClose={() => setShowCommentsModal(false)}
                     deviceId={deviceId}
                 />
-                <DeviceFileList
-                    deviceId={deviceId}
-                />
-
             </Container>
         </>
     );
