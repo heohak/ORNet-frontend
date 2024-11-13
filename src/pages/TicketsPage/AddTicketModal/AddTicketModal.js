@@ -22,17 +22,17 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
         locationId: '',
         baitNumeration: '',
         clientNumeration: '',
-        contactIds: [],
-        deviceId: undefined,
     });
 
     const [clients, setClients] = useState([]);
     const [locations, setLocations] = useState([]);
     const [contacts, setContacts] = useState([]);
+    const [selectedContacts, setSelectedContacts] = useState([]);
     const [baitWorkers, setBaitWorkers] = useState([]);
     const [openStatusId, setOpenStatusId] = useState(null);
     const [workTypes, setWorkTypes] = useState([]);
     const [devices, setDevices] = useState([]);
+    const [selectedDevices, setSelectedDevices] = useState([]);
     const [selectedWorkTypes, setSelectedWorkTypes] = useState([]);
     const [error, setError] = useState(null);
     const [showWorkTypeModal, setShowWorkTypeModal] = useState(false);
@@ -111,6 +111,12 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
         setFormData( prevData => ({...prevData, [id]: newValue}));
     };
 
+    const handleDeviceChange = (selectedOptions) => {
+        // Since this is a multi-select, `selectedOptions` will be an array of selected objects
+        setSelectedDevices(selectedOptions || []); // Fallback to an empty array if no options are selected
+        console.log('Selected Devices:', selectedOptions); // Debugging
+    };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -123,8 +129,10 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
                 statusId: openStatusId,
                 clientId: formData.clientId,
                 workTypeIds: selectedWorkTypes.map(option => option.value),
+                deviceIds: selectedDevices.map(device => device.id),
                 crisis: formData.crisis === 1,
-                ...(formData.deviceId ? { deviceIds: [formData.deviceId] } : {})
+                contactIds: selectedContacts.map(contact => contact.id)
+
             };
 
             const response = await axios.post(`${config.API_BASE_URL}/ticket/add`, newTicket);
@@ -146,6 +154,10 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
         }
     };
 
+    const onClose = () => {
+        resetFields();
+        handleClose();
+    }
 
     const resetFields = () => {
         setFormData({
@@ -158,10 +170,11 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
             locationId: '',
             baitNumeration: '',
             clientNumeration: '',
-            contactIds: [],
-            deviceId: undefined
+            contactIds: []
         }); // Reset form fields
         setSelectedWorkTypes([]); // Reset selected work types
+        setSelectedDevices([]);
+        setSelectedContacts([]);
     }
 
     const handleWorkTypeAdded = async (workType) => {
@@ -194,8 +207,51 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
         }
     };
 
+    const deviceOption = ({ innerProps, innerRef, data, isFocused }) => {
+        if (!data || !data.deviceName) {
+            return null;
+        }
+        return(
+            <div
+                ref={innerRef}
+                {...innerProps}
+                style={{
+                    padding: '8px',
+                    backgroundColor: isFocused ? '#DEEBFF' : 'white', // Add hover color change here
+                    cursor: 'pointer',
+                }}
+            >
+                <div style={{ fontWeight: 'bold' }}>{data.deviceName}</div>
+                <div style={{ fontSize: '0.85em', color: '#666' }}>{data.serialNumber}</div>
+            </div>
+    );
+    }
+
+    const ContactOption = ({ innerRef, innerProps, data, isFocused }) => (
+        <div
+            ref={innerRef}
+            {...innerProps}
+            style={{
+                padding: '8px',
+                backgroundColor: isFocused ? '#DEEBFF' : 'white', // Add hover color change here
+                cursor: 'pointer',
+            }}
+        >
+            <div style={{ fontWeight: 'bold' }}>
+                {data.favorite ? '★ ' : ''}{data.firstName} {data.lastName}
+            </div>
+            {data.roles && data.roles.length > 0 && (
+                <div style={{ fontSize: '12px', color: '#666' }}>
+                    Roles: {data.roles.join(', ')}
+                </div>
+            )}
+        </div>
+    );
+
+
+
     return (
-        <Modal show={show} onHide={handleClose} size="xl" centered>
+        <Modal show={show} onHide={onClose} size="xl" centered>
             <Modal.Header closeButton>
                 <Modal.Title>Add a New Ticket</Modal.Title>
             </Modal.Header>
@@ -273,34 +329,23 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
                                         </Button>
                                     )}
                                 </div>
-                                <Form.Control
-                                    as="select"
-                                    value={formData.contactIds[0] || ""}
-                                    onChange={handleChange}
-                                    id="contactIds"
-                                    disabled={!formData.clientId}
-                                    required
-                                >
-                                    {!formData.clientId ? (
-                                        <option value="">Pick a customer before picking a contact</option>
-                                    ) : (
-                                        <>
-                                            <option value="">Select a Contact</option>
-                                            {contacts.map(contact => (
-                                                <option key={contact.id} value={contact.id}>
-                                                    {contact.favorite ? "★ " : ""}
-                                                    {contact.firstName + " " + contact.lastName}
-                                                    {contact.roles && contact.roles.length > 0 && ` - Roles: ${contact.roles.join(", ")}`}
-                                                </option>
-                                            ))}
-                                        </>
-                                    )}
-                                </Form.Control>
+                                <Select
+                                    isMulti
+                                    options={contacts}
+                                    value={selectedContacts}
+                                    onChange={setSelectedContacts}
+                                    isDisabled={!formData.clientId}
+                                    getOptionLabel={option => `${option.favorite ? '★ ' : ''}${option.firstName} ${option.lastName}`}
+                                    getOptionValue={option => option.id}
+                                    placeholder={!formData.clientId ? 'Pick a customer before picking a contact' : 'Select contacts'}
+                                    components={{ Option: ContactOption }}
+
+                                />
                             </Form.Group>
                         </Col>
                     </Row>
                     <Row>
-                        <Col md={8}>
+                        <Col md={7}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Title</Form.Label>
                                 <Form.Control
@@ -312,32 +357,22 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
                                 />
                             </Form.Group>
                         </Col>
-                        <Col md={4}>
+                        <Col md={5}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Device</Form.Label>
-                                <Form.Control
-                                    as="select"
-                                    value={formData.deviceId}
-                                    onChange={handleChange}
-                                    id="deviceId"
-                                    disabled={!formData.clientId || devices.length === 0}
-                                >
-                                    {!formData.clientId ? (
-                                        <option value="">Pick a customer before picking a device</option>
-                                    ) : devices.length === 0 ? (
-                                        <option value="">No devices found for this client</option>
-                                    ) : (
-                                        <>
-                                            <option value="">Select a Device</option>
-                                            {devices.map((device) => (
-                                                <option key={device.id} value={device.id}>
-                                                    {device.deviceName}
-                                                </option>
-                                            ))}
-                                        </>
-                                    )}
-                                </Form.Control>
+                                <Select
+                                    isMulti
+                                    options={devices}
+                                    value={selectedDevices}
+                                    onChange={setSelectedDevices} // Use the new handler
+                                    placeholder={formData.clientId ? "Select devices" : "Pick a customer before picking devices"}
+                                    isDisabled={!formData.clientId || devices.length === 0}
+                                    getOptionLabel={(option) => option.deviceName} // This is optional, just to provide clarity
+                                    getOptionValue={(option) => option.id} // Ensures unique value
+                                    components={{ Option: deviceOption}}
+                                />
                             </Form.Group>
+
                         </Col>
                     </Row>
                     <Row>

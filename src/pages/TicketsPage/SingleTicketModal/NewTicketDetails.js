@@ -32,9 +32,8 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
     const fetchDevices = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/device/client/${ticket.clientId}`);
-            const fetchedDevices = response.data.map(device => ({value: device.id, label: device.deviceName}))
-            setAvailableDevices(fetchedDevices);
-            setSelectedDevices(ticket.deviceIds.map(deviceId => fetchedDevices.find(device => device.value === deviceId)));
+            setAvailableDevices(response.data);
+            setSelectedDevices(ticket.deviceIds.map(deviceId => response.data.find(device => device.id === deviceId)));
         } catch (error) {
             console.error("Error fetching customer devices", error);
         }
@@ -57,29 +56,18 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
             const contactsWithRoles = await Promise.all(
                 response.data.map(async contact => {
                     const rolesRes = await axios.get(`${config.API_BASE_URL}/worker/role/${contact.id}`);
-                    return {
-                        ...contact,
-                        roles: rolesRes.data.map(role => role.role),
-                    };
+                    return {...contact, roles: rolesRes.data.map(role => role.role)};
                 })
             );
 
-            const fetchedContacts = contactsWithRoles.map(contact => ({
-                value: contact.id,
-                label: `${contact.firstName} ${contact.lastName}`,
-                favorite: contact.favorite,
-                roles: contact.roles,
-                contactData: contact, // Include the full contact data if needed
-            }));
+            setAvailableContacts(contactsWithRoles);
 
-            setAvailableContacts(fetchedContacts);
-
-            // Map selected contacts using the updated fetchedContacts
             setSelectedContacts(
                 editedTicket.contactIds.map(contactId =>
-                    fetchedContacts.find(contact => contact.value === contactId)
+                    contactsWithRoles.find(contact => contact.id === contactId)
                 )
             );
+
         } catch (error) {
             console.error('Error fetching ticket contacts', error);
         }
@@ -134,9 +122,9 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
         try {
             await axios.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`, {
                 ...editedTicket,
-                contactIds: selectedContacts.map(contact => contact.value),
+                contactIds: selectedContacts.map(contact => contact.id),
                 workTypeIds: selectedWorkTypes.map(workType => workType.value),
-                deviceIds: selectedDevices.map(device => device.value)
+                deviceIds: selectedDevices.map(device => device.id)
             });
 
             const selectedWorker = baitWorkers.find(worker => worker.id === parseInt(editedTicket.baitWorkerId));
@@ -169,6 +157,48 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
         // Format date into a readable string
         return date.toLocaleString('en-US', options);
     }
+
+    const deviceOption = ({ innerProps, innerRef, data, isFocused }) => {
+        if (!data || !data.deviceName) {
+            return null;
+        }
+        return(
+            <div
+                ref={innerRef}
+                {...innerProps}
+                style={{
+                    padding: '8px',
+                    backgroundColor: isFocused ? '#DEEBFF' : 'white', // Add hover color change here
+                    cursor: 'pointer',
+                }}
+            >
+                <div style={{ fontWeight: 'bold' }}>{data.deviceName}</div>
+                <div style={{ fontSize: '0.85em', color: '#666' }}>{data.serialNumber}</div>
+            </div>
+        );
+    }
+
+    const ContactOption = ({ innerRef, innerProps, data, isFocused }) => (
+        <div
+            ref={innerRef}
+            {...innerProps}
+            style={{
+                padding: '8px',
+                backgroundColor: isFocused ? '#DEEBFF' : 'white', // Add hover color change here
+                cursor: 'pointer',
+            }}
+        >
+            <div style={{ fontWeight: 'bold' }}>
+                {data.favorite ? '★ ' : ''}{data.firstName} {data.lastName}
+            </div>
+            {data.roles && data.roles.length > 0 && (
+                <div style={{ fontSize: '12px', color: '#666' }}>
+                    Roles: {data.roles.join(', ')}
+                </div>
+            )}
+        </div>
+    );
+
 
     return (
         <>
@@ -269,26 +299,17 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                         <Form.Group className="mb-3">
                                             <Select
                                                 isMulti
-                                                options={availableContacts.map(contact => ({
-                                                    value: contact.value,
-                                                    label: `${contact.favorite ? '★ ' : ''}${contact.label}${contact.roles && contact.roles.length > 0 ? ' - Roles: ' + contact.roles.join(', ') : ''}`,
-                                                }))}
-                                                value={selectedContacts.map(contact => ({
-                                                    value: contact.value,
-                                                    label: `${contact.favorite ? '★ ' : ''}${contact.label}${contact.roles && contact.roles.length > 0 ? ' - Roles: ' + contact.roles.join(', ') : ''}`,
-                                                }))}
-                                                onChange={selected => {
-                                                    setSelectedContacts(
-                                                        selected.map(option =>
-                                                            availableContacts.find(contact => contact.value === option.value)
-                                                        )
-                                                    );
-                                                }}
+                                                options={availableContacts}
+                                                value={selectedContacts}
+                                                onChange={setSelectedContacts}
                                                 placeholder="Select Contacts"
+                                                getOptionLabel={option => `${option.favorite ? '★ ' : ''}${option.firstName} ${option.lastName}`}
+                                                getOptionValue={option => option.id}
+                                                components={{ Option: ContactOption }}
                                             />
                                         </Form.Group>
                                     ) : (
-                                        selectedContacts.map(contact => contact.label).join(', ')
+                                        selectedContacts.map(contact => contact.firstName + " " + contact.lastName).join(', ')
                                     )}
                                 </Col>
                             </Row>
@@ -325,17 +346,20 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                                 value={selectedDevices}
                                                 onChange={setSelectedDevices}
                                                 placeholder="Select Devices"
+                                                getOptionLabel={(option) => option.deviceName} // This is optional, just to provide clarity
+                                                getOptionValue={(option) => option.id} // Ensures unique value
+                                                components={{ Option: deviceOption}}
                                             />
                                         </Form.Group>
                                     ) : (
                                         selectedDevices.length > 0 ? (
                                             selectedDevices.map((device, index) => (
-                                                <React.Fragment key={device.value}>
+                                                <React.Fragment key={device.id}>
                                                       <span
                                                           onClick={() => navigate(`/device/${device.value}`, { state: { fromTicketId: ticket.id } })}
                                                           style={{ color: 'blue', cursor: 'pointer' }} // Styling for clickable text
                                                       >
-                                                        {device.label}
+                                                        {device.deviceName}
                                                       </span>
                                                     {index < selectedDevices.length - 1 && ', '}
                                                 </React.Fragment>
