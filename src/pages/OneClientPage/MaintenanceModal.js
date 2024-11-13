@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {Modal, Row, Col, Accordion, Button, Spinner} from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../config/config";
-import { FaPaperclip } from 'react-icons/fa';
+import {FaUpload} from 'react-icons/fa';
 import FileList from '../../modals/FileList';
 import MaintenanceComment from "./MaintenanceComment";
 
@@ -91,7 +91,7 @@ function MaintenanceModal({ show, handleClose, maintenanceId }) {
                                                 style={{ textDecoration: "none", padding: 0 }}
                                                 className="me-2 d-flex"
                                             >
-                                                <FaPaperclip />
+                                                <FaUpload />
                                             </Button>
                                         </div>
                                         <input

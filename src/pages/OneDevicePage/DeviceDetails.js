@@ -1,120 +1,403 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import {Card, Button, Modal, Form, Alert, Col, Row} from 'react-bootstrap';
-import { FaPlus } from 'react-icons/fa';
+import React, {useEffect, useState} from 'react';
+import {useLocation} from 'react-router-dom';
+import {Alert, Button, Card, Col, Form, Modal, Row, Tab, Tabs,} from 'react-bootstrap';
+import {FaTrash} from 'react-icons/fa';
 import axios from 'axios';
-import config from "../../config/config";
-import DeviceFileList from "./DeviceFileList";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCog} from "@fortawesome/free-solid-svg-icons";
-import "../../css/AllDevicesPage/Devices.css";
+import config from '../../config/config';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faCog, faEdit, faHistory, faComments} from '@fortawesome/free-solid-svg-icons';
+import '../../css/AllDevicesPage/Devices.css';
+import DeviceStatusManager from './DeviceStatusManager';
 
-function DeviceDetails({ device, navigate, setShowCommentsModal, setRefresh }) {
+function DeviceDetails({
+                           device,
+                           navigate,
+                           setShowCommentsModal,
+                           setRefresh,
+                       }) {
+    // State for managing field configurations
+    const [fieldsConfig, setFieldsConfig] = useState([]);
+    // State to control the visibility of the Manage Fields modal
     const [showDeviceFieldModal, setShowDeviceFieldModal] = useState(false);
-    const [visibleFields, setVisibleFields] = useState({});
-    const [newField, setNewField] = useState({ key: '', value: '', addToAll: false });
-    const [showAddFieldForm, setShowAddFieldForm] = useState(false);
+    // Active tab within the Manage Fields modal
+    const [activeTab, setActiveTab] = useState('visibleFields');
+    // State for adding a new field
+    const [newField, setNewField] = useState({
+        key: '',
+        value: '',
+        addToAll: false,
+    });
     const [localDevice, setLocalDevice] = useState(device);
-    const [showWrittenOffModal, setShowWrittenOffModal] = useState(false);
-    const [writtenOffDate, setWrittenOffDate] = useState(device?.writtenOffDate || "");
-    const [isWrittenOff, setIsWrittenOff] = useState(!!device?.writtenOffDate);
-    const [writtenOffComment, setWrittenOffComment] = useState('');
-    const [showReactivateModal, setShowReactivateModal] = useState(false);
-    const today = new Date().toISOString().split('T')[0];
-    const location = useLocation();
-    const [dateError, setDateError] = useState(null);
+    const locationHook = useLocation();
     const introducedDate = device?.introducedDate;
+    const [fieldError, setFieldError] = useState(null);
+    const [fieldToDelete, setFieldToDelete] = useState(null);
+    const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
 
-    const defaultFields = [
-        'deviceName',
-        'clientName',
-        'locationName',
-        'classificatorName',
-        'introducedDate',
-        'version',
-        'versionUpdateDate',
-        'firstIPAddress',
-        'secondIPAddress',
-        'subnetMask',
-        'softwareKey',
-        'writtenOffDate',
-        'department',
-        'room',
-        'serialNumber',
-        'licenseNumber'
+    // Define default fields configuration
+    const defaultFieldsConfig = [
+        {
+            key: 'deviceName',
+            label: 'Device Name',
+            visible: true,
+            isAttribute: false,
+        },
+        {
+            key: 'clientName',
+            label: 'Customer Name',
+            visible: true,
+            isAttribute: false,
+        },
+        {
+            key: 'locationName',
+            label: 'Location Name',
+            visible: true,
+            isAttribute: false,
+        },
+        {
+            key: 'classificatorName',
+            label: 'Classificator Name',
+            visible: true,
+            isAttribute: false,
+        },
+        {
+            key: 'introducedDate',
+            label: 'Introduced Date',
+            visible: true,
+            isAttribute: false,
+        },
+        {
+            key: 'version',
+            label: 'Version',
+            visible: true,
+            isAttribute: false,
+        },
+        {
+            key: 'versionUpdateDate',
+            label: 'Version Update Date',
+            visible: true,
+            isAttribute: false,
+        },
+        {
+            key: 'firstIPAddress',
+            label: 'First IP Address',
+            visible: true,
+            isAttribute: false,
+        },
+        {
+            key: 'secondIPAddress',
+            label: 'Second IP Address',
+            visible: true,
+            isAttribute: false,
+        },
+        {
+            key: 'subnetMask',
+            label: 'Subnet Mask',
+            visible: true,
+            isAttribute: false,
+        },
+        {
+            key: 'softwareKey',
+            label: 'Software Key',
+            visible: true,
+            isAttribute: false,
+        },
+        {
+            key: 'writtenOffDate',
+            label: 'Written Off Date',
+            visible: true,
+            isAttribute: false,
+        },
+        {
+            key: 'department',
+            label: 'Department',
+            visible: true,
+            isAttribute: false,
+        },
+        {
+            key: 'room',
+            label: 'Room',
+            visible: true,
+            isAttribute: false,
+        },
+        {
+            key: 'serialNumber',
+            label: 'Serial Number',
+            visible: true,
+            isAttribute: false,
+        },
+        {
+            key: 'licenseNumber',
+            label: 'License Number',
+            visible: true,
+            isAttribute: false,
+        },
+        // Add more default fields as needed
     ];
 
-    useEffect(() => {
-        if (localDevice) {
-            const storedVisibleFields = localStorage.getItem(`deviceVisibleFields_${localDevice.id}`);
-            if (storedVisibleFields) {
-                setVisibleFields(JSON.parse(storedVisibleFields));
-            } else {
-                initializeVisibleFields(localDevice);
-            }
-        }
-    }, [localDevice]);
-
+    // Initialize fields configuration on component mount or when device changes
     useEffect(() => {
         if (device) {
             setLocalDevice(device);
-            const storedVisibleFields = localStorage.getItem(`deviceVisibleFields_${device.id}`);
-            if (storedVisibleFields) {
-                setVisibleFields(JSON.parse(storedVisibleFields));
-            } else {
-                initializeVisibleFields(device);
-            }
+            initializeFieldsConfig(device);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [device]);
 
-    const initializeVisibleFields = (data) => {
+    // Function to initialize fields configuration
+    const initializeFieldsConfig = (data) => {
         const deviceSpecificKey = `deviceVisibleFields_${data.id}`;
         const storedVisibleFields = localStorage.getItem(deviceSpecificKey);
-        const initialVisibleFields = defaultFields.reduce((acc, key) => {
-            if (key in data) {
-                acc[key] = true;
-            }
-            return acc;
-        }, {});
+        let initialFieldsConfig = [...defaultFieldsConfig];
 
         if (storedVisibleFields) {
-            const storedFields = JSON.parse(storedVisibleFields);
-            Object.keys(storedFields).forEach(key => {
-                if (storedFields[key]) {
-                    initialVisibleFields[key] = true;
+            try {
+                const parsedVisibleFields = JSON.parse(storedVisibleFields);
+                let visibleFieldsArray = [];
+
+                if (Array.isArray(parsedVisibleFields)) {
+                    visibleFieldsArray = parsedVisibleFields;
+                } else if (typeof parsedVisibleFields === 'object' && parsedVisibleFields !== null) {
+                    // Convert object to array by filtering keys with true values
+                    visibleFieldsArray = Object.keys(parsedVisibleFields).filter(
+                        (key) => parsedVisibleFields[key]
+                    );
+                }
+
+                initialFieldsConfig = initialFieldsConfig.map((field) => ({
+                    ...field,
+                    visible: visibleFieldsArray.includes(field.key),
+                }));
+            } catch (error) {
+                console.error('Error parsing visibleFields from localStorage:', error);
+                // If parsing fails, default to all fields visible
+                initialFieldsConfig = initialFieldsConfig.map((field) => ({
+                    ...field,
+                    visible: true,
+                }));
+            }
+        }
+
+        // Add dynamic fields from attributes
+        if (data.attributes) {
+            Object.keys(data.attributes).forEach((attrKey) => {
+                if (
+                    !initialFieldsConfig.some(
+                        (field) => field.key === attrKey
+                    )
+                ) {
+                    initialFieldsConfig.push({
+                        key: attrKey,
+                        label: formatLabel(attrKey),
+                        visible: true,
+                        isAttribute: true,
+                    });
                 }
             });
         }
 
-        const globalFields = JSON.parse(localStorage.getItem('globalVisibleFields') || '{}');
-        const updatedVisibleFields = { ...initialVisibleFields, ...globalFields };
-
-        setVisibleFields(updatedVisibleFields);
-        localStorage.setItem(deviceSpecificKey, JSON.stringify(updatedVisibleFields));
+        setFieldsConfig(initialFieldsConfig);
     };
 
-    const handleFieldToggle = (field) => {
-        setVisibleFields(prevVisibleFields => {
-            const newVisibleFields = { ...prevVisibleFields, [field]: !prevVisibleFields[field] };
-            const deviceSpecificKey = `deviceVisibleFields_${localDevice.id}`;
-            localStorage.setItem(deviceSpecificKey, JSON.stringify(newVisibleFields));
-            return newVisibleFields;
-        });
-    };
-
-    const renderFields = (data) => {
-        return Object.keys(data).map(key => {
-            if (visibleFields[key] && data[key] !== null) {
-                if (typeof data[key] === 'object' && !Array.isArray(data[key])) {
-                    return (
-                        <div key={key} className="mb-2">
-                            {renderFields(data[key])}
-                        </div>
-                    );
+    // Function to format field labels for better readability
+    const formatLabel = (label) => {
+        const abbreviations = ['IP', 'API', 'ID']; // Add more as needed
+        return label
+            .replace(/clientName/, 'Customer Name')
+            .replace(/([a-z])([A-Z])/g, '$1 $2') // Insert space between lowercase and uppercase
+            .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2') // Handle consecutive uppercase letters
+            .split(' ')
+            .map((word) => {
+                if (abbreviations.includes(word.toUpperCase())) {
+                    return word.toUpperCase();
                 }
                 return (
-                    <div key={key} className="mb-1">
-                        <strong>{formatLabel(key)}: </strong> {data[key]}
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                );
+            })
+            .join(' ');
+    };
+
+    // Function to toggle field visibility
+    const handleFieldToggle = (key) => {
+        setFieldsConfig((prevConfig) =>
+            prevConfig.map((field) =>
+                field.key === key
+                    ? {...field, visible: !field.visible}
+                    : field
+            )
+        );
+
+        // Update localStorage after state update
+        setTimeout(() => {
+            const updatedFields = fieldsConfig.map((field) =>
+                field.key === key
+                    ? {...field, visible: !field.visible}
+                    : field
+            );
+            const visibleFieldsArray = updatedFields
+                .filter((field) => field.visible)
+                .map((field) => field.key);
+            const deviceSpecificKey = `deviceVisibleFields_${device.id}`;
+            localStorage.setItem(
+                deviceSpecificKey,
+                JSON.stringify(visibleFieldsArray)
+            );
+        }, 0);
+    };
+
+    // Function to handle adding a new field
+    const handleAddField = async () => {
+        if (
+            newField.key.trim() === '' ||
+            newField.value.trim() === ''
+        ) {
+            setFieldError('Please enter both key and value for the new field.');
+            return;
+        }
+
+        // Check for duplicate field keys
+        if (
+            fieldsConfig.some(
+                (field) => field.key.toLowerCase() === newField.key.toLowerCase()
+            )
+        ) {
+            setFieldError('Field key already exists. Please use a unique key.');
+            return;
+        }
+
+        const attribute = {[newField.key]: newField.value};
+
+        try {
+            if (newField.addToAll) {
+                // Add the new attribute to all devices
+                await axios.post(
+                    `${config.API_BASE_URL}/device/attributes/add-to-all`,
+                    attribute
+                );
+                console.log('Field added to all devices');
+
+                // Update visibility for all devices in localStorage
+                const globalVisibleFields =
+                    JSON.parse(localStorage.getItem('globalVisibleFields') || '{}');
+                globalVisibleFields[newField.key] = true;
+                localStorage.setItem(
+                    'globalVisibleFields',
+                    JSON.stringify(globalVisibleFields)
+                );
+
+                // Update visibility for each device
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith('deviceVisibleFields_')) {
+                        const deviceFields = JSON.parse(
+                            localStorage.getItem(key)
+                        );
+                        deviceFields[newField.key] = true;
+                        localStorage.setItem(key, JSON.stringify(deviceFields));
+                    }
+                }
+                window.location.reload();
+            } else {
+                // Add the new attribute to the current device
+                await axios.put(
+                    `${config.API_BASE_URL}/device/${device.id}/attributes`,
+                    attribute
+                );
+                const updatedDevice = {
+                    ...localDevice,
+                    attributes: {
+                        ...localDevice.attributes,
+                        ...attribute,
+                    },
+                };
+                setLocalDevice(updatedDevice);
+
+                // Update fieldsConfig with the new field
+                setFieldsConfig((prevConfig) => [
+                    ...prevConfig,
+                    {
+                        key: newField.key,
+                        label: formatLabel(newField.key),
+                        visible: true,
+                        isAttribute: true,
+                    },
+                ]);
+
+                // Update visibility settings in localStorage
+                const deviceSpecificKey = `deviceVisibleFields_${device.id}`;
+                const updatedVisibleFields = fieldsConfig
+                    .filter((field) => field.visible)
+                    .map((field) => field.key)
+                    .concat(newField.key);
+                localStorage.setItem(
+                    deviceSpecificKey,
+                    JSON.stringify(updatedVisibleFields)
+                );
+            }
+        } catch (error) {
+            console.error('Error adding new field:', error);
+            setFieldError('Failed to add new field.');
+        }
+
+        // Reset newField state and close the add field form
+        setNewField({key: '', value: '', addToAll: false});
+        setFieldError(null);
+    };
+
+    // Function to handle deleting a custom field
+    const handleDeleteField = async () => {
+        if (!fieldToDelete) return;
+
+        try {
+            // Delete the attribute from the device
+            await axios.delete(
+                `${config.API_BASE_URL}/device/${device.id}/${fieldToDelete}`
+            );
+
+            // Update localDevice state
+            const updatedAttributes = {...localDevice.attributes};
+            delete updatedAttributes[fieldToDelete];
+            setLocalDevice((prevDevice) => ({
+                ...prevDevice,
+                attributes: updatedAttributes,
+            }));
+
+            // Remove the field from fieldsConfig
+            setFieldsConfig((prevConfig) =>
+                prevConfig.filter((field) => field.key !== fieldToDelete)
+            );
+
+            // Update visibility settings in localStorage
+            const deviceSpecificKey = `deviceVisibleFields_${device.id}`;
+            const updatedVisibleFields = fieldsConfig
+                .filter((field) => field.visible && field.key !== fieldToDelete)
+                .map((field) => field.key);
+            localStorage.setItem(
+                deviceSpecificKey,
+                JSON.stringify(updatedVisibleFields)
+            );
+
+            // Close the confirmation modal
+            setShowDeleteConfirmModal(false);
+            setFieldToDelete(null);
+        } catch (error) {
+            console.error('Error deleting field:', error);
+            setFieldError('Failed to delete field.');
+            setShowDeleteConfirmModal(false);
+            setFieldToDelete(null);
+        }
+    };
+
+    // Function to render device fields based on visibility
+    const renderFields = () => {
+        return fieldsConfig.map((field) => {
+            const value =
+                localDevice[field.key] || localDevice.attributes?.[field.key];
+            if (field.visible && value !== undefined && value !== null) {
+                return (
+                    <div key={field.key} className="mb-1">
+                        <strong>{field.label}: </strong> {value}
                     </div>
                 );
             }
@@ -122,119 +405,16 @@ function DeviceDetails({ device, navigate, setShowCommentsModal, setRefresh }) {
         });
     };
 
-    const formatLabel = (label) => {
-        // List of known abbreviations to preserve
-        const abbreviations = ['IP', 'API', 'ID']; // Add more abbreviations as needed
-
-        return label
-            .replace(/clientName/, 'Customer Name')
-            // Split camelCase and concatenate words, keeping abbreviations like "IP" intact
-            .replace(/([a-z])([A-Z])/g, '$1 $2')  // Insert space between lowercase and uppercase (e.g., "FirstIP" -> "First IP")
-            .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')  // Insert space between uppercase groups and camelCase (e.g., "IPAddress" -> "IP Address")
-            .split(' ')  // Split the label into words by spaces
-            .map(word => {
-                // If the word matches a known abbreviation, return it fully capitalized
-                if (abbreviations.includes(word.toUpperCase())) {
-                    return word.toUpperCase();  // Ensure it stays uppercase (e.g., "IP" -> "IP")
-                }
-                // Capitalize only the first letter of normal words (e.g., "first" -> "First")
-                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-            })
-            .join(' ');  // Join the words back into a single string
-    }
-
-    const handleAddField = async () => {
-        if (newField.key.trim() === '' || newField.value.trim() === '') {
-            alert('Please enter both key and value for the new field.');
-            return;
-        }
-
-        const attribute = { [newField.key]: newField.value };
-
-        try {
-            if (newField.addToAll) {
-                await axios.post(`${config.API_BASE_URL}/device/attributes/add-to-all`, attribute);
-                console.log('Field added to all devices');
-
-                // Update visibility for all devices
-                const globalVisibleFields = JSON.parse(localStorage.getItem('globalVisibleFields') || '{}');
-                globalVisibleFields[newField.key] = true;
-                localStorage.setItem('globalVisibleFields', JSON.stringify(globalVisibleFields));
-
-                // Update all stored devices visibility fields
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (key.startsWith('deviceVisibleFields_')) {
-                        const deviceFields = JSON.parse(localStorage.getItem(key));
-                        deviceFields[newField.key] = true;
-                        localStorage.setItem(key, JSON.stringify(deviceFields));
-                    }
-                }
-                window.location.reload();
-            } else {
-                await axios.put(`${config.API_BASE_URL}/device/${device.id}/attributes`, attribute);
-                const updatedDevice = { ...localDevice, attributes: { ...localDevice.attributes, ...attribute } };
-                setLocalDevice(updatedDevice);
-
-                const deviceSpecificKey = `deviceVisibleFields_${localDevice.id}`;
-                setVisibleFields(prevFields => {
-                    const newFields = { ...prevFields, [newField.key]: true };
-                    localStorage.setItem(deviceSpecificKey, JSON.stringify(newFields));
-                    return newFields;
-                });
-            }
-        } catch (error) {
-            console.error('Error updating device:', error);
-        }
-
-        setNewField({ key: '', value: '', addToAll: false });
-        setShowAddFieldForm(false);
-    };
-
-    const handleAddWrittenOffDate = async (e) => {
-        e.preventDefault();
-        if (new Date(writtenOffDate) < new Date(introducedDate)) {
-            setDateError('Written Off Date cannot be before the Introduced Date.');
-            return;
-        }
-
-        try {
-            await axios.put(`${config.API_BASE_URL}/device/written-off/${device.id}`,
-                { writtenOffDate }, // Sending the writtenOffDate in the request body
-                { params: { comment: writtenOffComment } } // Sending the comment as a request parameter
-            );
-            setIsWrittenOff(true); // Mark the device as written off
-            setRefresh(prev => !prev); // Refresh data
-            setShowWrittenOffModal(false); // Close modal
-            setDateError(null);
-        } catch (error) {
-            console.error('Error updating written off date:', error);
-        }
-    };
-
-
-
-    const handleReactivateDevice = async () => {
-        try {
-            await axios.put(`${config.API_BASE_URL}/device/reactivate/${device.id}`, null,
-                { params: { comment: writtenOffComment } } // Sending the comment as a request parameter
-            );
-            setWrittenOffDate('');  // Clear the written off date
-            setIsWrittenOff(false); // Update the status
-            setRefresh(prev => !prev); // Refresh the data
-            setShowReactivateModal(false)
-        } catch (error) {
-            console.error('Error reactivating the device:', error);
-        }
-    };
-
+    // Function to handle navigating to device history
     const handleNavigate = () => {
         if (device && device.id) {
-            navigate('/history', { state: { endpoint: `device/history/${device.id}` } })
+            navigate('/history', {
+                state: {endpoint: `device/history/${device.id}`},
+            });
         } else {
-            console.error("Device or device id is undefined")
+            console.error('Device or device id is undefined');
         }
-    }
+    };
 
     return (
         <>
@@ -243,177 +423,217 @@ function DeviceDetails({ device, navigate, setShowCommentsModal, setRefresh }) {
                     <Card.Body>
                         <Row>
                             <Col>
-                                {renderFields({
-                                    ...Object.fromEntries(Object.entries(localDevice).filter(([key]) => key !== 'attributes')),
-                                    ...localDevice.attributes
-                                })}
+                                {renderFields()}
                             </Col>
-                            <Col className='col-md-auto'>
-                                <Row>
-                                    <Col className='col-md-auto'>
-                                        <Button variant="link" className="me-2" onClick={() => setShowDeviceFieldModal(true)}>
-                                            <FontAwesomeIcon icon={faCog}
-                                            title="Edit visible fields"/>
-                                        </Button>
-                                    </Col>
-                                    <Col className="col-md-auto">
-                                        <Row>
-                                            <Button variant="primary" onClick={() => navigate(`/device/edit/${localDevice.id}`, {state: location.state})}>
-                                                Edit Device
-                                            </Button>
-                                        </Row>
-                                        <Row>
-                                            <Button onClick={handleNavigate} className='mt-2 mb-2'>See History</Button>
-                                        </Row>
-                                    </Col>
-                                </Row>
-                            </Col>
-                        </Row>
-                        <DeviceFileList deviceId={localDevice.id}/>
-                        {isWrittenOff ? (
-                            <Button variant="success me-2" onClick={() => {
-                                setWrittenOffComment("");
-                                setShowReactivateModal(true);
-                            }}
+                            <Col className="col-md-auto">
+                                <div className="d-flex">
+                                    <Button
+                                        variant="link"
+                                        className="text-primary me-2"
+                                        onClick={() => setShowDeviceFieldModal(true)}
+                                        title="Manage Fields"
                                     >
-                                Reactivate
-                            </Button>
-                        ) : (
-                            <Button
-                                variant="warning me-2"
-                                onClick={() => {
-                                    setWrittenOffDate("");
-                                    setWrittenOffComment("");
-                                    setShowWrittenOffModal(true);
-                                }}
-                            >
-                                Write Off
-                            </Button>
-                        )}
+                                        <FontAwesomeIcon icon={faCog}/>
+                                    </Button>
+                                    <Button
+                                        variant="link"
+                                        className="text-primary me-2"
+                                        onClick={() => navigate(`/device/edit/${localDevice.id}`, { state: locationHook.state })}
+                                        title="Edit Device"
+                                    >
+                                        <FontAwesomeIcon icon={faEdit}/>
+                                    </Button>
+                                    <Button
+                                        variant="link"
+                                        className="text-primary"
+                                        onClick={handleNavigate}
+                                        title="View History"
+                                    >
+                                        <FontAwesomeIcon icon={faHistory}/>
+                                    </Button>
+                                    <Button
+                                        variant="link"
+                                        className="text-primary"
+                                        onClick={() => setShowCommentsModal(true)}
+                                        title="View Comments"
+                                    >
+                                        <FontAwesomeIcon icon={faComments}/>
+                                    </Button>
+                                </div>
+                            </Col>
 
-                        <Button variant="info" onClick={() => setShowCommentsModal(true)}>View Comments</Button>
+                        </Row>
+
+                        <DeviceStatusManager
+                            deviceId={localDevice.id}
+                            introducedDate={localDevice.introducedDate}
+                            writtenOffDate={localDevice.writtenOffDate}
+                            setRefresh={setRefresh}
+                        />
+
                     </Card.Body>
                 </Card>
             ) : (
                 <Alert variant="info">No device details available.</Alert>
             )}
-            <Modal show={showDeviceFieldModal} onHide={() => setShowDeviceFieldModal(false)}>
+
+            {/* Manage Fields Modal */}
+            <Modal
+                show={showDeviceFieldModal}
+                onHide={() => setShowDeviceFieldModal(false)}
+                size="lg"
+            >
                 <Modal.Header closeButton>
-                    <Modal.Title>Edit Visible Device Fields</Modal.Title>
+                    <Modal.Title>Manage Device Fields</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form>
-                        {Object.keys(visibleFields).filter(key => key !== 'attributes').map(key => (
-                            <Form.Check
-                                key={key}
-                                type="checkbox"
-                                label={key.replace(/([A-Z])/g, ' $1')}
-                                checked={visibleFields[key]}
-                                onChange={() => handleFieldToggle(key)}
-                            />
-                        ))}
-                        <hr />
-                        {showAddFieldForm ? (
-                            <>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>New Field Key</Form.Label>
+                    <Tabs
+                        activeKey={activeTab}
+                        onSelect={(k) => setActiveTab(k)}
+                        className="mb-3"
+                    >
+                        {/* Inside the "Manage Fields" modal */}
+                        <Tab eventKey="visibleFields" title="Visible Fields">
+                            <Form className="mt-3">
+                                {fieldsConfig.map((field) => (
+                                    <Form.Check
+                                        key={field.key}
+                                        type="checkbox"
+                                        label={field.label}
+                                        checked={field.visible}
+                                        onChange={() => handleFieldToggle(field.key)}
+                                    />
+                                ))}
+                            </Form>
+                        </Tab>
+
+                        <Tab eventKey="addField" title="Add Field">
+                            <Form className="mt-3">
+                                {fieldError && (
+                                    <Alert variant="danger">{fieldError}</Alert>
+                                )}
+                                <Form.Group controlId="newFieldKey" className="mb-3">
+                                    <Form.Label>Field Key</Form.Label>
                                     <Form.Control
                                         type="text"
                                         value={newField.key}
-                                        onChange={(e) => setNewField({ ...newField, key: e.target.value })}
+                                        onChange={(e) =>
+                                            setNewField({
+                                                ...newField,
+                                                key: e.target.value,
+                                            })
+                                        }
+                                        placeholder="Enter unique field key (e.g., warrantyPeriod)"
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>New Field Value</Form.Label>
+                                <Form.Group controlId="newFieldValue" className="mb-3">
+                                    <Form.Label>Field Value</Form.Label>
                                     <Form.Control
                                         type="text"
                                         value={newField.value}
-                                        onChange={(e) => setNewField({ ...newField, value: e.target.value })}
+                                        onChange={(e) =>
+                                            setNewField({
+                                                ...newField,
+                                                value: e.target.value,
+                                            })
+                                        }
+                                        placeholder="Enter field value"
                                     />
                                 </Form.Group>
                                 <Form.Check
                                     type="checkbox"
                                     label="Add to all devices"
                                     checked={newField.addToAll}
-                                    onChange={(e) => setNewField({ ...newField, addToAll: e.target.checked })}
+                                    onChange={(e) =>
+                                        setNewField({
+                                            ...newField,
+                                            addToAll: e.target.checked,
+                                        })
+                                    }
+                                    className="mb-3"
                                 />
-                                <Button variant="success" onClick={handleAddField} className="mt-3">
+                                <Button variant="success" onClick={handleAddField}>
                                     Add Field
                                 </Button>
-                            </>
-                        ) : (
-                            <Button variant="link" className="text-success" onClick={() => setShowAddFieldForm(true)}>
-                                <FaPlus /> Add Field
-                            </Button>
-                        )}
-                    </Form>
+                            </Form>
+                        </Tab>
+
+                        {/* Add a new Tab for Managing Custom Attributes with Trashcan Icons */}
+                        <Tab eventKey="customAttributes" title="Custom Attributes">
+                            <h5 className="mt-3">Custom Attributes</h5>
+                            <Form className="mt-3">
+                                {fieldsConfig
+                                    .filter((field) => field.isAttribute)
+                                    .map((field) => (
+                                        <div key={field.key} className="d-flex align-items-center mb-2">
+                                            <Form.Check
+                                                type="checkbox"
+                                                label={field.label}
+                                                checked={field.visible}
+                                                onChange={() => handleFieldToggle(field.key)}
+                                                className="flex-grow-1"
+                                            />
+                                            <Button
+                                                variant="link"
+                                                size="sm"
+                                                className="p-0 text-danger ms-2"
+                                                onClick={() => {
+                                                    setFieldToDelete(field.key);
+                                                    setShowDeleteConfirmModal(true);
+                                                }}
+                                                title="Delete Attribute"
+                                            >
+                                                <FaTrash/>
+                                            </Button>
+                                        </div>
+                                    ))}
+                            </Form>
+                        </Tab>
+
+                    </Tabs>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowDeviceFieldModal(false)}>Close</Button>
+                    <Button
+                        variant="secondary"
+                        onClick={() => setShowDeviceFieldModal(false)}
+                    >
+                        Close
+                    </Button>
                 </Modal.Footer>
             </Modal>
 
-            <Modal show={showWrittenOffModal} onHide={() => setShowWrittenOffModal(false)}>
+            {/* Delete Confirmation Modal */}
+            <Modal
+                show={showDeleteConfirmModal}
+                onHide={() => setShowDeleteConfirmModal(false)}
+                centered
+            >
                 <Modal.Header closeButton>
-                    <Modal.Title>Add Written Off Date</Modal.Title>
-                </Modal.Header>
-                <Form onSubmit={handleAddWrittenOffDate}>
-                <Modal.Body>
-                    {dateError && <Alert variant="danger">{dateError}</Alert>}
-                        <Form.Group controlId="writtenOffDate">
-                            <Form.Label>Written Off Date</Form.Label>
-                            <Form.Control
-                                type="date"
-                                value={writtenOffDate}
-                                onChange={(e) => setWrittenOffDate(e.target.value)}
-                                max={today}
-                                required
-                            />
-                        </Form.Group>
-
-                        <Form.Group controlId="writtenOffComment" className="mt-3">
-                            <Form.Label>Comment</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                rows={3}
-                                value={writtenOffComment}
-                                onChange={(e) => setWrittenOffComment(e.target.value)}
-                                placeholder="Enter reason for writing off the device"
-                            />
-                        </Form.Group>
-
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowWrittenOffModal(false)}>Close</Button>
-                    <Button variant="primary" type="submit">Save</Button>
-                </Modal.Footer>
-                </Form>
-            </Modal>
-
-            <Modal show={showReactivateModal} onHide={() => setShowReactivateModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Reactivate Device</Modal.Title>
+                    <Modal.Title>Confirm Deletion</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form>
-                        <Form.Group controlId="reactivateComment">
-                            <Form.Label>Comment</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                rows={3}
-                                value={writtenOffComment}
-                                onChange={(e) => setWrittenOffComment(e.target.value)}
-                                placeholder="Enter reason for reactivating the device"
-                            />
-                        </Form.Group>
-                    </Form>
+                    Are you sure you want to delete the attribute "
+                    <strong>{fieldToDelete}</strong>"?
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowReactivateModal(false)}>Close</Button>
-                    <Button variant="primary" onClick={handleReactivateDevice}>Reactivate</Button>
+                    <Button
+                        variant="secondary"
+                        onClick={() => {
+                            setShowDeleteConfirmModal(false);
+                            setFieldToDelete(null);
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={handleDeleteField}>
+                        Delete
+                    </Button>
                 </Modal.Footer>
             </Modal>
+
+
         </>
+
     );
 }
 

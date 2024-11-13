@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Container, Row, Col, Card, Button, Spinner, Alert, Modal, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import config from '../../config/config';
+import {faEdit} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 function ViewTicketStatusClassificators() {
     const [classificators, setClassificators] = useState([]);
@@ -88,16 +90,44 @@ function ViewTicketStatusClassificators() {
                 </Col>
             </Row>
             <Row>
-                {classificators.map((classificator) => (
-                    <Col md={4} key={classificator.id} className="mb-4">
+                {classificators.map((classificator) => {
+                    const statusName = classificator?.status || 'Unknown Status';
+                    const statusColor = classificator?.color || '#007bff';
+                    return (
+                    <Col md={3} key={classificator.id} className="mb-4">
                         <Card>
-                            <Card.Body>
-                                <Card.Title>{classificator.status}</Card.Title>
-                                <Button variant="secondary" onClick={() => handleEdit(classificator)}>Edit</Button>
-                            </Card.Body>
+                            <Row className="d-flex justify-content-between">
+                                <Col className="col-md-auto">
+                                    <div className="d-flex align-items-center">
+                                        <h3 className="p-2 fw-semibold">{statusName}</h3>
+                                        <Button
+                                            style={{
+                                                width: "20px",
+                                                height: "20px", // Ensure the box is square
+                                                backgroundColor: statusColor,
+                                                borderColor: statusColor,
+                                                marginLeft: "10px"
+                                            }}
+                                            disabled
+                                            className="p-0 ms-2" // Remove padding for a clean square
+                                        />
+                                    </div>
+                                </Col>
+
+                                <Col className="col-md-auto">
+                                    <Button
+                                        variant="link"
+                                        onClick={() => handleEdit(classificator)}
+                                        className="" // Align to the top-right corner
+                                    >
+                                        <FontAwesomeIcon icon={faEdit} title="Edit Customer" />
+                                    </Button>
+                                </Col>
+                            </Row>
                         </Card>
+
                     </Col>
-                ))}
+                    )})}
             </Row>
             <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
                 <Modal.Header closeButton>

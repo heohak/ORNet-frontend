@@ -1,294 +1,117 @@
-import React, { useEffect, useState } from 'react';
-import { Card, Button, Modal, Form, Alert, ListGroup } from 'react-bootstrap';
-import axios from 'axios';
-import config from "../../config/config";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCog} from "@fortawesome/free-solid-svg-icons";
-import FileList from "../../modals/FileList";
+// MaintenanceInfo.js
+import React, { useState } from 'react';
+import { Row, Col, Button, Alert } from 'react-bootstrap';
+import MaintenanceModal from "../OneClientPage/MaintenanceModal";
+import AddMaintenanceModal from "../OneClientPage/AddMaintenanceModal";
+import '../../css/OneDevicePage/OneDevice.css'; // Adjust the path as needed
 
-function MaintenanceInfo({
-                             maintenanceInfo,
-                             showMaintenanceModal,
-                             setShowMaintenanceModal,
-                             handleAddMaintenance,
-                             setMaintenanceName,
-                             setMaintenanceDate,
-                             setMaintenanceComment,
-                             setFiles,
-                             showMaintenanceFieldModal,
-                             setShowMaintenanceFieldModal,
-                            isSubmitting
-                         }) {
-    const [visibleFields, setVisibleFields] = useState({});
-    const [selectedFiles, setSelectedFiles] = useState([]);
-    const [showFileUploadModal, setShowFileUploadModal] = useState(false);
+function MaintenanceInfo({ maintenanceInfo, deviceId, setRefresh }) {
+    const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
+    const [showAddMaintenanceModal, setShowAddMaintenanceModal] = useState(false);
     const [selectedMaintenanceId, setSelectedMaintenanceId] = useState(null);
-    const [maintenanceFiles, setMaintenanceFiles] = useState({});
-    const [isSubmittingFileUpload, setIsSubmittingFileUpload] = useState(false);
+    const [sortConfig, setSortConfig] = useState({ key: 'maintenanceName', direction: 'ascending' });
 
+    const estoniaDateFormat = new Intl.DateTimeFormat('et-EE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
 
-    const defaultFields = [
-        'maintenanceName',
-        'maintenanceDate',
-        'comment'
-    ];
-
-    useEffect(() => {
-        if (maintenanceInfo.length > 0) {
-            initializeVisibleFields(maintenanceInfo[0]);
-            fetchAllMaintenanceFiles();
+    const handleSort = (key) => {
+        let direction = 'ascending';
+        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+            direction = 'descending';
         }
-    }, [maintenanceInfo]);
+        setSortConfig({ key, direction });
+    };
 
-    const initializeVisibleFields = (data) => {
-        const initialVisibleFields = defaultFields.reduce((acc, key) => {
-            if (key in data) {
-                acc[key] = true;
-            }
-            return acc;
-        }, {});
+    const sortedMaintenances = [...maintenanceInfo].sort((a, b) => {
+        const valueA = a[sortConfig.key];
+        const valueB = b[sortConfig.key];
 
-        const savedVisibilityState = localStorage.getItem('maintenanceVisibilityState');
-        if (savedVisibilityState) {
-            const savedFields = JSON.parse(savedVisibilityState);
-            setVisibleFields({ ...initialVisibleFields, ...savedFields });
-        } else {
-            setVisibleFields(initialVisibleFields);
+        if (valueA < valueB) return sortConfig.direction === 'ascending' ? -1 : 1;
+        if (valueA > valueB) return sortConfig.direction === 'ascending' ? 1 : -1;
+        return 0;
+    });
+
+    const renderSortArrow = (key) => {
+        if (sortConfig.key === key) {
+            return sortConfig.direction === 'ascending' ? '▲' : '▼';
         }
+        return '↕';
     };
 
-    const handleFieldToggle = (field) => {
-        setVisibleFields(prevVisibleFields => {
-            const newVisibleFields = { ...prevVisibleFields, [field]: !prevVisibleFields[field] };
-            localStorage.setItem('maintenanceVisibilityState', JSON.stringify(newVisibleFields));
-            return newVisibleFields;
-        });
-    };
-
-    const fetchAllMaintenanceFiles = async () => {
-        try {
-            const filesData = {};
-            for (let maintenance of maintenanceInfo) {
-                const response = await axios.get(`${config.API_BASE_URL}/maintenance/files/${maintenance.id}`);
-                filesData[maintenance.id] = response.data;
-            }
-            setMaintenanceFiles(filesData);
-        } catch (error) {
-            console.error('Error fetching maintenance files:', error);
-        }
-    };
-
-    const renderFields = (data) => {
-        return Object.keys(data).map(key => {
-            if (visibleFields[key] && data[key] !== null) {
-                return (
-                    <Card.Text key={key} className="mb-1">
-                        <strong>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}: </strong> {data[key]}
-                    </Card.Text>
-                );
-            }
-            return null;
-        });
-    };
-
-    const renderFiles = (maintenanceId) => {
-        const files = maintenanceFiles[maintenanceId] || [];
-        return (
-            <>
-                <Card.Text>
-                    <strong>Files:</strong>
-                </Card.Text>
-                <FileList files={files}/>
-            </>
-        );
-    };
-
-    const handleFileChange = (e) => {
-        const files = Array.from(e.target.files);
-        setSelectedFiles([...selectedFiles, ...files]);
-        setFiles([...selectedFiles, ...files]);
-    };
-
-    const handleFileRemove = (fileName) => {
-        const updatedFiles = selectedFiles.filter(file => file.name !== fileName);
-        setSelectedFiles(updatedFiles);
-        setFiles(updatedFiles);
-    };
-
-    const handleFileUpload = async () => {
-        if (isSubmittingFileUpload) return;
-        setIsSubmittingFileUpload(true);
-
-
-        if (selectedFiles.length === 0 || !selectedMaintenanceId) {
-            return;
-        }
-
-        const formData = new FormData();
-        selectedFiles.forEach(file => formData.append('files', file));
-
-        try {
-            await axios.put(`${config.API_BASE_URL}/maintenance/upload/${selectedMaintenanceId}`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-
-            setSelectedFiles([]);
-            setShowFileUploadModal(false);
-            fetchAllMaintenanceFiles(); // Refresh file list after upload
-        } catch (error) {
-            console.error('Error uploading files:', error);
-        } finally {
-            setIsSubmittingFileUpload(false);
-        }
+    const handleMaintenanceClick = (maintenanceId) => {
+        setSelectedMaintenanceId(maintenanceId);
+        setShowMaintenanceModal(true);
     };
 
     return (
         <>
-            {maintenanceInfo.length > 0 ? (
-                maintenanceInfo.map((maintenance, index) => (
-                    <Card key={index} className="mb-4">
-                        <Card.Body>
-                            <Card.Title>Maintenance Details</Card.Title>
-                            {renderFields(maintenance)}
-                            {renderFiles(maintenance.id)}
-                            <Button variant="secondary" onClick={() => {
-                                setSelectedMaintenanceId(maintenance.id);
-                                setShowFileUploadModal(true);
-                            }}>Add Files</Button>
-                        </Card.Body>
-                    </Card>
-                ))
+            <Row className="d-flex justify-content-between align-items-center mb-2">
+                <Col className="col-md-auto">
+                    <h2 className="mb-0" style={{ paddingBottom: "20px" }}>
+                        Maintenances
+                    </h2>
+                </Col>
+                <Col className="col-md-auto">
+                    <Button variant="primary" onClick={() => setShowAddMaintenanceModal(true)}>
+                        Add Maintenance
+                    </Button>
+                </Col>
+            </Row>
+
+            {/* Sortable Table Headers */}
+            <Row style={{ fontWeight: "bold" }} className="text-center">
+                <Col md={6} onClick={() => handleSort('maintenanceName')} style={{ cursor: 'pointer' }}>
+                    Maintenance Name {renderSortArrow('maintenanceName')}
+                </Col>
+                <Col md={6} onClick={() => handleSort('maintenanceDate')} style={{ cursor: 'pointer' }}>
+                    Date {renderSortArrow('maintenanceDate')}
+                </Col>
+            </Row>
+            <hr />
+
+            {/* Maintenance List */}
+            {sortedMaintenances.length > 0 ? (
+                sortedMaintenances.map((maintenance, index) => {
+                    const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                    return (
+                        <Row
+                            key={maintenance.id}
+                            className="align-items-center text-center mb-2"
+                            style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
+                            onClick={() => handleMaintenanceClick(maintenance.id)}
+                        >
+                            <Col md={6}>{maintenance.maintenanceName}</Col>
+                            <Col md={6}>
+                                {maintenance.maintenanceDate
+                                    ? estoniaDateFormat.format(new Date(maintenance.maintenanceDate))
+                                    : ''}
+                            </Col>
+                        </Row>
+                    );
+                })
             ) : (
-                <Alert variant="info">No maintenance information available.</Alert>
+                <Alert className="mt-3" variant="info">
+                    No maintenances available.
+                </Alert>
             )}
-            <Modal show={showMaintenanceModal} onHide={() => setShowMaintenanceModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Add Maintenance</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form.Group controlId="maintenanceName">
-                        <Form.Label>Maintenance Name</Form.Label>
-                        <Form.Control
-                            type="text"
-                            onChange={(e) => setMaintenanceName(e.target.value)}
-                        />
-                    </Form.Group>
-                    <Form.Group controlId="maintenanceDate">
-                        <Form.Label>Maintenance Date</Form.Label>
-                        <Form.Control
-                            type="date"
-                            onChange={(e) => setMaintenanceDate(e.target.value)}
-                        />
-                    </Form.Group>
-                    <Form.Group controlId="maintenanceComment">
-                        <Form.Label>Comment</Form.Label>
-                        <Form.Control
-                            as="textarea"
-                            rows={3}
-                            onChange={(e) => setMaintenanceComment(e.target.value)}
-                        />
-                    </Form.Group>
-                    <Form.Group controlId="maintenanceFiles">
-                        <Form.Label>Upload Files</Form.Label>
-                        <Form.Control
-                            type="file"
-                            multiple
-                            onChange={handleFileChange}
-                        />
-                    </Form.Group>
-                    <ListGroup className="mt-3">
-                        {selectedFiles.map(file => (
-                            <ListGroup.Item style={{ display: "flex", justifyContent: "space-between" }} key={file.name}>
-                                {file.name}
-                                <Button
-                                    variant="danger"
-                                    size="sm"
-                                    className="ms-3"
-                                    onClick={() => handleFileRemove(file.name)}
-                                >
-                                    &times;
-                                </Button>
-                            </ListGroup.Item>
-                        ))}
-                    </ListGroup>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowMaintenanceModal(false)}>Cancel</Button>
-                    <Button
-                        variant="primary"
-                        onClick={handleAddMaintenance}
-                        disabled={isSubmitting}
-                    >
-                        {isSubmitting ? 'Adding...' : 'Add Maintenance'}
-                    </Button>
 
-                </Modal.Footer>
-            </Modal>
+            {/* Add Maintenance Modal */}
+            <AddMaintenanceModal
+                show={showAddMaintenanceModal}
+                handleClose={() => setShowAddMaintenanceModal(false)}
+                deviceId={deviceId}
+                setRefresh={setRefresh}
+            />
 
-            <Modal show={showMaintenanceFieldModal} onHide={() => setShowMaintenanceFieldModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Edit Visible Maintenance Fields</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        {Object.keys(visibleFields).map(key => (
-                            <Form.Check
-                                key={key}
-                                type="checkbox"
-                                label={key.replace(/([A-Z])/g, ' $1')}
-                                checked={visibleFields[key]}
-                                onChange={() => handleFieldToggle(key)}
-                            />
-                        ))}
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowMaintenanceFieldModal(false)}>Close</Button>
-                </Modal.Footer>
-            </Modal>
-
-            <Modal show={showFileUploadModal} onHide={() => setShowFileUploadModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Upload Files</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form.Group controlId="formFile">
-                        <Form.Control
-                            type="file"
-                            multiple
-                            onChange={handleFileChange}
-                        />
-                    </Form.Group>
-                    <ListGroup className="mt-3">
-                        {selectedFiles.map(file => (
-                            <ListGroup.Item style={{ display: "flex", justifyContent: "space-between" }} key={file.name}>
-                                {file.name}
-                                <Button
-                                    variant="danger"
-                                    size="sm"
-                                    className="ms-3"
-                                    onClick={() => handleFileRemove(file.name)}
-                                >
-                                    &times;
-                                </Button>
-                            </ListGroup.Item>
-                        ))}
-                    </ListGroup>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowFileUploadModal(false)}>Cancel</Button>
-                    <Button
-                        variant="primary"
-                        onClick={handleFileUpload}
-                        disabled={isSubmittingFileUpload}
-                    >
-                        {isSubmittingFileUpload ? 'Uploading...' : 'Upload'}
-                    </Button>
-
-                </Modal.Footer>
-            </Modal>
+            {/* Maintenance Details Modal */}
+            <MaintenanceModal
+                show={showMaintenanceModal}
+                handleClose={() => setShowMaintenanceModal(false)}
+                maintenanceId={selectedMaintenanceId}
+            />
         </>
     );
 }
