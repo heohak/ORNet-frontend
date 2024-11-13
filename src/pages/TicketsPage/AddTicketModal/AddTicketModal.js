@@ -32,6 +32,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
     const [openStatusId, setOpenStatusId] = useState(null);
     const [workTypes, setWorkTypes] = useState([]);
     const [devices, setDevices] = useState([]);
+    const [availableDevices, setAvailableDevices] = useState([]);
     const [selectedDevices, setSelectedDevices] = useState([]);
     const [selectedWorkTypes, setSelectedWorkTypes] = useState([]);
     const [error, setError] = useState(null);
@@ -42,7 +43,10 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
 
-    const navigate = useNavigate();
+    const changeAvailableDevices = (locationId) => {
+        locationId = parseInt(locationId)
+        setAvailableDevices(devices.filter(device => device.locationId === locationId))
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -107,6 +111,9 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
             newValue = [value];
         } else if (id === 'crisis') {
             newValue = parseInt(value);
+        } else if (id === 'locationId') {
+            changeAvailableDevices(value);
+            setSelectedDevices([]);
         }
         setFormData( prevData => ({...prevData, [id]: newValue}));
     };
@@ -222,7 +229,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
                 }}
             >
                 <div style={{ fontWeight: 'bold' }}>{data.deviceName}</div>
-                <div style={{ fontSize: '0.85em', color: '#666' }}>{data.serialNumber}</div>
+                <div style={{ fontSize: '0.85em', color: '#666' }}>SN: {data.serialNumber}</div>
             </div>
     );
     }
@@ -362,11 +369,17 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
                                 <Form.Label>Device</Form.Label>
                                 <Select
                                     isMulti
-                                    options={devices}
+                                    options={availableDevices}
                                     value={selectedDevices}
                                     onChange={setSelectedDevices} // Use the new handler
-                                    placeholder={formData.clientId ? "Select devices" : "Pick a customer before picking devices"}
-                                    isDisabled={!formData.clientId || devices.length === 0}
+                                    placeholder={
+                                        !formData.clientId
+                                            ? "Pick a customer before picking devices"
+                                            : !formData.locationId
+                                                ? "Pick a location before picking devices"
+                                                : "Select devices"
+                                    }
+                                    isDisabled={!formData.clientId || !formData.locationId}
                                     getOptionLabel={(option) => option.deviceName} // This is optional, just to provide clarity
                                     getOptionValue={(option) => option.id} // Ensures unique value
                                     components={{ Option: deviceOption}}

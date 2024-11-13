@@ -32,7 +32,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
     const fetchDevices = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/device/client/${ticket.clientId}`);
-            setAvailableDevices(response.data);
+            setAvailableDevices(response.data.filter(device => device.locationId === ticket.locationId));
             setSelectedDevices(ticket.deviceIds.map(deviceId => response.data.find(device => device.id === deviceId)));
         } catch (error) {
             console.error("Error fetching customer devices", error);
@@ -173,7 +173,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                 }}
             >
                 <div style={{ fontWeight: 'bold' }}>{data.deviceName}</div>
-                <div style={{ fontSize: '0.85em', color: '#666' }}>{data.serialNumber}</div>
+                <div style={{ fontSize: '0.85em', color: '#666' }}>SN: {data.serialNumber}</div>
             </div>
         );
     }
