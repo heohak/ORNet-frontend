@@ -425,7 +425,7 @@ function DeviceDetails({
                             </Form>
                         </Tab>
 
-                        <Tab eventKey="customAttributes" title="Custom Attributes">
+                        <Tab eventKey="customAttributes" title="Delete Field">
                             <Form className="mt-3">
                                 {fieldsConfig
                                     .filter((field) => field.isAttribute)
