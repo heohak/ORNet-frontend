@@ -86,10 +86,10 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
                 <div>
                     {/* Table header */}
                     <Row className="fw-bold mt-2">
-                        <Col md={3}>Title</Col>
+                        <Col md={4}>Title</Col>
                         <Col md={3}>Contact</Col>
                         <Col md={3}>Date/Deadline?</Col>
-                        <Col md={3}>Status</Col>
+                        <Col md={2}>Status</Col>
                     </Row>
                     <hr />
 
@@ -108,13 +108,15 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
                             <Row
                                 key={activity.id}
                                 className="align-items-center mb-2"
-                                style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
+                                style={{cursor: 'pointer', margin: "0 0"}}
                                 onClick={() => handleRowClick(activity)}
                             >
-                                <Col md={3}>{activity.title}</Col>
-                                <Col md={3}>{contactNames}</Col>
-                                <Col md={3}>{activity.endDateTime}</Col>
-                                <Col md={3}>
+                                <Col className="py-1" style={{ backgroundColor: rowBgColor}}>
+                                    <Row className="align-items-center">
+                                        <Col className="px-0" md={4}>{activity.title}</Col>
+                                        <Col md={3}>{contactNames}</Col>
+                                        <Col md={3}>{activity.endDateTime}</Col>
+                                        <Col md={2}>
                                     <span
                                         style={{
                                             display: 'inline-block',
@@ -125,7 +127,10 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
                                             marginRight: '8px',
                                         }}
                                     />
+                                        </Col>
+                                    </Row>
                                 </Col>
+
 
                             </Row>
                         );

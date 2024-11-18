@@ -128,7 +128,7 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
                 </Col>
             </Row>
         </Form>
-            <Row style={{fontWeight: "bold"}} className="font-weight-bold text-center mt-2">
+            <Row className="fw-bold mt-2">
                 <Col md={3}>
                     Name
                 </Col>
@@ -149,14 +149,20 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
                         return (
                             <Row
                                 key={device.id}
-                                className="align-items-center text-center mb-2"
-                                style={{backgroundColor: rowBgColor, cursor: 'pointer'}}
+                                className="align-items-center"
+                                style={{cursor: 'pointer', margin: "0 0"}}
                                 onClick={() => navigate(`/device/${device.id}`)}
                             >
-                                <Col md={3}>{device.deviceName}</Col>
-                                <Col md={2}>{classificators[device.classificatorId] || 'Unknown Type'}</Col>
-                                <Col md={3}>{locations[device.locationId] || 'Unknown'}</Col>
-                                <Col md={4}>{device.serialNumber}</Col>
+                                <Col className="py-2" style={{backgroundColor: rowBgColor}}>
+                                    <Row className="align-items-center">
+                                        <Col className="px-0" md={3}>{device.deviceName}</Col>
+                                        <Col md={2}>{classificators[device.classificatorId] || 'Unknown Type'}</Col>
+                                        <Col md={3}>{locations[device.locationId] || 'Unknown'}</Col>
+                                        <Col md={4}>{device.serialNumber}</Col>
+                                    </Row>
+
+                                </Col>
+
                             </Row>
                         );
                     })

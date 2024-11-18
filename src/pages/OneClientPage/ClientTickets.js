@@ -79,13 +79,13 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
             {tickets.length > 0 ? (
                 <>
                     {/* Table header with columns */}
-                    <Row style={{fontWeight: "bold"}} className="fw-bold mt-2">
+                    <Row className="fw-bold mt-2">
                         <Col md={2}>No</Col>
-                        <Col md={2}>Title</Col>
+                        <Col md={3}>Title</Col>
                         <Col md={2}>Date</Col>
                         <Col md={2}>Location</Col>
                         <Col md={2}>Status</Col>
-                        <Col md={2}>Priority</Col>
+                        <Col className="px-0" md={1}>Priority</Col>
                     </Row>
                     <hr />
 
@@ -98,34 +98,38 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
                         return (
                             <Row
                                 key={ticket.id}
-                                className="align-items-center mb-2"
-                                style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
+                                className="align-items-center"
+                                style={{cursor: 'pointer', margin: "0 0"}}
                                 onClick={() => handleTicketClick(ticket)}
                             >
-                                <Col md={2}>{ticket.baitNumeration || 'N/A'}</Col>
-                                <Col md={2}>{ticket.title}</Col>
-                                <Col md={2}>{formatDate(ticket.startDateTime)}</Col>
-                                <Col md={2}>{locations[ticket.locationId] || 'Unknown Location'}</Col>
-                                <Col md={2}>
-                                    <Button
-                                        style={{
-                                            minWidth: "75px",
-                                            backgroundColor: status?.color || '#007bff',
-                                            borderColor: status?.color || '#007bff',
-                                        }}
-                                        disabled
-                                    >
-                                        {status?.status || 'Unknown Status'}
-                                    </Button>
-                                </Col>
-                                <Col md={2}>
-                                    <Button
-                                        style={{
-                                            backgroundColor: priorityColor,
-                                            borderColor: priorityColor,
-                                        }}
-                                        disabled
-                                    ></Button>
+                                <Col className="py-1" style={{backgroundColor: rowBgColor}}>
+                                    <Row className="align-items-center">
+                                        <Col className="px-0" md={2}>{ticket.baitNumeration || 'N/A'}</Col>
+                                        <Col md={3}>{ticket.title}</Col>
+                                        <Col md={2}>{formatDate(ticket.startDateTime)}</Col>
+                                        <Col md={2}>{locations[ticket.locationId] || 'Unknown Location'}</Col>
+                                        <Col md={2}>
+                                            <Button
+                                                style={{
+                                                    minWidth: "75px",
+                                                    backgroundColor: status?.color || '#007bff',
+                                                    borderColor: status?.color || '#007bff',
+                                                }}
+                                                disabled
+                                            >
+                                                {status?.status || 'Unknown Status'}
+                                            </Button>
+                                        </Col>
+                                        <Col md={1}>
+                                            <Button
+                                                style={{
+                                                    backgroundColor: priorityColor,
+                                                    borderColor: priorityColor,
+                                                }}
+                                                disabled
+                                            ></Button>
+                                        </Col>
+                                    </Row>
                                 </Col>
                             </Row>
                         );
