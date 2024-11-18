@@ -153,9 +153,16 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, deviceId
                             onChange={handleFileChange}
                         />
                     </Form.Group>
-                    <Button variant="success" type="submit" disabled={isSubmitting}>
-                        {isSubmitting ? 'Adding...' : 'Add Maintenance'}
-                    </Button>
+                    <Modal.Footer>
+                        <Button variant="outline-info" onClick={handleClose}>
+                            Cancel
+                        </Button>
+
+                        <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? 'Adding...' : 'Add Maintenance'}
+                        </Button>
+                    </Modal.Footer>
+
                 </Form>
             </Modal.Body>
         </Modal>

@@ -475,7 +475,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
                     </Row>
                     <Modal.Footer>
                         <Button
-                            variant="secondary"
+                            variant="primary"
                             onClick={() => setSubmitType("submitAndView")}
                             type="submit"
                             disabled={isSubmitting}

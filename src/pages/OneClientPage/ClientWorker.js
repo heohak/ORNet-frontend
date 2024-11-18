@@ -1,14 +1,13 @@
 import React, {useEffect, useState} from 'react';
 import {Alert, Button, Card, Col, Form, Modal, Row} from 'react-bootstrap';
-import AddWorker from './AddClientWorker';
 import EditWorkerModal from './EditWorkerModal'; // Import the EditWorkerModal component
 import axios from 'axios';
 import config from "../../config/config";
-import Select from 'react-select';
 import {FaEnvelope, FaPhone, FaRegStar, FaStar, FaUserTie} from 'react-icons/fa';
 import '../../css/Customers.css'
 import {faEdit, faMapMarkerAlt} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import AddClientWorker from "./AddClientWorker";
 
 function ClientWorker({workers, client, clientId, setRefresh}) {
     const [showAddWorkerModal, setShowAddWorkerModal] = useState(false);
@@ -257,15 +256,13 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
                 <Alert className="mt-3" variant="info">No workers available.</Alert>
             )}
 
-            <Modal show={showAddWorkerModal} onHide={() => setShowAddWorkerModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Add Contact to {client.shortName}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <AddWorker clientId={clientId} onClose={() => setShowAddWorkerModal(false)}
-                               onSuccess={handleAddWorkerSuccess}/>
-                </Modal.Body>
-            </Modal>
+            {/* AddClientWorker Modal */}
+            <AddClientWorker
+                show={showAddWorkerModal}
+                onClose={() => setShowAddWorkerModal(false)}
+                clientId={clientId}
+                onSuccess={handleAddWorkerSuccess}
+            />
             {selectedWorker && (
                 <EditWorkerModal
                     show={showEditWorkerModal}

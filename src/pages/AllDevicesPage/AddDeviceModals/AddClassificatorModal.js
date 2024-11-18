@@ -57,6 +57,9 @@ function AddClassificatorModal({ show, onHide, onClassificatorAdded }) {
                         />
                     </Form.Group>
                     <Modal.Footer>
+                        <Button variant="outline-info" onClick={onHide}>
+                            Cancel
+                        </Button>
                         <Button variant="primary" type="submit" disabled={isSubmitting}>
                             {isSubmitting ? 'Adding...' : 'Add Classificator'}
                         </Button>

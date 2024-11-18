@@ -86,7 +86,8 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
         }
     };
 
-    const handleAddRole = async () => {
+    const handleAddRole = async (e) => {
+        e.preventDefault();
         if (isSubmittingRole) return;
         setIsSubmittingRole(true);
         const { role } = newRole;
@@ -108,6 +109,7 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
             setSelectedRoles(prevSelected => [...prevSelected, newRoleOption]);
             setNewRole({ role: '' });
             setShowRoleModal(false);
+            setError(null);
         } catch (error) {
             setError('Error adding role.');
             console.error('Error adding role:', error);
@@ -120,12 +122,12 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
     return (
         <>
             <Modal show={show} onHide={handleClose}>
+                <Form onSubmit={handleSubmit}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add New Contact</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {error && <Alert variant="danger">{error}</Alert>}
-                    <Form onSubmit={handleSubmit}>
                         {/* First Name */}
                         <Form.Group className="mb-3">
                             <Form.Label>First Name</Form.Label>
@@ -208,22 +210,31 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
                                 <Button variant="link" onClick={() => setShowRoleModal(true)}>Add New</Button>
                             </Form.Text>
                         </Form.Group>
-                        <Button variant="primary" type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? 'Adding...' : 'Add Contact'}
-                        </Button>
-
-                    </Form>
                 </Modal.Body>
+
+                <Modal.Footer>
+                    <Button
+                        variant="outline-info"
+                        onClick={handleClose}
+                    >
+                        Cancel
+                    </Button>
+                    <Button variant="primary" type="submit" disabled={isSubmitting}>
+                        {isSubmitting ? 'Adding...' : 'Add Contact'}
+                    </Button>
+                </Modal.Footer>
+                </Form>
             </Modal>
 
             {/* Modal for adding a new role */}
             <Modal show={showRoleModal} onHide={() => setShowRoleModal(false)}>
+                <Form onSubmit={handleAddRole}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add New Role</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {error && <Alert variant="danger">{error}</Alert>}
-                    <Form>
+
                         <Form.Group className="mb-3">
                             <Form.Label>Role</Form.Label>
                             <Form.Control
@@ -233,14 +244,18 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
                                 required
                             />
                         </Form.Group>
-                    </Form>
                 </Modal.Body>
+
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowRoleModal(false)}>Cancel</Button>
-                    <Button variant="primary" onClick={handleAddRole} disabled={isSubmittingRole}>
+                    <Button variant="outline-info" onClick={() => setShowRoleModal(false)}>Cancel</Button>
+                    <Button variant="primary" disabled={isSubmittingRole}
+                    type="submit">
                         {isSubmittingRole ? 'Adding...' : 'Add Role'}
                     </Button>
                 </Modal.Footer>
+
+
+            </Form>
             </Modal>
         </>
     );

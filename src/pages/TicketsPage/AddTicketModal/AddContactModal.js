@@ -106,8 +106,8 @@ const AddContactModal = ({ show, handleClose, onAdd, locations, clientId }) => {
                     </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>
-                        Close
+                    <Button variant="outline-info" onClick={handleClose}>
+                        Cancel
                     </Button>
                     <Button variant="primary" type="submit">
                         Add Contact

@@ -31,6 +31,7 @@ function GenerateReportModal({ show, handleClose }) {
             setError('Error fetching clients.');
         }
     };
+
     const clearFields = () => {
         setSelectedClientId('');
         setIncludeAllClients(false);
@@ -40,7 +41,8 @@ function GenerateReportModal({ show, handleClose }) {
         setError(null);
     };
 
-    const handleGenerateReport = async () => {
+    const handleGenerateReport = async (e) => {
+        e.preventDefault(); // Prevent default form submission
         setLoading(true);
         setError(null);
         try {
@@ -135,7 +137,7 @@ function GenerateReportModal({ show, handleClose }) {
             </Modal.Header>
             <Modal.Body>
                 {error && <Alert variant="danger">{error}</Alert>}
-                <Form>
+                <Form onSubmit={handleGenerateReport}>
                     <Form.Group className="mb-3">
                         <Form.Check
                             type="checkbox"
@@ -150,6 +152,7 @@ function GenerateReportModal({ show, handleClose }) {
                         <Form.Select
                             value={reportType}
                             onChange={(e) => setReportType(e.target.value)}
+                            required
                         >
                             <option value="tickets">Tickets Report</option>
                             <option value="maintenances">Maintenances Report</option>
@@ -162,8 +165,7 @@ function GenerateReportModal({ show, handleClose }) {
                             <Form.Select
                                 value={selectedClientId}
                                 onChange={(e) => setSelectedClientId(e.target.value)}
-                                disabled={includeAllClients}
-                                required={!includeAllClients}
+                                required
                             >
                                 <option value="">Select a customer</option>
                                 {clients.map((client) => (
@@ -205,17 +207,25 @@ function GenerateReportModal({ show, handleClose }) {
                             required
                         />
                     </Form.Group>
+
+                    <Modal.Footer>
+                        <Button
+                            variant="outline-info"
+                            onClick={handleModalClose}
+                        >
+                            Cancel
+                        </Button>
+
+                        <Button
+                            variant="primary"
+                            type="submit"
+                            disabled={loading}
+                        >
+                            {loading ? 'Generating...' : 'Generate Report'}
+                        </Button>
+                    </Modal.Footer>
                 </Form>
             </Modal.Body>
-            <Modal.Footer>
-                <Button
-                    variant="primary"
-                    onClick={handleGenerateReport}
-                    disabled={loading || (!selectedClientId && !includeAllClients)}>
-                    {loading ? 'Generating...' : 'Generate Report'}
-                </Button>
-
-            </Modal.Footer>
         </Modal>
     );
 }

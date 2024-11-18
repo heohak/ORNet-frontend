@@ -354,6 +354,9 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                             />
                         </Form.Group>
                         <Modal.Footer>
+                            <Button variant="outline-info" onClick={onHide}>
+                                Cancel
+                            </Button>
                             <Button variant="primary" type="submit" disabled={isSubmitting}>
                                 {isSubmitting ? 'Adding...' : 'Add Device'}
                             </Button>

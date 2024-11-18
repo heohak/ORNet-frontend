@@ -59,7 +59,7 @@ function SummaryModal({ show, handleClose, devices }) {
                 )}
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
+                <Button variant="outline-info" onClick={handleClose}>
                     Close
                 </Button>
             </Modal.Footer>
