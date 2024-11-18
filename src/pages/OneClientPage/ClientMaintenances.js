@@ -61,7 +61,7 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
             </Row>
 
             {/* Sortable Table Headers */}
-            <Row style={{fontWeight: "bold"}} className="font-weight-bold text-center">
+            <Row className="fw-bold">
                 <Col md={6} onClick={() => handleSort('maintenanceName')}>
                     Maintenance Name {renderSortArrow('maintenanceName')}
                 </Col>
@@ -78,12 +78,16 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
                     return (
                         <Row
                             key={maintenance.id}
-                            className="align-items-center text-center mb-2"
-                            style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
+                            className="align-items-center mb-2"
+                            style={{ margin: '0 0', cursor: 'pointer' }}
                             onClick={() => handleMaintenanceClick(maintenance.id)}
                         >
-                            <Col md={6}>{maintenance.maintenanceName}</Col>
-                            <Col md={6}>{estoniaDateFormat.format(new Date(maintenance.maintenanceDate))}</Col>
+                            <Col className="py-1" style={{ backgroundColor: rowBgColor}}>
+                                <Row className="align-items-center">
+                                    <Col className="px-0" md={6}>{maintenance.maintenanceName}</Col>
+                                    <Col md={6}>{estoniaDateFormat.format(new Date(maintenance.maintenanceDate))}</Col>
+                                </Row>
+                            </Col>
                         </Row>
                     );
                 })

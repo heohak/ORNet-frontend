@@ -30,7 +30,7 @@ function ClientLocations({ locations, setRefresh }) {
             {locations.length > 0 ? (
                 <div>
                     {/* Table header */}
-                    <Row style={{fontWeight: "bold"}} className="font-weight-bold text-center mt-2">
+                    <Row className="fw-bold mt-2">
                         <Col md={4}>Name</Col>
                         <Col md={5}>Address</Col>
                         <Col md={3}>Phone</Col>
@@ -43,15 +43,20 @@ function ClientLocations({ locations, setRefresh }) {
                         return (
                             <Row
                                 key={location.id}
-                                className="align-items-center text-center mb-2"
-                                style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
+                                className="align-items-center mb-2"
+                                style={{ margin: "0 0", cursor: 'pointer' }}
                                 onClick={() => handleRowClick(location)}
                             >
-                                <Col md={4}>{location.name}</Col>
-                                <Col md={5}>
-                                    {location.streetAddress}, {location.city}, {location.country}, {location.postalCode}
+                                <Col className="py-1" style={{ backgroundColor: rowBgColor}}>
+                                    <Row className="align-items-center">
+                                        <Col className="px-0" md={4}>{location.name}</Col>
+                                        <Col md={5}>
+                                            {location.streetAddress}, {location.city}, {location.country}, {location.postalCode}
+                                        </Col>
+                                        <Col md={3}>{location.phone}</Col>
+                                    </Row>
                                 </Col>
-                                <Col md={3}>{location.phone}</Col>
+
                             </Row>
                         );
                     })}
