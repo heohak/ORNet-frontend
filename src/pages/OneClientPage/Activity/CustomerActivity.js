@@ -85,7 +85,7 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
             {activities.length > 0 ? (
                 <div>
                     {/* Table header */}
-                    <Row className="font-weight-bold mt-2">
+                    <Row className="fw-bold mt-2">
                         <Col md={3}>Title</Col>
                         <Col md={3}>Contact</Col>
                         <Col md={3}>Date/Deadline?</Col>

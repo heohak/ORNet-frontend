@@ -30,7 +30,7 @@ function ClientLocations({ locations, setRefresh }) {
             {locations.length > 0 ? (
                 <div>
                     {/* Table header */}
-                    <Row style={{fontWeight: "bold"}} className="font-weight-bold text-center mt-2">
+                    <Row className="fw-bold mt-2">
                         <Col md={4}>Name</Col>
                         <Col md={5}>Address</Col>
                         <Col md={3}>Phone</Col>
@@ -43,7 +43,7 @@ function ClientLocations({ locations, setRefresh }) {
                         return (
                             <Row
                                 key={location.id}
-                                className="align-items-center text-center mb-2"
+                                className="align-items-center mb-2"
                                 style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
                                 onClick={() => handleRowClick(location)}
                             >
