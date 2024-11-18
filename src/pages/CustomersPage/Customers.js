@@ -304,7 +304,7 @@ function Customers() {
             {!loading && (
                 <>
                     <div className="mt-3">
-                        <Row style={{fontWeight: "bold"}} className="font-weight-bold text-center">
+                        <Row style={{fontWeight: "bold"}} className="font-weight-bold">
                             <Col md={1} onClick={() => handleSort('country')}>
                                 Country {renderSortArrow('country')}
                             </Col>
@@ -342,7 +342,7 @@ function Customers() {
                                 return (
                                     <Row
                                         key={customer.id}
-                                        className="align-items-center text-center mb-2"
+                                        className="mb-2"
                                         style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
                                         onClick={() => navigate(`/customer/${customer.id}`, { state: { openAccordion: 'contacts' } })}
                                     >
@@ -362,8 +362,8 @@ function Customers() {
                                         <Col md={2}>{customer.shortName}</Col>
                                         <Col md={4}>{customer.fullName}</Col>
                                         <Col md={2}>{customerTypeDisplay}</Col>
-                                        <Col className="d-flex justify-content-center" md={1}>
-                                            <div style={{background: '#d6d6ee', width: '24px', height: '24px', borderRadius: '6px'}}>
+                                        <Col md={1}>
+                                            <div style={{background: '#d6d6ee', width: '24px', height: '24px', borderRadius: '6px', display: "grid", alignContent: "center", justifyContent: "center"}}>
                                                 <img
                                                     src={personIcon}
                                                     alt="person_icon.png"
