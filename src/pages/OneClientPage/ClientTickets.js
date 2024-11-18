@@ -79,7 +79,7 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
             {tickets.length > 0 ? (
                 <>
                     {/* Table header with columns */}
-                    <Row style={{fontWeight: "bold"}} className="font-weight-bold text-center mt-2">
+                    <Row style={{fontWeight: "bold"}} className="fw-bold mt-2">
                         <Col md={2}>No</Col>
                         <Col md={2}>Title</Col>
                         <Col md={2}>Date</Col>
@@ -98,7 +98,7 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
                         return (
                             <Row
                                 key={ticket.id}
-                                className="align-items-center text-center mb-2"
+                                className="align-items-center mb-2"
                                 style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
                                 onClick={() => handleTicketClick(ticket)}
                             >
@@ -109,6 +109,7 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
                                 <Col md={2}>
                                     <Button
                                         style={{
+                                            minWidth: "75px",
                                             backgroundColor: status?.color || '#007bff',
                                             borderColor: status?.color || '#007bff',
                                         }}
