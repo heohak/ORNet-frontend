@@ -25,6 +25,30 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
         }
     }
 
+    const getStatusColor = (endDateTime) => {
+        if (!endDateTime) {
+            return 'green';
+        }
+        const now = new Date();
+        const endDate = new Date(endDateTime);
+
+        // If endDate is before today
+        if (endDate < now) {
+            return 'red';
+        }
+
+        // Calculate the difference in milliseconds and convert to days
+        const diffInDays = (endDate - now) / (1000 * 60 * 60 * 24);
+
+        // If the end date is within a week
+        if (diffInDays <= 7) {
+            return 'orange';
+        }
+
+        // If the end date is more than a week away
+        return 'green';
+    };
+
     const reFetchActivities = async() => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/client/activities/${clientId}`)
@@ -61,7 +85,7 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
             {activities.length > 0 ? (
                 <div>
                     {/* Table header */}
-                    <Row className="font-weight-bold text-center mt-2">
+                    <Row className="font-weight-bold mt-2">
                         <Col md={3}>Title</Col>
                         <Col md={3}>Contact</Col>
                         <Col md={3}>Date/Deadline?</Col>
@@ -79,11 +103,11 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
                             })
                             .filter(name => name) // Filter out null values if any contacts were not found
                             .join(', '); // Join names with a comma for display
-                        const status = statuses.find(status => status.id === activity.statusId)
+                        const statusColor = getStatusColor(activity.endDateTime)
                         return (
                             <Row
                                 key={activity.id}
-                                className="align-items-center text-center mb-2"
+                                className="align-items-center mb-2"
                                 style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
                                 onClick={() => handleRowClick(activity)}
                             >
@@ -91,15 +115,16 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
                                 <Col md={3}>{contactNames}</Col>
                                 <Col md={3}>{activity.endDateTime}</Col>
                                 <Col md={3}>
-                                    <Button
-                                    style={{
-                                        backgroundColor: status?.color || '#007bff',
-                                        borderColor: status?.color || '#007bff',
-                                    }}
-                                    disabled
-                                >
-                                    {status?.status || 'Unknown Status'}
-                                    </Button>
+                                    <span
+                                        style={{
+                                            display: 'inline-block',
+                                            width: '12px',
+                                            height: '12px',
+                                            borderRadius: '50%',
+                                            backgroundColor: statusColor,
+                                            marginRight: '8px',
+                                        }}
+                                    />
                                 </Col>
 
                             </Row>
