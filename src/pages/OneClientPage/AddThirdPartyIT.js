@@ -4,7 +4,7 @@ import { Container, Form, Button, Alert, Modal } from 'react-bootstrap';
 import config from "../../config/config";
 import Select from 'react-select';
 
-function AddThirdPartyIT({ clientId, onClose, setRefresh }) {
+function AddThirdPartyIT({ clientId,show,  onClose, setRefresh }) {
     const [thirdParties, setThirdParties] = useState([]);
     const [selectedThirdParty, setSelectedThirdParty] = useState(null);
     const [error, setError] = useState(null);
@@ -99,33 +99,46 @@ function AddThirdPartyIT({ clientId, onClose, setRefresh }) {
     };
 
     return (
-        <Container>
-            {error && (
-                <Alert variant="danger">
-                    <Alert.Heading>Error</Alert.Heading>
-                    <p>{error}</p>
-                </Alert>
-            )}
-            <Form onSubmit={handleSubmit}>
-                <Form.Group className="mb-3">
-                    <Form.Label>Select Third-Party IT</Form.Label>
-                    <Select
-                        options={thirdParties}
-                        value={selectedThirdParty}
-                        onChange={setSelectedThirdParty}
-                        placeholder="Select a third-party IT"
-                    />
-                    <Form.Text className="text-muted">
-                        Can't find the third-party IT? <Button variant="link" onClick={() => setShowThirdPartyModal(true)}>Add New</Button>
-                    </Form.Text>
-                </Form.Group>
-                <Button variant="success" type="submit" disabled={isSubmittingMainForm}>
-                    {isSubmittingMainForm ? 'Adding...' : 'Add Third-Party IT'}
-                </Button>
+        <Modal show={show} onHide={onClose}>
+            <Modal.Header closeButton>
+                <Modal.Title>Add Third-Party IT</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                {error && (
+                    <Alert variant="danger">
+                        <Alert.Heading>Error</Alert.Heading>
+                        <p>{error}</p>
+                    </Alert>
+                )}
+                <Form onSubmit={handleSubmit}>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Select Third-Party IT</Form.Label>
+                        <Select
+                            options={thirdParties}
+                            value={selectedThirdParty}
+                            onChange={setSelectedThirdParty}
+                            placeholder="Select a third-party IT"
+                        />
+                        <Form.Text className="text-muted">
+                            Can't find the third-party IT?{' '}
+                            <Button variant="link" onClick={() => setShowThirdPartyModal(true)}>
+                                Add New
+                            </Button>
+                        </Form.Text>
+                    </Form.Group>
+                    <Modal.Footer>
+                        <Button variant="outline-info" onClick={onClose}>
+                            Cancel
+                        </Button>
 
-            </Form>
+                        <Button variant="primary" type="submit" disabled={isSubmittingMainForm}>
+                            {isSubmittingMainForm ? 'Adding...' : 'Add Third-Party IT'}
+                        </Button>
 
-            {/* Modal for adding a new third-party IT */}
+                    </Modal.Footer>
+                </Form>
+            </Modal.Body>
+
             <Modal show={showThirdPartyModal} onHide={() => setShowThirdPartyModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add New Third-Party IT</Modal.Title>
@@ -157,7 +170,7 @@ function AddThirdPartyIT({ clientId, onClose, setRefresh }) {
                                 value={newThirdParty.phone}
                                 onChange={(e) => setNewThirdParty({ ...newThirdParty, phone: e.target.value })}
                                 required
-                                isInvalid={!!phoneNumberError} // Display error styling if there's an error
+                                isInvalid={!!phoneNumberError}
                             />
                             <Form.Control.Feedback type="invalid">
                                 {phoneNumberError}
@@ -165,14 +178,17 @@ function AddThirdPartyIT({ clientId, onClose, setRefresh }) {
                         </Form.Group>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="success" type="submit" disabled={isSubmittingModalForm}>
+                        <Button variant="outline-info" onClick={() => setShowThirdPartyModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="primary" type="submit" disabled={isSubmittingModalForm}>
                             {isSubmittingModalForm ? 'Adding...' : 'Add Third-Party IT'}
                         </Button>
 
                     </Modal.Footer>
                 </Form>
             </Modal>
-        </Container>
+        </Modal>
     );
 }
 

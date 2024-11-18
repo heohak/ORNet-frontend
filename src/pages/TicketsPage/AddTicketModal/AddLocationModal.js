@@ -163,7 +163,7 @@ function AddLocationModal({ show, onHide, onAdd }) {
                     </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={onHide}>Cancel</Button>
+                    <Button variant="outline-info" onClick={onHide}>Cancel</Button>
                     <Button variant="primary" type="submit" disabled={isSubmittingLocation}>
                         {isSubmittingLocation ? 'Adding...' : 'Add Location'}
                     </Button>

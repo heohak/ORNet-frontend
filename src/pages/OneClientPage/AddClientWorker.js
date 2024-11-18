@@ -1,10 +1,12 @@
+// src/components/AddClientWorker.js
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Form, Button, Alert, Modal } from 'react-bootstrap';
+import { Modal, Form, Button, Alert } from 'react-bootstrap';
 import Select from 'react-select';
 import config from "../../config/config";
 
-function AddClientWorker({ clientId, onClose, onSuccess }) {
+function AddClientWorker({ show, onClose, clientId, onSuccess }) {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
@@ -36,7 +38,7 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
         };
 
         fetchData();
-    }, []);
+    }, [clientId]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -98,14 +100,15 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
         }
     };
 
-
-    const handleAddRole = async () => {
+    const handleAddRole = async (e) => {
+        e.preventDefault();
         if (isSubmittingRole) return;
         setIsSubmittingRole(true);
         const { role } = newRole;
 
         if (!role.trim()) {
             setError('Please enter a role name.');
+            setIsSubmittingRole(false);
             return;
         }
 
@@ -121,123 +124,146 @@ function AddClientWorker({ clientId, onClose, onSuccess }) {
             setSelectedRoles(prevSelected => [...prevSelected, newRoleOption]);
             setNewRole({ role: '' });
             setShowRoleModal(false);
+            setError(null); // Clear any previous errors
         } catch (error) {
             setError('Error adding role.');
+            console.error('Error adding role:', error);
         } finally {
             setIsSubmittingRole(false);
         }
     };
 
-
-
     return (
-        <Container>
-            {error && (
-                <Alert variant="danger">
-                    <Alert.Heading>Error</Alert.Heading>
-                    <p>{error}</p>
-                </Alert>
-            )}
-            <Form onSubmit={handleSubmit}>
-                <Form.Group className="mb-3">
-                    <Form.Label>First Name</Form.Label>
-                    <Form.Control
-                        type="text"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        required
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Last Name</Form.Label>
-                    <Form.Control
-                        type="text"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        required
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Phone Number</Form.Label>
-                    <Form.Control
-                        type="text"
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
-                        required
-                        isInvalid={!!phoneNumberError} // Display error styling if there's an error
-                    />
-                    <Form.Control.Feedback type="invalid">
-                        {phoneNumberError}
-                    </Form.Control.Feedback>
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Title</Form.Label>
-                    <Form.Control
-                        type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        required
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Location</Form.Label>
-                    <Select
-                        options={locations}
-                        value={locations.find(loc => loc.value === locationId)}
-                        onChange={selectedOption => setLocationId(selectedOption.value)}
-                        required
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Roles</Form.Label>
-                    <Select
-                        isMulti
-                        options={roles}
-                        value={selectedRoles}
-                        onChange={setSelectedRoles}
-                        placeholder="Select roles"
-                    />
-                    <Form.Text className="text-muted">
-                        Can't find the role? <Button variant="link" onClick={() => setShowRoleModal(true)}>Add New</Button>
-                    </Form.Text>
-                </Form.Group>
-                <Button variant="success" type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? 'Adding...' : 'Add Contact'}
-                </Button>
-            </Form>
+        <>
+            {/* Main Modal */}
+            <Modal show={show} onHide={onClose}>
+                <Form onSubmit={handleSubmit}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Add Contact</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        {error && (
+                            <Alert variant="danger">
+                                <p>{error}</p>
+                            </Alert>
+                        )}
+                        {/* First Name */}
+                        <Form.Group className="mb-3">
+                            <Form.Label>First Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={firstName}
+                                onChange={(e) => setFirstName(e.target.value)}
+                                required
+                            />
+                        </Form.Group>
+                        {/* Last Name */}
+                        <Form.Group className="mb-3">
+                            <Form.Label>Last Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={lastName}
+                                onChange={(e) => setLastName(e.target.value)}
+                                required
+                            />
+                        </Form.Group>
+                        {/* Email */}
+                        <Form.Group className="mb-3">
+                            <Form.Label>Email</Form.Label>
+                            <Form.Control
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                        </Form.Group>
+                        {/* Phone Number */}
+                        <Form.Group className="mb-3">
+                            <Form.Label>Phone Number</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={phoneNumber}
+                                onChange={(e) => setPhoneNumber(e.target.value)}
+                                required
+                                isInvalid={!!phoneNumberError}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                {phoneNumberError}
+                            </Form.Control.Feedback>
+                        </Form.Group>
+                        {/* Title */}
+                        <Form.Group className="mb-3">
+                            <Form.Label>Title</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                required
+                            />
+                        </Form.Group>
+                        {/* Location */}
+                        <Form.Group className="mb-3">
+                            <Form.Label>Location</Form.Label>
+                            <Select
+                                options={locations}
+                                value={locations.find(loc => loc.value === locationId)}
+                                onChange={selectedOption => setLocationId(selectedOption.value)}
+                                placeholder="Select a location"
+                                required
+                            />
+                        </Form.Group>
+                        {/* Roles */}
+                        <Form.Group className="mb-3">
+                            <Form.Label>Roles</Form.Label>
+                            <Select
+                                isMulti
+                                options={roles}
+                                value={selectedRoles}
+                                onChange={setSelectedRoles}
+                                placeholder="Select roles"
+                            />
+                            <Form.Text className="text-muted">
+                                Can't find the role?{' '}
+                                <Button variant="link" onClick={() => setShowRoleModal(true)}>Add New</Button>
+                            </Form.Text>
+                        </Form.Group>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="outline-info" onClick={onClose}>Cancel</Button>
+                        <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? 'Adding...' : 'Add Contact'}
+                        </Button>
+                    </Modal.Footer>
+                </Form>
+            </Modal>
 
             {/* Modal for adding a new role */}
             <Modal show={showRoleModal} onHide={() => setShowRoleModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Add New Role</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Role</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={newRole.role}
-                            onChange={(e) => setNewRole({ ...newRole, role: e.target.value })}
-                            required
-                        />
-                    </Form.Group>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="primary" onClick={handleAddRole} disabled={isSubmittingRole}>
-                        {isSubmittingRole ? 'Adding...' : 'Add Role'}
-                    </Button>
-                </Modal.Footer>
+                <Form onSubmit={handleAddRole}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Add New Role</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        {error && <Alert variant="danger">{error}</Alert>}
+                        <Form.Group className="mb-3">
+                            <Form.Label>Role</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={newRole.role}
+                                onChange={(e) => setNewRole({ ...newRole, role: e.target.value })}
+                                required
+                            />
+                        </Form.Group>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="outline-info" onClick={() => setShowRoleModal(false)}>Cancel</Button>
+                        <Button variant="primary" type="submit" disabled={isSubmittingRole}>
+                            {isSubmittingRole ? 'Adding...' : 'Add Role'}
+                        </Button>
+                    </Modal.Footer>
+                </Form>
             </Modal>
-        </Container>
+        </>
     );
 }
 

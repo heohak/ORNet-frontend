@@ -277,7 +277,6 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                     />
                 </Form.Group>
 
-
                 <Form.Group className="mb-3">
                     <Form.Label>Introduced Date</Form.Label>
                     <Form.Control
@@ -288,10 +287,14 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                     />
                 </Form.Group>
 
-
-                <Button variant="success" type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? 'Adding...' : 'Add Device'}
-                </Button>
+                <Modal.Footer>
+                    <Button variant="outline-info" onClick={onClose}>
+                        Cancel
+                    </Button>
+                    <Button variant="primary" type="submit" disabled={isSubmitting}>
+                        {isSubmitting ? 'Adding...' : 'Add Device'}
+                    </Button>
+                </Modal.Footer>
             </Form>
 
             <Modal show={showClassificatorModal} onHide={() => setShowClassificatorModal(false)}>
@@ -310,7 +313,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                     </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowClassificatorModal(false)}>Cancel</Button>
+                    <Button variant="outline-info" onClick={() => setShowClassificatorModal(false)}>Cancel</Button>
                     <Button
                         variant="primary"
                         onClick={handleAddClassificator}

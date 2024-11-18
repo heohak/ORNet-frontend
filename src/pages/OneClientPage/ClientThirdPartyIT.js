@@ -85,14 +85,12 @@ function ClientThirdPartyIT({ clientId, client }) {
             ) : (
                 <Alert className="mt-3" variant="info">No third-party ITs available.</Alert>
             )}
-            <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Add Third-Party IT to {client.shortName}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <AddThirdPartyIT clientId={clientId} onClose={() => setShowAddModal(false)} setRefresh={setRefresh} />
-                </Modal.Body>
-            </Modal>
+            <AddThirdPartyIT
+                clientId={clientId}
+                show={showAddModal}
+                onClose={() => setShowAddModal(false)}
+                setRefresh={setRefresh}
+            />
         </>
     );
 }

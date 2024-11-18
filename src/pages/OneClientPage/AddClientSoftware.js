@@ -139,12 +139,16 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
                                 Can't find the Tech Info? <Button variant="link" onClick={() => setShowAddNewSoftwareModal(true)}>Add New</Button>
                             </Form.Text>
                         </Form.Group>
-                        <Button variant="success" onClick={handleAddExistingSoftware} disabled={isSubmittingMainForm}>
-                            {isSubmittingMainForm ? 'Adding...' : 'Add Selected Tech Info'}
-                        </Button>
+
                     </Container>
                 </Modal.Body>
                 <Modal.Footer>
+                    <Button variant="outline-info" onClick={handleClose}>
+                        Cancel
+                    </Button>
+                    <Button variant="primary" onClick={handleAddExistingSoftware} disabled={isSubmittingMainForm}>
+                        {isSubmittingMainForm ? 'Adding...' : 'Add Selected Tech Info'}
+                    </Button>
                 </Modal.Footer>
             </Modal>
 
@@ -406,10 +410,10 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
 
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowAddNewSoftwareModal(false)}>
-                        Close
+                    <Button variant="outline-info" onClick={() => setShowAddNewSoftwareModal(false)}>
+                        Cancel
                     </Button>
-                    <Button variant="success" type="submit" disabled={isSubmittingModalForm}>
+                    <Button variant="primary" type="submit" disabled={isSubmittingModalForm}>
                         {isSubmittingModalForm ? 'Adding...' : 'Add Tech Info'}
                     </Button>
 

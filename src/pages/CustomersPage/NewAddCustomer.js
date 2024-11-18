@@ -514,14 +514,14 @@ function NewAddCustomer({ show, onClose }) {
                     />
                 </Form.Group>
 
-
-                {/* Bottom: Cancel and Add Buttons */}
-                <div className="d-flex justify-content-end">
-                    <Button variant="secondary" className="me-2" onClick={onClose}>Cancel</Button>
-                    <Button variant="success" type="submit" disabled={isSubmitting}>
+                <Modal.Footer>
+                    <Button variant="outline-info" className="me-2" onClick={onClose}>Cancel</Button>
+                    <Button variant="primary" type="submit" disabled={isSubmitting}>
                         {isSubmitting ? 'Adding...' : 'Add Customer'}
                     </Button>
-                </div>
+
+                </Modal.Footer>
+
             </Form>
             </Modal.Body>
 
@@ -611,7 +611,7 @@ function NewAddCustomer({ show, onClose }) {
                         </Form.Group>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowLocationModal(false)}>Cancel</Button>
+                        <Button variant="outline-info" onClick={() => setShowLocationModal(false)}>Cancel</Button>
                         <Button variant="primary" type="submit" disabled={isSubmittingLocation}>
                             {isSubmittingLocation ? 'Adding...' : 'Add Location'}
                         </Button>
@@ -656,7 +656,7 @@ function NewAddCustomer({ show, onClose }) {
                         </Form.Group>
 
                         <Modal.Footer>
-                            <Button variant="secondary" onClick={() => setShowThirdPartyModal(false)}>Cancel</Button>
+                            <Button variant="outline-info" onClick={() => setShowThirdPartyModal(false)}>Cancel</Button>
                             <Button variant="primary" type="submit" disabled={isSubmittingThirdParty}>
                                 {isSubmittingThirdParty ? 'Adding...' : 'Add Third-Party IT'}
                             </Button>

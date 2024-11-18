@@ -175,7 +175,7 @@ function Wiki() {
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
+                        <Button variant="outline-info" onClick={() => setShowAddModal(false)}>Cancel</Button>
                         <Button
                             variant="primary"
                             onClick={handleAddWiki}
