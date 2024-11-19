@@ -1,0 +1,7 @@
+
+.extended-date-picker {
+    width: 100%; /* Adjust width to match other input boxes */
+    max-width: 400px; /* Ensure a reasonable maximum width */
+    display: block;
+    margin: 0 auto; /* Optional: Center the input */
+}
