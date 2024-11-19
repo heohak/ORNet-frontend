@@ -37,7 +37,7 @@ function AddClassificatorModal({ show, onHide, onClassificatorAdded }) {
     return (
         <Modal show={show} onHide={onHide}>
             <Modal.Header closeButton>
-                <Modal.Title>Add Device Classificator</Modal.Title>
+                <Modal.Title>Add Device Type</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 {error && (
@@ -48,7 +48,7 @@ function AddClassificatorModal({ show, onHide, onClassificatorAdded }) {
                 )}
                 <Form onSubmit={handleSubmit}>
                     <Form.Group className="mb-3">
-                        <Form.Label>Device Classificator Name</Form.Label>
+                        <Form.Label>Device Type Name</Form.Label>
                         <Form.Control
                             type="text"
                             value={name}
@@ -61,7 +61,7 @@ function AddClassificatorModal({ show, onHide, onClassificatorAdded }) {
                             Cancel
                         </Button>
                         <Button variant="primary" type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? 'Adding...' : 'Add Classificator'}
+                            {isSubmitting ? 'Adding...' : 'Add Type'}
                         </Button>
                     </Modal.Footer>
                 </Form>

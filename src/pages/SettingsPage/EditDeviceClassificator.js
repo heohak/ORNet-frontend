@@ -98,7 +98,7 @@ function EditDeviceClassificator() {
     return (
         <Container className="mt-5">
             <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                <h1>Edit Device Classificator</h1>
+                <h1>Edit Device Type</h1>
                 <Button variant='secondary' onClick={handleNavigate} className="mt-3 ms-3">
                     See history
                 </Button>
@@ -121,10 +121,10 @@ function EditDeviceClassificator() {
                     />
                 </Form.Group>
                 <Button variant="primary" type="submit">
-                    Update Classificator
+                    Update Type
                 </Button>
                 <Button variant="danger" className="ms-2" onClick={handleShowDeleteModal}>
-                    Delete Classificator
+                    Delete Type
                 </Button>
                 <Button variant="secondary" className="ms-2" onClick={() => navigate('/settings/device-classificators')}>
                     Cancel
@@ -133,12 +133,12 @@ function EditDeviceClassificator() {
             {/* Delete Confirmation Modal */}
             <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Confirm Classificator Deletion</Modal.Title>
+                    <Modal.Title>Confirm Type Deletion</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {deviceList.length > 0 ? (
                         <>
-                            <p>This classificator is associated with the following devices and cannot be deleted:</p>
+                            <p>This type is associated with the following devices and cannot be deleted:</p>
                             <ul>
                                 {deviceList.map((device) => (
                                     <li key={device.id}>
@@ -152,7 +152,7 @@ function EditDeviceClassificator() {
                             </ul>
                         </>
                     ) : (
-                        <p>No devices are linked to this classificator. You can proceed with deletion.</p>
+                        <p>No devices are linked to this type. You can proceed with deletion.</p>
                     )}
                 </Modal.Body>
                 <Modal.Footer>
@@ -162,7 +162,7 @@ function EditDeviceClassificator() {
                     {/* Conditionally render the Delete button only if no devices are linked */}
                     {deviceList.length === 0 && (
                         <Button variant="danger" onClick={handleDeleteClassificator}>
-                            Delete Classificator
+                            Delete Type
                         </Button>
                     )}
                 </Modal.Footer>

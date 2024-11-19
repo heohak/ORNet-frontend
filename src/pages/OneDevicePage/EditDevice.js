@@ -159,7 +159,7 @@ function EditDevice() {
                     </Form.Control>
                 </Form.Group>
                 <Form.Group className="mb-3">
-                    <Form.Label>Classificator</Form.Label>
+                    <Form.Label>Type</Form.Label>
                     <Form.Control
                         as="select"
                         name="classificatorId"
@@ -167,7 +167,7 @@ function EditDevice() {
                         onChange={handleInputChange}
                         required
                     >
-                        <option value="">Select Classificator</option>
+                        <option value="">Select Type</option>
                         {classificators.map(classificator => (
                             <option key={classificator.id} value={classificator.id}>{classificator.name}</option>
                         ))}

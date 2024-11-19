@@ -189,6 +189,10 @@ function HistoryTable() {
         // Trim whitespace
         header = header.trim();
 
+        if (header === "Classificator") {
+            header = "Type";
+        }
+
         return header;
     }
 

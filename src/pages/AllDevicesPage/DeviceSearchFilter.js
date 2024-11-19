@@ -126,7 +126,7 @@ function DeviceSearchFilter({ setDevices }) {
                         value={classificatorId}
                         onChange={(e) => setClassificatorId(e.target.value)}
                     >
-                        <option value="">Select Classificator</option>
+                        <option value="">Select Type</option>
                         {classificators.map((classificator) => (
                             <option key={classificator.id} value={classificator.id}>
                                 {classificator.name}
