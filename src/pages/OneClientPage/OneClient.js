@@ -93,6 +93,9 @@ function OneClient() {
         if (location.state?.openAccordion === 'contacts') {
             setActiveAccordionKeys(['1']); // Open the Contacts accordion
             handleAccordionScroll('1');    // Scroll to the Contacts accordion
+        } else if (location.state?.openAccordion === 'activity') {
+            setActiveAccordionKeys(['3']); // Open the Activity accordion
+            handleAccordionScroll('3');    // Scroll to the Activity accordion
         }
     }, [location]);
 

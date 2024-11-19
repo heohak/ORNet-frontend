@@ -391,17 +391,32 @@ function Customers() {
                                         </Col>
 
                                         <Col className="text-end" md={2}>
-                                             <span
-                                                 style={{
-                                                     display: 'inline-block',
-                                                     width: '12px',
-                                                     height: '12px',
-                                                     borderRadius: '50%',
-                                                     backgroundColor: deadlineColor,
-                                                     marginRight: '8px',
-                                                 }}
-                                             />
-                                            {formatDate(activityDates[customer.id]?.updateDateTime)  || "N/A"}
+                                            <div
+                                                style={{
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'flex-end',
+                                                    cursor: 'pointer',
+                                                }}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    navigate(`/customer/${customer.id}`, { state: { openAccordion: 'activity' } });
+                                                }}
+                                            >
+    <span
+        style={{
+            display: 'inline-block',
+            width: '12px',
+            height: '12px',
+            borderRadius: '50%',
+            backgroundColor: deadlineColor,
+            marginRight: '8px',
+        }}
+    />
+                                                {formatDate(activityDates[customer.id]?.updateDateTime) || "N/A"}
+                                            </div>
+
+
                                         </Col>
                                     </Row>
                                 );
