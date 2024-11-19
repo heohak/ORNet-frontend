@@ -110,14 +110,19 @@ function EditDevice() {
             {error && <Alert variant="danger">{error}</Alert>}
             <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3">
-                    <Form.Label>Device Name</Form.Label>
+                    <Form.Label>Device Type</Form.Label>
                     <Form.Control
-                        type="text"
-                        name="deviceName"
-                        value={deviceData.deviceName}
+                        as="select"
+                        name="classificatorId"
+                        value={deviceData.classificatorId}
                         onChange={handleInputChange}
                         required
-                    />
+                    >
+                        <option value="">Select Type</option>
+                        {classificators.map(classificator => (
+                            <option key={classificator.id} value={classificator.id}>{classificator.name}</option>
+                        ))}
+                    </Form.Control>
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Customer</Form.Label>
@@ -128,7 +133,7 @@ function EditDevice() {
                         onChange={handleInputChange}
                         disabled
                     >
-                        <option value="">Select Client</option>
+                        <option value="">Select Customer</option>
                         {clients.map(client => (
                             <option key={client.id} value={client.id}>{client.fullName}</option>
                         ))}
@@ -145,7 +150,7 @@ function EditDevice() {
                         disabled={!deviceData.clientId}
                     >
                         {!deviceData.clientId ? (
-                            <option value="">Pick a client before picking a location</option>
+                            <option value="">Pick a Customer before picking a location</option>
                         ) : (
                             <>
                                 <option value="">Select Location</option>
@@ -159,20 +164,18 @@ function EditDevice() {
                     </Form.Control>
                 </Form.Group>
                 <Form.Group className="mb-3">
-                    <Form.Label>Type</Form.Label>
+                    <Form.Label>Device Name</Form.Label>
                     <Form.Control
-                        as="select"
-                        name="classificatorId"
-                        value={deviceData.classificatorId}
+                        type="text"
+                        name="deviceName"
+                        value={deviceData.deviceName}
                         onChange={handleInputChange}
                         required
-                    >
-                        <option value="">Select Type</option>
-                        {classificators.map(classificator => (
-                            <option key={classificator.id} value={classificator.id}>{classificator.name}</option>
-                        ))}
-                    </Form.Control>
+                    />
                 </Form.Group>
+
+
+
                 <Form.Group className="mb-3">
                     <Form.Label>Department</Form.Label>
                     <Form.Control
@@ -197,33 +200,6 @@ function EditDevice() {
                         type="text"
                         name="serialNumber"
                         value={deviceData.serialNumber}
-                        onChange={handleInputChange}
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>License Number</Form.Label>
-                    <Form.Control
-                        type="text"
-                        name="licenseNumber"
-                        value={deviceData.licenseNumber}
-                        onChange={handleInputChange}
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Version</Form.Label>
-                    <Form.Control
-                        type="text"
-                        name="version"
-                        value={deviceData.version}
-                        onChange={handleInputChange}
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Version Update Date</Form.Label>
-                    <Form.Control
-                        type="date"
-                        name="versionUpdateDate"
-                        value={deviceData.versionUpdateDate}
                         onChange={handleInputChange}
                     />
                 </Form.Group>
@@ -255,6 +231,24 @@ function EditDevice() {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
+                    <Form.Label>License Number</Form.Label>
+                    <Form.Control
+                        type="text"
+                        name="licenseNumber"
+                        value={deviceData.licenseNumber}
+                        onChange={handleInputChange}
+                    />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Version</Form.Label>
+                    <Form.Control
+                        type="text"
+                        name="version"
+                        value={deviceData.version}
+                        onChange={handleInputChange}
+                    />
+                </Form.Group>
+                <Form.Group className="mb-3">
                     <Form.Label>Software Key</Form.Label>
                     <Form.Control
                         type="text"
@@ -263,6 +257,16 @@ function EditDevice() {
                         onChange={handleInputChange}
                     />
                 </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Version Update Date</Form.Label>
+                    <Form.Control
+                        type="date"
+                        name="versionUpdateDate"
+                        value={deviceData.versionUpdateDate}
+                        onChange={handleInputChange}
+                    />
+                </Form.Group>
+
                 <Form.Group className="mb-3">
                     <Form.Label>Introduced Date</Form.Label>
                     <Form.Control
