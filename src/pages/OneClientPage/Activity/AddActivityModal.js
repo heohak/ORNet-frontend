@@ -164,7 +164,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                         <Col md={4}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Deadline</Form.Label>
-                                <div style={{width: '500px'}}>
+                                <div>
                                     <ReactDatePicker
                                         selected={formData.endDateTime}
                                         onChange={handleDateChange}
