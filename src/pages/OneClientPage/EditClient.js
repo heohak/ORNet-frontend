@@ -351,6 +351,24 @@ function EditClient() {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
+                    <Form.Label>Prospect</Form.Label>
+                    <Form.Check
+                        type="checkbox"
+                        name="prospect"
+                        checked={clientData.prospect}
+                        onChange={handleInputChange}
+                    />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Agreement</Form.Label>
+                    <Form.Check
+                        type="checkbox"
+                        name="agreement"
+                        checked={clientData.agreement}
+                        onChange={handleInputChange}
+                    />
+                </Form.Group>
+                <Form.Group className="mb-3">
                     <Form.Label>Last Maintenance</Form.Label>
                     <Form.Control
                         type="date"
