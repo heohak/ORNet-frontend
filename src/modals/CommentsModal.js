@@ -6,6 +6,7 @@ import config from '../config/config';
 function CommentsModal({ show, handleClose, deviceId, isLinkedDevice = false }) {
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         const fetchComments = async () => {
@@ -25,8 +26,13 @@ function CommentsModal({ show, handleClose, deviceId, isLinkedDevice = false }) 
         }
     }, [show, deviceId, isLinkedDevice]);
 
-    const handleAddComment = async () => {
+    const handleAddComment = async (e) => {
+        e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+
         if (newComment.trim() === "") {
+            setIsSubmitting(false);
             return;
         }
 
@@ -39,6 +45,8 @@ function CommentsModal({ show, handleClose, deviceId, isLinkedDevice = false }) 
             setNewComment("");
         } catch (error) {
             console.error('Error adding comment:', error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -48,7 +56,7 @@ function CommentsModal({ show, handleClose, deviceId, isLinkedDevice = false }) 
                 <Modal.Title>Comments</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Form>
+                <Form onSubmit={handleAddComment}>
                     <Form.Group controlId="newComment">
                         <Form.Label>New Comment</Form.Label>
                         <Form.Control
@@ -58,8 +66,8 @@ function CommentsModal({ show, handleClose, deviceId, isLinkedDevice = false }) 
                             placeholder="Enter your comment"
                         />
                     </Form.Group>
-                    <Button variant="primary" onClick={handleAddComment} className="mt-3">
-                        Add Comment
+                    <Button variant="primary" type="submit" disabled={isSubmitting} className="mt-3">
+                        {isSubmitting ? 'Adding...' : 'Add Comment'}
                     </Button>
                 </Form>
                 <hr />

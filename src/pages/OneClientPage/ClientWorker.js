@@ -22,7 +22,6 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
 
     useEffect(() => {
         fetchRoles();
-        fetchWorkers();
     }, []);
 
     useEffect(() => {
@@ -59,19 +58,6 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
         }
     };
 
-    const fetchWorkers = async () => {
-        try {
-            const response = await axios.get(`${config.API_BASE_URL}/worker/${clientId}`);
-            const workersWithRolesPromises = response.data.map(async (worker) => {
-                const rolesResponse = await axios.get(`${config.API_BASE_URL}/worker/role/${worker.id}`);
-                return {...worker, roles: rolesResponse.data};
-            });
-            const workersWithRoles = await Promise.all(workersWithRolesPromises);
-            setFilteredWorkers(workersWithRoles);
-        } catch (error) {
-            console.error('Error fetching workers:', error);
-        }
-    };
 
     const filterWorkers = async () => {
         try {
@@ -84,14 +70,23 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
                 }
             });
 
-            const workersWithRoles = await Promise.all(response.data.map(async worker => {
+            let workersWithRoles = await Promise.all(response.data.map(async worker => {
                 const rolesResponse = await axios.get(`${config.API_BASE_URL}/worker/role/${worker.id}`);
-                const sortedRoles = rolesResponse.data.sort((a, b) => a.id - b.id)
+                // Sort roles alphabetically (or based on any desired criteria)
+                const sortedRoles = rolesResponse.data.sort((a, b) => a.role.localeCompare(b.role));
                 return {
                     ...worker,
                     roles: sortedRoles
                 };
             }));
+
+            // Sort workers by favorite status and alphabetically by name
+            workersWithRoles = workersWithRoles.sort((a, b) => {
+                if (a.favorite === b.favorite) {
+                    return (a.firstName + " " + a.lastName).localeCompare(b.firstName + " " + b.lastName);
+                }
+                return a.favorite ? -1 : 1;
+            });
 
             setFilteredWorkers(workersWithRoles);
         } catch (error) {
@@ -109,7 +104,7 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
     };
 
     const handleUpdateSuccess = async () => {
-        await fetchWorkers(); // Refresh the workers after a successful update
+        filterWorkers();
         setRefresh(prev => !prev);
         setShowEditWorkerModal(false); // Close the modal after update
     };
@@ -134,20 +129,28 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
 
     const toggleFavorite = async (workerId) => {
         try {
-            // Make the API call to toggle the favorite status
             await axios.put(`${config.API_BASE_URL}/worker/favorite/${workerId}`);
 
-            // Update the favorite status in the local state and re-sort the list
+            // Update and re-sort the workers
             setFilteredWorkers((prevWorkers) => {
                 const updatedWorkers = prevWorkers.map((worker) =>
                     worker.id === workerId ? { ...worker, favorite: !worker.favorite } : worker
                 );
 
-                // Sort the updated workers to place favorites at the top
-                return updatedWorkers.sort((a, b) => (a.favorite === b.favorite) ? 0 : a.favorite ? -1 : 1);
+                // Sort by favorite status and alphabetically by name
+                return updatedWorkers.sort((a, b) => {
+                    if (a.favorite === b.favorite) {
+                        // If both have the same favorite status, sort by name
+                        return (a.firstName + " " + a.lastName).localeCompare(b.firstName + " " + b.lastName);
+                    }
+                    // Favorites come first
+                    return a.favorite ? -1 : 1;
+                });
             });
         } catch (error) {
-            console.log('Failed to update favorite status');
+            console.error('Failed to update favorite status');
+        } finally {
+            filterWorkers();
         }
     };
 
