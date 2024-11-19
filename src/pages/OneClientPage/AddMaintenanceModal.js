@@ -3,10 +3,14 @@ import React, { useState } from 'react';
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../config/config";
+import ReactDatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import '../../css/OneClientPage/AddActivityModal.css'; // Adjust the path as needed
+import { format } from 'date-fns';
 
 function AddMaintenanceModal({ show, handleClose, clientId, locationId, deviceId, setRefresh, onAddMaintenance }) {
     const [maintenanceName, setMaintenanceName] = useState('');
-    const [maintenanceDate, setMaintenanceDate] = useState('');
+    const [maintenanceDate, setMaintenanceDate] = useState(null);
     const [comment, setComment] = useState('');
     const [files, setFiles] = useState([]);
     const [addError, setAddError] = useState(null);
@@ -25,11 +29,13 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, deviceId
         try {
             let maintenanceId;
 
+            const formattedMaintenanceDate = maintenanceDate ? format(maintenanceDate, 'yyyy-MM-dd') : null;
+
             if (clientId) {
                 // For clients, create maintenance and associate it separately
                 const maintenanceResponse = await axios.post(`${config.API_BASE_URL}/maintenance/add`, {
                     maintenanceName,
-                    maintenanceDate,
+                    maintenanceDate: formattedMaintenanceDate,
                     comment
                 });
 
@@ -130,10 +136,14 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, deviceId
                     </Form.Group>
                     <Form.Group className="mb-3">
                         <Form.Label>Maintenance Date</Form.Label>
-                        <Form.Control
-                            type="date"
-                            value={maintenanceDate}
-                            onChange={(e) => setMaintenanceDate(e.target.value)}
+                        <ReactDatePicker
+                            selected={maintenanceDate}
+                            onChange={(date) => setMaintenanceDate(date)}
+                            dateFormat="dd/MM/yyyy"
+                            className="form-control dark-placeholder"
+                            placeholderText="Select a date"
+                            maxDate={new Date()} // Prevent future dates
+                            isClearable
                             required
                         />
                     </Form.Group>

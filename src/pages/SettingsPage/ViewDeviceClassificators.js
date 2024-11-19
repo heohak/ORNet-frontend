@@ -73,7 +73,7 @@ function ViewDeviceClassificators() {
 
             <Row className="d-flex justify-content-between align-items-center mb-4">
                 <Col className="col-md-auto">
-                    <h1>Device Classificators</h1>
+                    <h1>Device Types</h1>
                 </Col>
                 <Col className="col-md-auto">
                     <Row>
@@ -83,7 +83,7 @@ function ViewDeviceClassificators() {
                             </Button>
                         </Col>
                         <Col className="col-md-auto">
-                            <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Classificator</Button>
+                            <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Type</Button>
                         </Col>
                     </Row>
                 </Col>
@@ -107,7 +107,7 @@ function ViewDeviceClassificators() {
             {/* Add Classificator Modal */}
             <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Add Device Classificator</Modal.Title>
+                    <Modal.Title>Add Device Type</Modal.Title>
                 </Modal.Header>
                 <Form onSubmit={handleAddClassificator}>
                     <Modal.Body>
@@ -124,7 +124,7 @@ function ViewDeviceClassificators() {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
-                        <Button variant="primary" type="submit">Add Classificator</Button>
+                        <Button variant="primary" type="submit">Add Type</Button>
                     </Modal.Footer>
             </Form>
             </Modal>

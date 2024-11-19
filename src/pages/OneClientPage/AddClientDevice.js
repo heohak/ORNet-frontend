@@ -3,6 +3,11 @@ import axios from 'axios';
 import { Container, Form, Button, Alert, Modal } from 'react-bootstrap';
 import config from "../../config/config";
 import Select from 'react-select';
+import ReactDatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import '../../css/OneClientPage/AddActivityModal.css';
+import { format } from 'date-fns';
+
 
 
 function AddClientDevice({ clientId, onClose, setRefresh }) {
@@ -13,13 +18,13 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
     const [serialNumber, setSerialNumber] = useState('');
     const [licenseNumber, setLicenseNumber] = useState('');
     const [version, setVersion] = useState('');
-    const [versionUpdateDate, setVersionUpdateDate] = useState('');
+    const [versionUpdateDate, setVersionUpdateDate] = useState(null);
     const [firstIPAddress, setFirstIPAddress] = useState('');
     const [secondIPAddress, setSecondIPAddress] = useState('');
     const [subnetMask, setSubnetMask] = useState('');
     const [deviceClassificatorId, setDeviceClassificatorId] = useState('');
     const [softwareKey, setSoftwareKey] = useState('');
-    const [introducedDate, setIntroducedDate] = useState('');
+    const [introducedDate, setIntroducedDate] = useState(null);
     const [error, setError] = useState(null);
     const [locations, setLocations] = useState([]);
     const [locationId, setLocationId] = useState('');
@@ -64,6 +69,9 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
         }
 
         try {
+            const formattedVersionUpdateDate = versionUpdateDate ? format(versionUpdateDate, 'yyyy-MM-dd') : null;
+            const formattedIntroducedDate = introducedDate ? format(introducedDate, 'yyyy-MM-dd') : null;
+
             const deviceResponse = await axios.post(`${config.API_BASE_URL}/device/add`, {
                 clientId,
                 locationId,
@@ -73,12 +81,12 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                 serialNumber,
                 licenseNumber,
                 version,
-                versionUpdateDate,
+                versionUpdateDate: formattedVersionUpdateDate,
                 firstIPAddress,
                 secondIPAddress,
                 subnetMask,
                 softwareKey,
-                introducedDate,
+                introducedDate: formattedIntroducedDate,
             });
 
             const deviceId = deviceResponse.data.token;
@@ -104,7 +112,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
         setIsSubmittingClassificator(true);
 
         if (newClassificator.trim() === '') {
-            setError('Please enter a valid classificator name.');
+            setError('Please enter a valid Type name.');
             setIsSubmittingClassificator(false);
             return;
         }
@@ -125,7 +133,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
             await fetchData();
             setShowClassificatorModal(false);
         } catch (error) {
-            setError('Error adding classificator.');
+            setError('Error adding Type (classificator).');
 
         } finally {
             setIsSubmittingClassificator(false);
@@ -143,14 +151,14 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
             )}
             <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3">
-                    <Form.Label>Device Classificator</Form.Label>
+                    <Form.Label>Device Type</Form.Label>
                     <Form.Control
                         as="select"
                         value={deviceClassificatorId}
                         onChange={(e) => setDeviceClassificatorId(e.target.value)}
                         required
                     >
-                        <option value="">Select Classificator</option>
+                        <option value="">Select Type</option>
                         {classificators.map(classificator => (
                             <option key={classificator.id} value={classificator.id}>
                                 {classificator.name}
@@ -158,7 +166,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                         ))}
                     </Form.Control>
                     <Form.Text className="text-muted">
-                        Can't find the classificator? <Button variant="link" onClick={() => setShowClassificatorModal(true)}>Add New</Button>
+                        Can't find the Type? <Button variant="link" onClick={() => setShowClassificatorModal(true)}>Add New</Button>
                     </Form.Text>
                 </Form.Group>
                 <Form.Group className="mb-3">
@@ -269,23 +277,33 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Version Update Date</Form.Label>
-                    <Form.Control
-                        type="date"
-                        value={versionUpdateDate}
-                        max={today}
-                        onChange={(e) => setVersionUpdateDate(e.target.value)}
+                    <ReactDatePicker
+                        selected={versionUpdateDate}
+                        onChange={(date) => setVersionUpdateDate(date)}
+                        dateFormat="dd/MM/yyyy"
+                        className="form-control dark-placeholder"
+                        placeholderText="Select a date"
+                        maxDate={new Date()} // Ensure the date is not in the future
+                        isClearable
+                        required
                     />
                 </Form.Group>
 
+
                 <Form.Group className="mb-3">
                     <Form.Label>Introduced Date</Form.Label>
-                    <Form.Control
-                        type="date"
-                        value={introducedDate}
-                        max={today}
-                        onChange={(e) => setIntroducedDate(e.target.value)}
+                    <ReactDatePicker
+                        selected={introducedDate}
+                        onChange={(date) => setIntroducedDate(date)}
+                        dateFormat="dd/MM/yyyy"
+                        className="form-control dark-placeholder"
+                        placeholderText="Select a date"
+                        maxDate={new Date()}
+                        isClearable
+                        required
                     />
                 </Form.Group>
+
 
                 <Modal.Footer>
                     <Button variant="outline-info" onClick={onClose}>
@@ -299,11 +317,11 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
 
             <Modal show={showClassificatorModal} onHide={() => setShowClassificatorModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Add New Classificator</Modal.Title>
+                    <Modal.Title>Add New Type</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form.Group className="mb-3">
-                        <Form.Label>Classificator Name</Form.Label>
+                        <Form.Label>Type Name</Form.Label>
                         <Form.Control
                             type="text"
                             value={newClassificator}
@@ -319,7 +337,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                         onClick={handleAddClassificator}
                         disabled={isSubmittingClassificator}
                     >
-                        {isSubmittingClassificator ? 'Adding...' : 'Add Classificator'}
+                        {isSubmittingClassificator ? 'Adding...' : 'Add Type'}
                     </Button>
                 </Modal.Footer>
             </Modal>

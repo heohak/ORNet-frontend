@@ -351,6 +351,24 @@ function EditClient() {
                     />
                 </Form.Group>
                 <Form.Group className="mb-3">
+                    <Form.Label>Prospect</Form.Label>
+                    <Form.Check
+                        type="checkbox"
+                        name="prospect"
+                        checked={clientData.prospect}
+                        onChange={handleInputChange}
+                    />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Agreement</Form.Label>
+                    <Form.Check
+                        type="checkbox"
+                        name="agreement"
+                        checked={clientData.agreement}
+                        onChange={handleInputChange}
+                    />
+                </Form.Group>
+                <Form.Group className="mb-3">
                     <Form.Label>Last Maintenance</Form.Label>
                     <Form.Control
                         type="date"
@@ -371,26 +389,27 @@ function EditClient() {
 
                 <Form.Group className="mb-3">
                     <Form.Label>Locations</Form.Label>
-                    <ListGroup>
-                        {clientData.locations.map((location) => (
-                            <ListGroup.Item key={location.id}>
-                                <Row>
-                                    <Col>{location.name}</Col>
-                                    <Col xs="auto">
-                                        <Button
-                                            variant="danger"
-                                            size="sm"
-                                            onClick={() => handleLocationRemove(location.id)}
-                                        >
-                                            Remove
-                                        </Button>
-                                    </Col>
-                                </Row>
-                            </ListGroup.Item>
-                        ))}
-                    </ListGroup>
+                    {clientData.locations.length > 0 &&
+                        <ListGroup className="mb-2">
+                            {clientData.locations.map((location) => (
+                                <ListGroup.Item key={location.id}>
+                                    <Row className="align-items-center">
+                                        <Col>{location.name}</Col>
+                                        <Col xs="auto">
+                                            <Button
+                                                variant="danger"
+                                                size="sm"
+                                                onClick={() => handleLocationRemove(location.id)}
+                                            >
+                                                Remove
+                                            </Button>
+                                        </Col>
+                                    </Row>
+                                </ListGroup.Item>
+                            ))}
+                        </ListGroup>
+                    }
                     <Form.Select
-                        className="mt-3"
                         onChange={handleLocationAdd}
                         value="" // Ensure the dropdown resets to the default option after selection
                     >
@@ -423,26 +442,27 @@ function EditClient() {
                 {/* Third Party IT Management */}
                 <Form.Group className="mb-3">
                     <Form.Label>Third Party ITs</Form.Label>
-                    <ListGroup>
-                        {clientData.thirdPartyITs.map((thirdPartyIT) => (
-                            <ListGroup.Item key={thirdPartyIT.id}>
-                                <Row>
-                                    <Col>{thirdPartyIT.name}</Col>
-                                    <Col xs="auto">
-                                        <Button
-                                            variant="danger"
-                                            size="sm"
-                                            onClick={() => handleThirdPartyITRemove(thirdPartyIT.id)}
-                                        >
-                                            Remove
-                                        </Button>
-                                    </Col>
-                                </Row>
-                            </ListGroup.Item>
-                        ))}
-                    </ListGroup>
+                    {clientData.thirdPartyITs.length > 0 &&
+                        <ListGroup className="mb-2">
+                            {clientData.thirdPartyITs.map((thirdPartyIT) => (
+                                <ListGroup.Item key={thirdPartyIT.id}>
+                                    <Row className="align-items-center">
+                                        <Col>{thirdPartyIT.name}</Col>
+                                        <Col xs="auto">
+                                            <Button
+                                                variant="danger"
+                                                size="sm"
+                                                onClick={() => handleThirdPartyITRemove(thirdPartyIT.id)}
+                                            >
+                                                Remove
+                                            </Button>
+                                        </Col>
+                                    </Row>
+                                </ListGroup.Item>
+                            ))}
+                        </ListGroup>
+                    }
                     <Form.Select
-                        className="mt-3"
                         onChange={handleThirdPartyITAdd}
                         value="" // Ensure the dropdown resets to the default option after selection
                     >

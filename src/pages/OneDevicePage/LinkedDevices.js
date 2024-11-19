@@ -33,6 +33,8 @@ function LinkedDevices({
     const [fieldToDelete, setFieldToDelete] = useState(null);
     const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
     const [activeTab, setActiveTab] = useState('details');
+    const [submitIndex, setSubmitIndex] = useState(0)
+    const [isSubmitting, setIsSubmitting] = useState(false);
     // Comments state
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState("");
@@ -145,9 +147,14 @@ function LinkedDevices({
     };
 
     // Function to handle linking a device
-    const handleLinkDevice = async () => {
+    const handleLinkDevice = async (e) => {
+        e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+
         if (!selectedLinkedDeviceId) {
             setFieldError('Please select a device to link.');
+            setIsSubmitting(false);
             return;
         }
         try {
@@ -161,11 +168,17 @@ function LinkedDevices({
         } catch (error) {
             console.error('Error linking device:', error);
             setFieldError('Failed to link the device. Please try again.');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     // Function to handle adding a new linked device
-    const handleAddNewLinkedDevice = async () => {
+    const handleAddNewLinkedDevice = async (e) => {
+        e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+
         try {
             const response = await axios.post(`${config.API_BASE_URL}/linked/device/add`, newLinkedDevice);
             setNewLinkedDevice({
@@ -186,6 +199,8 @@ function LinkedDevices({
         } catch (error) {
             console.error('Error adding new linked device:', error);
             setFieldError('Failed to add and link the new device. Please try again.');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -335,8 +350,13 @@ function LinkedDevices({
     };
 
     // Handle adding a new comment
-    const handleAddComment = async () => {
+    const handleAddComment = async (e) => {
+        e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+
         if (newComment.trim() === '') {
+            setIsSubmitting(false);
             return;
         }
 
@@ -347,8 +367,19 @@ function LinkedDevices({
             setNewComment('');
         } catch (error) {
             console.error('Error adding comment:', error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (submitIndex === 0) {
+            handleAddNewLinkedDevice(e)
+        } else {
+            handleLinkDevice(e);
+        }
+    }
 
     return (
         <>
@@ -410,110 +441,113 @@ function LinkedDevices({
                 <Modal.Header closeButton>
                     <Modal.Title>Link a Device</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
-                    {fieldError && (
-                        <Alert variant="danger" onClose={() => setFieldError(null)} dismissible>
-                            {fieldError}
-                        </Alert>
-                    )}
-                    {!showAddNewDeviceForm && (
-                        <>
-                            <Form.Group controlId="selectDevice">
-                                <Form.Label>Select Device to Link</Form.Label>
-                                <Form.Control
-                                    as="select"
-                                    value={selectedLinkedDeviceId}
-                                    onChange={(e) => setSelectedLinkedDeviceId(e.target.value)}
-                                >
-                                    <option value="">Select a device...</option>
-                                    {availableLinkedDevices.map((linkedDevice) => (
-                                        <option key={linkedDevice.id} value={linkedDevice.id}>
-                                            {linkedDevice.name} (Serial: {linkedDevice.serialNumber})
-                                        </option>
-                                    ))}
-                                </Form.Control>
-                            </Form.Group>
-                            <Button variant="link" onClick={() => setShowAddNewDeviceForm(true)}>
-                                Or add a new device
-                            </Button>
-                        </>
-                    )}
-                    {showAddNewDeviceForm && (
-                        <>
-                            <Form.Group controlId="newDeviceName">
-                                <Form.Label>Name</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    value={newLinkedDevice.name}
-                                    onChange={(e) => setNewLinkedDevice({ ...newLinkedDevice, name: e.target.value })}
-                                    placeholder="Enter name"
-                                />
-                            </Form.Group>
-                            <Form.Group controlId="newDeviceManufacturer">
-                                <Form.Label>Manufacturer</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    value={newLinkedDevice.manufacturer}
-                                    onChange={(e) =>
-                                        setNewLinkedDevice({ ...newLinkedDevice, manufacturer: e.target.value })
-                                    }
-                                    placeholder="Enter manufacturer"
-                                />
-                            </Form.Group>
-                            <Form.Group controlId="newDeviceProductCode">
-                                <Form.Label>Product Code</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    value={newLinkedDevice.productCode}
-                                    onChange={(e) =>
-                                        setNewLinkedDevice({ ...newLinkedDevice, productCode: e.target.value })
-                                    }
-                                    placeholder="Enter product code"
-                                />
-                            </Form.Group>
-                            <Form.Group controlId="newDeviceSerialNumber">
-                                <Form.Label>Serial Number</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    value={newLinkedDevice.serialNumber}
-                                    onChange={(e) =>
-                                        setNewLinkedDevice({ ...newLinkedDevice, serialNumber: e.target.value })
-                                    }
-                                    placeholder="Enter serial number"
-                                />
-                            </Form.Group>
-                            <Form.Group controlId="newDeviceComment" className="mt-3">
-                                <Form.Label>Comment</Form.Label>
-                                <Form.Control
-                                    as="textarea"
-                                    rows={3}
-                                    value={newLinkedDevice.comment}
-                                    onChange={(e) =>
-                                        setNewLinkedDevice({ ...newLinkedDevice, comment: e.target.value })
-                                    }
-                                    placeholder="Enter comment"
-                                />
-                            </Form.Group>
-                            <Button variant="link" onClick={() => setShowAddNewDeviceForm(false)}>
-                                Back to select existing device
-                            </Button>
-                        </>
-                    )}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowModal(false)}>
-                        Cancel
-                    </Button>
-                    {showAddNewDeviceForm ? (
-                        <Button variant="primary" onClick={handleAddNewLinkedDevice}>
-                            Add and Link Device
+                <Form onSubmit={handleSubmit}>
+                    <Modal.Body>
+                        {fieldError && (
+                            <Alert variant="danger" onClose={() => setFieldError(null)} dismissible>
+                                {fieldError}
+                            </Alert>
+                        )}
+                        {!showAddNewDeviceForm && (
+                            <>
+                                <Form.Group controlId="selectDevice">
+                                    <Form.Label>Select Device to Link</Form.Label>
+                                    <Form.Control
+                                        as="select"
+                                        value={selectedLinkedDeviceId}
+                                        onChange={(e) => setSelectedLinkedDeviceId(e.target.value)}
+                                    >
+                                        <option value="">Select a device...</option>
+                                        {availableLinkedDevices.map((linkedDevice) => (
+                                            <option key={linkedDevice.id} value={linkedDevice.id}>
+                                                {linkedDevice.name} (Serial: {linkedDevice.serialNumber})
+                                            </option>
+                                        ))}
+                                    </Form.Control>
+                                </Form.Group>
+                                <Button variant="link" onClick={() => setShowAddNewDeviceForm(true)}>
+                                    Or add a new device
+                                </Button>
+                            </>
+                        )}
+                        {showAddNewDeviceForm && (
+                            <>
+                                <Form.Group controlId="newDeviceName">
+                                    <Form.Label>Name</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={newLinkedDevice.name}
+                                        onChange={(e) => setNewLinkedDevice({ ...newLinkedDevice, name: e.target.value })}
+                                        placeholder="Enter name"
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group controlId="newDeviceManufacturer">
+                                    <Form.Label>Manufacturer</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={newLinkedDevice.manufacturer}
+                                        onChange={(e) =>
+                                            setNewLinkedDevice({ ...newLinkedDevice, manufacturer: e.target.value })
+                                        }
+                                        placeholder="Enter manufacturer"
+                                    />
+                                </Form.Group>
+                                <Form.Group controlId="newDeviceProductCode">
+                                    <Form.Label>Product Code</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={newLinkedDevice.productCode}
+                                        onChange={(e) =>
+                                            setNewLinkedDevice({ ...newLinkedDevice, productCode: e.target.value })
+                                        }
+                                        placeholder="Enter product code"
+                                    />
+                                </Form.Group>
+                                <Form.Group controlId="newDeviceSerialNumber">
+                                    <Form.Label>Serial Number</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={newLinkedDevice.serialNumber}
+                                        onChange={(e) =>
+                                            setNewLinkedDevice({ ...newLinkedDevice, serialNumber: e.target.value })
+                                        }
+                                        placeholder="Enter serial number"
+                                    />
+                                </Form.Group>
+                                <Form.Group controlId="newDeviceComment" className="mt-3">
+                                    <Form.Label>Comment</Form.Label>
+                                    <Form.Control
+                                        as="textarea"
+                                        rows={3}
+                                        value={newLinkedDevice.comment}
+                                        onChange={(e) =>
+                                            setNewLinkedDevice({ ...newLinkedDevice, comment: e.target.value })
+                                        }
+                                        placeholder="Enter comment"
+                                    />
+                                </Form.Group>
+                                <Button variant="link" onClick={() => setShowAddNewDeviceForm(false)}>
+                                    Back to select existing device
+                                </Button>
+                            </>
+                        )}
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowModal(false)}>
+                            Cancel
                         </Button>
-                    ) : (
-                        <Button variant="primary" onClick={handleLinkDevice}>
-                            Link Device
-                        </Button>
-                    )}
-                </Modal.Footer>
+                        {showAddNewDeviceForm ? (
+                            <Button variant="primary" type="submit" disabled={isSubmitting} onMouseDown={() => setSubmitIndex(0)}>
+                                {isSubmitting ? 'Adding...' : 'Add and Link Device'}
+                            </Button>
+                        ) : (
+                            <Button variant="primary" type="submit" disabled={isSubmitting} onMouseDown={() => setSubmitIndex(1)}>
+                                {isSubmitting ? 'Adding...' : 'Link Device'}
+                            </Button>
+                        )}
+                    </Modal.Footer>
+                </Form>
             </Modal>
 
             {/* Device Details Modal */}
@@ -608,7 +642,7 @@ function LinkedDevices({
 
                         {/* Comments Tab */}
                         <Tab eventKey="comments" title="Comments">
-                            <Form>
+                            <Form onSubmit={handleAddComment}>
                                 <Form.Group controlId="newComment">
                                     <Form.Label>New Comment</Form.Label>
                                     <Form.Control
@@ -616,10 +650,11 @@ function LinkedDevices({
                                         value={newComment}
                                         onChange={(e) => setNewComment(e.target.value)}
                                         placeholder="Enter your comment"
+                                        required
                                     />
                                 </Form.Group>
-                                <Button variant="primary" onClick={handleAddComment} className="mt-3">
-                                    Add Comment
+                                <Button variant="primary" disabled={isSubmitting} type="submit" className="mt-3">
+                                    {isSubmitting ? 'Adding..' : 'Add Comment'}
                                 </Button>
                             </Form>
                             <hr />

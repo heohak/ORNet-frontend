@@ -344,7 +344,7 @@ function Customers() {
                                         key={customer.id}
                                         className="mb-2"
                                         style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
-                                        onClick={() => navigate(`/customer/${customer.id}`, { state: { openAccordion: 'contacts' } })}
+                                        onClick={() => navigate(`/customer/${customer.id}`)}
                                     >
                                         <Col md={1}>
                                             <img
@@ -363,29 +363,60 @@ function Customers() {
                                         <Col md={4}>{customer.fullName}</Col>
                                         <Col md={2}>{customerTypeDisplay}</Col>
                                         <Col md={1}>
-                                            <div style={{background: '#d6d6ee', width: '24px', height: '24px', borderRadius: '6px', display: "grid", alignContent: "center", justifyContent: "center"}}>
+                                            <div
+                                                style={{
+                                                    background: '#d6d6ee',
+                                                    width: '24px',
+                                                    height: '24px',
+                                                    borderRadius: '6px',
+                                                    display: "grid",
+                                                    alignContent: "center",
+                                                    justifyContent: "center",
+                                                    cursor: 'pointer' // Makes it clear that the icon is clickable
+                                                }}
+                                                onClick={(e) => {
+                                                    e.stopPropagation(); // Prevent the click from bubbling up to the row
+                                                    navigate(`/customer/${customer.id}`, { state: { openAccordion: 'contacts' } });
+                                                }}
+                                            >
                                                 <img
                                                     src={personIcon}
                                                     alt="person_icon.png"
                                                     style={{
-                                                      width: '20px',
-                                                      height: '20px'
+                                                        width: '20px',
+                                                        height: '20px'
                                                     }}
                                                 />
                                             </div>
                                         </Col>
+
                                         <Col className="text-end" md={2}>
-                                             <span
-                                                 style={{
-                                                     display: 'inline-block',
-                                                     width: '12px',
-                                                     height: '12px',
-                                                     borderRadius: '50%',
-                                                     backgroundColor: deadlineColor,
-                                                     marginRight: '8px',
-                                                 }}
-                                             />
-                                            {formatDate(activityDates[customer.id]?.updateDateTime)  || "N/A"}
+                                            <div
+                                                style={{
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'flex-end',
+                                                    cursor: 'pointer',
+                                                }}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    navigate(`/customer/${customer.id}`, { state: { openAccordion: 'activity' } });
+                                                }}
+                                            >
+    <span
+        style={{
+            display: 'inline-block',
+            width: '12px',
+            height: '12px',
+            borderRadius: '50%',
+            backgroundColor: deadlineColor,
+            marginRight: '8px',
+        }}
+    />
+                                                {formatDate(activityDates[customer.id]?.updateDateTime) || "N/A"}
+                                            </div>
+
+
                                         </Col>
                                     </Row>
                                 );

@@ -67,6 +67,14 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
         setSelectedActivity(null);
     };
 
+    const formatDate = (dateString) => {
+        if (!dateString) {
+            return "N/A"
+        }
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-GB'); // This will format it to DD.MM.YYYY
+    };
+
 
 
 
@@ -115,7 +123,7 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
                                     <Row className="align-items-center">
                                         <Col className="px-0" md={4}>{activity.title}</Col>
                                         <Col md={3}>{contactNames}</Col>
-                                        <Col md={3}>{activity.endDateTime}</Col>
+                                        <Col md={3}>{formatDate(activity.endDateTime)}</Col>
                                         <Col md={2}>
                                     <span
                                         style={{

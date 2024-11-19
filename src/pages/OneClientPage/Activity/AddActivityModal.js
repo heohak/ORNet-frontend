@@ -2,6 +2,9 @@ import React, {useEffect, useState} from "react";
 import axios from "axios";
 import config from "../../../config/config";
 import {Alert, Button, Col, Form, Modal, Row} from "react-bootstrap";
+import ReactDatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import '../../../css/OneClientPage/AddActivityModal.css';
 import Select from "react-select";
 
 const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations, clientContacts, clientName}) => {
@@ -18,7 +21,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
         clientNumeration: '',
         contactIds: [],
         deviceId: undefined,
-        endDateTime: undefined
+        endDateTime: null,
     });
 
     const [locations, setLocations] = useState(clientLocations);
@@ -29,6 +32,15 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
     const [devices, setDevices] = useState([]);
     const [selectedWorkTypes, setSelectedWorkTypes] = useState([]);
     const [error, setError] = useState(null);
+
+    const handleDateChange = (date) => {
+        setFormData(prevData => ({
+            ...prevData,
+            endDateTime: date,
+        }));
+    };
+
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -131,7 +143,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
             clientNumeration: '',
             contactIds: [],
             deviceId: undefined,
-            endDateTime: undefined
+            endDateTime: null,
         }); // Reset form fields
         setSelectedWorkTypes([]); // Reset selected work types
     }
@@ -152,14 +164,20 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                         <Col md={4}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Deadline</Form.Label>
-                                <Form.Control
-                                    type="date"
-                                    value={formData.endDateTime}
-                                    onChange={handleChange}
-                                    id="endDateTime"
-                                    required
-                                />
+                                <div>
+                                    <ReactDatePicker
+                                        selected={formData.endDateTime}
+                                        onChange={handleDateChange}
+                                        dateFormat="dd/MM/yyyy"
+                                        className="form-control dark-placeholder" // Add a custom class
+                                        placeholderText="Select a date"
+                                        isClearable
+                                        required
+                                    />
+
+                                </div>
                             </Form.Group>
+
                         </Col>
                         <Col md={4}>
                             <Form.Group className="mb-3">
