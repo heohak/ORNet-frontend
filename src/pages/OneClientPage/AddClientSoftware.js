@@ -3,6 +3,10 @@ import { Modal, Button, Form, Alert, Container } from 'react-bootstrap';
 import axios from 'axios';
 import config from '../../config/config';
 import Select from 'react-select';
+import ReactDatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import '../../css/OneClientPage/AddActivityModal.css'; // Adjust the path as needed
+import { format } from 'date-fns';
 
 function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) {
     const [softwareList, setSoftwareList] = useState([]);
@@ -12,18 +16,18 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
 
     const [name, setName] = useState('');
     const [dbVersion, setDbVersion] = useState('');
-    const [his, setHis] = useState({ vendorName: '', version: '', updateDate: '' });
-    const [pacs, setPacs] = useState({ vendorName: '', version: '', updateDate: '' });
-    const [dicom, setDicom] = useState({ vendorName: '', version: '', updateDate: '' });
-    const [hl7, setHl7] = useState({ vendorName: '', version: '', updateDate: '' });
-    const [lis, setLis] = useState({ vendorName: '', version: '', updateDate: '' });
-    const [returnImagesToLIS, setReturnImagesToLIS] = useState({ toReturn: false, link: '', updateDate: '' });
-    const [orNetAPI, setOrNetAPI] = useState({ version: '', updateDate: '' });
-    const [txtIntegrationDate, setTxtIntegrationDate] = useState('');
-    const [customerAPI, setCustomerAPI] = useState({ vendorName: '', version: '', updateDate: '' });
-    const [orNetAPIClient, setOrNetAPIClient] = useState({ version: '', updateDate: '' });
-    const [consultationModule, setConsultationModule] = useState({ version: '', updateDate: '' });
-    const [aiModule, setAiModule] = useState({ version: '', updateDate: '' });
+    const [his, setHis] = useState({ vendorName: '', version: '', updateDate: null });
+    const [pacs, setPacs] = useState({ vendorName: '', version: '', updateDate: null });
+    const [dicom, setDicom] = useState({ vendorName: '', version: '', updateDate: null });
+    const [hl7, setHl7] = useState({ vendorName: '', version: '', updateDate: null });
+    const [lis, setLis] = useState({ vendorName: '', version: '', updateDate: null });
+    const [returnImagesToLIS, setReturnImagesToLIS] = useState({ toReturn: false, link: '', updateDate: null });
+    const [orNetAPI, setOrNetAPI] = useState({ version: '', updateDate: null });
+    const [txtIntegrationDate, setTxtIntegrationDate] = useState(null);
+    const [customerAPI, setCustomerAPI] = useState({ vendorName: '', version: '', updateDate: null });
+    const [orNetAPIClient, setOrNetAPIClient] = useState({ version: '', updateDate: null });
+    const [consultationModule, setConsultationModule] = useState({ version: '', updateDate: null });
+    const [aiModule, setAiModule] = useState({ version: '', updateDate: null });
 
     const [isSubmittingMainForm, setIsSubmittingMainForm] = useState(false);
     const [isSubmittingModalForm, setIsSubmittingModalForm] = useState(false);
@@ -69,21 +73,74 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
         setError(null);
 
         try {
+            const formattedHisUpdateDate = his.updateDate ? format(his.updateDate, 'yyyy-MM-dd') : null;
+            const formattedPacsUpdateDate = pacs.updateDate ? format(pacs.updateDate, 'yyyy-MM-dd') : null;
+            const formattedDicomUpdateDate = dicom.updateDate ? format(dicom.updateDate, 'yyyy-MM-dd') : null;
+            const formattedHl7UpdateDate = hl7.updateDate ? format(hl7.updateDate, 'yyyy-MM-dd') : null;
+            const formattedLisUpdateDate = lis.updateDate ? format(lis.updateDate, 'yyyy-MM-dd') : null;
+            const formattedReturnImagesToLISUpdateDate = returnImagesToLIS.updateDate ? format(returnImagesToLIS.updateDate, 'yyyy-MM-dd') : null;
+            const formattedOrNetAPIUpdateDate = orNetAPI.updateDate ? format(orNetAPI.updateDate, 'yyyy-MM-dd') : null;
+            const formattedTxtIntegrationDate = txtIntegrationDate ? format(txtIntegrationDate, 'yyyy-MM-dd') : null;
+            const formattedCustomerAPIUpdateDate = customerAPI.updateDate ? format(customerAPI.updateDate, 'yyyy-MM-dd') : null;
+            const formattedOrNetAPIClientUpdateDate = orNetAPIClient.updateDate ? format(orNetAPIClient.updateDate, 'yyyy-MM-dd') : null;
+            const formattedConsultationModuleUpdateDate = consultationModule.updateDate ? format(consultationModule.updateDate, 'yyyy-MM-dd') : null;
+            const formattedAiModuleUpdateDate = aiModule.updateDate ? format(aiModule.updateDate, 'yyyy-MM-dd') : null;
+
             const response = await axios.post(`${config.API_BASE_URL}/software/add`, {
                 name,
                 dbVersion,
-                his,
-                pacs,
-                dicom,
-                hl7,
-                lis,
-                returnImagesToLIS,
-                orNetAPI,
-                txtIntegrationDate,
-                customerAPI,
-                orNetAPIClient,
-                consultationModule,
-                aiModule
+                his: {
+                    vendorName: his.vendorName,
+                    version: his.version,
+                    updateDate: formattedHisUpdateDate
+                },
+                pacs: {
+                    vendorName: pacs.vendorName,
+                    version: pacs.version,
+                    updateDate: formattedPacsUpdateDate
+                },
+                dicom: {
+                    vendorName: dicom.vendorName,
+                    version: dicom.version,
+                    updateDate: formattedDicomUpdateDate
+                },
+                hl7: {
+                    vendorName: hl7.vendorName,
+                    version: hl7.version,
+                    updateDate: formattedHl7UpdateDate
+                },
+                lis: {
+                    vendorName: lis.vendorName,
+                    version: lis.version,
+                    updateDate: formattedLisUpdateDate
+                },
+                returnImagesToLIS: {
+                    toReturn: returnImagesToLIS.toReturn,
+                    link: returnImagesToLIS.link,
+                    updateDate: formattedReturnImagesToLISUpdateDate
+                },
+                orNetAPI: {
+                    version: orNetAPI.version,
+                    updateDate: formattedOrNetAPIUpdateDate
+                },
+                txtIntegrationDate: formattedTxtIntegrationDate,
+                customerAPI: {
+                    vendorName: customerAPI.vendorName,
+                    version: customerAPI.version,
+                    updateDate: formattedCustomerAPIUpdateDate
+                },
+                orNetAPIClient: {
+                    version: orNetAPIClient.version,
+                    updateDate: formattedOrNetAPIClientUpdateDate
+                },
+                consultationModule: {
+                    version: consultationModule.version,
+                    updateDate: formattedConsultationModuleUpdateDate
+                },
+                aiModule: {
+                    version: aiModule.version,
+                    updateDate: formattedAiModuleUpdateDate
+                }
             });
 
             if (response.data && response.data.token) {
@@ -91,18 +148,18 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
                 setRefresh(prev => !prev);
                 setName('');
                 setDbVersion('');
-                setHis({ vendorName: '', version: '', updateDate: '' });
-                setPacs({ vendorName: '', version: '', updateDate: '' });
-                setDicom({ vendorName: '', version: '', updateDate: '' });
-                setHl7({ vendorName: '', version: '', updateDate: '' });
-                setLis({ vendorName: '', version: '', updateDate: '' });
-                setReturnImagesToLIS({ toReturn: '', link: '', updateDate: '' });
-                setOrNetAPI({ version: '', updateDate: '' });
-                setTxtIntegrationDate('');
-                setCustomerAPI({ vendorName: '', version: '', updateDate: '' });
-                setOrNetAPIClient({ version: '', updateDate: '' });
-                setConsultationModule({ version: '', updateDate: '' });
-                setAiModule({ version: '', updateDate: '' });
+                setHis({ vendorName: '', version: '', updateDate: null });
+                setPacs({ vendorName: '', version: '', updateDate: null });
+                setDicom({ vendorName: '', version: '', updateDate: null });
+                setHl7({ vendorName: '', version: '', updateDate: null });
+                setLis({ vendorName: '', version: '', updateDate: null });
+                setReturnImagesToLIS({ toReturn: false, link: '', updateDate: null });
+                setOrNetAPI({ version: '', updateDate: null });
+                setTxtIntegrationDate(null);
+                setCustomerAPI({ vendorName: '', version: '', updateDate: null });
+                setOrNetAPIClient({ version: '', updateDate: null });
+                setConsultationModule({ version: '', updateDate: null });
+                setAiModule({ version: '', updateDate: null });
                 setShowAddNewSoftwareModal(false);
                 handleClose();
             }
@@ -193,11 +250,15 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
                                 value={his.version}
                                 onChange={(e) => setHis({ ...his, version: e.target.value })}
                             />
-                            <Form.Control
-                                type="date"
-                                placeholder="Update Date"
-                                value={his.updateDate}
-                                onChange={(e) => setHis({ ...his, updateDate: e.target.value })}
+                            <ReactDatePicker
+                                selected={his.updateDate}
+                                onChange={(date) => setHis({ ...his, updateDate: date })}
+                                dateFormat="dd/MM/yyyy"
+                                className="form-control dark-placeholder"
+                                placeholderText="Select Update Date"
+                                maxDate={new Date()}
+                                isClearable
+                                required
                             />
                         </Form.Group>
                         {/* Repeat for other entities */}
@@ -216,11 +277,15 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
                                 value={pacs.version}
                                 onChange={(e) => setPacs({ ...pacs, version: e.target.value })}
                             />
-                            <Form.Control
-                                type="date"
-                                placeholder="Update Date"
-                                value={pacs.updateDate}
-                                onChange={(e) => setPacs({ ...pacs, updateDate: e.target.value })}
+                            <ReactDatePicker
+                                selected={pacs.updateDate}
+                                onChange={(date) => setPacs({ ...pacs, updateDate: date })}
+                                dateFormat="dd/MM/yyyy"
+                                className="form-control dark-placeholder"
+                                placeholderText="Select Update Date"
+                                maxDate={new Date()}
+                                isClearable
+                                required
                             />
                         </Form.Group>
                         {/* DICOM */}
@@ -238,11 +303,15 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
                                 value={dicom.version}
                                 onChange={(e) => setDicom({ ...dicom, version: e.target.value })}
                             />
-                            <Form.Control
-                                type="date"
-                                placeholder="Update Date"
-                                value={dicom.updateDate}
-                                onChange={(e) => setDicom({ ...dicom, updateDate: e.target.value })}
+                            <ReactDatePicker
+                                selected={dicom.updateDate}
+                                onChange={(date) => setDicom({ ...dicom, updateDate: date })}
+                                dateFormat="dd/MM/yyyy"
+                                className="form-control dark-placeholder"
+                                placeholderText="Select Update Date"
+                                maxDate={new Date()}
+                                isClearable
+                                required
                             />
                         </Form.Group>
                         {/* HL7 */}
@@ -260,11 +329,15 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
                                 value={hl7.version}
                                 onChange={(e) => setHl7({ ...hl7, version: e.target.value })}
                             />
-                            <Form.Control
-                                type="date"
-                                placeholder="Update Date"
-                                value={hl7.updateDate}
-                                onChange={(e) => setHl7({ ...hl7, updateDate: e.target.value })}
+                            <ReactDatePicker
+                                selected={hl7.updateDate}
+                                onChange={(date) => setHl7({ ...hl7, updateDate: date })}
+                                dateFormat="dd/MM/yyyy"
+                                className="form-control dark-placeholder"
+                                placeholderText="Select Update Date"
+                                maxDate={new Date()}
+                                isClearable
+                                required
                             />
                         </Form.Group>
                         {/* LIS */}
@@ -282,11 +355,15 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
                                 value={lis.version}
                                 onChange={(e) => setLis({ ...lis, version: e.target.value })}
                             />
-                            <Form.Control
-                                type="date"
-                                placeholder="Update Date"
-                                value={lis.updateDate}
-                                onChange={(e) => setLis({ ...lis, updateDate: e.target.value })}
+                            <ReactDatePicker
+                                selected={lis.updateDate}
+                                onChange={(date) => setLis({ ...lis, updateDate: date })}
+                                dateFormat="dd/MM/yyyy"
+                                className="form-control dark-placeholder"
+                                placeholderText="Select Update Date"
+                                maxDate={new Date()}
+                                isClearable
+                                required
                             />
                         </Form.Group>
                         {/* Return Images to LIS */}
@@ -304,11 +381,15 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
                                 value={returnImagesToLIS.link}
                                 onChange={(e) => setReturnImagesToLIS({ ...returnImagesToLIS, link: e.target.value })}
                             />
-                            <Form.Control
-                                type="date"
-                                placeholder="Update Date"
-                                value={returnImagesToLIS.updateDate}
-                                onChange={(e) => setReturnImagesToLIS({ ...returnImagesToLIS, updateDate: e.target.value })}
+                            <ReactDatePicker
+                                selected={returnImagesToLIS.updateDate}
+                                onChange={(date) => setReturnImagesToLIS({ ...returnImagesToLIS, updateDate: date })}
+                                dateFormat="dd/MM/yyyy"
+                                className="form-control dark-placeholder"
+                                placeholderText="Select Update Date"
+                                maxDate={new Date()}
+                                isClearable
+                                required
                             />
                         </Form.Group>
                         {/* ORNetAPI */}
@@ -320,20 +401,29 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
                                 value={orNetAPI.version}
                                 onChange={(e) => setOrNetAPI({ ...orNetAPI, version: e.target.value })}
                             />
-                            <Form.Control
-                                type="date"
-                                placeholder="Update Date"
-                                value={orNetAPI.updateDate}
-                                onChange={(e) => setOrNetAPI({ ...orNetAPI, updateDate: e.target.value })}
+                            <ReactDatePicker
+                                selected={orNetAPI.updateDate}
+                                onChange={(date) => setOrNetAPI({ ...orNetAPI, updateDate: date })}
+                                dateFormat="dd/MM/yyyy"
+                                className="form-control dark-placeholder"
+                                placeholderText="Select Update Date"
+                                maxDate={new Date()}
+                                isClearable
+                                required
                             />
                         </Form.Group>
                         {/* Txt Integration Date */}
                         <Form.Group className="mb-3">
                             <Form.Label>Txt Integration Date</Form.Label>
-                            <Form.Control
-                                type="date"
-                                value={txtIntegrationDate}
-                                onChange={(e) => setTxtIntegrationDate(e.target.value)}
+                            <ReactDatePicker
+                                selected={txtIntegrationDate}
+                                onChange={(date) => setTxtIntegrationDate(date)}
+                                dateFormat="dd/MM/yyyy"
+                                className="form-control dark-placeholder"
+                                placeholderText="Select Integration Date"
+                                maxDate={new Date()}
+                                isClearable
+                                required
                             />
                         </Form.Group>
                         {/* CustomerAPI */}
@@ -351,11 +441,15 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
                                 value={customerAPI.version}
                                 onChange={(e) => setCustomerAPI({ ...customerAPI, version: e.target.value })}
                             />
-                            <Form.Control
-                                type="date"
-                                placeholder="Update Date"
-                                value={customerAPI.updateDate}
-                                onChange={(e) => setCustomerAPI({ ...customerAPI, updateDate: e.target.value })}
+                            <ReactDatePicker
+                                selected={customerAPI.updateDate}
+                                onChange={(date) => setCustomerAPI({ ...customerAPI, updateDate: date })}
+                                dateFormat="dd/MM/yyyy"
+                                className="form-control dark-placeholder"
+                                placeholderText="Select Update Date"
+                                maxDate={new Date()}
+                                isClearable
+                                required
                             />
                         </Form.Group>
                         {/* ORNetAPIClient */}
@@ -367,11 +461,15 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
                                 value={orNetAPIClient.version}
                                 onChange={(e) => setOrNetAPIClient({ ...orNetAPIClient, version: e.target.value })}
                             />
-                            <Form.Control
-                                type="date"
-                                placeholder="Update Date"
-                                value={orNetAPIClient.updateDate}
-                                onChange={(e) => setOrNetAPIClient({ ...orNetAPIClient, updateDate: e.target.value })}
+                            <ReactDatePicker
+                                selected={orNetAPIClient.updateDate}
+                                onChange={(date) => setOrNetAPIClient({ ...orNetAPIClient, updateDate: date })}
+                                dateFormat="dd/MM/yyyy"
+                                className="form-control dark-placeholder"
+                                placeholderText="Select Update Date"
+                                maxDate={new Date()}
+                                isClearable
+                                required
                             />
                         </Form.Group>
                         {/* ConsultationModule */}
@@ -383,11 +481,15 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
                                 value={consultationModule.version}
                                 onChange={(e) => setConsultationModule({ ...consultationModule, version: e.target.value })}
                             />
-                            <Form.Control
-                                type="date"
-                                placeholder="Update Date"
-                                value={consultationModule.updateDate}
-                                onChange={(e) => setConsultationModule({ ...consultationModule, updateDate: e.target.value })}
+                            <ReactDatePicker
+                                selected={consultationModule.updateDate}
+                                onChange={(date) => setConsultationModule({ ...consultationModule, updateDate: date })}
+                                dateFormat="dd/MM/yyyy"
+                                className="form-control dark-placeholder"
+                                placeholderText="Select Update Date"
+                                maxDate={new Date()}
+                                isClearable
+                                required
                             />
                         </Form.Group>
                         {/* AIModule */}
@@ -399,11 +501,15 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
                                 value={aiModule.version}
                                 onChange={(e) => setAiModule({ ...aiModule, version: e.target.value })}
                             />
-                            <Form.Control
-                                type="date"
-                                placeholder="Update Date"
-                                value={aiModule.updateDate}
-                                onChange={(e) => setAiModule({ ...aiModule, updateDate: e.target.value })}
+                            <ReactDatePicker
+                                selected={aiModule.updateDate}
+                                onChange={(date) => setAiModule({ ...aiModule, updateDate: date })}
+                                dateFormat="dd/MM/yyyy"
+                                className="form-control dark-placeholder"
+                                placeholderText="Select Update Date"
+                                maxDate={new Date()}
+                                isClearable
+                                required
                             />
                         </Form.Group>
 

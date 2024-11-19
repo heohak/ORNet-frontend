@@ -169,8 +169,9 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                                         selected={formData.endDateTime}
                                         onChange={handleDateChange}
                                         dateFormat="dd/MM/yyyy"
-                                        className="form-control extended-date-picker" // Add a custom class
+                                        className="form-control dark-placeholder" // Add a custom class
                                         placeholderText="Select a date"
+                                        isClearable
                                         required
                                     />
 

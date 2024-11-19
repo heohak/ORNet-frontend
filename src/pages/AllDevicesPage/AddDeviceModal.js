@@ -4,6 +4,11 @@ import { Modal, Form, Button, Alert } from 'react-bootstrap';
 import config from "../../config/config";
 import AddClassificatorModal from "./AddDeviceModals/AddClassificatorModal";
 import AddLocationModal from "../TicketsPage/AddTicketModal/AddLocationModal"; // Using the modal from ticketPage
+import ReactDatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import '../../css/OneClientPage/AddActivityModal.css'; // Adjust the path as needed
+import { format } from 'date-fns';
+
 function AddDeviceModal({ show, onHide, setRefresh }) {
     const [deviceName, setDeviceName] = useState('');
     const [department, setDepartment] = useState('');
@@ -11,13 +16,13 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
     const [serialNumber, setSerialNumber] = useState('');
     const [licenseNumber, setLicenseNumber] = useState('');
     const [version, setVersion] = useState('');
-    const [versionUpdateDate, setVersionUpdateDate] = useState('');
+    const [versionUpdateDate, setVersionUpdateDate] = useState(null);
     const [firstIPAddress, setFirstIPAddress] = useState('');
     const [secondIPAddress, setSecondIPAddress] = useState('');
     const [subnetMask, setSubnetMask] = useState('');
     const [deviceClassificatorId, setDeviceClassificatorId] = useState('');
     const [softwareKey, setSoftwareKey] = useState('');
-    const [introducedDate, setIntroducedDate] = useState('');
+    const [introducedDate, setIntroducedDate] = useState(null);
     const [locationId, setLocationId] = useState('');
     const [clients, setClients] = useState([]);
     const [clientId, setClientId] = useState('');
@@ -104,6 +109,9 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
         }
 
         try {
+            const formattedVersionUpdateDate = versionUpdateDate ? format(versionUpdateDate, 'yyyy-MM-dd') : null;
+            const formattedIntroducedDate = introducedDate ? format(introducedDate, 'yyyy-MM-dd') : null;
+
             const deviceResponse = await axios.post(`${config.API_BASE_URL}/device/add`, {
                 clientId,
                 locationId,
@@ -113,12 +121,12 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                 serialNumber,
                 licenseNumber,
                 version,
-                versionUpdateDate,
+                versionUpdateDate: formattedVersionUpdateDate,
                 firstIPAddress,
                 secondIPAddress,
                 subnetMask,
                 softwareKey,
-                introducedDate,
+                introducedDate: formattedIntroducedDate,
             });
 
             const deviceId = deviceResponse.data.token; // Assuming the response contains the new device's ID
@@ -342,23 +350,32 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                         </Form.Group>
                         <Form.Group className="mb-3">
                             <Form.Label>Version Update Date</Form.Label>
-                            <Form.Control
-                                type="date"
-                                value={versionUpdateDate}
-                                max={today}
-                                onChange={(e) => setVersionUpdateDate(e.target.value)}
+                            <ReactDatePicker
+                                selected={versionUpdateDate}
+                                onChange={(date) => setVersionUpdateDate(date)}
+                                dateFormat="dd/MM/yyyy"
+                                className="form-control dark-placeholder"
+                                placeholderText="Select Update Date"
+                                maxDate={new Date()} // Prevent future dates
+                                isClearable
+                                required
                             />
                         </Form.Group>
 
                         <Form.Group className="mb-3">
                             <Form.Label>Introduced Date</Form.Label>
-                            <Form.Control
-                                type="date"
-                                value={introducedDate}
-                                max={today}
-                                onChange={(e) => setIntroducedDate(e.target.value)}
+                            <ReactDatePicker
+                                selected={introducedDate}
+                                onChange={(date) => setIntroducedDate(date)}
+                                dateFormat="dd/MM/yyyy"
+                                className="form-control dark-placeholder"
+                                placeholderText="Select Introduced Date"
+                                maxDate={new Date()}
+                                isClearable
+                                required
                             />
                         </Form.Group>
+
                         <Modal.Footer>
                             <Button variant="outline-info" onClick={onHide}>
                                 Cancel

@@ -3,13 +3,17 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import config from '../config/config';
+import ReactDatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import '../css/OneClientPage/AddActivityModal.css';
+import {format} from "date-fns";
 
 function GenerateReportModal({ show, handleClose }) {
     const [clients, setClients] = useState([]);
     const [selectedClientId, setSelectedClientId] = useState('');
     const [includeAllClients, setIncludeAllClients] = useState(false);
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
     const [fileName, setFileName] = useState('');
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -35,8 +39,8 @@ function GenerateReportModal({ show, handleClose }) {
     const clearFields = () => {
         setSelectedClientId('');
         setIncludeAllClients(false);
-        setStartDate('');
-        setEndDate('');
+        setStartDate(null);
+        setEndDate(null);
         setFileName('');
         setError(null);
     };
@@ -48,6 +52,10 @@ function GenerateReportModal({ show, handleClose }) {
         try {
             let response;
 
+            // Format dates to 'yyyy-MM-dd' or the format expected by your API
+            const formattedStartDate = startDate ? format(startDate, 'yyyy-MM-dd') : null;
+            const formattedEndDate = endDate ? format(endDate, 'yyyy-MM-dd') : null;
+
             if (includeAllClients) {
                 // Determine which report to generate for all clients based on report type
                 const reportEndpoint = reportType === 'tickets'
@@ -56,11 +64,11 @@ function GenerateReportModal({ show, handleClose }) {
 
                 response = await axios.get(reportEndpoint, {
                     params: {
-                        startDate: startDate || null,
-                        endDate: endDate || null,
+                        startDate: formattedStartDate,
+                        endDate: formattedEndDate,
                         fileName: fileName || 'report'
                     },
-                    responseType: 'blob', // Handle file download
+                    responseType: 'blob',
                 });
             } else {
                 // Determine which report endpoint to use based on the selected report type
@@ -72,8 +80,8 @@ function GenerateReportModal({ show, handleClose }) {
                 response = await axios.get(reportEndpoint, {
                     params: {
                         clientId: selectedClientId,
-                        startDate: startDate || null,
-                        endDate: endDate || null,
+                        startDate: formattedStartDate,
+                        endDate: formattedEndDate,
                         fileName: fileName || 'report'
                     },
                     responseType: 'blob', // Handle file download
@@ -179,23 +187,31 @@ function GenerateReportModal({ show, handleClose }) {
 
                     <Form.Group className="mb-3">
                         <Form.Label>Start Date</Form.Label>
-                        <Form.Control
-                            type="date"
-                            value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
+                        <ReactDatePicker
+                            selected={startDate}
+                            onChange={(date) => setStartDate(date)}
+                            dateFormat="dd/MM/yyyy"
+                            className="form-control dark-placeholder"
+                            placeholderText="Select a start date"
+                            isClearable
                             required
                         />
                     </Form.Group>
 
+
                     <Form.Group className="mb-3">
                         <Form.Label>End Date</Form.Label>
-                        <Form.Control
-                            type="date"
-                            value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
+                        <ReactDatePicker
+                            selected={endDate}
+                            onChange={(date) => setEndDate(date)}
+                            dateFormat="dd/MM/yyyy"
+                            className="form-control dark-placeholder"
+                            placeholderText="Select an end date"
+                            isClearable
                             required
                         />
                     </Form.Group>
+
 
                     <Form.Group className="mb-3">
                         <Form.Label>File Name</Form.Label>

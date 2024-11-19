@@ -1,3 +1,7 @@
 .react-datepicker-wrapper {
     width: 100%;
 }
+.dark-placeholder::placeholder {
+    color: #151414; /* Darker placeholder color */
+    opacity: 1;  /* Ensure consistent visibility across browsers */
+}
