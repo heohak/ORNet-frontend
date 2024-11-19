@@ -34,7 +34,7 @@ function Settings() {
                         onClick={() => navigate('/settings/device-classificators')}
                         className="settings-button"
                     >
-                        Device Classificators
+                        Device Types
                     </Button>
                 </Col>
                 <Col md={3} sm={6} className="mb-2">

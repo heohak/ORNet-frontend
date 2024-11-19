@@ -163,21 +163,24 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                     )}
                     <Form onSubmit={handleSubmit}>
                         <Form.Group className="mb-3">
-                            <Form.Label column sm={4}>Device Classificator</Form.Label>
-                            <Button
-                                variant="link"
-                                onClick={() => setShowAddClassificatorModal(true)}
-                                className="text-primary"
-                            >
-                                Add New
-                            </Button>
+                            <div className="d-flex align-items-center">
+                                <Form.Label>Device Type</Form.Label>
+                                <Button
+                                    variant="link"
+                                    onClick={() => setShowAddClassificatorModal(true)}
+                                    className="text-primary px-0 py-0 mb-2 ms-2"
+                                >
+                                    Add New
+                                </Button>
+                            </div>
+
                             <Form.Control
                                 as="select"
                                 value={deviceClassificatorId}
                                 onChange={(e) => setDeviceClassificatorId(e.target.value)}
                                 required
                             >
-                                <option value="">Select Classificator</option>
+                                <option value="">Select Type</option>
                                 {classificators.map(classificator => (
                                     <option key={classificator.id} value={classificator.id}>
                                         {classificator.name}
@@ -204,16 +207,19 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                             </Form.Control>
                         </Form.Group>
                         <Form.Group className="mb-3">
-                            <Form.Label>Location</Form.Label>
-                            {clientId ? (
-                                <Button
-                                    variant="link"
-                                    onClick={() => setShowLocationModal(true)}
-                                    className="text-primary"
-                                >
-                                    Add New Location
-                                </Button>
-                            ) : null}
+                            <div className="d-flex align-items-center">
+                                <Form.Label>Location</Form.Label>
+                                {clientId ? (
+                                    <Button
+                                        variant="link"
+                                        onClick={() => setShowLocationModal(true)}
+                                        className="text-primary px-0 py-0 mb-2 ms-2"
+                                    >
+                                        Add New Location
+                                    </Button>
+                                ) : null}
+                            </div>
+
                             <Form.Control
                                 as="select"
                                 value={locationId}

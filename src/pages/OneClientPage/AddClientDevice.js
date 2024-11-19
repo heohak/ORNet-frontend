@@ -104,7 +104,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
         setIsSubmittingClassificator(true);
 
         if (newClassificator.trim() === '') {
-            setError('Please enter a valid classificator name.');
+            setError('Please enter a valid Type name.');
             setIsSubmittingClassificator(false);
             return;
         }
@@ -125,7 +125,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
             await fetchData();
             setShowClassificatorModal(false);
         } catch (error) {
-            setError('Error adding classificator.');
+            setError('Error adding Type (classificator).');
 
         } finally {
             setIsSubmittingClassificator(false);
@@ -143,14 +143,14 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
             )}
             <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3">
-                    <Form.Label>Device Classificator</Form.Label>
+                    <Form.Label>Device Type</Form.Label>
                     <Form.Control
                         as="select"
                         value={deviceClassificatorId}
                         onChange={(e) => setDeviceClassificatorId(e.target.value)}
                         required
                     >
-                        <option value="">Select Classificator</option>
+                        <option value="">Select Type</option>
                         {classificators.map(classificator => (
                             <option key={classificator.id} value={classificator.id}>
                                 {classificator.name}
@@ -158,7 +158,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                         ))}
                     </Form.Control>
                     <Form.Text className="text-muted">
-                        Can't find the classificator? <Button variant="link" onClick={() => setShowClassificatorModal(true)}>Add New</Button>
+                        Can't find the Type? <Button variant="link" onClick={() => setShowClassificatorModal(true)}>Add New</Button>
                     </Form.Text>
                 </Form.Group>
                 <Form.Group className="mb-3">
@@ -299,11 +299,11 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
 
             <Modal show={showClassificatorModal} onHide={() => setShowClassificatorModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Add New Classificator</Modal.Title>
+                    <Modal.Title>Add New Type</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form.Group className="mb-3">
-                        <Form.Label>Classificator Name</Form.Label>
+                        <Form.Label>Type Name</Form.Label>
                         <Form.Control
                             type="text"
                             value={newClassificator}
@@ -319,7 +319,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                         onClick={handleAddClassificator}
                         disabled={isSubmittingClassificator}
                     >
-                        {isSubmittingClassificator ? 'Adding...' : 'Add Classificator'}
+                        {isSubmittingClassificator ? 'Adding...' : 'Add Type'}
                     </Button>
                 </Modal.Footer>
             </Modal>

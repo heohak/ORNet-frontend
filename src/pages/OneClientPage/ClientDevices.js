@@ -102,10 +102,10 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
                 </Col>
                 <Col md={3}>
             <Form.Group controlId="classificatorFilter">
-                <Form.Label>Filter by Classificator</Form.Label>
+                <Form.Label>Filter by Type</Form.Label>
                 <Form.Control as="select" value={selectedClassificatorId}
                               onChange={(e) => setSelectedClassificatorId(e.target.value)}>
-                    <option value="">All Classificators</option>
+                    <option value="">All Types</option>
                     {classificatorList.map((classificator) => (
                         <option key={classificator.id} value={classificator.id}>{classificator.name}</option>
                     ))}
