@@ -32,6 +32,8 @@ function OneClient() {
     const [statusMap, setStatusMap] = useState({});
     const [activities, setActivities] = useState([]);
     const accordionRefs = useRef([]); // Array of refs for each Accordion.Item
+    const [activeAccordionKeys, setActiveAccordionKeys] = useState([]);
+
 
     const navigate = useNavigate();
 
@@ -89,26 +91,40 @@ function OneClient() {
 
     useEffect(() => {
         if (location.state?.openAccordion === 'contacts') {
-            // Use handleAccordionToggle directly to open and scroll to the desired accordion
-            handleAccordionToggle('1');
-
+            setActiveAccordionKeys(['1']); // Open the Contacts accordion
+            handleAccordionScroll('1');    // Scroll to the Contacts accordion
         }
     }, [location]);
 
-    const handleAccordionToggle = (eventKey) => {
+
+    const handleAccordionScroll = (eventKey) => {
         const index = parseInt(eventKey, 10);
         if (accordionRefs.current[index]) {
             setTimeout(() => {
                 const elementPosition = accordionRefs.current[index].getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.scrollY - 100; // Adjust -100 for more aggressive scrolling
+                const offsetPosition = elementPosition + window.scrollY - 100;
 
                 window.scrollTo({
                     top: offsetPosition,
                     behavior: 'smooth'
                 });
-            }, 100); // Delay for 100 milliseconds
+            }, 100);
         }
     };
+
+
+    const handleAccordionToggle = (eventKey) => {
+        if (!eventKey) return;
+        if (activeAccordionKeys.includes(eventKey)) {
+            // Close the accordion item
+            setActiveAccordionKeys(activeAccordionKeys.filter((key) => key !== eventKey));
+        } else {
+            // Open the accordion item
+            setActiveAccordionKeys([...activeAccordionKeys, eventKey]);
+            handleAccordionScroll(eventKey);
+        }
+    };
+
 
 
 
@@ -153,10 +169,13 @@ function OneClient() {
                             client={client}
                             navigate={navigate}
                         />
-                        <Accordion defaultActiveKey="0" alwaysOpen onToggle={handleAccordionToggle}>
+                        <Accordion
+                            activeKey={activeAccordionKeys}
+                            alwaysOpen
+                        >
 
                             <Accordion.Item eventKey="1" className="AccordionWorkers" ref={(el) => accordionRefs.current[1] = el}>
-                                <Accordion.Header onClick={() => handleAccordionToggle(1)}>Contacts</Accordion.Header>
+                                <Accordion.Header onClick={() => handleAccordionToggle('1')}>Contacts</Accordion.Header>
                                 <Accordion.Body>
                                     <ClientWorker
                                         workers={workers}
@@ -168,7 +187,7 @@ function OneClient() {
                             </Accordion.Item>
 
                             <Accordion.Item eventKey="2" className="AccordionLocations" ref={(el) => accordionRefs.current[2] = el}>
-                                <Accordion.Header onClick={() => handleAccordionToggle(2)}>Locations</Accordion.Header>
+                                <Accordion.Header onClick={() => handleAccordionToggle('2')}>Locations</Accordion.Header>
                                 <Accordion.Body>
                                     <ClientLocations locations={locations}
                                                      setRefresh={setRefresh}/>
@@ -176,7 +195,7 @@ function OneClient() {
                             </Accordion.Item>
 
                             <Accordion.Item eventKey="3" ref={(el) => accordionRefs.current[3] = el}>
-                                <Accordion.Header onClick={() => handleAccordionToggle(3)}>Activity</Accordion.Header>
+                                <Accordion.Header onClick={() => handleAccordionToggle('3')}>Activity</Accordion.Header>
                                 <Accordion.Body>
                                     <CustomerActivity
                                         activities={activities}
@@ -192,7 +211,7 @@ function OneClient() {
                             </Accordion.Item>
 
                             <Accordion.Item eventKey="4" className="AccordionTickets" ref={(el) => accordionRefs.current[4] = el}>
-                                <Accordion.Header onClick={() => handleAccordionToggle(4)}>Tickets</Accordion.Header>
+                                <Accordion.Header onClick={() => handleAccordionToggle('4')}>Tickets</Accordion.Header>
                                 <Accordion.Body>
                                     <ClientTickets
                                         tickets={tickets}
@@ -204,7 +223,7 @@ function OneClient() {
                             </Accordion.Item>
 
                             <Accordion.Item eventKey="5" className="AccordionDevices" ref={(el) => accordionRefs.current[5] = el}>
-                                <Accordion.Header onClick={() => handleAccordionToggle(5)}>Devices</Accordion.Header>
+                                <Accordion.Header onClick={() => handleAccordionToggle('5')}>Devices</Accordion.Header>
                                 <Accordion.Body>
                                     <ClientDevices
                                         devices={devices}
@@ -217,7 +236,7 @@ function OneClient() {
                             </Accordion.Item>
 
                             <Accordion.Item eventKey="6" className="AccordionMaintenance" ref={(el) => accordionRefs.current[6] = el}>
-                                <Accordion.Header onClick={() => handleAccordionToggle(6)}>Maintenances</Accordion.Header>
+                                <Accordion.Header onClick={() => handleAccordionToggle('6')}>Maintenances</Accordion.Header>
                                 <Accordion.Body>
                                     <ClientMaintenances
                                         maintenances={maintenances}
@@ -229,7 +248,7 @@ function OneClient() {
                             </Accordion.Item>
 
                             <Accordion.Item eventKey="7" className="AccordionTechnicalInfo" ref={(el) => accordionRefs.current[7] = el}>
-                                <Accordion.Header onClick={() => handleAccordionToggle(7)}>Technical Information</Accordion.Header>
+                                <Accordion.Header onClick={() => handleAccordionToggle('7')}>Technical Information</Accordion.Header>
                                 <Accordion.Body>
                                     <SoftwareDetails
                                         softwareList={softwareList}
@@ -241,7 +260,7 @@ function OneClient() {
                             </Accordion.Item>
 
                             <Accordion.Item eventKey="8" className="AccordionThirdPartyITs" ref={(el) => accordionRefs.current[8] = el}>
-                                <Accordion.Header onClick={() => handleAccordionToggle(8)}>Third Party ITs</Accordion.Header>
+                                <Accordion.Header onClick={() => handleAccordionToggle('8')}>Third Party ITs</Accordion.Header>
                                 <Accordion.Body>
                                     <ClientThirdPartyIT
                                         clientId={clientId}
