@@ -153,7 +153,7 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
                 return (
                     <Row
                         key={ticket.id}
-                        className="align-items-center text-center mb-2"
+                        className="align-items-center text-center py-1"
                         style={{ backgroundColor: rowBgColor, cursor: 'pointer' }} // Apply background color
                         onClick={() => onNavigate(ticket)}
                     >

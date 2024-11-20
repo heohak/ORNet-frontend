@@ -4,52 +4,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog, faCheck, faEdit, faHistory } from '@fortawesome/free-solid-svg-icons';
 
 // Define the default visibility of each field
-const defaultVisibility = {
-    pathologyClient: true,
-    surgeryClient: true,
-    editorClient: true,
-    otherMedicalDevices: true,
-    lastMaintenance: true,
-    nextMaintenance: true,
-};
+
 
 function ClientDetails({ client, navigate }) {
-    const [showClientFieldModal, setShowClientFieldModal] = useState(false);
-    const [fieldVisibility, setFieldVisibility] = useState(defaultVisibility);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const savedVisibilityState = localStorage.getItem('deviceVisibilityState');
-        if (savedVisibilityState) {
-            setFieldVisibility(JSON.parse(savedVisibilityState));
-        }
-    }, []);
-
-    const handleFieldToggle = (field) => {
-        setFieldVisibility((prevVisibility) => {
-            const updatedVisibility = {
-                ...prevVisibility,
-                [field]: !prevVisibility[field],
-            };
-            localStorage.setItem('deviceVisibilityState', JSON.stringify(updatedVisibility));
-            return updatedVisibility;
-        });
-    };
-
-    const renderField = (label, value) => (
-        fieldVisibility[label] && value !== false && (
-            <Col xs={12} md={6} className="mb-1">
-                <Card.Text className="d-flex justify-content-between align-items-center text-secondary" style={{ marginBottom: '0.2rem' }}>
-                <span className="fw-semibold" style={{ marginRight: '0.5rem' }}>
-                    {label.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}:
-                </span>
-                    <span>
-                    {typeof value === 'boolean' ? (value ? <FontAwesomeIcon icon={faCheck} /> : null) : value}
-                </span>
-                </Card.Text>
-            </Col>
-        )
-    );
 
     // Estonia date formatter
     const estoniaDateFormat = new Intl.DateTimeFormat('et-EE', {
@@ -100,10 +59,6 @@ function ClientDetails({ client, navigate }) {
                             </div>
                         </Col>
                         <Col className="col-md-auto">
-                            <Button variant="link" onClick={() => setShowClientFieldModal(true)} className="text-primary me-2">
-                                <FontAwesomeIcon icon={faCog}
-                                                title="Edit visible fields"/>
-                            </Button>
                             <Button variant="link" onClick={() => navigate(`/client/edit/${client.id}`)} className="text-primary me-2">
                                 <FontAwesomeIcon icon={faEdit}
                                                  title="Edit Customer"/>
@@ -147,33 +102,6 @@ function ClientDetails({ client, navigate }) {
             ) : (
                 <Alert variant="info">No client details available.</Alert>
             )}
-
-            <Modal show={showClientFieldModal} onHide={() => setShowClientFieldModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Edit Visible Fields for {client?.shortName}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Row>
-                            {Object.keys(defaultVisibility).map((key) => (
-                                <Col xs={6} key={key} className="mb-2">
-                                    <Form.Check
-                                        type="checkbox"
-                                        label={key.replace(/([A-Z])/g, ' $1')}
-                                        checked={fieldVisibility[key]}
-                                        onChange={() => handleFieldToggle(key)}
-                                    />
-                                </Col>
-                            ))}
-                        </Row>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowClientFieldModal(false)}>
-                        Close
-                    </Button>
-                </Modal.Footer>
-            </Modal>
         </>
     );
 }

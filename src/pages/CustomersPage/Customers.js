@@ -342,7 +342,7 @@ function Customers() {
                                 return (
                                     <Row
                                         key={customer.id}
-                                        className="mb-2"
+                                        className="mb-2 py-2"
                                         style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
                                         onClick={() => navigate(`/customer/${customer.id}`)}
                                     >
