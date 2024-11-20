@@ -43,11 +43,11 @@ function ClientLocations({ locations, setRefresh }) {
                         return (
                             <Row
                                 key={location.id}
-                                className="align-items-center mb-2"
+                                className="align-items-center"
                                 style={{ margin: "0 0", cursor: 'pointer' }}
                                 onClick={() => handleRowClick(location)}
                             >
-                                <Col className="py-1" style={{ backgroundColor: rowBgColor}}>
+                                <Col className="py-2" style={{ backgroundColor: rowBgColor}}>
                                     <Row className="align-items-center">
                                         <Col className="px-0" md={4}>{location.name}</Col>
                                         <Col md={5}>

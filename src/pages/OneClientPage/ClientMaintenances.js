@@ -78,11 +78,11 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
                     return (
                         <Row
                             key={maintenance.id}
-                            className="align-items-center mb-2"
+                            className="align-items-center"
                             style={{ margin: '0 0', cursor: 'pointer' }}
                             onClick={() => handleMaintenanceClick(maintenance.id)}
                         >
-                            <Col className="py-1" style={{ backgroundColor: rowBgColor}}>
+                            <Col className="py-2" style={{ backgroundColor: rowBgColor}}>
                                 <Row className="align-items-center">
                                     <Col className="px-0" md={6}>{maintenance.maintenanceName}</Col>
                                     <Col md={6}>{estoniaDateFormat.format(new Date(maintenance.maintenanceDate))}</Col>

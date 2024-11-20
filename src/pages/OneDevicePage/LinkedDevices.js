@@ -418,7 +418,7 @@ function LinkedDevices({
                     return (
                         <Row
                             key={device.id}
-                            className="align-items-center text-center mb-2"
+                            className="align-items-center text-center py-2"
                             style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
                             onClick={() => handleLinkedDeviceClick(device.id)}
                         >
