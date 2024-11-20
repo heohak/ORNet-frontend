@@ -115,11 +115,11 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
                         return (
                             <Row
                                 key={activity.id}
-                                className="align-items-center mb-2"
+                                className="align-items-center"
                                 style={{cursor: 'pointer', margin: "0 0"}}
                                 onClick={() => handleRowClick(activity)}
                             >
-                                <Col className="py-1" style={{ backgroundColor: rowBgColor}}>
+                                <Col className="py-2" style={{ backgroundColor: rowBgColor}}>
                                     <Row className="align-items-center">
                                         <Col className="px-0" md={4}>{activity.title}</Col>
                                         <Col md={3}>{contactNames}</Col>
