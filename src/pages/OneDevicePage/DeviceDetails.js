@@ -1,7 +1,7 @@
 // src/pages/OneDevicePage/DeviceDetails.js
 
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 import {
     Alert,
     Button,
@@ -25,6 +25,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import '../../css/AllDevicesPage/Devices.css';
 import DeviceStatusManager from './DeviceStatusManager';
+import EditDevice from "./EditDevice";
 
 function DeviceDetails({
                            device,
@@ -46,6 +47,10 @@ function DeviceDetails({
     const [fieldError, setFieldError] = useState(null);
     const [fieldToDelete, setFieldToDelete] = useState(null);
     const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const navigateHook = useNavigate(); // Use navigate from react-router-dom
+
+
 
     // Define default fields configuration
     const defaultFieldsConfig = [
@@ -254,11 +259,7 @@ function DeviceDetails({
                             <Button
                                 variant="link"
                                 className="text-primary me-2"
-                                onClick={() =>
-                                    navigate(`/device/edit/${localDevice.id}`, {
-                                        state: locationHook.state,
-                                    })
-                                }
+                                onClick={handleEditDevice} // Open the edit modal
                                 title="Edit Device"
                             >
                                 <FontAwesomeIcon icon={faEdit} />
@@ -350,6 +351,11 @@ function DeviceDetails({
             console.error('Device or device id is undefined');
         }
     };
+
+    const handleEditDevice = () => {
+        setShowEditModal(true);
+    };
+
 
     return (
         <>
@@ -464,6 +470,17 @@ function DeviceDetails({
                     </Button>
                 </Modal.Footer>
             </Modal>
+
+            {showEditModal && (
+                <EditDevice
+                    deviceId={localDevice.id}
+                    onClose={() => {
+                        setShowEditModal(false);
+                        setRefresh((prev) => !prev); // Refresh device details after editing
+                    }}
+                    setRefresh={setRefresh}
+                />
+            )}
 
             {/* Delete Confirmation Modal */}
             <Modal

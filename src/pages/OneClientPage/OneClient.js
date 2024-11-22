@@ -169,7 +169,7 @@ function OneClient() {
                 {client && (
                     <>
                         <ClientDetails
-                            client={client}
+                            clientId={clientId}
                             navigate={navigate}
                         />
                         <Accordion

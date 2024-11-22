@@ -190,15 +190,18 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
                 </ListGroup>
             )}
 
-            <Modal show={showAddDeviceModal} onHide={() => setShowAddDeviceModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Add Device to {client.shortName}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <AddClientDevice clientId={clientId} onClose={() => setShowAddDeviceModal(false)}
-                                     setRefresh={setRefresh}/> {/* Pass clientId and setRefresh as props */}
-                </Modal.Body>
-            </Modal>
+            {/* Render AddClientDevice component when needed */}
+            {showAddDeviceModal && (
+                <AddClientDevice
+                    clientId={clientId}
+                    onClose={() => {
+                        setShowAddDeviceModal(false);
+                        setRefresh(prev => !prev); // Refresh the device list after adding a device
+                    }}
+                    setRefresh={setRefresh}
+                />
+            )}
+
         </>
     );
 }

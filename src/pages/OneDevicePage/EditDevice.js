@@ -1,13 +1,13 @@
+// EditDevice.js
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Container, Form, Button, Alert } from 'react-bootstrap';
+import { Modal, Form, Button, Alert, Row, Col } from 'react-bootstrap';
 import config from "../../config/config";
+import { format } from 'date-fns';
 
-function EditDevice() {
-    const { deviceId } = useParams();
-    const navigate = useNavigate();
-    const location = useLocation();
+function EditDevice({ deviceId, onClose, setRefresh }) {
+    const [show, setShow] = useState(true);
     const [deviceData, setDeviceData] = useState({
         deviceName: '',
         clientId: '',
@@ -98,203 +98,274 @@ function EditDevice() {
         e.preventDefault();
         try {
             await axios.put(`${config.API_BASE_URL}/device/update/${deviceId}`, deviceData);
-            navigate(`/device/${deviceId}`, {state: location.state}); // Redirect to the device details page
+            if (setRefresh) {
+                setRefresh(prev => !prev);
+            }
+            handleClose();
         } catch (error) {
             setError(error.message);
         }
     };
 
+    const handleClose = () => {
+        setShow(false);
+        if (onClose) {
+            onClose();
+        }
+    };
+
     return (
-        <Container className="mt-5">
-            <h1>Edit Device</h1>
-            {error && <Alert variant="danger">{error}</Alert>}
-            <Form onSubmit={handleSubmit}>
-                <Form.Group className="mb-3">
-                    <Form.Label>Device Type</Form.Label>
-                    <Form.Control
-                        as="select"
-                        name="classificatorId"
-                        value={deviceData.classificatorId}
-                        onChange={handleInputChange}
-                        required
-                    >
-                        <option value="">Select Type</option>
-                        {classificators.map(classificator => (
-                            <option key={classificator.id} value={classificator.id}>{classificator.name}</option>
+        <>
+            <Modal show={show} onHide={handleClose} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Device</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {error && <Alert variant="danger">{error}</Alert>}
+                    <Form onSubmit={handleSubmit}>
+                        {/* Device Type and Device Name */}
+                        <Row className="mb-3">
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Device Type</Form.Label>
+                                    <Form.Control
+                                        as="select"
+                                        name="classificatorId"
+                                        value={deviceData.classificatorId}
+                                        onChange={handleInputChange}
+                                        required
+                                    >
+                                        <option value="">Select Type</option>
+                                        {classificators.map(classificator => (
+                                            <option key={classificator.id} value={classificator.id}>{classificator.name}</option>
+                                        ))}
+                                    </Form.Control>
+                                </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Device Name</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="deviceName"
+                                        value={deviceData.deviceName}
+                                        onChange={handleInputChange}
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+
+                        {/* Customer and Location */}
+                        <Row className="mb-3">
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Customer</Form.Label>
+                                    <Form.Control
+                                        as="select"
+                                        name="clientId"
+                                        value={deviceData.clientId}
+                                        onChange={handleInputChange}
+                                        disabled
+                                    >
+                                        <option value="">Select Customer</option>
+                                        {clients.map(client => (
+                                            <option key={client.id} value={client.id}>{client.fullName}</option>
+                                        ))}
+                                    </Form.Control>
+                                </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Location</Form.Label>
+                                    <Form.Control
+                                        as="select"
+                                        name="locationId"
+                                        value={deviceData.locationId}
+                                        onChange={handleInputChange}
+                                        required
+                                        disabled={!deviceData.clientId}
+                                    >
+                                        {!deviceData.clientId ? (
+                                            <option value="">Pick a Customer before picking a location</option>
+                                        ) : (
+                                            <>
+                                                <option value="">Select Location</option>
+                                                {locations.map(location => (
+                                                    <option key={location.id} value={location.id}>
+                                                        {location.name}
+                                                    </option>
+                                                ))}
+                                            </>
+                                        )}
+                                    </Form.Control>
+                                </Form.Group>
+                            </Col>
+                        </Row>
+
+                        {/* Department and Room */}
+                        <Row className="mb-3">
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Department</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="department"
+                                        value={deviceData.department}
+                                        onChange={handleInputChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Room</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="room"
+                                        value={deviceData.room}
+                                        onChange={handleInputChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+
+                        {/* Serial Number and License Number */}
+                        <Row className="mb-3">
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Serial Number</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="serialNumber"
+                                        value={deviceData.serialNumber}
+                                        onChange={handleInputChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>License Number</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="licenseNumber"
+                                        value={deviceData.licenseNumber}
+                                        onChange={handleInputChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+
+                        {/* Version and Software Key */}
+                        <Row className="mb-3">
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Version</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="version"
+                                        value={deviceData.version}
+                                        onChange={handleInputChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Software Key</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="softwareKey"
+                                        value={deviceData.softwareKey}
+                                        onChange={handleInputChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+
+                        {/* Version Update Date and Introduced Date */}
+                        <Row className="mb-3">
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Version Update Date</Form.Label>
+                                    <Form.Control
+                                        type="date"
+                                        name="versionUpdateDate"
+                                        value={deviceData.versionUpdateDate}
+                                        onChange={handleInputChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Introduced Date</Form.Label>
+                                    <Form.Control
+                                        type="date"
+                                        name="introducedDate"
+                                        value={deviceData.introducedDate}
+                                        onChange={handleInputChange}
+                                        max={today}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+
+                        {/* First IP Address, Second IP Address, Subnet Mask */}
+                        <Row className="mb-3">
+                            <Col md={4}>
+                                <Form.Group>
+                                    <Form.Label>First IP Address</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="firstIPAddress"
+                                        value={deviceData.firstIPAddress}
+                                        onChange={handleInputChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={4}>
+                                <Form.Group>
+                                    <Form.Label>Second IP Address</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="secondIPAddress"
+                                        value={deviceData.secondIPAddress}
+                                        onChange={handleInputChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={4}>
+                                <Form.Group>
+                                    <Form.Label>Subnet Mask</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="subnetMask"
+                                        value={deviceData.subnetMask}
+                                        onChange={handleInputChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+
+                        {/* Dynamic Fields for Attributes */}
+                        {Object.keys(deviceData.attributes || {}).map((attrKey) => (
+                            <Form.Group className="mb-3" key={attrKey}>
+                                <Form.Label>{attrKey}</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name={attrKey}
+                                    value={deviceData.attributes[attrKey]}
+                                    onChange={handleAttributeChange}
+                                />
+                            </Form.Group>
                         ))}
-                    </Form.Control>
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Customer</Form.Label>
-                    <Form.Control
-                        as="select"
-                        name="clientId"
-                        value={deviceData.clientId}
-                        onChange={handleInputChange}
-                        disabled
-                    >
-                        <option value="">Select Customer</option>
-                        {clients.map(client => (
-                            <option key={client.id} value={client.id}>{client.fullName}</option>
-                        ))}
-                    </Form.Control>
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Location</Form.Label>
-                    <Form.Control
-                        as="select"
-                        name="locationId"
-                        value={deviceData.locationId}
-                        onChange={handleInputChange}
-                        required
-                        disabled={!deviceData.clientId}
-                    >
-                        {!deviceData.clientId ? (
-                            <option value="">Pick a Customer before picking a location</option>
-                        ) : (
-                            <>
-                                <option value="">Select Location</option>
-                                {locations.map(location => (
-                                    <option key={location.id} value={location.id}>
-                                        {location.name}
-                                    </option>
-                                ))}
-                            </>
-                        )}
-                    </Form.Control>
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Device Name</Form.Label>
-                    <Form.Control
-                        type="text"
-                        name="deviceName"
-                        value={deviceData.deviceName}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </Form.Group>
 
-
-
-                <Form.Group className="mb-3">
-                    <Form.Label>Department</Form.Label>
-                    <Form.Control
-                        type="text"
-                        name="department"
-                        value={deviceData.department}
-                        onChange={handleInputChange}
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Room</Form.Label>
-                    <Form.Control
-                        type="text"
-                        name="room"
-                        value={deviceData.room}
-                        onChange={handleInputChange}
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Serial Number</Form.Label>
-                    <Form.Control
-                        type="text"
-                        name="serialNumber"
-                        value={deviceData.serialNumber}
-                        onChange={handleInputChange}
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>First IP Address</Form.Label>
-                    <Form.Control
-                        type="text"
-                        name="firstIPAddress"
-                        value={deviceData.firstIPAddress}
-                        onChange={handleInputChange}
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Second IP Address</Form.Label>
-                    <Form.Control
-                        type="text"
-                        name="secondIPAddress"
-                        value={deviceData.secondIPAddress}
-                        onChange={handleInputChange}
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Subnet Mask</Form.Label>
-                    <Form.Control
-                        type="text"
-                        name="subnetMask"
-                        value={deviceData.subnetMask}
-                        onChange={handleInputChange}
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>License Number</Form.Label>
-                    <Form.Control
-                        type="text"
-                        name="licenseNumber"
-                        value={deviceData.licenseNumber}
-                        onChange={handleInputChange}
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Version</Form.Label>
-                    <Form.Control
-                        type="text"
-                        name="version"
-                        value={deviceData.version}
-                        onChange={handleInputChange}
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Software Key</Form.Label>
-                    <Form.Control
-                        type="text"
-                        name="softwareKey"
-                        value={deviceData.softwareKey}
-                        onChange={handleInputChange}
-                    />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Version Update Date</Form.Label>
-                    <Form.Control
-                        type="date"
-                        name="versionUpdateDate"
-                        value={deviceData.versionUpdateDate}
-                        onChange={handleInputChange}
-                    />
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                    <Form.Label>Introduced Date</Form.Label>
-                    <Form.Control
-                        type="date"
-                        name="introducedDate"
-                        value={deviceData.introducedDate}
-                        onChange={handleInputChange}
-                        max={today}
-                    />
-                </Form.Group>
-
-                {/* Dynamic Fields for Attributes */}
-                {Object.keys(deviceData.attributes).map((attrKey) => (
-                    <Form.Group className="mb-3" key={attrKey}>
-                        <Form.Label>{attrKey}</Form.Label>
-                        <Form.Control
-                            type="text"
-                            name={attrKey}
-                            value={deviceData.attributes[attrKey]}
-                            onChange={handleAttributeChange}
-                        />
-                    </Form.Group>
-                ))}
-
-                <Button variant="success" type="submit">Save Changes</Button>
-                <Button variant="secondary" className="ms-3" onClick={() => navigate(`/device/${deviceId}`, {state: location.state})}>Cancel</Button>
-            </Form>
-        </Container>
+                        <Modal.Footer>
+                            <Button variant="outline-info" onClick={handleClose}>Cancel</Button>
+                            <Button variant="primary" type="submit">Save Changes</Button>
+                        </Modal.Footer>
+                    </Form>
+                </Modal.Body>
+            </Modal>
+        </>
     );
 }
 
