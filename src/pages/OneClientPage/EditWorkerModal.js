@@ -82,83 +82,89 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, cl
                 <Modal.Title>Edit Contact Details</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                {editingWorker && (
-                    <Form onSubmit={handleUpdateWorker}>
-                        <Form.Group className="mb-3">
-                            <Form.Label>First Name</Form.Label>
-                            <Form.Control
-                                required
-                                type="text"
-                                value={editingWorker.firstName}
-                                onChange={(e) => setEditingWorker({ ...editingWorker, firstName: e.target.value })}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Last Name</Form.Label>
-                            <Form.Control
-                                required
-                                type="text"
-                                value={editingWorker.lastName}
-                                onChange={(e) => setEditingWorker({ ...editingWorker, lastName: e.target.value })}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Email</Form.Label>
-                            <Form.Control
-                                required
-                                type="email"
-                                value={editingWorker.email}
-                                onChange={(e) => setEditingWorker({ ...editingWorker, email: e.target.value })}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Phone Number</Form.Label>
-                            <Form.Control
-                                required
-                                type="text"
-                                value={editingWorker.phoneNumber}
-                                onChange={(e) => setEditingWorker({ ...editingWorker, phoneNumber: e.target.value })}
-                                isInvalid={!!phoneNumberError} // Display error styling if there's an error
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                {phoneNumberError}
-                            </Form.Control.Feedback>
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Title</Form.Label>
-                            <Form.Control
-                                required
-                                type="text"
-                                value={editingWorker.title}
-                                onChange={(e) => setEditingWorker({ ...editingWorker, title: e.target.value })}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Roles</Form.Label>
-                            <Select
-                                isMulti
-                                options={availableRoles}
-                                value={selectedRoles}
-                                onChange={setSelectedRoles}
-                                placeholder="Select roles"
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Location</Form.Label>
-                            <Select
-                                options={locations}
-                                value={selectedLocation}
-                                onChange={setSelectedLocation}
-                                placeholder="Select location"
-                            />
-                        </Form.Group>
-                        <Button variant="primary" type="submit">
-                            Save Changes
-                        </Button>
-                    </Form>
-                )}
+                <Form onSubmit={handleUpdateWorker}>
+                    {editingWorker && (
+                        <>
+                            <Form.Group className="mb-3">
+                                <Form.Label>First Name</Form.Label>
+                                <Form.Control
+                                    required
+                                    type="text"
+                                    value={editingWorker.firstName}
+                                    onChange={(e) => setEditingWorker({ ...editingWorker, firstName: e.target.value })}
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Last Name</Form.Label>
+                                <Form.Control
+                                    required
+                                    type="text"
+                                    value={editingWorker.lastName}
+                                    onChange={(e) => setEditingWorker({ ...editingWorker, lastName: e.target.value })}
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Email</Form.Label>
+                                <Form.Control
+                                    required
+                                    type="email"
+                                    value={editingWorker.email}
+                                    onChange={(e) => setEditingWorker({ ...editingWorker, email: e.target.value })}
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Phone Number</Form.Label>
+                                <Form.Control
+                                    required
+                                    type="text"
+                                    value={editingWorker.phoneNumber}
+                                    onChange={(e) => setEditingWorker({ ...editingWorker, phoneNumber: e.target.value })}
+                                    isInvalid={!!phoneNumberError}
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    {phoneNumberError}
+                                </Form.Control.Feedback>
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Title</Form.Label>
+                                <Form.Control
+                                    required
+                                    type="text"
+                                    value={editingWorker.title}
+                                    onChange={(e) => setEditingWorker({ ...editingWorker, title: e.target.value })}
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Roles</Form.Label>
+                                <Select
+                                    isMulti
+                                    options={availableRoles}
+                                    value={selectedRoles}
+                                    onChange={setSelectedRoles}
+                                    placeholder="Select roles"
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Location</Form.Label>
+                                <Select
+                                    options={locations}
+                                    value={selectedLocation}
+                                    onChange={setSelectedLocation}
+                                    placeholder="Select location"
+                                />
+                            </Form.Group>
+                        </>
+                    )}
+                </Form>
             </Modal.Body>
+            <Modal.Footer>
+                <Button variant="outline-info" className="me-2" onClick={handleClose}>Cancel</Button>
+                <Button variant="primary" onClick={handleUpdateWorker}>
+                    Save Changes
+                </Button>
+            </Modal.Footer>
         </Modal>
+
     );
 }
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Modal, Form, Button, Alert } from 'react-bootstrap';
+import {Modal, Form, Button, Alert, Col, Row} from 'react-bootstrap';
 import config from "../../config/config";
 import AddClassificatorModal from "./AddDeviceModals/AddClassificatorModal";
 import AddLocationModal from "../TicketsPage/AddTicketModal/AddLocationModal"; // Using the modal from ticketPage
@@ -158,7 +158,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
 
     return (
         <>
-            <Modal show={show} onHide={onHide}>
+            <Modal show={show} onHide={onHide} size="lg">
                 <Modal.Header closeButton>
                     <Modal.Title>Add Device</Modal.Title>
                 </Modal.Header>
@@ -170,198 +170,196 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                         </Alert>
                     )}
                     <Form onSubmit={handleSubmit}>
-                        <Form.Group className="mb-3">
-                            <div className="d-flex align-items-center">
-                                <Form.Label>Device Type</Form.Label>
-                                <Button
-                                    variant="link"
-                                    onClick={() => setShowAddClassificatorModal(true)}
-                                    className="text-primary px-0 py-0 mb-2 ms-2"
-                                >
-                                    Add New
-                                </Button>
-                            </div>
-
-                            <Form.Control
-                                as="select"
-                                value={deviceClassificatorId}
-                                onChange={(e) => setDeviceClassificatorId(e.target.value)}
-                                required
-                            >
-                                <option value="">Select Type</option>
-                                {classificators.map(classificator => (
-                                    <option key={classificator.id} value={classificator.id}>
-                                        {classificator.name}
-                                    </option>
-                                ))}
-                            </Form.Control>
-                        </Form.Group>
-
-                        <Form.Group className="mb-3">
-                            <Form.Label>Customer</Form.Label>
-                            <Form.Control
-                                as="select"
-                                value={clientId}
-                                onChange={(e) => setClientId(e.target.value)}
-                                required
-                            >
-                                <option value="">Select Customer</option>
-                                {clients.map(client => (
-
-                                    <option key={client.id} value={client.id}>
-                                        {client.shortName}
-                                    </option>
-                                ))}
-                            </Form.Control>
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <div className="d-flex align-items-center">
-                                <Form.Label>Location</Form.Label>
-                                {clientId ? (
-                                    <Button
-                                        variant="link"
-                                        onClick={() => setShowLocationModal(true)}
-                                        className="text-primary px-0 py-0 mb-2 ms-2"
+                        {/* Device Type and Device Name */}
+                        <Row className="mb-3">
+                            <Col md={6}>
+                                <Form.Group>
+                                    <div className="d-flex align-items-center">
+                                        <Form.Label className="mb-0">Device Type</Form.Label>
+                                        <Button
+                                            variant="link"
+                                            onClick={() => setShowAddClassificatorModal(true)}
+                                            className="text-primary px-0 py-0 mb-0 ms-2"
+                                        >
+                                            Add New
+                                        </Button>
+                                    </div>
+                                    <Form.Control
+                                        as="select"
+                                        value={deviceClassificatorId}
+                                        onChange={(e) => setDeviceClassificatorId(e.target.value)}
+                                        required
                                     >
-                                        Add New Location
-                                    </Button>
-                                ) : null}
-                            </div>
-
-                            <Form.Control
-                                as="select"
-                                value={locationId}
-                                onChange={(e) => setLocationId(e.target.value)}
-                                required
-                                disabled={!clientId}
-                            >
-                                {!clientId ? (
-                                    <option value="">Pick a client before picking a location</option>
-                                ) : (
-                                    <>
-                                        <option value="">Select Location</option>
-                                        {locations.map(location => (
-                                            <option key={location.id} value={location.id}>
-                                                {location.name}
+                                        <option value="">Select Type</option>
+                                        {classificators.map(classificator => (
+                                            <option key={classificator.id} value={classificator.id}>
+                                                {classificator.name}
                                             </option>
                                         ))}
-                                    </>
-                                )}
-                            </Form.Control>
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Device Name</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={deviceName}
-                                onChange={(e) => setDeviceName(e.target.value)}
-                                required
-                            />
-                        </Form.Group>
+                                    </Form.Control>
+                                </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Device Name</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={deviceName}
+                                        onChange={(e) => setDeviceName(e.target.value)}
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
 
-                        <Form.Group className="mb-3">
-                            <Form.Label>Department</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={department}
-                                onChange={(e) => setDepartment(e.target.value)}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Room</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={room}
-                                onChange={(e) => setRoom(e.target.value)}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Serial Number</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={serialNumber}
-                                onChange={(e) => setSerialNumber(e.target.value)}
-                                required
-                                pattern="\d+"
-                                title="Serial number should only contain numbers"
-                            />
-                            {/* Optional IP Fields */}
-                            <Form.Check
-                                type="checkbox"
-                                label="Assign IP Addresses"
-                                checked={showIPFields}
-                                onChange={() => setShowIPFields(!showIPFields)}
-                                className="mb-3 mt-3"
-                            />
-                            {showIPFields && (
-                                <>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>First IP Address</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={firstIPAddress}
-                                            onChange={(e) => setFirstIPAddress(e.target.value)}
-                                        />
-                                    </Form.Group>
+                        {/* Customer and Location */}
+                        <Row className="mb-3">
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Customer</Form.Label>
+                                    <Form.Control
+                                        as="select"
+                                        value={clientId}
+                                        onChange={(e) => setClientId(e.target.value)}
+                                        required
+                                    >
+                                        <option value="">Select Customer</option>
+                                        {clients.map(client => (
+                                            <option key={client.id} value={client.id}>
+                                                {client.shortName}
+                                            </option>
+                                        ))}
+                                    </Form.Control>
+                                </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                                <Form.Group>
+                                    <div className="d-flex align-items-center">
+                                        <Form.Label className="mb-0">Location</Form.Label>
+                                        {clientId && (
+                                            <Button
+                                                variant="link"
+                                                onClick={() => setShowLocationModal(true)}
+                                                className="text-primary px-0 py-0 mb-0 ms-2"
+                                            >
+                                                Add New
+                                            </Button>
+                                        )}
+                                    </div>
+                                    <Form.Control
+                                        as="select"
+                                        value={locationId}
+                                        onChange={(e) => setLocationId(e.target.value)}
+                                        required
+                                        disabled={!clientId}
+                                    >
+                                        {!clientId ? (
+                                            <option value="">Pick a customer before selecting a location</option>
+                                        ) : (
+                                            <>
+                                                <option value="">Select Location</option>
+                                                {locations.map(location => (
+                                                    <option key={location.id} value={location.id}>
+                                                        {location.name}
+                                                    </option>
+                                                ))}
+                                            </>
+                                        )}
+                                    </Form.Control>
+                                </Form.Group>
+                            </Col>
+                        </Row>
 
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Second IP Address</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={secondIPAddress}
-                                            onChange={(e) => setSecondIPAddress(e.target.value)}
-                                        />
-                                    </Form.Group>
+                        {/* Department and Room */}
+                        <Row className="mb-3">
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Department</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={department}
+                                        onChange={(e) => setDepartment(e.target.value)}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Room</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={room}
+                                        onChange={(e) => setRoom(e.target.value)}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
 
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Subnet Mask</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={subnetMask}
-                                            onChange={(e) => setSubnetMask(e.target.value)}
-                                        />
-                                    </Form.Group>
-                                </>
-                            )}
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>License Number</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={licenseNumber}
-                                onChange={(e) => setLicenseNumber(e.target.value)}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Version</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={version}
-                                onChange={(e) => setVersion(e.target.value)}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Software Key</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={softwareKey}
-                                onChange={(e) => setSoftwareKey(e.target.value)}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Version Update Date</Form.Label>
-                            <ReactDatePicker
-                                selected={versionUpdateDate}
-                                onChange={(date) => setVersionUpdateDate(date)}
-                                dateFormat="dd/MM/yyyy"
-                                className="form-control dark-placeholder"
-                                placeholderText="Select Update Date"
-                                maxDate={new Date()} // Prevent future dates
-                                isClearable
-                                required
-                            />
-                        </Form.Group>
+                        {/* Serial Number and License Number */}
+                        <Row className="mb-3">
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Serial Number</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={serialNumber}
+                                        onChange={(e) => setSerialNumber(e.target.value)}
+                                        required
+                                        pattern="\d+"
+                                        title="Serial number should only contain numbers"
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>License Number</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={licenseNumber}
+                                        onChange={(e) => setLicenseNumber(e.target.value)}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
 
+                        {/* Version, Version Update Date, Software Key */}
+                        <Row className="mb-3">
+                            <Col md={4}>
+                                <Form.Group>
+                                    <Form.Label>Version</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={version}
+                                        onChange={(e) => setVersion(e.target.value)}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={4}>
+                                <Form.Group>
+                                    <Form.Label>Version Update Date</Form.Label>
+                                    <ReactDatePicker
+                                        selected={versionUpdateDate}
+                                        onChange={(date) => setVersionUpdateDate(date)}
+                                        dateFormat="dd/MM/yyyy"
+                                        className="form-control dark-placeholder"
+                                        placeholderText="Select Update Date"
+                                        maxDate={new Date()}
+                                        isClearable
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={4}>
+                                <Form.Group>
+                                    <Form.Label>Software Key</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={softwareKey}
+                                        onChange={(e) => setSoftwareKey(e.target.value)}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+
+                        {/* Introduced Date */}
                         <Form.Group className="mb-3">
                             <Form.Label>Introduced Date</Form.Label>
                             <ReactDatePicker
@@ -376,6 +374,50 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                             />
                         </Form.Group>
 
+                        {/* IP Address Fields */}
+                        <Form.Group className="mb-3">
+                            <Form.Check
+                                type="checkbox"
+                                label="Assign IP Addresses"
+                                checked={showIPFields}
+                                onChange={() => setShowIPFields(!showIPFields)}
+                            />
+                        </Form.Group>
+                        {showIPFields && (
+                            <Row className="mb-3">
+                                <Col md={4}>
+                                    <Form.Group>
+                                        <Form.Label>First IP Address</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={firstIPAddress}
+                                            onChange={(e) => setFirstIPAddress(e.target.value)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={4}>
+                                    <Form.Group>
+                                        <Form.Label>Second IP Address</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={secondIPAddress}
+                                            onChange={(e) => setSecondIPAddress(e.target.value)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={4}>
+                                    <Form.Group>
+                                        <Form.Label>Subnet Mask</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={subnetMask}
+                                            onChange={(e) => setSubnetMask(e.target.value)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                        )}
+
                         <Modal.Footer>
                             <Button variant="outline-info" onClick={onHide}>
                                 Cancel
@@ -387,17 +429,18 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                     </Form>
                 </Modal.Body>
             </Modal>
-        <AddClassificatorModal
-            show={showAddClassificatorModal}
-            onHide={() => setShowAddClassificatorModal(false)}
-            onClassificatorAdded={handleClassificatorAdded}
-        />
+
+            {/* Modals for adding classificator and location */}
+            <AddClassificatorModal
+                show={showAddClassificatorModal}
+                onHide={() => setShowAddClassificatorModal(false)}
+                onClassificatorAdded={handleClassificatorAdded}
+            />
             <AddLocationModal
                 show={showLocationModal}
                 onHide={() => setShowLocationModal(false)}
                 onAdd={handleLocationAdded}
             />
-
         </>
     );
 }

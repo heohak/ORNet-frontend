@@ -2,12 +2,30 @@ import React, { useEffect, useState } from 'react';
 import { Card, Button, Modal, Form, Alert, Row, Col, Container } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog, faCheck, faEdit, faHistory } from '@fortawesome/free-solid-svg-icons';
+import EditClient from "./EditClient";
+import axios from "axios";
+import config from "../../config/config";
 
 // Define the default visibility of each field
 
 
-function ClientDetails({ client, navigate }) {
+function ClientDetails({ clientId, navigate }) {
+    const [client, setClient] = useState(null);
     const [error, setError] = useState(null);
+    const [showEditClient, setShowEditClient] = useState(false);
+
+    useEffect(() => {
+        fetchClientData();
+    }, [clientId]);
+
+    const fetchClientData = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/client/${clientId}`);
+            setClient(response.data);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
 
 
     // Estonia date formatter
@@ -59,13 +77,15 @@ function ClientDetails({ client, navigate }) {
                             </div>
                         </Col>
                         <Col className="col-md-auto">
-                            <Button variant="link" onClick={() => navigate(`/client/edit/${client.id}`)} className="text-primary me-2">
-                                <FontAwesomeIcon icon={faEdit}
-                                                 title="Edit Customer"/>
+                            <Button
+                                variant="link"
+                                onClick={() => setShowEditClient(true)}
+                                className="text-primary me-2"
+                            >
+                                <FontAwesomeIcon icon={faEdit} title="Edit Customer" />
                             </Button>
                             <Button variant="link" onClick={handleNavigate} className="text-primary">
-                                <FontAwesomeIcon icon={faHistory}
-                                                 title="View history"/>
+                                <FontAwesomeIcon icon={faHistory} title="View history" />
                             </Button>
                         </Col>
                     </Row>
@@ -81,12 +101,16 @@ function ClientDetails({ client, navigate }) {
                                     <Row className="maintenance-date-box">
                                         <Col className="col-md-auto">
                                             <div>
-                                                <div className="maintenance-text">Next: {client.nextMaintenance ? estoniaDateFormat.format(new Date(client.nextMaintenance)) : 'N/A'}</div>
+                                                <div className="maintenance-text">
+                                                    Next: {client.nextMaintenance ? estoniaDateFormat.format(new Date(client.nextMaintenance)) : 'N/A'}
+                                                </div>
                                             </div>
                                         </Col>
                                         <Col className="col-md-auto">
                                             <div>
-                                                <div className="maintenance-text">Last: {client.lastMaintenance ? estoniaDateFormat.format(new Date(client.lastMaintenance)) : 'N/A'}</div>
+                                                <div className="maintenance-text">
+                                                    Last: {client.lastMaintenance ? estoniaDateFormat.format(new Date(client.lastMaintenance)) : 'N/A'}
+                                                </div>
                                             </div>
                                         </Col>
                                     </Row>
@@ -98,9 +122,18 @@ function ClientDetails({ client, navigate }) {
                         </Col>
                     </Row>
                 </>
-
             ) : (
                 <Alert variant="info">No client details available.</Alert>
+            )}
+            {showEditClient && (
+                <EditClient
+                    clientId={client.id}
+                    onClose={() => setShowEditClient(false)}
+                    onSave={(updatedClient) => {
+                        setClient(updatedClient);
+                        setShowEditClient(false);
+                    }}
+                />
             )}
         </>
     );
