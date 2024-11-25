@@ -235,7 +235,7 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
                                                 placeholder="Select Contacts"
                                             />
                                         </Form.Group>
-                                    ): selectedContacts.map(contact => contact.label).join(', ')}
+                                    ): (selectedContacts.length > 0 && selectedContacts.map(contact => contact.label).join(', '))}
                                 </Col>
                             </Row>
 
