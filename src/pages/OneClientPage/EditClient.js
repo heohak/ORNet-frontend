@@ -14,7 +14,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import {format} from "date-fns";
 
 
-function EditClient({ clientId, onClose, onSave }) {
+function EditClient({ clientId, onClose, onSave, setRefresh }) {
     const [clientData, setClientData] = useState({
         fullName: '',
         shortName: '',
@@ -51,8 +51,9 @@ function EditClient({ clientId, onClose, onSave }) {
     const errorRef = useRef(null);
     const [isSubmittingLocation, setIsSubmittingLocation] = useState(false);
     const [selectedCountry, setSelectedCountry] = useState(null);
-
     const [showModal, setShowModal] = useState(true);
+    const [assignedSoftwares, setAssignedSoftwares] = useState([]);
+
 
     // Fetch client data
     const fetchClientData = async () => {
@@ -72,6 +73,9 @@ function EditClient({ clientId, onClose, onSave }) {
             );
             const thirdPartyITs = thirdPartyResponses.map(res => res.data);
 
+            const softwareResponse = await axios.get(`${config.API_BASE_URL}/software/client/${clientId}`);
+            const softwares = softwareResponse.data;
+
             const lastMaintenanceDate = client.lastMaintenance ? new Date(client.lastMaintenance) : null;
             const nextMaintenanceDate = client.nextMaintenance ? new Date(client.nextMaintenance) : null;
 
@@ -82,6 +86,7 @@ function EditClient({ clientId, onClose, onSave }) {
                 lastMaintenance: lastMaintenanceDate,
                 nextMaintenance: nextMaintenanceDate,
             });
+            setAssignedSoftwares(softwares);
         } catch (error) {
             setError(error.message);
         }
@@ -200,6 +205,26 @@ function EditClient({ clientId, onClose, onSave }) {
             locationIds: clientData.locationIds.filter((id) => id !== locationId),
         });
     };
+    const handleUnassignSoftware = async (softwareId) => {
+        try {
+            await axios.put(`${config.API_BASE_URL}/software/remove/${softwareId}`);
+
+            // Option A: Update the assignedSoftwares state locally
+            setAssignedSoftwares((prevSoftwares) =>
+                prevSoftwares.filter((software) => software.id !== softwareId)
+            );
+
+            // Trigger refresh in parent component
+            if (setRefresh) {
+                setRefresh((prev) => !prev); // Toggle the refresh state
+            }
+        } catch (error) {
+            setError('Failed to unassign Technical Information.');
+            console.error('Error unassigning software:', error);
+        }
+    };
+
+
 
     // Handler for adding a new location
     const handleAddLocation = async (e) => {
@@ -474,6 +499,39 @@ function EditClient({ clientId, onClose, onSave }) {
                             </Form.Group>
                         </Col>
                     </Row>
+
+                    {/* Technical Information */}
+                    <Row className="mb-3">
+                        <Col md={8}>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Technical Information</Form.Label>
+                                {assignedSoftwares.length > 0 ? (
+                                    <ListGroup className="mb-2">
+                                        {assignedSoftwares.map((software) => (
+                                            <ListGroup.Item key={software.id}>
+                                                <Row className="align-items-center">
+                                                    <Col>{software.name}</Col>
+                                                    <Col xs="auto">
+                                                        <Button
+                                                            variant="link"
+                                                            size="sm"
+                                                            onClick={() => handleUnassignSoftware(software.id)}
+                                                            style={{ color: 'grey' }}
+                                                        >
+                                                            <FontAwesomeIcon icon={faTimes} />
+                                                        </Button>
+                                                    </Col>
+                                                </Row>
+                                            </ListGroup.Item>
+                                        ))}
+                                    </ListGroup>
+                                ) : (
+                                    <p>No Technical Information assigned.</p>
+                                )}
+                            </Form.Group>
+                        </Col>
+                    </Row>
+
 
                     {/* Customer Types: Header and Checkboxes on the Same Line */}
                     <Form.Group className="mb-3 d-flex align-items-center">

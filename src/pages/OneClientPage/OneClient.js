@@ -19,7 +19,6 @@ function OneClient() {
     const { clientId } = useParams();
     const location = useLocation();
     const [client, setClient] = useState(null);
-    const [devices, setDevices] = useState([]);
     const [workers, setWorkers] = useState([]);
     const [softwareList, setSoftwareList] = useState([]);
     const [tickets, setTickets] = useState([]);
@@ -41,10 +40,9 @@ function OneClient() {
         const fetchData = async () => {
 
             try {
-                const [clientRes, deviceRes, workerRes, softwareRes, ticketsRes, maintenanceRes, statusesRes,
+                const [clientRes, workerRes, softwareRes, ticketsRes, maintenanceRes, statusesRes,
                     locationsRes, activityRes] = await Promise.all([
                     axios.get(`${config.API_BASE_URL}/client/${clientId}`),
-                    axios.get(`${config.API_BASE_URL}/device/client/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/worker/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/software/client/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/ticket/client/${clientId}`),
@@ -55,7 +53,6 @@ function OneClient() {
                 ]);
 
                 setClient(clientRes.data);
-                setDevices(deviceRes.data);
                 setWorkers(workerRes.data);
                 setSoftwareList(softwareRes.data);
                 setTickets(ticketsRes.data);
@@ -171,6 +168,7 @@ function OneClient() {
                         <ClientDetails
                             clientId={clientId}
                             navigate={navigate}
+                            setRefresh={setRefresh}
                         />
                         <Accordion
                             activeKey={activeAccordionKeys}
@@ -229,10 +227,10 @@ function OneClient() {
                                 <Accordion.Header onClick={() => handleAccordionToggle('5')}>Devices</Accordion.Header>
                                 <Accordion.Body>
                                     <ClientDevices
-                                        devices={devices}
                                         client={client}
                                         clientId={clientId}
                                         setRefresh={setRefresh}
+                                        refresh={refresh}
                                         locations={locationsMap}
                                     />
                                 </Accordion.Body>
