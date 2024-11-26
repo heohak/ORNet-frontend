@@ -41,7 +41,8 @@ function NewAddCustomer({ show, onClose }) {
     const [showThirdPartyModal, setShowThirdPartyModal] = useState(false);
     const [newThirdParty, setNewThirdParty] = useState({ name: '', email: '', phone: '' });
 
-    const [contacts, setContacts] = useState([]); // State to store contacts
+    const [allContacts, setAllContacts] = useState([]); // State to store contacts
+    const [selectedContacts, setSelectedContacts] = useState([]);
     const [showAddContactModal, setShowAddContactModal] = useState(false);
 
     const dateErrorRef = useRef(null);
@@ -165,7 +166,7 @@ function NewAddCustomer({ show, onClose }) {
                 ...selectedThirdParties.map(tp => axios.put(`${config.API_BASE_URL}/client/third-party/${clientId}/${tp.value}`))
             ]);
 
-            for (const contact of contacts) {
+            for (const contact of selectedContacts) {
                 // Create worker
                 const response = await axios.post(`${config.API_BASE_URL}/worker/add`, {
                     clientId,
@@ -287,12 +288,8 @@ function NewAddCustomer({ show, onClose }) {
     };
 
     const handleAddContact = (contact) => {
-        setContacts(prevContacts => [...prevContacts, contact]);
-    };
-
-    // Function to remove a contact
-    const handleRemoveContact = (indexToRemove) => {
-        setContacts(prevContacts => prevContacts.filter((_, index) => index !== indexToRemove));
+        setAllContacts(prevContacts => [...prevContacts, contact])
+        setSelectedContacts(prevContacts => [...prevContacts, contact]);
     };
 
 
@@ -391,54 +388,12 @@ function NewAddCustomer({ show, onClose }) {
                                     </Button>
                                 </Col>
                             </Row>
-                            <div style={{
-                                border: '1px solid #ced4da',
-                                borderRadius: '.25rem',
-                                padding: '0.2rem 0.5rem',
-                                minHeight: '38px',
-                                display: 'flex',
-                                flexWrap: 'wrap',
-                                alignItems: 'center'
-                            }}>
-                                {contacts.length > 0 ? (
-                                    contacts.map((contact, index) => (
-                                        <Badge
-                                            key={index}
-                                            pill={false}
-                                            bg="none"
-                                            text="dark"
-                                            className="me-1 mb-1"
-                                            style={{
-                                                backgroundColor: '#dcd8dc',
-                                                color: '#6c757d',
-                                                borderRadius: '0',
-                                                fontSize: '90%',
-                                                fontWeight: 'normal',
-                                                padding: '1px 4px'
-                                            }}
-                                        >
-                                            {contact.firstName} {contact.lastName}
-                                            <Button
-                                                variant="link"
-                                                size="sm"
-                                                onClick={() => handleRemoveContact(index)}
-                                                style={{
-                                                    color: 'black',
-                                                    textDecoration: 'none',
-                                                    marginLeft: '5px',
-                                                    marginBottom: '4px',
-                                                    padding: '0',
-                                                    fontWeight: 'bold'
-                                                }}
-                                            >
-                                                &times;
-                                            </Button>
-                                        </Badge>
-                                    ))
-                                ) : (
-                                    <span style={{ color: '#6c757d' }}>No contacts added yet.</span>
-                                )}
-                            </div>
+                            <Select
+                                isMulti
+                                options={allContacts}
+                                value={selectedContacts}
+                                onChange={setSelectedContacts}
+                            />
                         </Form.Group>
                     </Col>
 
