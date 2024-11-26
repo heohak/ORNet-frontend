@@ -29,9 +29,11 @@ function OneClient() {
     const [locations, setLocations] = useState([])
     const [locationsMap, setLocationsMap] = useState([])
     const [statusMap, setStatusMap] = useState({});
+    const [statuses, setStatuses] = useState([]);
     const [activities, setActivities] = useState([]);
     const accordionRefs = useRef([]); // Array of refs for each Accordion.Item
     const [activeAccordionKeys, setActiveAccordionKeys] = useState([]);
+    const [openStatusId, setOpenStatusId] = useState('');
 
 
     const navigate = useNavigate();
@@ -58,6 +60,9 @@ function OneClient() {
                 setTickets(ticketsRes.data);
                 setMaintenances(maintenanceRes.data);
                 setActivities(activityRes.data);
+                setStatuses(statusesRes.data);
+
+                setOpenStatusId(statusesRes.data.find(status => status.status === "Open").id)
 
                 const fetchedStatuses = statusesRes.data;
                 // Create a map for statuses for faster lookup
@@ -205,6 +210,8 @@ function OneClient() {
                                         clientName={client.fullName}
                                         locations={locations}
                                         contacts={workers}
+                                        statuses={statuses}
+                                        openStatusId={openStatusId}
                                     />
                                 </Accordion.Body>
 

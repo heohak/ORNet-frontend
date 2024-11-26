@@ -1,4 +1,4 @@
-import {Alert, Button, Col, Row} from "react-bootstrap";
+import {Alert, Button, Col, Form, Row} from "react-bootstrap";
 import React, {useEffect, useState} from "react";
 import ActivityModal from "./ActivityModal";
 import axios from "axios";
@@ -6,22 +6,28 @@ import config from "../../../config/config";
 import AddActivityModal from "./AddActivityModal";
 import '../../../css/OneClientPage/OneClient.css';
 
-const CustomerActivity = ({ activities, setActivities, clientId, clientName, locations, contacts }) => {
+const CustomerActivity = ({ activities, setActivities, clientId, clientName, locations, contacts, statuses, openStatusId}) => {
     const [selectedActivity, setSelectedActivity] = useState(null);
     const [showActivityModal, setShowActivityModal] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
-    const [statuses, setStatuses] = useState([]);
+    const [selectedStatusId, setSelectedStatusId] = useState(openStatusId);
 
 
     useEffect(() => {
-        fetchStatuses();
-    },[]);
-    const fetchStatuses = async() => {
+        filterActivities()
+    },[selectedStatusId])
+
+    const filterActivities = async() => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`)
-            setStatuses(response.data);
+            const response = await axios.get(`${config.API_BASE_URL}/client-activity/search`, {
+                params: {
+                    statusId: selectedStatusId,
+                    clientId: clientId
+                },
+            });
+            setActivities(response.data);
         } catch (error) {
-            console.error('Error fetching ticket classificators', error);
+            console.error("Error fetching filtered activities", error);
         }
     }
 
@@ -49,14 +55,6 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
         return 'green';
     };
 
-    const reFetchActivities = async() => {
-        try {
-            const response = await axios.get(`${config.API_BASE_URL}/client/activities/${clientId}`)
-            setActivities(response.data);
-        } catch (error) {
-            console.error('Error fetching activities', error);
-        }
-    }
     const handleRowClick = (activity) => {
         setSelectedActivity(activity);
         setShowActivityModal(true);
@@ -88,6 +86,23 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
                 </Col>
                 <Col className="col-md-auto">
                     <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Activity</Button>
+                </Col>
+            </Row>
+            <Row className="row-margin-0">
+                <Col className="mb-2" md={3}>
+                    <Form.Group controlId="classificatorFilter">
+                        <Form.Label>Filter by Status</Form.Label>
+                        <Form.Control
+                            as="select"
+                            value={selectedStatusId}
+                            onChange={(e) => setSelectedStatusId(e.target.value)}
+                        >
+                            <option value="">All Statuses</option>
+                            {statuses.map((status) => (
+                                <option key={status.id} value={status.id}>{status.status}</option>
+                            ))}
+                        </Form.Control>
+                    </Form.Group>
                 </Col>
             </Row>
             {activities.length > 0 ? (
@@ -172,7 +187,7 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
                 <ActivityModal
                     activity={selectedActivity}
                     handleClose={handleCloseModal}
-                    reFetch={reFetchActivities}
+                    reFetch={filterActivities}
                     clientName={clientName}
                     locations={locations}
                     statuses={statuses}
@@ -181,7 +196,7 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
             <AddActivityModal
                 show={showAddModal}
                 handleClose={() => setShowAddModal(false)}
-                reFetch={reFetchActivities}
+                reFetch={filterActivities}
                 clientId={clientId}
                 clientContacts={contacts}
                 clientLocations={locations}
