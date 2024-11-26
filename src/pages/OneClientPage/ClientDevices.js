@@ -87,7 +87,7 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
                     <Button variant="primary" onClick={() => setShowAddDeviceModal(true)}>Add Device</Button>
                 </Col>
             </Row>
-        <Form className="mb-e">
+        <Form className="mb-e" onSubmit={(e) => e.preventDefault()}>
             <Row className="align-items-end">
                 <Col md={3}>
             <Form.Group controlId="search">

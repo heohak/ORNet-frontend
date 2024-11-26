@@ -59,13 +59,19 @@ function EditSoftware() {
             const response = await axios.get(`${config.API_BASE_URL}/software/${software.id}`);
             const clientId = response.data.clientId;
 
-            // Make another request to get client details using clientId
-            const clientResponse = await axios.get(`${config.API_BASE_URL}/client/${clientId}`);
-            setAssociatedClient(clientResponse.data); // Assuming API returns full client details
+            if (clientId) {
+                // Fetch client details using clientId
+                const clientResponse = await axios.get(`${config.API_BASE_URL}/client/${clientId}`);
+                setAssociatedClient(clientResponse.data); // Assuming API returns full client details
+            } else {
+                // No associated client
+                setAssociatedClient(null);
+            }
         } catch (error) {
             setError('Error fetching software or client information');
         }
     };
+
 
     const handleDeleteSoftware = async () => {
         try {
@@ -369,9 +375,13 @@ function EditSoftware() {
                     <Modal.Title>Confirm Technical Information Deletion</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    {associatedClient ? (
+                    {associatedClient === undefined ? (
+                        <p>Loading customer information...</p>
+                    ) : associatedClient === null ? (
+                        <p>This Technical Information is not linked to any customers. Are you sure you want to delete it?</p>
+                    ) : (
                         <div>
-                            <p>This Technical Information is linked to the following customers:</p>
+                            <p>This Technical Information is linked to the following customer:</p>
                             <ul>
                                 <li>Customer: {associatedClient.shortName}</li>
                             </ul>
@@ -379,18 +389,18 @@ function EditSoftware() {
                                 Deleting this Technical Information will affect the above customer. Are you sure you want to proceed?
                             </p>
                         </div>
-                    ) : (
-                        <p>Loading customer information...</p>
                     )}
                 </Modal.Body>
+
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleCloseDeleteModal}>
                         Close
                     </Button>
-                    <Button variant="danger" onClick={handleDeleteSoftware} disabled={!associatedClient}>
+                    <Button variant="danger" onClick={handleDeleteSoftware}>
                         Delete
                     </Button>
                 </Modal.Footer>
+
             </Modal>
         </Container>
     );
