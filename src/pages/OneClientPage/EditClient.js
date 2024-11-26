@@ -9,6 +9,10 @@ import AddThirdPartyITModal from "./AddThirdPartyITModal";
 import AsyncSelect from "react-select/async";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTimes} from "@fortawesome/free-solid-svg-icons";
+import ReactDatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import {format} from "date-fns";
+
 
 function EditClient({ clientId, onClose, onSave }) {
     const [clientData, setClientData] = useState({
@@ -18,8 +22,8 @@ function EditClient({ clientId, onClose, onSave }) {
         surgeryClient: false,
         editorClient: false,
         otherMedicalDevices: false,
-        lastMaintenance: '',
-        nextMaintenance: '',
+        lastMaintenance: null,
+        nextMaintenance: null,
         locationIds: [],
         locations: [],
         thirdPartyIds: [],
@@ -68,7 +72,16 @@ function EditClient({ clientId, onClose, onSave }) {
             );
             const thirdPartyITs = thirdPartyResponses.map(res => res.data);
 
-            setClientData({ ...client, locations, thirdPartyITs });
+            const lastMaintenanceDate = client.lastMaintenance ? new Date(client.lastMaintenance) : null;
+            const nextMaintenanceDate = client.nextMaintenance ? new Date(client.nextMaintenance) : null;
+
+            setClientData({
+                ...client,
+                locations,
+                thirdPartyITs,
+                lastMaintenance: lastMaintenanceDate,
+                nextMaintenance: nextMaintenanceDate,
+            });
         } catch (error) {
             setError(error.message);
         }
@@ -244,20 +257,26 @@ function EditClient({ clientId, onClose, onSave }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const today = new Date().toISOString().split("T")[0];
+        const today = new Date();
 
-        if (new Date(clientData.lastMaintenance) > new Date(today)) {
+        if (clientData.lastMaintenance && clientData.lastMaintenance > today) {
             setError('Last Maintenance date cannot be in the future.');
             return;
         }
 
-        if (new Date(clientData.nextMaintenance) < new Date(clientData.lastMaintenance)) {
+        if (
+            clientData.lastMaintenance &&
+            clientData.nextMaintenance &&
+            clientData.nextMaintenance < clientData.lastMaintenance
+        ) {
             setError('Next Maintenance date cannot be before the Last Maintenance date.');
             return;
         }
         try {
             const updatedClientData = {
                 ...clientData,
+                lastMaintenance: clientData.lastMaintenance ? format(clientData.lastMaintenance, 'yyyy-MM-dd') : null,
+                nextMaintenance: clientData.nextMaintenance ? format(clientData.nextMaintenance, 'yyyy-MM-dd') : null,
                 locations: undefined,
                 thirdPartyITs: undefined,
             };
@@ -514,24 +533,32 @@ function EditClient({ clientId, onClose, onSave }) {
                         <Col xs={12} md={6}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Last Maintenance</Form.Label>
-                                <Form.Control
-                                    type="date"
-                                    name="lastMaintenance"
-                                    value={clientData.lastMaintenance}
-                                    onChange={handleInputChange}
+                                <ReactDatePicker
+                                    selected={clientData.lastMaintenance}
+                                    onChange={(date) => setClientData({ ...clientData, lastMaintenance: date })}
+                                    dateFormat="dd/MM/yyyy"
+                                    className="form-control dark-placeholder"
+                                    placeholderText="Select Last Maintenance Date"
+                                    maxDate={new Date()}
+                                    isClearable
                                 />
                             </Form.Group>
+
                         </Col>
                         <Col xs={12} md={6}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Next Maintenance</Form.Label>
-                                <Form.Control
-                                    type="date"
-                                    name="nextMaintenance"
-                                    value={clientData.nextMaintenance}
-                                    onChange={handleInputChange}
+                                <ReactDatePicker
+                                    selected={clientData.nextMaintenance}
+                                    onChange={(date) => setClientData({ ...clientData, nextMaintenance: date })}
+                                    dateFormat="dd/MM/yyyy"
+                                    className="form-control dark-placeholder"
+                                    placeholderText="Select Next Maintenance Date"
+                                    minDate={clientData.lastMaintenance || new Date()}
+                                    isClearable
                                 />
                             </Form.Group>
+
                         </Col>
                     </Row>
                 </Form>
