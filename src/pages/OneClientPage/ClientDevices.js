@@ -7,17 +7,18 @@ import config from "../../config/config";
 import '../../css/OneClientPage/OneClient.css';
 
 
-function ClientDevices({devices, client, clientId, setRefresh, locations}) {
+function ClientDevices({clientId, setRefresh,refresh, locations}) {
     const [showAddDeviceModal, setShowAddDeviceModal] = useState(false);
     const [classificatorList, setClassificatorList] = useState([]);
     const [classificators, setClassificators] = useState({});
     const [selectedClassificatorId, setSelectedClassificatorId] = useState('');
     const [writtenOff, setWrittenOff] = useState(false);
-    const [filteredDevices, setFilteredDevices] = useState(devices);
     const [searchQuery, setSearchQuery] = useState('');
     const [deviceSummary, setDeviceSummary] = useState({});
     const [loadingSummary, setLoadingSummary] = useState(true);
     const [errorSummary, setErrorSummary] = useState(null);
+    const [devices, setDevices] = useState([]);
+
 
     const navigate = useNavigate();
 
@@ -27,8 +28,9 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
     }, []);
 
     useEffect(() => {
-        filterDevices();
-    }, [selectedClassificatorId, searchQuery, writtenOff]);
+        fetchDevices();
+    }, [clientId, refresh, selectedClassificatorId, searchQuery, writtenOff]);
+
 
     const fetchClassificators = async () => {
         try {
@@ -57,7 +59,7 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
         }
     };
 
-    const filterDevices = async () => {
+    const fetchDevices = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/device/search`, {
                 params: {
@@ -67,11 +69,12 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
                     writtenOff: writtenOff
                 }
             });
-            setFilteredDevices(response.data);
+            setDevices(response.data);
         } catch (error) {
-            console.error('Error filtering devices:', error);
+            console.error('Error fetching devices:', error);
         }
     };
+
 
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
@@ -145,8 +148,8 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
                 </Col>
             </Row>
             <hr />
-            {filteredDevices.length > 0 ? (
-                    filteredDevices.map((device, index) => {
+            {devices.length > 0 ? (
+                    devices.map((device, index) => {
                         const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
                         return (
                             <Row
@@ -196,10 +199,7 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
             {showAddDeviceModal && (
                 <AddClientDevice
                     clientId={clientId}
-                    onClose={() => {
-                        setShowAddDeviceModal(false);
-                        setRefresh(prev => !prev); // Refresh the device list after adding a device
-                    }}
+                    onClose={() => setShowAddDeviceModal(false)}
                     setRefresh={setRefresh}
                 />
             )}
