@@ -177,7 +177,7 @@ function OneClient() {
 
                             <Accordion.Item eventKey="1" className="AccordionWorkers" ref={(el) => accordionRefs.current[1] = el}>
                                 <Accordion.Header onClick={() => handleAccordionToggle('1')}>Contacts</Accordion.Header>
-                                <Accordion.Body>
+                                <Accordion.Body className="custom-accordion-body">
                                     <ClientWorker
                                         workers={workers}
                                         client={client}
@@ -250,7 +250,7 @@ function OneClient() {
 
                             <Accordion.Item eventKey="7" className="AccordionTechnicalInfo" ref={(el) => accordionRefs.current[7] = el}>
                                 <Accordion.Header onClick={() => handleAccordionToggle('7')}>Technical Information</Accordion.Header>
-                                <Accordion.Body>
+                                <Accordion.Body className="custom-accordion-body">
                                     <SoftwareDetails
                                         softwareList={softwareList}
                                         clientId={clientId}
@@ -262,7 +262,7 @@ function OneClient() {
 
                             <Accordion.Item eventKey="8" className="AccordionThirdPartyITs" ref={(el) => accordionRefs.current[8] = el}>
                                 <Accordion.Header onClick={() => handleAccordionToggle('8')}>Third Party ITs</Accordion.Header>
-                                <Accordion.Body>
+                                <Accordion.Body className="custom-accordion-body">
                                     <ClientThirdPartyIT
                                         clientId={clientId}
                                         client={client}

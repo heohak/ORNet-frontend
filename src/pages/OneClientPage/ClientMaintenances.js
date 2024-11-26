@@ -3,6 +3,8 @@ import { Row, Col, Button, Alert } from 'react-bootstrap';
 import MaintenanceModal from "./MaintenanceModal";
 import AddMaintenanceModal from "./AddMaintenanceModal";
 import '../../css/Customers.css';
+import '../../css/OneClientPage/OneClient.css';
+
 
 function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
     const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
@@ -47,7 +49,7 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
 
     return (
         <>
-            <Row className="d-flex justify-content-between align-items-center mb-2">
+            <Row className="row-margin-0 d-flex justify-content-between align-items-center mb-2">
                 <Col className="col-md-auto">
                     <h2 className="mb-0" style={{paddingBottom: "20px"}}>
                         Maintenances
@@ -61,7 +63,7 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
             </Row>
 
             {/* Sortable Table Headers */}
-            <Row className="fw-bold">
+            <Row className="row-margin-0 fw-bold">
                 <Col md={6} onClick={() => handleSort('maintenanceName')}>
                     Maintenance Name {renderSortArrow('maintenanceName')}
                 </Col>
@@ -84,7 +86,7 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
                         >
                             <Col className="py-2" style={{ backgroundColor: rowBgColor}}>
                                 <Row className="align-items-center">
-                                    <Col className="px-0" md={6}>{maintenance.maintenanceName}</Col>
+                                    <Col md={6}>{maintenance.maintenanceName}</Col>
                                     <Col md={6}>{estoniaDateFormat.format(new Date(maintenance.maintenanceDate))}</Col>
                                 </Row>
                             </Col>

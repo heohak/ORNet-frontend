@@ -6,6 +6,7 @@ import {useNavigate} from 'react-router-dom';
 import '../../css/OneClientPage/SoftwareDetails.css';
 import {faEdit} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import '../../css/OneClientPage/OneClient.css';
 
 
 function SoftwareDetails({softwareList, clientId, setRefresh, client}) {

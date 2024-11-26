@@ -4,7 +4,7 @@ import ActivityModal from "./ActivityModal";
 import axios from "axios";
 import config from "../../../config/config";
 import AddActivityModal from "./AddActivityModal";
-
+import '../../../css/OneClientPage/OneClient.css';
 
 const CustomerActivity = ({ activities, setActivities, clientId, clientName, locations, contacts }) => {
     const [selectedActivity, setSelectedActivity] = useState(null);
@@ -25,7 +25,7 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
         }
     }
 
-    const getStatusColor = (endDateTime) => {
+    const getDeadlineColor = (endDateTime) => {
         if (!endDateTime) {
             return 'green';
         }
@@ -80,7 +80,7 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
 
     return (
         <>
-            <Row className="d-flex justify-content-between align-items-center mb-2">
+            <Row className="row-margin-0 d-flex justify-content-between align-items-center mb-2">
                 <Col className="col-md-auto">
                     <h2 className="mb-0" style={{paddingBottom: "20px"}}>
                         {'Activities'}
@@ -93,11 +93,13 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
             {activities.length > 0 ? (
                 <div>
                     {/* Table header */}
-                    <Row className="fw-bold mt-2">
-                        <Col md={4}>Title</Col>
+                    <Row className="row-margin-0 fw-bold mt-2">
+                        <Col md={3}>Title</Col>
                         <Col md={3}>Contact</Col>
                         <Col md={3}>Date/Deadline?</Col>
-                        <Col md={2}>Status</Col>
+                        <Col className="d-flex justify-content-center" md={1}>State</Col>
+                        <Col className="d-flex justify-content-center" md={1}>Status</Col>
+                        <Col className="d-flex justify-content-center" md={1}>Priority</Col>
                     </Row>
                     <hr />
 
@@ -111,7 +113,9 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
                             })
                             .filter(name => name) // Filter out null values if any contacts were not found
                             .join(', '); // Join names with a comma for display
-                        const statusColor = getStatusColor(activity.endDateTime)
+                        const deadlineColor = getDeadlineColor(activity.endDateTime)
+                        const status = statuses.find(status => activity.statusId === status.id)
+                        const priorityColor = activity.crisis ? "red" : "green"
                         return (
                             <Row
                                 key={activity.id}
@@ -121,20 +125,37 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
                             >
                                 <Col className="py-2" style={{ backgroundColor: rowBgColor}}>
                                     <Row className="align-items-center">
-                                        <Col className="px-0" md={4}>{activity.title}</Col>
+                                        <Col md={3}>{activity.title}</Col>
                                         <Col md={3}>{contactNames}</Col>
                                         <Col md={3}>{formatDate(activity.endDateTime)}</Col>
-                                        <Col md={2}>
+                                        <Col className="d-flex align-content-center justify-content-center" md={1}>
                                     <span
                                         style={{
                                             display: 'inline-block',
                                             width: '12px',
                                             height: '12px',
                                             borderRadius: '50%',
-                                            backgroundColor: statusColor,
-                                            marginRight: '8px',
+                                            backgroundColor: deadlineColor
                                         }}
                                     />
+                                        </Col>
+                                        <Col className="d-flex align-content-center justify-content-center" md={1}>
+                                            <Button
+                                                style={{
+                                                    minWidth: "75px",
+                                                    backgroundColor: status?.color || '#007bff',
+                                                    borderColor: status?.color || '#007bff'
+                                                }}
+                                                disabled
+                                            >
+                                                {status?.status || "N/A"}
+                                            </Button>
+                                        </Col>
+                                        <Col className="d-flex align-content-center justify-content-center" md={1}>
+                                            <Button
+                                                style={{ backgroundColor: priorityColor, borderColor: priorityColor }}
+                                                disabled
+                                            ></Button>
                                         </Col>
                                     </Row>
                                 </Col>

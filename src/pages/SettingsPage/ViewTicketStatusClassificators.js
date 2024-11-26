@@ -29,9 +29,12 @@ function ViewTicketStatusClassificators() {
         fetchClassificators();
     }, []);
 
-    const handleAddClassificator = async () => {
+    const handleAddClassificator = async (e) => {
+        e.preventDefault();
         try {
-            await axios.post(`${config.API_BASE_URL}/ticket/classificator/add`, { status });
+            await axios.post(`${config.API_BASE_URL}/ticket/classificator/add`, {
+                status: status
+            });
             const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`);
             setClassificators(response.data);
             setShowAddModal(false);
