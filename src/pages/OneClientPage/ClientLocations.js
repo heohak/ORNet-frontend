@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Row, Col, Alert, Button } from 'react-bootstrap';
 import LocationMaintenances from './LocationMaintenances';
+import '../../css/OneClientPage/OneClient.css';
 
 function ClientLocations({ locations, setRefresh }) {
     const [selectedLocation, setSelectedLocation] = useState(null);
@@ -20,7 +21,7 @@ function ClientLocations({ locations, setRefresh }) {
 
     return (
         <>
-            <Row className="mb-2">
+            <Row className="row-margin-0 mb-2">
                 <Col className="col-md-auto">
                     <h2 className="mb-0" style={{paddingBottom: "20px"}}>
                         Locations
@@ -30,7 +31,7 @@ function ClientLocations({ locations, setRefresh }) {
             {locations.length > 0 ? (
                 <div>
                     {/* Table header */}
-                    <Row className="fw-bold mt-2">
+                    <Row className="row-margin-0 fw-bold mt-2">
                         <Col md={4}>Name</Col>
                         <Col md={5}>Address</Col>
                         <Col md={3}>Phone</Col>
@@ -49,7 +50,7 @@ function ClientLocations({ locations, setRefresh }) {
                             >
                                 <Col className="py-2" style={{ backgroundColor: rowBgColor}}>
                                     <Row className="align-items-center">
-                                        <Col className="px-0" md={4}>{location.name}</Col>
+                                        <Col md={4}>{location.name}</Col>
                                         <Col md={5}>
                                             {location.streetAddress}, {location.city}, {location.country}, {location.postalCode}
                                         </Col>

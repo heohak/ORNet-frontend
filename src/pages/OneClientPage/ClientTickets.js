@@ -5,6 +5,8 @@ import axios from 'axios';
 import '../../css/Customers.css';
 import config from '../../config/config';
 import NewTicket from '../TicketsPage/SingleTicketModal/NewTicket';
+import '../../css/OneClientPage/OneClient.css';
+
 
 function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
     const navigate = useNavigate();
@@ -69,7 +71,7 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
 
     return (
         <>
-            <Row className="mb-2">
+            <Row className="row-margin-0 mb-2">
                 <Col className="col-md-auto">
                     <h2 className="mb-0" style={{paddingBottom: "20px"}}>
                         Tickets
@@ -79,13 +81,13 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
             {tickets.length > 0 ? (
                 <>
                     {/* Table header with columns */}
-                    <Row className="fw-bold mt-2">
+                    <Row className="row-margin-0 fw-bold mt-2">
                         <Col md={2}>No</Col>
                         <Col md={3}>Title</Col>
                         <Col md={2}>Date</Col>
                         <Col md={2}>Location</Col>
-                        <Col md={2}>Status</Col>
-                        <Col className="px-0" md={1}>Priority</Col>
+                        <Col className="d-flex justify-content-center"  md={2}>Status</Col>
+                        <Col className="d-flex justify-content-center" md={1}>Priority</Col>
                     </Row>
                     <hr />
 
@@ -104,11 +106,11 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
                             >
                                 <Col className="py-1" style={{backgroundColor: rowBgColor}}>
                                     <Row className="align-items-center">
-                                        <Col className="px-0" md={2}>{ticket.baitNumeration || 'N/A'}</Col>
+                                        <Col md={2}>{ticket.baitNumeration || 'N/A'}</Col>
                                         <Col md={3}>{ticket.title}</Col>
                                         <Col md={2}>{formatDate(ticket.startDateTime)}</Col>
                                         <Col md={2}>{locations[ticket.locationId] || 'Unknown Location'}</Col>
-                                        <Col md={2}>
+                                        <Col className="d-flex justify-content-center" md={2}>
                                             <Button
                                                 style={{
                                                     minWidth: "75px",
@@ -120,7 +122,7 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
                                                 {status?.status || 'Unknown Status'}
                                             </Button>
                                         </Col>
-                                        <Col md={1}>
+                                        <Col className="d-flex justify-content-center" md={1}>
                                             <Button
                                                 style={{
                                                     backgroundColor: priorityColor,
