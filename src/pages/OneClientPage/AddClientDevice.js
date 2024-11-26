@@ -6,6 +6,9 @@ import Select from 'react-select';
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../../css/OneClientPage/AddActivityModal.css';
+import CreatableSelect from 'react-select/creatable';
+
+
 import { format } from 'date-fns';
 
 function AddClientDevice({ clientId, onClose, setRefresh }) {
@@ -34,9 +37,11 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmittingClassificator, setIsSubmittingClassificator] = useState(false);
     const today = new Date().toISOString().split('T')[0];
+    const [predefinedDeviceNames, setPredefinedDeviceNames] = useState([]);
 
     useEffect(() => {
         fetchData();
+        fetchPredefinedDeviceNames();
     }, []);
 
     const fetchData = async () => {
@@ -49,6 +54,20 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
             setLocations(locationsRes.data);
             setClassificators(classificatorsRes.data);
         } catch (error) {
+            setError(error.message);
+        }
+    };
+    const fetchPredefinedDeviceNames = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/predefined/names`);
+            // Map the data to the format expected by react-select
+            const options = response.data.map((name) => ({
+                value: name.name,
+                label: name.name,
+            }));
+            setPredefinedDeviceNames(options);
+        } catch (error) {
+            console.error('Error fetching predefined device names:', error);
             setError(error.message);
         }
     };
@@ -180,11 +199,12 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                             <Col md={6}>
                                 <Form.Group>
                                     <Form.Label>Device Name</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={deviceName}
-                                        onChange={(e) => setDeviceName(e.target.value)}
-                                        required
+                                    <CreatableSelect
+                                        isClearable
+                                        onChange={(selectedOption) => setDeviceName(selectedOption ? selectedOption.value : '')}
+                                        options={predefinedDeviceNames}
+                                        placeholder="Select or type device name"
+                                        value={deviceName ? { value: deviceName, label: deviceName } : null}
                                     />
                                 </Form.Group>
                             </Col>

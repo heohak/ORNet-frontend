@@ -13,6 +13,15 @@ function Settings() {
                 <Col md={3} sm={6} className="mb-2">
                     <Button
                         variant="primary"
+                        onClick={() => navigate('/settings/predefined-device-names')}
+                        className="settings-button"
+                    >
+                        Predefined Device Names
+                    </Button>
+                </Col>
+                <Col md={3} sm={6} className="mb-2">
+                    <Button
+                        variant="primary"
                         onClick={() => navigate('/view-bait-workers')}
                         className="settings-button"
                     >

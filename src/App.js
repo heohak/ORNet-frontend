@@ -42,6 +42,7 @@ import EditWorkType from "./pages/SettingsPage/EditWorkType";
 import HistoryTable from "./components/HistoryTable";
 import Contacts from "./pages/ContactsPage/Contacts";
 import ScrollToTop from "./components/ScrollToTop";
+import ViewPredefinedDeviceNames from "./pages/SettingsPage/ViewPredefinedDeviceNames";
 
 function App() {
     return (
@@ -89,6 +90,8 @@ function App() {
                         <Route path="/history" element={<HistoryTable />} />
                         <Route path="/contacts" element={<Contacts />} />
                         <Route path="/tickets/:ticketId" element={<Tickets />} />
+                        <Route path="/settings/predefined-device-names" element={<ViewPredefinedDeviceNames />}
+                        />
                     </Routes>
                 </main>
                 <Footer />
