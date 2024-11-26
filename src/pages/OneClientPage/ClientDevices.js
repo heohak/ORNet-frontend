@@ -3,19 +3,22 @@ import {Alert, Badge, Button, Card, Col, Form, ListGroup, Modal, Row, Spinner} f
 import AddClientDevice from './AddClientDevice';
 import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
-import config from "../../config/config"; // Import axios for making HTTP requests
+import config from "../../config/config";
+import '../../css/OneClientPage/OneClient.css';
 
-function ClientDevices({devices, client, clientId, setRefresh, locations}) {
+
+function ClientDevices({clientId, setRefresh,refresh, locations}) {
     const [showAddDeviceModal, setShowAddDeviceModal] = useState(false);
     const [classificatorList, setClassificatorList] = useState([]);
     const [classificators, setClassificators] = useState({});
     const [selectedClassificatorId, setSelectedClassificatorId] = useState('');
     const [writtenOff, setWrittenOff] = useState(false);
-    const [filteredDevices, setFilteredDevices] = useState(devices);
     const [searchQuery, setSearchQuery] = useState('');
     const [deviceSummary, setDeviceSummary] = useState({});
     const [loadingSummary, setLoadingSummary] = useState(true);
     const [errorSummary, setErrorSummary] = useState(null);
+    const [devices, setDevices] = useState([]);
+
 
     const navigate = useNavigate();
 
@@ -25,8 +28,9 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
     }, []);
 
     useEffect(() => {
-        filterDevices();
-    }, [selectedClassificatorId, searchQuery, writtenOff]);
+        fetchDevices();
+    }, [clientId, refresh, selectedClassificatorId, searchQuery, writtenOff]);
+
 
     const fetchClassificators = async () => {
         try {
@@ -55,7 +59,7 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
         }
     };
 
-    const filterDevices = async () => {
+    const fetchDevices = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/device/search`, {
                 params: {
@@ -65,11 +69,12 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
                     writtenOff: writtenOff
                 }
             });
-            setFilteredDevices(response.data);
+            setDevices(response.data);
         } catch (error) {
-            console.error('Error filtering devices:', error);
+            console.error('Error fetching devices:', error);
         }
     };
+
 
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
@@ -77,7 +82,7 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
 
     return (
         <>
-            <Row className="d-flex justify-content-between align-items-center mb-2">
+            <Row className="row-margin-0 d-flex justify-content-between align-items-center mb-2">
                 <Col className="col-md-auto">
                     <h2 className="mb-0" style={{paddingBottom: "20px"}}>
                         {'Devices'}
@@ -87,8 +92,8 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
                     <Button variant="primary" onClick={() => setShowAddDeviceModal(true)}>Add Device</Button>
                 </Col>
             </Row>
-        <Form className="mb-e">
-            <Row className="align-items-end">
+        <Form className="mb-e" onSubmit={(e) => e.preventDefault()}>
+            <Row className="row-margin-0 align-items-end">
                 <Col md={3}>
             <Form.Group controlId="search">
                 <Form.Label>Search</Form.Label>
@@ -128,7 +133,7 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
                 </Col>
             </Row>
         </Form>
-            <Row className="fw-bold mt-2">
+            <Row className="row-margin-0 fw-bold mt-2">
                 <Col md={3}>
                     Name
                 </Col>
@@ -143,8 +148,8 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
                 </Col>
             </Row>
             <hr />
-            {filteredDevices.length > 0 ? (
-                    filteredDevices.map((device, index) => {
+            {devices.length > 0 ? (
+                    devices.map((device, index) => {
                         const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
                         return (
                             <Row
@@ -155,7 +160,7 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
                             >
                                 <Col className="py-2" style={{backgroundColor: rowBgColor}}>
                                     <Row className="align-items-center">
-                                        <Col className="px-0" md={3}>{device.deviceName}</Col>
+                                        <Col md={3}>{device.deviceName}</Col>
                                         <Col md={2}>{classificators[device.classificatorId] || 'Unknown Type'}</Col>
                                         <Col md={3}>{locations[device.locationId] || 'Unknown'}</Col>
                                         <Col md={4}>{device.serialNumber}</Col>
@@ -194,10 +199,7 @@ function ClientDevices({devices, client, clientId, setRefresh, locations}) {
             {showAddDeviceModal && (
                 <AddClientDevice
                     clientId={clientId}
-                    onClose={() => {
-                        setShowAddDeviceModal(false);
-                        setRefresh(prev => !prev); // Refresh the device list after adding a device
-                    }}
+                    onClose={() => setShowAddDeviceModal(false)}
                     setRefresh={setRefresh}
                 />
             )}

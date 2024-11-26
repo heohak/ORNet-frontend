@@ -8,7 +8,7 @@ const DeleteModal = ({ show, handleClose, handleDelete }) => {
                 <Modal.Title>Confirm Deletion</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <p>Are you sure you want to delete this ticket? This change is permanent.</p>
+                <p>Are you sure you want to delete this activity? This change is permanent.</p>
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={handleClose}>

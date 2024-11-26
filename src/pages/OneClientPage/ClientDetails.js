@@ -9,7 +9,7 @@ import config from "../../config/config";
 // Define the default visibility of each field
 
 
-function ClientDetails({ clientId, navigate }) {
+function ClientDetails({ clientId, navigate, setRefresh }) {
     const [client, setClient] = useState(null);
     const [error, setError] = useState(null);
     const [showEditClient, setShowEditClient] = useState(false);
@@ -133,6 +133,7 @@ function ClientDetails({ clientId, navigate }) {
                         setClient(updatedClient);
                         setShowEditClient(false);
                     }}
+                    setRefresh={setRefresh}
                 />
             )}
         </>

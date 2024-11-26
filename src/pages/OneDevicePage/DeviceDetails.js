@@ -26,6 +26,7 @@ import {
 import '../../css/AllDevicesPage/Devices.css';
 import DeviceStatusManager from './DeviceStatusManager';
 import EditDevice from "./EditDevice";
+import {format} from "date-fns";
 
 function DeviceDetails({
                            device,
@@ -289,9 +290,16 @@ function DeviceDetails({
                     {/* Left Column */}
                     <Col md={6}>
                         {leftColumnFields.map((field) => {
-                            const value =
+                            let value =
                                 localDevice[field.key] || localDevice.attributes?.[field.key];
                             if (value !== undefined && value !== null) {
+                                // Format dates in Estonian format
+                                if (
+                                    field.key === 'versionUpdateDate' ||
+                                    field.key === 'introducedDate'
+                                ) {
+                                    value = format(new Date(value), 'dd.MM.yyyy', )
+                                }
                                 return (
                                     <div key={field.key} className="mb-1">
                                         <strong>{field.label}: </strong> {value}
@@ -300,6 +308,7 @@ function DeviceDetails({
                             }
                             return null;
                         })}
+
                     </Col>
                     {/* Right Column */}
                     <Col md={6}>

@@ -19,7 +19,6 @@ function OneClient() {
     const { clientId } = useParams();
     const location = useLocation();
     const [client, setClient] = useState(null);
-    const [devices, setDevices] = useState([]);
     const [workers, setWorkers] = useState([]);
     const [softwareList, setSoftwareList] = useState([]);
     const [tickets, setTickets] = useState([]);
@@ -30,9 +29,11 @@ function OneClient() {
     const [locations, setLocations] = useState([])
     const [locationsMap, setLocationsMap] = useState([])
     const [statusMap, setStatusMap] = useState({});
+    const [statuses, setStatuses] = useState([]);
     const [activities, setActivities] = useState([]);
     const accordionRefs = useRef([]); // Array of refs for each Accordion.Item
     const [activeAccordionKeys, setActiveAccordionKeys] = useState([]);
+    const [openStatusId, setOpenStatusId] = useState('');
 
 
     const navigate = useNavigate();
@@ -41,10 +42,9 @@ function OneClient() {
         const fetchData = async () => {
 
             try {
-                const [clientRes, deviceRes, workerRes, softwareRes, ticketsRes, maintenanceRes, statusesRes,
+                const [clientRes, workerRes, softwareRes, ticketsRes, maintenanceRes, statusesRes,
                     locationsRes, activityRes] = await Promise.all([
                     axios.get(`${config.API_BASE_URL}/client/${clientId}`),
-                    axios.get(`${config.API_BASE_URL}/device/client/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/worker/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/software/client/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/ticket/client/${clientId}`),
@@ -55,12 +55,14 @@ function OneClient() {
                 ]);
 
                 setClient(clientRes.data);
-                setDevices(deviceRes.data);
                 setWorkers(workerRes.data);
                 setSoftwareList(softwareRes.data);
                 setTickets(ticketsRes.data);
                 setMaintenances(maintenanceRes.data);
                 setActivities(activityRes.data);
+                setStatuses(statusesRes.data);
+
+                setOpenStatusId(statusesRes.data.find(status => status.status === "Open").id)
 
                 const fetchedStatuses = statusesRes.data;
                 // Create a map for statuses for faster lookup
@@ -171,6 +173,7 @@ function OneClient() {
                         <ClientDetails
                             clientId={clientId}
                             navigate={navigate}
+                            setRefresh={setRefresh}
                         />
                         <Accordion
                             activeKey={activeAccordionKeys}
@@ -179,7 +182,7 @@ function OneClient() {
 
                             <Accordion.Item eventKey="1" className="AccordionWorkers" ref={(el) => accordionRefs.current[1] = el}>
                                 <Accordion.Header onClick={() => handleAccordionToggle('1')}>Contacts</Accordion.Header>
-                                <Accordion.Body>
+                                <Accordion.Body className="custom-accordion-body">
                                     <ClientWorker
                                         workers={workers}
                                         client={client}
@@ -207,6 +210,8 @@ function OneClient() {
                                         clientName={client.fullName}
                                         locations={locations}
                                         contacts={workers}
+                                        statuses={statuses}
+                                        openStatusId={openStatusId}
                                     />
                                 </Accordion.Body>
 
@@ -229,10 +234,10 @@ function OneClient() {
                                 <Accordion.Header onClick={() => handleAccordionToggle('5')}>Devices</Accordion.Header>
                                 <Accordion.Body>
                                     <ClientDevices
-                                        devices={devices}
                                         client={client}
                                         clientId={clientId}
                                         setRefresh={setRefresh}
+                                        refresh={refresh}
                                         locations={locationsMap}
                                     />
                                 </Accordion.Body>
@@ -252,7 +257,7 @@ function OneClient() {
 
                             <Accordion.Item eventKey="7" className="AccordionTechnicalInfo" ref={(el) => accordionRefs.current[7] = el}>
                                 <Accordion.Header onClick={() => handleAccordionToggle('7')}>Technical Information</Accordion.Header>
-                                <Accordion.Body>
+                                <Accordion.Body className="custom-accordion-body">
                                     <SoftwareDetails
                                         softwareList={softwareList}
                                         clientId={clientId}
@@ -264,7 +269,7 @@ function OneClient() {
 
                             <Accordion.Item eventKey="8" className="AccordionThirdPartyITs" ref={(el) => accordionRefs.current[8] = el}>
                                 <Accordion.Header onClick={() => handleAccordionToggle('8')}>Third Party ITs</Accordion.Header>
-                                <Accordion.Body>
+                                <Accordion.Body className="custom-accordion-body">
                                     <ClientThirdPartyIT
                                         clientId={clientId}
                                         client={client}

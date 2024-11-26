@@ -195,6 +195,7 @@ function GenerateReportModal({ show, handleClose }) {
                             placeholderText="Select a start date"
                             isClearable
                             required
+                            maxDate={new Date()}
                         />
                     </Form.Group>
 
@@ -209,6 +210,7 @@ function GenerateReportModal({ show, handleClose }) {
                             placeholderText="Select an end date"
                             isClearable
                             required
+                            maxDate={new Date()}
                         />
                     </Form.Group>
 

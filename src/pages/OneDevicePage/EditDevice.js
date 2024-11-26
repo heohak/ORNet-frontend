@@ -5,6 +5,9 @@ import axios from 'axios';
 import { Modal, Form, Button, Alert, Row, Col } from 'react-bootstrap';
 import config from "../../config/config";
 import { format } from 'date-fns';
+import ReactDatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+
 
 function EditDevice({ deviceId, onClose, setRefresh }) {
     const [show, setShow] = useState(true);
@@ -18,12 +21,12 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
         serialNumber: '',
         licenseNumber: '',
         version: '',
-        versionUpdateDate: '',
+        versionUpdateDate: null,
         firstIPAddress: '',
         secondIPAddress: '',
         subnetMask: '',
         softwareKey: '',
-        introducedDate: '',
+        introducedDate: null,
         attributes: {} // Initialize attributes here
     });
     const [clients, setClients] = useState([]);
@@ -36,11 +39,20 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
         const fetchDeviceData = async () => {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/device/${deviceId}`);
-                setDeviceData(response.data);
+                const data = response.data;
+                // Convert date strings to Date objects
+                const versionUpdateDate = data.versionUpdateDate ? new Date(data.versionUpdateDate) : null;
+                const introducedDate = data.introducedDate ? new Date(data.introducedDate) : null;
+                setDeviceData({
+                    ...data,
+                    versionUpdateDate,
+                    introducedDate,
+                });
             } catch (error) {
                 setError(error.message);
             }
         };
+
 
         const fetchDropdownData = async () => {
             try {
@@ -97,7 +109,13 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(`${config.API_BASE_URL}/device/update/${deviceId}`, deviceData);
+            const updatedDeviceData = {
+                ...deviceData,
+                versionUpdateDate: deviceData.versionUpdateDate ? format(deviceData.versionUpdateDate, 'yyyy-MM-dd') : null,
+                introducedDate: deviceData.introducedDate ? format(deviceData.introducedDate, 'yyyy-MM-dd') : null,
+            };
+
+            await axios.put(`${config.API_BASE_URL}/device/update/${deviceId}`, updatedDeviceData);
             if (setRefresh) {
                 setRefresh(prev => !prev);
             }
@@ -106,6 +124,7 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
             setError(error.message);
         }
     };
+
 
     const handleClose = () => {
         setShow(false);
@@ -286,25 +305,33 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
                             <Col md={6}>
                                 <Form.Group>
                                     <Form.Label>Version Update Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="versionUpdateDate"
-                                        value={deviceData.versionUpdateDate}
-                                        onChange={handleInputChange}
+                                    <ReactDatePicker
+                                        selected={deviceData.versionUpdateDate}
+                                        onChange={(date) => setDeviceData({ ...deviceData, versionUpdateDate: date })}
+                                        dateFormat="dd/MM/yyyy"
+                                        className="form-control dark-placeholder"
+                                        placeholderText="Select Version Update Date"
+                                        maxDate={new Date()}
+                                        isClearable
                                     />
                                 </Form.Group>
+
                             </Col>
                             <Col md={6}>
                                 <Form.Group>
                                     <Form.Label>Introduced Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="introducedDate"
-                                        value={deviceData.introducedDate}
-                                        onChange={handleInputChange}
-                                        max={today}
+                                    <ReactDatePicker
+                                        selected={deviceData.introducedDate}
+                                        onChange={(date) => setDeviceData({ ...deviceData, introducedDate: date })}
+                                        dateFormat="dd/MM/yyyy"
+                                        className="form-control dark-placeholder"
+                                        placeholderText="Select Introduced Date"
+                                        maxDate={new Date()}
+                                        isClearable
+                                        required
                                     />
                                 </Form.Group>
+
                             </Col>
                         </Row>
 

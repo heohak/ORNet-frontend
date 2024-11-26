@@ -167,7 +167,7 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
                 </Col>
             </Row>
 
-            <Form className="mb-3">
+            <Form className="mb-3" onSubmit={(e) => e.preventDefault()}>
                 <Row className="align-items-end">
                     <Col md={3}>
                         <Form.Group controlId="search">

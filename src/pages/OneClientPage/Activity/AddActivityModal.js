@@ -32,6 +32,8 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
     const [devices, setDevices] = useState([]);
     const [selectedWorkTypes, setSelectedWorkTypes] = useState([]);
     const [error, setError] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
 
     const handleDateChange = (date) => {
         setFormData(prevData => ({
@@ -107,6 +109,8 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         setError(null);
         try {
             let newActivity = {
@@ -126,6 +130,8 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
 
         } catch (err) {
             setError(err.message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -348,7 +354,9 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                         <Button variant="outline-info" onClick={handleClose}>
                             Cancel
                         </Button>
-                        <Button variant="primary" type="submit">Submit</Button>
+                        <Button variant="primary" disabled={isSubmitting} type="submit">
+                            {isSubmitting ? 'Submitting..' : 'Submit'}
+                        </Button>
                     </Modal.Footer>
                 </Form>
             </Modal.Body>

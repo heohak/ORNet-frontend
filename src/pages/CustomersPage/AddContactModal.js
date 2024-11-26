@@ -66,6 +66,7 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
             title,
             locationId: selectedLocation.value,
             roles: selectedRoles.map(role => ({ id: role.value, role: role.label })),
+            label: `${firstName} ${lastName}`
         };
         try {
             onSave(newContact);
