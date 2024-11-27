@@ -56,7 +56,7 @@ function OneClient() {
 
                 setClient(clientRes.data);
                 setWorkers(workerRes.data);
-                setSoftwareList(softwareRes.data);
+                setSoftwareList(softwareRes.data.sort((a, b) => a.name.localeCompare(b.name)));
                 setTickets(ticketsRes.data);
                 setMaintenances(maintenanceRes.data);
                 setActivities(activityRes.data);

@@ -12,7 +12,7 @@ function DeviceSearchFilter({ setDevices }) {
     const [writtenOff, setWrittenOff] = useState(false);
     const [classificators, setClassificators] = useState([]);
     const [clients, setClients] = useState([]);
-    const [locations, setLocations] = useState([])
+    const [locations, setLocations] = useState([]) //Displays locations for specific customer if chosen
     const [allLocations, setAllLocations] = useState([]);
     const [error, setError] = useState(null);
     const [typingTimeout, setTypingTimeout] = useState(null);
@@ -21,7 +21,8 @@ function DeviceSearchFilter({ setDevices }) {
         const fetchClassificators = async () => {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/device/classificator/all`);
-                setClassificators(response.data);
+                const sortedClassificators = response.data.sort((a, b) => a.name.localeCompare(b.name))
+                setClassificators(sortedClassificators);
             } catch (error) {
                 console.error('Error fetching classificators:', error);
                 setError(error.message);
@@ -31,7 +32,8 @@ function DeviceSearchFilter({ setDevices }) {
         const fetchClients = async () => {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/client/all`);
-                setClients(response.data);
+                const sortedCustomers = response.data.sort((a, b) => a.shortName.localeCompare(b.shortName))
+                setClients(sortedCustomers);
             } catch (error) {
                 console.error('Error fetching clients:', error);
                 setError(error.message);
@@ -41,8 +43,9 @@ function DeviceSearchFilter({ setDevices }) {
         const fetchAllLocations = async () => {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/location/all`);
-                setAllLocations(response.data); // Store all locations initially
-                setLocations(response.data); // Display all locations initially
+                const sortedLocations = response.data.sort((a, b) => a.name.localeCompare(b.name))
+                setAllLocations(sortedLocations); // Store all locations initially
+                setLocations(sortedLocations); // Displays all locations for now
             } catch (error) {
                 console.error('Error fetching locations: ', error);
                 setError(error.message);
@@ -59,7 +62,8 @@ function DeviceSearchFilter({ setDevices }) {
             if (clientId) {
                 try {
                     const response = await axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`);
-                    setLocations(response.data);
+                    const sortedLocations = response.data.sort((a, b) => a.name.localeCompare(b.name))
+                    setLocations(sortedLocations);
                 } catch (error) {
                     console.error('Error fetching client locations:', error);
                     setError(error.message);
