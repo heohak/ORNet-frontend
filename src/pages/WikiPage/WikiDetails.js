@@ -54,7 +54,10 @@ function WikiDetails() {
                     <Card.Title>Problem</Card.Title>
                     <Card.Text>{wiki.problem}</Card.Text>
                     <Card.Title>Solution</Card.Title>
-                    <Card.Text>{wiki.solution}</Card.Text>
+                    {/* Preserve text formatting using <pre> */}
+                    <pre style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
+                        {wiki.solution}
+                    </pre>
                     <Button onClick={() => navigate(-1)}>Back</Button>
                 </Card.Body>
             </Card>
