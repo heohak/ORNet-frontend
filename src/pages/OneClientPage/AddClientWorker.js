@@ -1,12 +1,12 @@
 // src/components/AddClientWorker.js
 
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from 'axios';
-import { Modal, Form, Button, Alert } from 'react-bootstrap';
+import {Alert, Button, Form, Modal} from 'react-bootstrap';
 import Select from 'react-select';
 import config from "../../config/config";
 
-function AddClientWorker({ show, onClose, clientId, onSuccess }) {
+function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
@@ -30,8 +30,13 @@ function AddClientWorker({ show, onClose, clientId, onSuccess }) {
                     axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`),
                     axios.get(`${config.API_BASE_URL}/worker/classificator/all`)
                 ]);
-                setLocations(locationsResponse.data.map(loc => ({ value: loc.id, label: loc.name })));
-                setRoles(rolesResponse.data.map(role => ({ value: role.id, label: role.role })));
+                const locMap = locationsResponse.data.map(loc => ({ value: loc.id, label: loc.name }))
+                const sortedLoc = locMap.sort((a, b) => a.label.localeCompare(b.label))
+                setLocations(sortedLoc)
+
+                const rolesMap = rolesResponse.data.map(role => ({value: role.id, label: role.role}))
+                const sortedRoles = rolesMap.sort((a, b) => a.label.localeCompare(b.label))
+                setRoles(sortedRoles);
             } catch (error) {
                 setError(error.message);
             }
@@ -39,6 +44,11 @@ function AddClientWorker({ show, onClose, clientId, onSuccess }) {
 
         fetchData();
     }, [clientId]);
+
+    useEffect(() => {
+        const sortedRoles = roles.sort((a, b) => a.label.localeCompare(b.label))
+        setRoles(sortedRoles)
+    }, [selectedRoles.length])
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -130,8 +140,10 @@ function AddClientWorker({ show, onClose, clientId, onSuccess }) {
             console.error('Error adding role:', error);
         } finally {
             setIsSubmittingRole(false);
+            reFetchRoles();
         }
     };
+
 
     return (
         <>
