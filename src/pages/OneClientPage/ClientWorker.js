@@ -52,7 +52,9 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
     const fetchRoles = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/worker/classificator/all`);
-            setRoles(response.data.map(role => ({value: role.id, label: role.role})));
+            const rolesMap = response.data.map(role => ({value: role.id, label: role.role}))
+            const sortedRoles = rolesMap.sort((a, b) => a.label.localeCompare(b.label))
+            setRoles(sortedRoles);
         } catch (error) {
             console.error('Error fetching roles:', error);
         }
@@ -265,6 +267,7 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
                 onClose={() => setShowAddWorkerModal(false)}
                 clientId={clientId}
                 onSuccess={handleAddWorkerSuccess}
+                reFetchRoles={fetchRoles}
             />
             {selectedWorker && (
                 <EditWorkerModal
