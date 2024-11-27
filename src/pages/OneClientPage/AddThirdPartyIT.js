@@ -3,9 +3,10 @@ import axios from 'axios';
 import { Container, Form, Button, Alert, Modal } from 'react-bootstrap';
 import config from "../../config/config";
 import Select from 'react-select';
+import clientThirdPartyIT from "./ClientThirdPartyIT";
 
-function AddThirdPartyIT({ clientId,show,  onClose, setRefresh }) {
-    const [thirdParties, setThirdParties] = useState([]);
+function AddThirdPartyIT({ clientId, show, onClose, setRefresh, clientThirdParties }) {
+    const [availableThirdParties, setAvailableThirdParties] = useState([]);
     const [selectedThirdParty, setSelectedThirdParty] = useState(null);
     const [error, setError] = useState(null);
 
@@ -20,10 +21,22 @@ function AddThirdPartyIT({ clientId,show,  onClose, setRefresh }) {
         const fetchThirdParties = async () => {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/third-party/all`);
-                setThirdParties(response.data.map(thirdParty => ({ value: thirdParty.id, label: thirdParty.name })));
+
+                // Create a Set of IDs from clientThirdParties for faster lookups
+                const clientThirdPartySet = new Set(clientThirdParties.map(item => item.id));
+
+                // Filter out objects in response.data whose IDs are in clientThirdParties
+                const filteredList = response.data.filter(item => !clientThirdPartySet.has(item.id));
+
+                // Map the filtered list to the desired format for the dropdown
+                setAvailableThirdParties(filteredList.map(thirdParty => ({
+                    value: thirdParty.id,
+                    label: thirdParty.name
+                })));
             } catch (error) {
                 setError(error.message);
             }
+
         };
 
         fetchThirdParties();
@@ -49,6 +62,8 @@ function AddThirdPartyIT({ clientId,show,  onClose, setRefresh }) {
             setError(error.message);
         } finally {
             setIsSubmittingMainForm(false);
+            setAvailableThirdParties(prev => prev.filter(item => item.value !== selectedThirdParty.value));
+            setSelectedThirdParty(null);
         }
     };
 
@@ -86,7 +101,7 @@ function AddThirdPartyIT({ clientId,show,  onClose, setRefresh }) {
 
             const addedThirdParty = response.data;
             const newThirdPartyOption = { value: addedThirdParty.id, label: addedThirdParty.name };
-            setThirdParties(prevThirdParties => [...prevThirdParties, newThirdPartyOption]);
+            setAvailableThirdParties(prevThirdParties => [...prevThirdParties, newThirdPartyOption]);
             setSelectedThirdParty(newThirdPartyOption); // Automatically select the new third-party IT
             setNewThirdParty({ name: '', email: '', phone: '' });
             setShowThirdPartyModal(false);
@@ -114,7 +129,7 @@ function AddThirdPartyIT({ clientId,show,  onClose, setRefresh }) {
                     <Form.Group className="mb-3">
                         <Form.Label>Select Third-Party IT</Form.Label>
                         <Select
-                            options={thirdParties}
+                            options={availableThirdParties}
                             value={selectedThirdParty}
                             onChange={setSelectedThirdParty}
                             placeholder="Select a third-party IT"

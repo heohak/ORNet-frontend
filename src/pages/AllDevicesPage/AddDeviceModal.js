@@ -58,11 +58,20 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
         setError(null);
     };
 
+    const sortFunction = (listOfObjects, type) => {
+        if (type === "Client") {
+            return listOfObjects.sort((a, b) => a.shortName.localeCompare(b.shortName))
+        } else {
+        return listOfObjects.sort((a, b) => a.name.localeCompare(b.name)) // works if the objects have name
+        }
+    }
+
     useEffect(() => {
         const fetchClients = async () => {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/client/all`);
-                setClients(response.data);
+                const sortedClients = sortFunction(response.data, "Client")
+                setClients(sortedClients);
             } catch (error) {
                 setError(error.message);
             }
@@ -71,7 +80,8 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
         const fetchClassificators = async () => {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/device/classificator/all`);
-                setClassificators(response.data);
+                const sortedClassificators = sortFunction(response.data, "Classificator")
+                setClassificators(sortedClassificators);
             } catch (error) {
                 setError(error.message);
             }
@@ -80,8 +90,9 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
         const fetchPredefinedDeviceNames = async () => {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/predefined/names`);
+                const sortedPreDeviceNames = sortFunction(response.data, "PreDeviceName")
                 // Map the data to the format expected by react-select
-                const options = response.data.map((name) => ({
+                const options = sortedPreDeviceNames.map((name) => ({
                     value: name.name,
                     label: name.name,
                 }));
@@ -103,7 +114,8 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
         if (clientId) {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`);
-                setLocations(response.data);
+                const sortedLocations = sortFunction(response.data, "Location")
+                setLocations(sortedLocations);
             } catch (error) {
                 console.error('Error fetching locations:', error);
             }
@@ -165,12 +177,22 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
     };
 
     const handleClassificatorAdded = (newClassificator) => {
-        setClassificators((prev) => [...prev, newClassificator]);
+        setClassificators((prev) => {
+            // Combine the existing classificators with the new one
+            const updatedClassificators = [...prev, newClassificator];
+            // Sort the classificators using the sortFunction
+            return sortFunction(updatedClassificators, "Classificator");
+        });
         setDeviceClassificatorId(newClassificator.id);
     };
 
     const handleLocationAdded = (addedLocation) => {
-        setLocations((prevLocations) => [...prevLocations, addedLocation]);
+        setLocations((prev) => {
+            // Combine the existing classificators with the new one
+            const updatedLocations = [...prev, addedLocation];
+            // Sort the classificators using the sortFunction
+            return sortFunction(updatedLocations);
+        });
         setLocationId(addedLocation.id); // Optionally select the new location
     };
 

@@ -56,7 +56,7 @@ function OneClient() {
 
                 setClient(clientRes.data);
                 setWorkers(workerRes.data);
-                setSoftwareList(softwareRes.data);
+                setSoftwareList(softwareRes.data.sort((a, b) => a.name.localeCompare(b.name)));
                 setTickets(ticketsRes.data);
                 setMaintenances(maintenanceRes.data);
                 setActivities(activityRes.data);
@@ -236,8 +236,6 @@ function OneClient() {
                                     <ClientDevices
                                         client={client}
                                         clientId={clientId}
-                                        setRefresh={setRefresh}
-                                        refresh={refresh}
                                         locations={locationsMap}
                                     />
                                 </Accordion.Body>

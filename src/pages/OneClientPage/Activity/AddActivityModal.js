@@ -20,7 +20,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
         baitNumeration: '',
         clientNumeration: '',
         contactIds: [],
-        deviceId: undefined,
+        deviceIds: [],
         endDateTime: null,
     });
 
@@ -96,15 +96,30 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
     }, [formData.clientId]);
 
     const handleChange = (e) => {
-        const {id, value } = e.target;
+        const { id, value } = e.target;
         let newValue = value;
-        if (id === 'contactIds') {
-            newValue = [value];
-        } else if (id === 'crisis') {
+        if (id === 'crisis') {
             newValue = parseInt(value);
         }
-        setFormData( prevData => ({...prevData, [id]: newValue}));
+        setFormData(prevData => ({ ...prevData, [id]: newValue }));
     };
+
+
+    const handleContactChange = (selectedOptions) => {
+        setFormData((prevData) => ({
+            ...prevData,
+            contactIds: selectedOptions.map((contact) => contact.id),
+        }));
+    };
+
+    const handleDeviceChange = (selectedOptions) => {
+        setFormData((prevData) => ({
+            ...prevData,
+            deviceIds: selectedOptions.map((device) => device.id),
+        }));
+    };
+
+
 
 
     const handleSubmit = async (e) => {
@@ -117,9 +132,10 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                 ...formData,
                 statusId: openStatusId,
                 workTypeIds: selectedWorkTypes.map(option => option.value),
+                contactIds: formData.contactIds,
+                deviceIds: formData.deviceIds,
                 crisis: formData.crisis === 1,
                 endDateTime: new Date(formData.endDateTime),
-                ...(formData.deviceId ? { deviceIds: [formData.deviceId] } : {})
             };
 
             await axios.post(`${config.API_BASE_URL}/client-activity/add`, newActivity);
@@ -148,7 +164,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
             baitNumeration: '',
             clientNumeration: '',
             contactIds: [],
-            deviceId: undefined,
+            deviceIds: [],
             endDateTime: null,
         }); // Reset form fields
         setSelectedWorkTypes([]); // Reset selected work types
@@ -212,29 +228,22 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                         </Col>
                         <Col md={4}>
                             <Form.Group className="mb-3">
-                                <div className="d-flex mb-2">
-                                    <Form.Label className="align-items-centre mb-0">Contact</Form.Label>
-                                </div>
-                                <Form.Control
-                                    as="select"
-                                    value={formData.contactIds[0] || ""}
-                                    onChange={handleChange}
-                                    id="contactIds"
-                                    disabled={!formData.clientId}
-                                    required
-                                >
-                                    <>
-                                        <option value="">Select a Contact</option>
-                                        {contacts.map(contact => (
-                                            <option key={contact.id} value={contact.id}>
-                                                {contact.favorite ? "★ " : ""}
-                                                {contact.firstName + " " + contact.lastName}
-                                                {contact.roles && contact.roles.length > 0 && ` - Roles: ${contact.roles.join(", ")}`}
-                                            </option>
-                                        ))}
-                                    </>
-                                </Form.Control>
+                                <Form.Label>Contacts</Form.Label>
+                                <Select
+                                    isMulti
+                                    options={contacts}
+                                    getOptionLabel={(option) =>
+                                        `${option.favorite ? "★ " : ""}${option.firstName} ${option.lastName}`
+                                    }
+                                    getOptionValue={(option) => option.id}
+                                    value={contacts.filter((contact) =>
+                                        formData.contactIds.includes(contact.id)
+                                    )}
+                                    onChange={handleContactChange}
+                                    placeholder="Select contacts"
+                                />
                             </Form.Group>
+
                         </Col>
                     </Row>
                     <Row>
@@ -252,24 +261,20 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                         </Col>
                         <Col md={4}>
                             <Form.Group className="mb-3">
-                                <Form.Label>Device</Form.Label>
-                                <Form.Control
-                                    as="select"
-                                    value={formData.deviceId}
-                                    onChange={handleChange}
-                                    id="deviceId"
-                                    disabled={!formData.clientId || devices.length === 0}
-                                >
-                                    <>
-                                        <option value="">Select a Device</option>
-                                        {devices.map((device) => (
-                                            <option key={device.id} value={device.id}>
-                                                {device.deviceName}
-                                            </option>
-                                        ))}
-                                    </>
-                                </Form.Control>
+                                <Form.Label>Devices</Form.Label>
+                                <Select
+                                    isMulti
+                                    options={devices}
+                                    getOptionLabel={(option) => option.deviceName}
+                                    getOptionValue={(option) => option.id}
+                                    value={devices.filter((device) =>
+                                        formData.deviceIds.includes(device.id)
+                                    )}
+                                    onChange={handleDeviceChange}
+                                    placeholder="Select devices"
+                                />
                             </Form.Group>
+
                         </Col>
                     </Row>
                     <Row>

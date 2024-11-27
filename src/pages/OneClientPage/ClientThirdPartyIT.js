@@ -19,7 +19,7 @@ function ClientThirdPartyIT({ clientId, client }) {
         const fetchThirdPartyITs = async () => {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/client/third-parties/${clientId}`);
-                setThirdPartyITs(response.data);
+                setThirdPartyITs(response.data.sort((a, b) => a.name.localeCompare(b.name)));
             } catch (error) {
                 setError(error.message);
             } finally {
@@ -90,6 +90,7 @@ function ClientThirdPartyIT({ clientId, client }) {
                 show={showAddModal}
                 onClose={() => setShowAddModal(false)}
                 setRefresh={setRefresh}
+                clientThirdParties={thirdPartyITs}
             />
         </>
     );
