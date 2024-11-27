@@ -44,15 +44,18 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
         fetchPredefinedDeviceNames();
     }, []);
 
+
     const fetchData = async () => {
         try {
             const [locationsRes, classificatorsRes] = await Promise.all([
                 axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`),
                 axios.get(`${config.API_BASE_URL}/device/classificator/all`)
             ]);
-
+            const sortedLocations = locationsRes.data.sort((a, b) => a.name.localeCompare(b.name))
             setLocations(locationsRes.data);
-            setClassificators(classificatorsRes.data);
+
+            const sortedClassificators = classificatorsRes.data.sort((a, b) => a.name.localeCompare(b.name))
+            setClassificators(sortedClassificators)
         } catch (error) {
             setError(error.message);
         }
@@ -149,6 +152,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
         } catch (error) {
             setError('Error adding Type (classificator).');
         } finally {
+            setRefresh(prev => !prev);
             setIsSubmittingClassificator(false);
         }
     };
@@ -216,9 +220,10 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                                 <Form.Group>
                                     <Form.Label>Location</Form.Label>
                                     <Select
+                                        isClearable
                                         options={locations.map(location => ({ value: location.id, label: location.name }))}
                                         value={locations.find(loc => loc.value === locationId)}
-                                        onChange={(selectedOption) => setLocationId(selectedOption.value)}
+                                        onChange={(selectedOption) => setLocationId(selectedOption ? selectedOption.value : '')}
                                         required
                                     />
                                 </Form.Group>
