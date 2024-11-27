@@ -75,7 +75,14 @@ function WorkerSearchFilter({setWorkers}) {
                     favorite: favorite || undefined
                 }
             });
-            const sortedWorkers = response.data.sort((a, b) => (a.favorite === b.favorite) ? 0 : a.favorite ? -1 : 1);
+            // Sort workers: favorites first, then alphabetically by first and last name
+            const sortedWorkers = response.data.sort((a, b) => {
+                if (a.favorite === b.favorite) {
+                    return (a.firstName + " " + a.lastName).localeCompare(b.firstName + " " + b.lastName);
+                }
+                return a.favorite ? -1 : 1; // Favorites come first
+            });
+
             setWorkers(sortedWorkers);
         } catch (error) {
             setError(error.message);
