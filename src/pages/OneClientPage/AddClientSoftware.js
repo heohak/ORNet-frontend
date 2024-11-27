@@ -39,7 +39,8 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
     const fetchSoftware = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/software/not-used`);
-            setSoftwareList(response.data.map(software => ({ value: software.id, label: software.name })));
+            const sortedSofts = response.data.sort((a, b) => a.name.localeCompare(b.name))
+            setSoftwareList(sortedSofts.map(software => ({ value: software.id, label: software.name })));
         } catch (error) {
             setError(error.message);
         }
