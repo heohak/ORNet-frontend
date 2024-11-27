@@ -7,7 +7,7 @@ import config from "../../config/config";
 import '../../css/OneClientPage/OneClient.css';
 
 
-function ClientDevices({clientId, setRefresh,refresh, locations}) {
+function ClientDevices({clientId, locations}) {
     const [showAddDeviceModal, setShowAddDeviceModal] = useState(false);
     const [classificatorList, setClassificatorList] = useState([]);
     const [classificators, setClassificators] = useState({});
@@ -18,6 +18,7 @@ function ClientDevices({clientId, setRefresh,refresh, locations}) {
     const [loadingSummary, setLoadingSummary] = useState(true);
     const [errorSummary, setErrorSummary] = useState(null);
     const [devices, setDevices] = useState([]);
+    const [refresh, setRefresh] = useState(false);
 
 
     const navigate = useNavigate();
@@ -29,13 +30,15 @@ function ClientDevices({clientId, setRefresh,refresh, locations}) {
 
     useEffect(() => {
         fetchDevices();
+        fetchClassificators();
     }, [clientId, refresh, selectedClassificatorId, searchQuery, writtenOff]);
 
 
     const fetchClassificators = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/device/classificator/all`);
-            setClassificatorList(response.data);
+            const sortedClassificators = response.data.sort((a, b) => a.name.localeCompare(b.name))
+            setClassificatorList(sortedClassificators);
             const classificatorMap = response.data.reduce((acc, classificator) => {
                 acc[classificator.id] = classificator.name;
                 return acc;

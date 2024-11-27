@@ -236,8 +236,6 @@ function OneClient() {
                                     <ClientDevices
                                         client={client}
                                         clientId={clientId}
-                                        setRefresh={setRefresh}
-                                        refresh={refresh}
                                         locations={locationsMap}
                                     />
                                 </Accordion.Body>
