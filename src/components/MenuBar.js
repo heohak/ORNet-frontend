@@ -10,15 +10,12 @@ const MenuBar = () => {
     return (
         <Navbar bg="light" expand="lg" fixed="top" className="navbar-custom">
             <Container>
-                <LinkContainer to="/">
+                <LinkContainer to="/customers">
                     <Navbar.Brand>BP CRM</Navbar.Brand>
                 </LinkContainer>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="me-auto" activeKey={location.pathname}>
-                        <LinkContainer to="/">
-                            <Nav.Link eventKey="/">Home</Nav.Link>
-                        </LinkContainer>
                         <LinkContainer to="/customers">
                             <Nav.Link eventKey="/customers">Customers</Nav.Link>
                         </LinkContainer>
@@ -28,14 +25,14 @@ const MenuBar = () => {
                         <LinkContainer to="/tickets">
                             <Nav.Link eventKey="/tickets">Tickets</Nav.Link>
                         </LinkContainer>
+                        <LinkContainer to="/contacts">
+                            <Nav.Link eventKey="/contacts">Email List</Nav.Link>
+                        </LinkContainer>
                         <LinkContainer to="/wiki">
                             <Nav.Link eventKey="/wiki">Wiki</Nav.Link>
                         </LinkContainer>
                         <LinkContainer to="/settings">
                             <Nav.Link eventKey="/settings">Settings</Nav.Link>
-                        </LinkContainer>
-                        <LinkContainer to="/contacts">
-                            <Nav.Link eventKey="/contacts">Email List</Nav.Link>
                         </LinkContainer>
                     </Nav>
                 </Navbar.Collapse>

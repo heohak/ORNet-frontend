@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Form, Button, Alert } from 'react-bootstrap';
+import { Modal, Form, Button, Alert, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
 import config from '../../config/config';
 import ReactDatePicker from 'react-datepicker';
@@ -175,184 +175,231 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                     {/* HIS */}
                     <Form.Group className="mb-3">
                         <Form.Label>HIS</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Vendor Name"
-                            value={his.vendorName}
-                            onChange={(e) => setHis({ ...his, vendorName: e.target.value })}
-                        />
-                        <Form.Control
-                            type="text"
-                            placeholder="Version"
-                            value={his.version}
-                            onChange={(e) => setHis({ ...his, version: e.target.value })}
-                            className="mt-2"
-                        />
-                        <ReactDatePicker
-                            selected={his.updateDate}
-                            onChange={(date) => setHis({ ...his, updateDate: date })}
-                            dateFormat="dd/MM/yyyy"
-                            className="form-control dark-placeholder mt-2"
-                            placeholderText="Select Update Date"
-                            maxDate={new Date()}
-                            isClearable
-                        />
+                        <Row>
+                            <Col md={4}>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Vendor Name"
+                                    value={his.vendorName}
+                                    onChange={(e) => setHis({ ...his, vendorName: e.target.value })}
+                                />
+                            </Col>
+                            <Col md={4}>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Version"
+                                    value={his.version}
+                                    onChange={(e) => setHis({ ...his, version: e.target.value })}
+                                />
+                            </Col>
+                            <Col md={4}>
+                                <ReactDatePicker
+                                    selected={his.updateDate}
+                                    onChange={(date) => setHis({ ...his, updateDate: date })}
+                                    dateFormat="dd/MM/yyyy"
+                                    className="form-control dark-placeholder"
+                                    placeholderText="Update Date"
+                                    maxDate={new Date()}
+                                    isClearable
+                                />
+                            </Col>
+                        </Row>
                     </Form.Group>
 
-                    {/* Repeat similar blocks for PACS, DICOM, HL7, LIS, etc. */}
                     {/* PACS */}
                     <Form.Group className="mb-3">
                         <Form.Label>PACS</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Vendor Name"
-                            value={pacs.vendorName}
-                            onChange={(e) => setPacs({ ...pacs, vendorName: e.target.value })}
-                        />
-                        <Form.Control
-                            type="text"
-                            placeholder="Version"
-                            value={pacs.version}
-                            onChange={(e) => setPacs({ ...pacs, version: e.target.value })}
-                            className="mt-2"
-                        />
-                        <ReactDatePicker
-                            selected={pacs.updateDate}
-                            onChange={(date) => setPacs({ ...pacs, updateDate: date })}
-                            dateFormat="dd/MM/yyyy"
-                            className="form-control dark-placeholder mt-2"
-                            placeholderText="Select Update Date"
-                            maxDate={new Date()}
-                            isClearable
-                        />
+                        <Row>
+                            <Col md={4}>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Vendor Name"
+                                    value={pacs.vendorName}
+                                    onChange={(e) => setPacs({ ...pacs, vendorName: e.target.value })}
+                                />
+                            </Col>
+                            <Col md={4}>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Version"
+                                    value={pacs.version}
+                                    onChange={(e) => setPacs({ ...pacs, version: e.target.value })}
+                                />
+                            </Col>
+                            <Col md={4}>
+                                <ReactDatePicker
+                                    selected={pacs.updateDate}
+                                    onChange={(date) => setPacs({ ...pacs, updateDate: date })}
+                                    dateFormat="dd/MM/yyyy"
+                                    className="form-control dark-placeholder"
+                                    placeholderText="Update Date"
+                                    maxDate={new Date()}
+                                    isClearable
+                                />
+                            </Col>
+                        </Row>
                     </Form.Group>
 
                     {/* DICOM */}
                     <Form.Group className="mb-3">
                         <Form.Label>DICOM</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Vendor Name"
-                            value={dicom.vendorName}
-                            onChange={(e) => setDicom({ ...dicom, vendorName: e.target.value })}
-                        />
-                        <Form.Control
-                            type="text"
-                            placeholder="Version"
-                            value={dicom.version}
-                            onChange={(e) => setDicom({ ...dicom, version: e.target.value })}
-                            className="mt-2"
-                        />
-                        <ReactDatePicker
-                            selected={dicom.updateDate}
-                            onChange={(date) => setDicom({ ...dicom, updateDate: date })}
-                            dateFormat="dd/MM/yyyy"
-                            className="form-control dark-placeholder mt-2"
-                            placeholderText="Select Update Date"
-                            maxDate={new Date()}
-                            isClearable
-                        />
+                        <Row>
+                            <Col md={4}>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Vendor Name"
+                                    value={dicom.vendorName}
+                                    onChange={(e) => setDicom({ ...dicom, vendorName: e.target.value })}
+                                />
+                            </Col>
+                            <Col md={4}>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Version"
+                                    value={dicom.version}
+                                    onChange={(e) => setDicom({ ...dicom, version: e.target.value })}
+                                />
+                            </Col>
+                            <Col md={4}>
+                                <ReactDatePicker
+                                    selected={dicom.updateDate}
+                                    onChange={(date) => setDicom({ ...dicom, updateDate: date })}
+                                    dateFormat="dd/MM/yyyy"
+                                    className="form-control dark-placeholder"
+                                    placeholderText="Update Date"
+                                    maxDate={new Date()}
+                                    isClearable
+                                />
+                            </Col>
+                        </Row>
                     </Form.Group>
 
                     {/* HL7 */}
                     <Form.Group className="mb-3">
                         <Form.Label>HL7</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Vendor Name"
-                            value={hl7.vendorName}
-                            onChange={(e) => setHl7({ ...hl7, vendorName: e.target.value })}
-                        />
-                        <Form.Control
-                            type="text"
-                            placeholder="Version"
-                            value={hl7.version}
-                            onChange={(e) => setHl7({ ...hl7, version: e.target.value })}
-                            className="mt-2"
-                        />
-                        <ReactDatePicker
-                            selected={hl7.updateDate}
-                            onChange={(date) => setHl7({ ...hl7, updateDate: date })}
-                            dateFormat="dd/MM/yyyy"
-                            className="form-control dark-placeholder mt-2"
-                            placeholderText="Select Update Date"
-                            maxDate={new Date()}
-                            isClearable
-                        />
+                        <Row>
+                            <Col md={4}>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Vendor Name"
+                                    value={hl7.vendorName}
+                                    onChange={(e) => setHl7({ ...hl7, vendorName: e.target.value })}
+                                />
+                            </Col>
+                            <Col md={4}>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Version"
+                                    value={hl7.version}
+                                    onChange={(e) => setHl7({ ...hl7, version: e.target.value })}
+                                />
+                            </Col>
+                            <Col md={4}>
+                                <ReactDatePicker
+                                    selected={hl7.updateDate}
+                                    onChange={(date) => setHl7({ ...hl7, updateDate: date })}
+                                    dateFormat="dd/MM/yyyy"
+                                    className="form-control dark-placeholder"
+                                    placeholderText="Update Date"
+                                    maxDate={new Date()}
+                                    isClearable
+                                />
+                            </Col>
+                        </Row>
                     </Form.Group>
 
                     {/* LIS */}
                     <Form.Group className="mb-3">
                         <Form.Label>LIS</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Vendor Name"
-                            value={lis.vendorName}
-                            onChange={(e) => setLis({ ...lis, vendorName: e.target.value })}
-                        />
-                        <Form.Control
-                            type="text"
-                            placeholder="Version"
-                            value={lis.version}
-                            onChange={(e) => setLis({ ...lis, version: e.target.value })}
-                            className="mt-2"
-                        />
-                        <ReactDatePicker
-                            selected={lis.updateDate}
-                            onChange={(date) => setLis({ ...lis, updateDate: date })}
-                            dateFormat="dd/MM/yyyy"
-                            className="form-control dark-placeholder mt-2"
-                            placeholderText="Select Update Date"
-                            maxDate={new Date()}
-                            isClearable
-                        />
+                        <Row>
+                            <Col md={4}>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Vendor Name"
+                                    value={lis.vendorName}
+                                    onChange={(e) => setLis({ ...lis, vendorName: e.target.value })}
+                                />
+                            </Col>
+                            <Col md={4}>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Version"
+                                    value={lis.version}
+                                    onChange={(e) => setLis({ ...lis, version: e.target.value })}
+                                />
+                            </Col>
+                            <Col md={4}>
+                                <ReactDatePicker
+                                    selected={lis.updateDate}
+                                    onChange={(date) => setLis({ ...lis, updateDate: date })}
+                                    dateFormat="dd/MM/yyyy"
+                                    className="form-control dark-placeholder"
+                                    placeholderText="Update Date"
+                                    maxDate={new Date()}
+                                    isClearable
+                                />
+                            </Col>
+                        </Row>
                     </Form.Group>
 
                     {/* Return Images to LIS */}
                     <Form.Group className="mb-3">
                         <Form.Label>Return Images to LIS</Form.Label>
-                        <Form.Check
-                            type="checkbox"
-                            label="To Return"
-                            checked={returnImagesToLIS.toReturn}
-                            onChange={(e) => setReturnImagesToLIS({ ...returnImagesToLIS, toReturn: e.target.checked })}
-                        />
-                        <Form.Control
-                            type="text"
-                            placeholder="Link"
-                            value={returnImagesToLIS.link}
-                            onChange={(e) => setReturnImagesToLIS({ ...returnImagesToLIS, link: e.target.value })}
-                            className="mt-2"
-                        />
-                        <ReactDatePicker
-                            selected={returnImagesToLIS.updateDate}
-                            onChange={(date) => setReturnImagesToLIS({ ...returnImagesToLIS, updateDate: date })}
-                            dateFormat="dd/MM/yyyy"
-                            className="form-control dark-placeholder mt-2"
-                            placeholderText="Select Update Date"
-                            maxDate={new Date()}
-                            isClearable
-                        />
+                        <Row>
+                            <Col md={4}>
+                                <Form.Check
+                                    type="checkbox"
+                                    label="To Return"
+                                    checked={returnImagesToLIS.toReturn}
+                                    onChange={(e) => setReturnImagesToLIS({ ...returnImagesToLIS, toReturn: e.target.checked })}
+                                />
+                            </Col>
+                            <Col md={4}>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Link"
+                                    value={returnImagesToLIS.link}
+                                    onChange={(e) => setReturnImagesToLIS({ ...returnImagesToLIS, link: e.target.value })}
+                                />
+                            </Col>
+                            <Col md={4}>
+                                <ReactDatePicker
+                                    selected={returnImagesToLIS.updateDate}
+                                    onChange={(date) => setReturnImagesToLIS({ ...returnImagesToLIS, updateDate: date })}
+                                    dateFormat="dd/MM/yyyy"
+                                    className="form-control dark-placeholder"
+                                    placeholderText="Update Date"
+                                    maxDate={new Date()}
+                                    isClearable
+                                />
+                            </Col>
+                        </Row>
                     </Form.Group>
 
                     {/* ORNetAPI */}
                     <Form.Group className="mb-3">
                         <Form.Label>ORNetAPI</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Version"
-                            value={orNetAPI.version}
-                            onChange={(e) => setOrNetAPI({ ...orNetAPI, version: e.target.value })}
-                        />
-                        <ReactDatePicker
-                            selected={orNetAPI.updateDate}
-                            onChange={(date) => setOrNetAPI({ ...orNetAPI, updateDate: date })}
-                            dateFormat="dd/MM/yyyy"
-                            className="form-control dark-placeholder mt-2"
-                            placeholderText="Select Update Date"
-                            maxDate={new Date()}
-                            isClearable
-                        />
+                        <Row>
+                            <Col md={6}>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Version"
+                                    value={orNetAPI.version}
+                                    onChange={(e) => setOrNetAPI({ ...orNetAPI, version: e.target.value })}
+                                />
+                            </Col>
+                            <Col md={6}>
+                                <ReactDatePicker
+                                    selected={orNetAPI.updateDate}
+                                    onChange={(date) => setOrNetAPI({ ...orNetAPI, updateDate: date })}
+                                    dateFormat="dd/MM/yyyy"
+                                    className="form-control dark-placeholder"
+                                    placeholderText="Update Date"
+                                    maxDate={new Date()}
+                                    isClearable
+                                />
+                            </Col>
+                        </Row>
                     </Form.Group>
 
                     {/* Txt Integration Date */}
@@ -363,7 +410,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                             onChange={(date) => setTxtIntegrationDate(date)}
                             dateFormat="dd/MM/yyyy"
                             className="form-control dark-placeholder"
-                            placeholderText="Select Integration Date"
+                            placeholderText="Integration Date"
                             maxDate={new Date()}
                             isClearable
                         />
@@ -372,88 +419,113 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                     {/* CustomerAPI */}
                     <Form.Group className="mb-3">
                         <Form.Label>CustomerAPI</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Vendor Name"
-                            value={customerAPI.vendorName}
-                            onChange={(e) => setCustomerAPI({ ...customerAPI, vendorName: e.target.value })}
-                        />
-                        <Form.Control
-                            type="text"
-                            placeholder="Version"
-                            value={customerAPI.version}
-                            onChange={(e) => setCustomerAPI({ ...customerAPI, version: e.target.value })}
-                            className="mt-2"
-                        />
-                        <ReactDatePicker
-                            selected={customerAPI.updateDate}
-                            onChange={(date) => setCustomerAPI({ ...customerAPI, updateDate: date })}
-                            dateFormat="dd/MM/yyyy"
-                            className="form-control dark-placeholder mt-2"
-                            placeholderText="Select Update Date"
-                            maxDate={new Date()}
-                            isClearable
-                        />
+                        <Row>
+                            <Col md={4}>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Vendor Name"
+                                    value={customerAPI.vendorName}
+                                    onChange={(e) => setCustomerAPI({ ...customerAPI, vendorName: e.target.value })}
+                                />
+                            </Col>
+                            <Col md={4}>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Version"
+                                    value={customerAPI.version}
+                                    onChange={(e) => setCustomerAPI({ ...customerAPI, version: e.target.value })}
+                                />
+                            </Col>
+                            <Col md={4}>
+                                <ReactDatePicker
+                                    selected={customerAPI.updateDate}
+                                    onChange={(date) => setCustomerAPI({ ...customerAPI, updateDate: date })}
+                                    dateFormat="dd/MM/yyyy"
+                                    className="form-control dark-placeholder"
+                                    placeholderText="Update Date"
+                                    maxDate={new Date()}
+                                    isClearable
+                                />
+                            </Col>
+                        </Row>
                     </Form.Group>
 
                     {/* ORNetAPIClient */}
                     <Form.Group className="mb-3">
                         <Form.Label>ORNetAPIClient</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Version"
-                            value={orNetAPIClient.version}
-                            onChange={(e) => setOrNetAPIClient({ ...orNetAPIClient, version: e.target.value })}
-                        />
-                        <ReactDatePicker
-                            selected={orNetAPIClient.updateDate}
-                            onChange={(date) => setOrNetAPIClient({ ...orNetAPIClient, updateDate: date })}
-                            dateFormat="dd/MM/yyyy"
-                            className="form-control dark-placeholder mt-2"
-                            placeholderText="Select Update Date"
-                            maxDate={new Date()}
-                            isClearable
-                        />
+                        <Row>
+                            <Col md={6}>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Version"
+                                    value={orNetAPIClient.version}
+                                    onChange={(e) => setOrNetAPIClient({ ...orNetAPIClient, version: e.target.value })}
+                                />
+                            </Col>
+                            <Col md={6}>
+                                <ReactDatePicker
+                                    selected={orNetAPIClient.updateDate}
+                                    onChange={(date) => setOrNetAPIClient({ ...orNetAPIClient, updateDate: date })}
+                                    dateFormat="dd/MM/yyyy"
+                                    className="form-control dark-placeholder"
+                                    placeholderText="Update Date"
+                                    maxDate={new Date()}
+                                    isClearable
+                                />
+                            </Col>
+                        </Row>
                     </Form.Group>
 
                     {/* ConsultationModule */}
                     <Form.Group className="mb-3">
                         <Form.Label>ConsultationModule</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Version"
-                            value={consultationModule.version}
-                            onChange={(e) => setConsultationModule({ ...consultationModule, version: e.target.value })}
-                        />
-                        <ReactDatePicker
-                            selected={consultationModule.updateDate}
-                            onChange={(date) => setConsultationModule({ ...consultationModule, updateDate: date })}
-                            dateFormat="dd/MM/yyyy"
-                            className="form-control dark-placeholder mt-2"
-                            placeholderText="Select Update Date"
-                            maxDate={new Date()}
-                            isClearable
-                        />
+                        <Row>
+                            <Col md={6}>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Version"
+                                    value={consultationModule.version}
+                                    onChange={(e) => setConsultationModule({ ...consultationModule, version: e.target.value })}
+                                />
+                            </Col>
+                            <Col md={6}>
+                                <ReactDatePicker
+                                    selected={consultationModule.updateDate}
+                                    onChange={(date) => setConsultationModule({ ...consultationModule, updateDate: date })}
+                                    dateFormat="dd/MM/yyyy"
+                                    className="form-control dark-placeholder"
+                                    placeholderText="Update Date"
+                                    maxDate={new Date()}
+                                    isClearable
+                                />
+                            </Col>
+                        </Row>
                     </Form.Group>
 
                     {/* AIModule */}
                     <Form.Group className="mb-3">
                         <Form.Label>AIModule</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Version"
-                            value={aiModule.version}
-                            onChange={(e) => setAiModule({ ...aiModule, version: e.target.value })}
-                        />
-                        <ReactDatePicker
-                            selected={aiModule.updateDate}
-                            onChange={(date) => setAiModule({ ...aiModule, updateDate: date })}
-                            dateFormat="dd/MM/yyyy"
-                            className="form-control dark-placeholder mt-2"
-                            placeholderText="Select Update Date"
-                            maxDate={new Date()}
-                            isClearable
-                        />
+                        <Row>
+                            <Col md={6}>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Version"
+                                    value={aiModule.version}
+                                    onChange={(e) => setAiModule({ ...aiModule, version: e.target.value })}
+                                />
+                            </Col>
+                            <Col md={6}>
+                                <ReactDatePicker
+                                    selected={aiModule.updateDate}
+                                    onChange={(date) => setAiModule({ ...aiModule, updateDate: date })}
+                                    dateFormat="dd/MM/yyyy"
+                                    className="form-control dark-placeholder"
+                                    placeholderText="Update Date"
+                                    maxDate={new Date()}
+                                    isClearable
+                                />
+                            </Col>
+                        </Row>
                     </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>

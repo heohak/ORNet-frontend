@@ -1,9 +1,16 @@
-.settings-button {
-    width: 200px; /* Full width in the column */
-    height: 40px; /* Shorter height */
-    font-size: 14px; /* Adjust the font size for compactness */
-    padding: 5px; /* Reduce padding */
+/* Settings.css */
+
+.settings-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: none;
 }
 
+.settings-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
 
-
+.settings-icon {
+    font-size: 2rem;
+    color: #007bff;
+}
