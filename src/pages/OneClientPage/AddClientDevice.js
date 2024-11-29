@@ -395,11 +395,11 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
             {/* Add Type Modal */}
             <Modal show={showClassificatorModal} onHide={() => setShowClassificatorModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Add New Type</Modal.Title>
+                    <Modal.Title>Add Device Type</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form.Group className="mb-3">
-                        <Form.Label>Type Name</Form.Label>
+                        <Form.Label>Device Type Name</Form.Label>
                         <Form.Control
                             type="text"
                             value={newClassificator}

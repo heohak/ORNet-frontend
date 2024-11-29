@@ -5,7 +5,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import MenuBar from './components/MenuBar';
 import Footer from './components/Footer';
 import Customers from './pages/CustomersPage/Customers';
-import Home from './pages/HomePage/Home';
 import ClientDevices from './pages/OneClientPage/ClientDevices';
 import Tickets from './pages/TicketsPage/Tickets';
 import AddClientWorker from './pages/OneClientPage/AddClientWorker';
@@ -52,7 +51,6 @@ function App() {
                 <MenuBar />
                 <main className="flex-grow-1">
                     <Routes>
-                        <Route path="/" element={<Home />} />
                         <Route path="/customers" element={<Customers />} />
                         <Route path="/clients/:clientId/devices" element={<ClientDevices />} />
                         <Route path="/tickets" element={<Tickets />} />

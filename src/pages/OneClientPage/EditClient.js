@@ -6,6 +6,7 @@ import { Form, Button, Alert, ListGroup, Row, Col, Modal, Badge } from 'react-bo
 import config from '../../config/config';
 import { validatePhoneAndPostalCode } from '../../utils/Validation';
 import AddThirdPartyITModal from "./AddThirdPartyITModal";
+import AddLocationModal from "./AddLocationModal";
 import AsyncSelect from "react-select/async";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTimes} from "@fortawesome/free-solid-svg-icons";
@@ -34,22 +35,10 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
     });
     const [allThirdPartyITs, setAllThirdPartyITs] = useState([]);
     const [showThirdPartyITModal, setShowThirdPartyITModal] = useState(false);
-    const [newLocation, setNewLocation] = useState({
-        name: '',
-        city: '',
-        country: '',
-        email: '',
-        postalCode: '',
-        streetAddress: '',
-        phone: ''
-    });
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [error, setError] = useState(null);
     const [allLocations, setAllLocations] = useState([]);
-    const [phoneNumberError, setPhoneNumberError] = useState('');
-    const [postalCodeError, setPostalCodeError] = useState('');
     const errorRef = useRef(null);
-    const [isSubmittingLocation, setIsSubmittingLocation] = useState(false);
     const [selectedCountry, setSelectedCountry] = useState(null);
     const [showModal, setShowModal] = useState(true);
     const [assignedSoftwares, setAssignedSoftwares] = useState([]);
@@ -205,6 +194,17 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             locationIds: clientData.locationIds.filter((id) => id !== locationId),
         });
     };
+
+    // Handler for adding a new location
+    const handleAddLocation = (addedLocation) => {
+        setAllLocations(prevLocations => [...prevLocations, addedLocation]);
+        setClientData(prevData => ({
+            ...prevData,
+            locations: [...prevData.locations, addedLocation],
+            locationIds: [...prevData.locationIds, addedLocation.id],
+        }));
+    };
+
     const handleUnassignSoftware = async (softwareId) => {
         try {
             await axios.put(`${config.API_BASE_URL}/software/remove/${softwareId}`);
@@ -226,57 +226,6 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
 
 
 
-    // Handler for adding a new location
-    const handleAddLocation = async (e) => {
-        e.preventDefault();
-        if (isSubmittingLocation) return;
-        setIsSubmittingLocation(true);
-        const { name, city, country, email, postalCode, streetAddress, phone } = newLocation;
-        const isValid = validatePhoneAndPostalCode(
-            phone,
-            postalCode,
-            setPhoneNumberError,
-            setPostalCodeError,
-            () => setNewLocation({ ...newLocation, phone }),
-            () => setNewLocation({ ...newLocation, postalCode })
-        );
-
-        if (!isValid) {
-            setIsSubmittingLocation(false);
-            return;
-        }
-
-        try {
-            const response = await axios.post(`${config.API_BASE_URL}/location/add`, {
-                name,
-                country,
-                city,
-                streetAddress,
-                postalCode,
-                phone,
-                email
-            });
-
-            const addedLocation = response.data;
-            setAllLocations(prevLocations => [...prevLocations, addedLocation]);
-            await fetchLocations();
-            setShowLocationModal(false);
-            setNewLocation({
-                name: '',
-                city: '',
-                country: '',
-                email: '',
-                postalCode: '',
-                streetAddress: '',
-                phone: ''
-            });
-        } catch (error) {
-            setError('Error adding location.');
-            console.error('Error adding location:', error);
-        } finally {
-            setIsSubmittingLocation(false);
-        }
-    };
 
     // Submit handler
     const handleSubmit = async (e) => {
@@ -628,36 +577,12 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                 </Button>
             </Modal.Footer>
 
-            {/* Location Modal */}
-            <Modal show={showLocationModal} onHide={() => setShowLocationModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Add Location</Modal.Title>
-                </Modal.Header>
-                <Form onSubmit={handleAddLocation}>
-                    <Modal.Body>
-                        {/* Location form fields (similar to your existing code) */}
-                        {/* ... */}
-                        {/* Form fields for adding a new location */}
-                        <Form.Group controlId="formName">
-                            <Form.Label>Name</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={newLocation.name}
-                                onChange={(e) => setNewLocation({ ...newLocation, name: e.target.value })}
-                                placeholder="Enter name"
-                                required
-                            />
-                        </Form.Group>
-                        {/* Other fields... */}
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="outline-info" onClick={() => setShowLocationModal(false)}>Cancel</Button>
-                        <Button variant="primary" type="submit" disabled={isSubmittingLocation}>
-                            {isSubmittingLocation ? 'Adding...' : 'Add Location'}
-                        </Button>
-                    </Modal.Footer>
-                </Form>
-            </Modal>
+            {/* Use AddLocationModal */}
+            <AddLocationModal
+                show={showLocationModal}
+                onHide={() => setShowLocationModal(false)}
+                onAddLocation={handleAddLocation}
+            />
 
             {/* Third Party IT Modal */}
             <AddThirdPartyITModal
