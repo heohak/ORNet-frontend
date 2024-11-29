@@ -23,8 +23,23 @@ function WorkerSearchFilter({setWorkers}) {
                     axios.get(`${config.API_BASE_URL}/client/all`),
                     axios.get(`${config.API_BASE_URL}/worker/classificator/all`)
                 ]);
-                setClients(clientsRes.data);
-                setRoles(rolesRes.data.map(role => ({value: role.id, label: role.role}))); // Correct mapping
+                // Sort clients by shortName
+                const sortedClients = clientsRes.data.sort((a, b) =>
+                    a.shortName.localeCompare(b.shortName)
+                );
+
+                // Sort roles by role name
+                const sortedRoles = rolesRes.data.sort((a, b) =>
+                    a.role.localeCompare(b.role)
+                );
+
+                setClients(sortedClients);
+                setRoles(
+                    sortedRoles.map((role) => ({
+                        value: role.id,
+                        label: role.role,
+                    }))
+                );
             } catch (error) {
                 setError(error.message);
             }
@@ -32,8 +47,13 @@ function WorkerSearchFilter({setWorkers}) {
         const fetchAllLocations = async () => {
             try {
                 const response = await axios.get(`${config.API_BASE_URL}/location/all`);
-                setAllLocations(response.data);
-                setLocations(response.data); // Display all locations initially
+                // Sort locations by name
+                const sortedLocations = response.data.sort((a, b) =>
+                    a.name.localeCompare(b.name)
+                );
+
+                setAllLocations(sortedLocations);
+                setLocations(sortedLocations);
             } catch (error) {
                 console.error('Error fetching locations: ', error);
                 setError(error.message);
@@ -41,7 +61,6 @@ function WorkerSearchFilter({setWorkers}) {
         };
 
 
-        fetchRoles()
         fetchClientsAndRoles();
         fetchAllLocations()
     }, []);
@@ -88,16 +107,6 @@ function WorkerSearchFilter({setWorkers}) {
             setError(error.message);
         }
     };
-
-    const fetchRoles = async () => {
-        try {
-            const response = await axios.get(`${config.API_BASE_URL}/worker/classificator/all`);
-            setRoles(response.data.map(role => ({value: role.id, label: role.role})));
-        } catch (error) {
-            console.error('Error fetching roles:', error);
-        }
-    };
-
 
     useEffect(() => {
         if (typingTimeout) clearTimeout(typingTimeout);
