@@ -301,9 +301,12 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                                 components={{ Option: ContactOption }}
                                             />
                                         </Form.Group>
-                                    ) : (
-                                        selectedContacts.map(contact => contact.firstName + " " + contact.lastName).join(', ')
-                                    )}
+                                    ) : ( selectedContacts.length > 0
+                                        ? selectedContacts.map(contact => contact.firstName + " " + contact.lastName).join(', ')
+                                        : (
+                                            <span style={{ fontStyle: 'italic', color: 'gray' }}>No Contacts</span>
+                                        ))
+                                    }
                                 </Col>
                             </Row>
 
