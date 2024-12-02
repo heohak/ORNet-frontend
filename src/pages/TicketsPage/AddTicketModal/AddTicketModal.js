@@ -405,7 +405,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
                         <Col md={5}>
                             <Form.Group className="mb-3">
                                 <div className="d-flex mb-2">
-                                    <Form.Label className="align-items-centre mb-0">Selected Work Types</Form.Label>
+                                    <Form.Label className="align-items-centre mb-0">Work Types</Form.Label>
                                     <Button
                                         variant="link"
                                         onClick={() => setShowWorkTypeModal(true)}
@@ -430,7 +430,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
                     <Row>
                         <Col md={4}>
                             <Form.Group className="mb-3">
-                                <Form.Label>Client Numeration</Form.Label>
+                                <Form.Label>Customer Numeration</Form.Label>
                                 <Form.Control
                                     type="text"
                                     value={formData.clientNumeration}
@@ -455,7 +455,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
                         </Col>
                         <Col md={5}>
                             <Form.Group className="mb-3">
-                                <Form.Label>Responsible</Form.Label>
+                                <Form.Label>Assignee</Form.Label>
                                 <Form.Control
                                     as="select"
                                     value={formData.baitWorkerId}
@@ -463,7 +463,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
                                     id="baitWorkerId"
                                     required
                                 >
-                                    <option value="">Select Responsible</option>
+                                    <option value="">Select Assignee</option>
                                     {baitWorkers.map(baitWorker => (
                                         <option key={baitWorker.id} value={baitWorker.id}>
                                             {baitWorker.firstName + " " + baitWorker.lastName}
