@@ -1,36 +1,54 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Container, Row, Col, Card, Button, Spinner, Alert, Modal, Form } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import {
+    Container,
+    Row,
+    Col,
+    Button,
+    Spinner,
+    Alert,
+    Modal,
+    Form,
+} from 'react-bootstrap';
+import { FaEdit } from 'react-icons/fa';
 import config from '../../config/config';
+import EditLinkedDeviceModal from "./EditLinkedDeviceModal";
 
 function ViewLinkedDevices() {
     const [linkedDevices, setLinkedDevices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // State for Add Modal
     const [showAddModal, setShowAddModal] = useState(false);
     const [name, setName] = useState('');
     const [manufacturer, setManufacturer] = useState('');
     const [productCode, setProductCode] = useState('');
     const [serialNumber, setSerialNumber] = useState('');
-    const navigate = useNavigate();
+
+    // State for Edit Modal
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedLinkedDevice, setSelectedLinkedDevice] = useState(null);
 
     useEffect(() => {
-        const fetchLinkedDevices = async () => {
-            try {
-                const response = await axios.get(`${config.API_BASE_URL}/linked/device/all`);
-                setLinkedDevices(response.data);
-            } catch (error) {
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchLinkedDevices();
     }, []);
 
-    const handleAddLinkedDevice = async () => {
+    const fetchLinkedDevices = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/linked/device/all`);
+            setLinkedDevices(response.data);
+            setError(null);
+        } catch (error) {
+            setError('Error fetching linked devices');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAddLinkedDevice = async (e) => {
+        e.preventDefault();
         try {
             await axios.post(`${config.API_BASE_URL}/linked/device/add`, {
                 name,
@@ -38,120 +56,164 @@ function ViewLinkedDevices() {
                 productCode,
                 serialNumber,
             });
-            const response = await axios.get(`${config.API_BASE_URL}/linked/device/all`);
-            setLinkedDevices(response.data);
+            fetchLinkedDevices();
             setShowAddModal(false);
             setName('');
             setManufacturer('');
             setProductCode('');
             setSerialNumber('');
         } catch (error) {
-            setError(error.message);
+            setError('Error adding linked device');
         }
     };
 
     const handleEdit = (linkedDevice) => {
-        navigate(`/settings/linked-devices/edit/${linkedDevice.id}`, { state: { linkedDevice } });
+        setSelectedLinkedDevice(linkedDevice);
+        setShowEditModal(true);
     };
 
-    if (loading) {
-        return (
-            <Container className="text-center mt-5">
-                <Spinner animation="border" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                </Spinner>
-            </Container>
-        );
-    }
+    const handleCloseEditModal = () => {
+        setSelectedLinkedDevice(null);
+        setShowEditModal(false);
+    };
 
-    if (error) {
-        return (
-            <Container className="mt-5">
-                <Alert variant="danger">
-                    <Alert.Heading>Error</Alert.Heading>
-                    <p>{error}</p>
-                </Alert>
-            </Container>
-        );
-    }
+    const defaultFields = [
+        { key: 'name', label: 'Name' },
+        { key: 'manufacturer', label: 'Manufacturer' },
+        { key: 'productCode', label: 'Product Code' },
+        { key: 'serialNumber', label: 'Serial Number' },
+    ];
 
     return (
         <Container className="mt-5">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1>Linked Devices</h1>
-                <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Linked Device</Button>
+            <h1>Linked Devices</h1>
+            <Button variant="primary" className="mb-4" onClick={() => window.history.back()}>
+                Back
+            </Button>
+            <div className="d-flex justify-content-end align-items-center mb-4">
+                <Button variant="primary" onClick={() => setShowAddModal(true)}>
+                    Add Linked Device
+                </Button>
             </div>
-            <Row>
-                {linkedDevices.map((linkedDevice) => (
-                    <Col md={4} key={linkedDevice.id} className="mb-4">
-                        <Card>
-                            <Card.Body>
-                                <Card.Title>{linkedDevice.name}</Card.Title>
-                                <Card.Text>
-                                    <strong>Manufacturer:</strong> {linkedDevice.manufacturer}<br />
-                                    <strong>Product Code:</strong> {linkedDevice.productCode}<br />
-                                    <strong>Serial Number:</strong> {linkedDevice.serialNumber}
-                                </Card.Text>
-                                <Button variant="secondary" onClick={() => handleEdit(linkedDevice)}>Edit</Button>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                ))}
-            </Row>
+            {loading ? (
+                <Container className="text-center mt-5">
+                    <Spinner animation="border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </Spinner>
+                </Container>
+            ) : error ? (
+                <Alert variant="danger">{error}</Alert>
+            ) : (
+                <>
+                    {linkedDevices.length === 0 ? (
+                        <Alert variant="info">No linked devices found.</Alert>
+                    ) : (
+                        <>
+                            {/* Table Header */}
+                            <Row className="fw-bold mt-2">
+                                {defaultFields.map((field) => (
+                                    <Col key={field.key}>{field.label}</Col>
+                                ))}
+                                <Col>Actions</Col>
+                            </Row>
+                            <hr />
+                            {/* Linked Devices Rows */}
+                            {linkedDevices.map((device, index) => {
+                                const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                                return (
+                                    <Row
+                                        key={device.id}
+                                        className="align-items-center"
+                                        style={{ backgroundColor: rowBgColor }}
+                                    >
+                                        {defaultFields.map((field) => (
+                                            <Col key={field.key}>{device[field.key]}</Col>
+                                        ))}
+                                        <Col>
+                                            <Button
+                                                variant="link"
+                                                className="p-0"
+                                                onClick={() => handleEdit(device)}
+                                            >
+                                                <FaEdit />
+                                            </Button>
+                                        </Col>
+                                    </Row>
+                                );
+                            })}
+                        </>
+                    )}
+                </>
+            )}
+
+            {/* Add Linked Device Modal */}
             <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add Linked Device</Modal.Title>
                 </Modal.Header>
                 <Form onSubmit={handleAddLinkedDevice}>
                     <Modal.Body>
-                            <Form.Group controlId="formName">
-                                <Form.Label>Name</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    placeholder="Enter name"
-                                    required
-                                />
-                            </Form.Group>
-                            <Form.Group controlId="formManufacturer">
-                                <Form.Label>Manufacturer</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    value={manufacturer}
-                                    onChange={(e) => setManufacturer(e.target.value)}
-                                    placeholder="Enter manufacturer"
-                                    required
-                                />
-                            </Form.Group>
-                            <Form.Group controlId="formProductCode">
-                                <Form.Label>Product Code</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    value={productCode}
-                                    onChange={(e) => setProductCode(e.target.value)}
-                                    placeholder="Enter product code"
-                                    required
-                                />
-                            </Form.Group>
-                            <Form.Group controlId="formSerialNumber">
-                                <Form.Label>Serial Number</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    value={serialNumber}
-                                    onChange={(e) => setSerialNumber(e.target.value)}
-                                    placeholder="Enter serial number"
-                                    required
-                                />
-                            </Form.Group>
+                        <Form.Group controlId="formName">
+                            <Form.Label>Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="Enter name"
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formManufacturer" className="mt-3">
+                            <Form.Label>Manufacturer</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={manufacturer}
+                                onChange={(e) => setManufacturer(e.target.value)}
+                                placeholder="Enter manufacturer"
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formProductCode" className="mt-3">
+                            <Form.Label>Product Code</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={productCode}
+                                onChange={(e) => setProductCode(e.target.value)}
+                                placeholder="Enter product code"
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formSerialNumber" className="mt-3">
+                            <Form.Label>Serial Number</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={serialNumber}
+                                onChange={(e) => setSerialNumber(e.target.value)}
+                                placeholder="Enter serial number"
+                                required
+                            />
+                        </Form.Group>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
-                        <Button variant="primary" type="submit">Add Linked Device</Button>
+                        <Button variant="outline-info" onClick={() => setShowAddModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="primary" type="submit">
+                            Add Linked Device
+                        </Button>
                     </Modal.Footer>
                 </Form>
             </Modal>
-            <Button onClick={() => navigate('/settings')}>Back</Button>
+
+            {/* Edit Linked Device Modal */}
+            {selectedLinkedDevice && (
+                <EditLinkedDeviceModal
+                    show={showEditModal}
+                    onHide={handleCloseEditModal}
+                    linkedDevice={selectedLinkedDevice}
+                    onUpdate={fetchLinkedDevices}
+                />
+            )}
         </Container>
     );
 }

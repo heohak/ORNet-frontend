@@ -7,6 +7,7 @@ import '../../css/OneClientPage/SoftwareDetails.css';
 import {faEdit} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import '../../css/OneClientPage/OneClient.css';
+import EditTechnicalInfoModal from "../SettingsPage/EditTechnicalInfoModal";
 
 
 function SoftwareDetails({softwareList, clientId, setRefresh, client}) {
@@ -16,9 +17,19 @@ function SoftwareDetails({softwareList, clientId, setRefresh, client}) {
     const [showAddSoftwareModal, setShowAddSoftwareModal] = useState(false);
     const navigate = useNavigate();
 
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedSoftware, setSelectedSoftware] = useState(null);
+
+
     const toggleTechnicalInfo = (softwareId) => {
         setExpandedSoftwareId(expandedSoftwareId === softwareId ? null : softwareId);
     };
+
+    const handleEdit = (software) => {
+        setSelectedSoftware(software);
+        setShowEditModal(true);
+    };
+
 
     if (!softwareList) {
         return (
@@ -54,11 +65,10 @@ function SoftwareDetails({softwareList, clientId, setRefresh, client}) {
                                         <Card.Title className='all-page-cardTitle'>{software.name}</Card.Title>
                                     </div>
                                     <div>
-                                        <Button variant="link"
-                                                onClick={() => navigate(`/settings/software/edit/${software.id}`, {state: {software}})}>
-                                            <FontAwesomeIcon icon={faEdit}
-                                                             title="Edit Technical information"/>
+                                        <Button variant="link" onClick={() => handleEdit(software)}>
+                                            <FontAwesomeIcon icon={faEdit} title="Edit Technical Information" />
                                         </Button>
+
                                         <Button variant="link" onClick={() => toggleTechnicalInfo(software.id)}>
                                             {expandedSoftwareId === software.id ? '▲' : '▼'}
                                         </Button>
@@ -207,6 +217,19 @@ function SoftwareDetails({softwareList, clientId, setRefresh, client}) {
                     <Alert className="mt-3" variant="info">No technical information available.</Alert>
                 )}
             </Row>
+
+            {selectedSoftware && (
+                <EditTechnicalInfoModal
+                    show={showEditModal}
+                    onHide={() => setShowEditModal(false)}
+                    software={selectedSoftware}
+                    onUpdate={() => {
+                        setRefresh((prev) => !prev);
+                        setShowEditModal(false);
+                    }}
+                />
+            )}
+
 
             <AddClientSoftware
                 clientId={clientId}

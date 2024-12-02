@@ -1,98 +1,143 @@
-// ViewSoftware.js
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Container, Row, Col, Card, Button, Spinner, Alert } from 'react-bootstrap';
+import {
+    Container,
+    Row,
+    Col,
+    Button,
+    Spinner,
+    Alert,
+} from 'react-bootstrap';
+import { FaEdit } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import config from '../../config/config';
-import AddTechnicalInfoModal from "../OneClientPage/AddTechnicalInfoModal"; // Import the new component
+import AddTechnicalInfoModal from '../OneClientPage/AddTechnicalInfoModal';
+import EditTechnicalInfoModal from "./EditTechnicalInfoModal";
 
 function ViewSoftware() {
     const [softwareList, setSoftwareList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // State for Add Modal
     const [showAddModal, setShowAddModal] = useState(false);
     const [refresh, setRefresh] = useState(false);
+
+    // State for Edit Modal
+    const [selectedSoftware, setSelectedSoftware] = useState(null);
+    const [showEditModal, setShowEditModal] = useState(false);
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const softwareResponse = await axios.get(`${config.API_BASE_URL}/software/all`);
-                setSoftwareList(softwareResponse.data);
-            } catch (error) {
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
+        fetchSoftwareList();
     }, [refresh]);
 
-    const handleEdit = (software) => {
-        navigate(`/settings/software/edit/${software.id}`, { state: { software } });
+    const fetchSoftwareList = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/software/all`);
+            setSoftwareList(response.data);
+            setError(null);
+        } catch (error) {
+            setError('Error fetching software list');
+        } finally {
+            setLoading(false);
+        }
     };
 
-    if (loading) {
-        return (
-            <Container className="text-center mt-5">
-                <Spinner animation="border" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                </Spinner>
-            </Container>
-        );
-    }
+    const handleEdit = (software) => {
+        setSelectedSoftware(software);
+        setShowEditModal(true);
+    };
 
-    if (error) {
-        return (
-            <Container className="mt-5">
-                <Alert variant="danger">
-                    <Alert.Heading>Error</Alert.Heading>
-                    <p>{error}</p>
-                </Alert>
-            </Container>
-        );
-    }
+    const handleCloseEditModal = () => {
+        setSelectedSoftware(null);
+        setShowEditModal(false);
+    };
 
     return (
         <Container className="mt-5">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1>Technical Information</h1>
+            <h1>Technical Information</h1>
+            <Button variant="primary" className="mb-4" onClick={() => navigate(-1)}>
+                Back
+            </Button>
+            <div className="d-flex justify-content-end align-items-center mb-4">
                 <Button variant="primary" onClick={() => setShowAddModal(true)}>
                     Add Tech Info
                 </Button>
             </div>
-            <Row>
-                {softwareList.map((software) => (
-                    <Col md={4} key={software.id} className="mb-4">
-                        <Card>
-                            <Card.Body>
-                                <Card.Title>{software.name}</Card.Title>
-                                <Card.Text>
-                                    <strong>DB Version:</strong> {software.dbVersion}
-                                    <br />
-                                </Card.Text>
-                                <Button variant="secondary" onClick={() => handleEdit(software)}>
-                                    Edit
-                                </Button>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                ))}
-            </Row>
-            <Button onClick={() => navigate('/settings')}>Back</Button>
+            {loading ? (
+                <Container className="text-center mt-5">
+                    <Spinner animation="border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </Spinner>
+                </Container>
+            ) : error ? (
+                <Alert variant="danger">{error}</Alert>
+            ) : (
+                <>
+                    {softwareList.length === 0 ? (
+                        <Alert variant="info">No technical information found.</Alert>
+                    ) : (
+                        <>
+                            {/* Table Header */}
+                            <Row className="fw-bold mt-2">
+                                <Col>Name</Col>
+                                <Col>DB Version</Col>
+                                <Col md="auto">Actions</Col>
+                            </Row>
+                            <hr />
+                            {/* Software Rows */}
+                            {softwareList.map((software, index) => {
+                                const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                                return (
+                                    <Row
+                                        key={software.id}
+                                        className="align-items-center"
+                                        style={{ backgroundColor: rowBgColor }}
+                                    >
+                                        <Col>{software.name}</Col>
+                                        <Col>{software.dbVersion}</Col>
+                                        <Col md="auto">
+                                            <Button
+                                                variant="link"
+                                                className="p-0"
+                                                onClick={() => handleEdit(software)}
+                                            >
+                                                <FaEdit />
+                                            </Button>
+                                        </Col>
+                                    </Row>
+                                );
+                            })}
+                        </>
+                    )}
+                </>
+            )}
 
-            {/* Use AddTechnicalInfoModal */}
+            {/* Add Technical Info Modal */}
             <AddTechnicalInfoModal
                 show={showAddModal}
                 onHide={() => setShowAddModal(false)}
                 onAddTechnicalInfo={() => {
-                    setRefresh(prev => !prev);
+                    setRefresh((prev) => !prev);
                     setShowAddModal(false);
                 }}
             />
+
+            {/* Edit Technical Info Modal */}
+            {selectedSoftware && (
+                <EditTechnicalInfoModal
+                    show={showEditModal}
+                    onHide={handleCloseEditModal}
+                    software={selectedSoftware}
+                    onUpdate={() => {
+                        setRefresh((prev) => !prev);
+                        handleCloseEditModal();
+                    }}
+                />
+            )}
         </Container>
     );
 }

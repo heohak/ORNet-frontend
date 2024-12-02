@@ -1,13 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Row, Col, Card, Button, Spinner, Alert, Form, Modal, Container } from 'react-bootstrap';
-import { useNavigate } from "react-router-dom";
-import config from "../../config/config";
+import {
+    Row,
+    Col,
+    Card,
+    Button,
+    Spinner,
+    Alert,
+    Form,
+    Modal,
+    Container,
+} from 'react-bootstrap';
+import config from '../../config/config';
+import {
+    FaEnvelope,
+    FaPhone,
+    FaBriefcase,
+    FaEdit,
+} from 'react-icons/fa';
 
 function ViewBaitWorkers() {
     const [workers, setWorkers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // State for Add Modal
     const [showAddModal, setShowAddModal] = useState(false);
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -15,7 +32,18 @@ function ViewBaitWorkers() {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [title, setTitle] = useState('');
     const [phoneNumberError, setPhoneNumberError] = useState('');
-    const navigate = useNavigate();
+
+    // State for Edit Modal
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedWorker, setSelectedWorker] = useState(null);
+    const [editFirstName, setEditFirstName] = useState('');
+    const [editLastName, setEditLastName] = useState('');
+    const [editEmail, setEditEmail] = useState('');
+    const [editPhoneNumber, setEditPhoneNumber] = useState('');
+    const [editTitle, setEditTitle] = useState('');
+    const [editPhoneNumberError, setEditPhoneNumberError] = useState('');
+    const [relatedTickets, setRelatedTickets] = useState([]);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     useEffect(() => {
         const fetchWorkers = async () => {
@@ -36,12 +64,10 @@ function ViewBaitWorkers() {
         e.preventDefault();
         setError(null);
         const trimmedPhoneNumber = phoneNumber.trim();
-        // Check if the phone number contains only digits
         if (!/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
             setPhoneNumberError('Phone number must contain only numbers and spaces, and may start with a +.');
             return;
         }
-        // Reset the error message if validation passes
         setPhoneNumberError('');
         setPhoneNumber(trimmedPhoneNumber);
 
@@ -66,6 +92,72 @@ function ViewBaitWorkers() {
         }
     };
 
+    const handleEdit = (worker) => {
+        setSelectedWorker(worker);
+        setEditFirstName(worker.firstName);
+        setEditLastName(worker.lastName);
+        setEditEmail(worker.email);
+        setEditPhoneNumber(worker.phoneNumber);
+        setEditTitle(worker.title);
+        setShowEditModal(true);
+    };
+
+    const handleUpdateWorker = async (e) => {
+        e.preventDefault();
+        setError(null);
+        const trimmedPhoneNumber = editPhoneNumber.trim();
+        if (!/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
+            setEditPhoneNumberError('Phone number must contain only numbers and spaces, and may start with a +.');
+            return;
+        }
+        setEditPhoneNumberError('');
+        setEditPhoneNumber(trimmedPhoneNumber);
+
+        try {
+            await axios.put(`${config.API_BASE_URL}/bait/worker/update/${selectedWorker.id}`, {
+                firstName: editFirstName,
+                lastName: editLastName,
+                email: editEmail,
+                phoneNumber: editPhoneNumber,
+                title: editTitle,
+            });
+            const response = await axios.get(`${config.API_BASE_URL}/bait/worker/all`);
+            setWorkers(response.data);
+            setShowEditModal(false);
+            setSelectedWorker(null);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
+    const fetchRelatedTickets = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/search`, {
+                params: { baitWorkerId: selectedWorker.id },
+            });
+            setRelatedTickets(response.data);
+        } catch (error) {
+            setError('Error fetching related tickets');
+        }
+    };
+
+    const handleShowDeleteModal = async () => {
+        await fetchRelatedTickets();
+        setShowDeleteModal(true);
+    };
+
+    const handleDeleteWorker = async () => {
+        try {
+            await axios.delete(`${config.API_BASE_URL}/bait/worker/${selectedWorker.id}`);
+            const response = await axios.get(`${config.API_BASE_URL}/bait/worker/all`);
+            setWorkers(response.data);
+            setShowDeleteModal(false);
+            setShowEditModal(false);
+            setSelectedWorker(null);
+        } catch (error) {
+            setError('Error deleting worker');
+        }
+    };
 
     if (loading) {
         return (
@@ -92,35 +184,47 @@ function ViewBaitWorkers() {
         <Container className="mt-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h1>Bait Workers</h1>
-                <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Worker</Button>
+                <Button variant="primary" onClick={() => setShowAddModal(true)}>
+                    Add Worker
+                </Button>
             </div>
+            <Button className="mb-4" onClick={() => window.history.back()}>Back</Button>
 
             <Row>
                 {workers.map((worker) => (
                     <Col md={4} key={worker.id} className="mb-4">
                         <Card>
                             <Card.Body>
-                                <Card.Title>{worker.firstName} {worker.lastName}</Card.Title>
+                                <div className="d-flex justify-content-between align-items-start">
+                                    <Card.Title>
+                                        {worker.firstName} {worker.lastName}
+                                    </Card.Title>
+                                    <Button
+                                        variant="link"
+                                        className="p-0"
+                                        onClick={() => handleEdit(worker)}
+                                    >
+                                        <FaEdit />
+                                    </Button>
+                                </div>
                                 <Card.Text>
-                                    Email: {worker.email}
+                                    <FaEnvelope className="me-2" />
+                                    {worker.email}
                                     <br />
-                                    Phone: {worker.phoneNumber}
+                                    <FaPhone className="me-2" />
+                                    {worker.phoneNumber}
                                     <br />
-                                    Title: {worker.title}
+                                    <FaBriefcase className="me-2" />
+                                    {worker.title}
                                 </Card.Text>
-                                <Button
-                                    variant="secondary"
-                                    className="me-2"
-                                    onClick={() => navigate(`/edit-bait-worker/${worker.id}`)}
-                                >
-                                    Edit
-                                </Button>
                             </Card.Body>
                         </Card>
                     </Col>
                 ))}
             </Row>
-            <Button onClick={() => navigate('/settings')}>Back</Button>
+
+
+            {/* Add Worker Modal */}
             <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add Worker</Modal.Title>
@@ -165,7 +269,7 @@ function ViewBaitWorkers() {
                                 onChange={(e) => setPhoneNumber(e.target.value)}
                                 placeholder="Enter phone number"
                                 required
-                                isInvalid={!!phoneNumberError} // Display error styling if there's an error
+                                isInvalid={!!phoneNumberError}
                             />
                             <Form.Control.Feedback type="invalid">
                                 {phoneNumberError}
@@ -183,10 +287,128 @@ function ViewBaitWorkers() {
                         </Form.Group>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
-                        <Button variant="primary" type='submit'>Add Worker</Button>
+                        <Button variant="outline-info" onClick={() => setShowAddModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="primary" type="submit">
+                            Add Worker
+                        </Button>
                     </Modal.Footer>
                 </Form>
+            </Modal>
+
+            {/* Edit Worker Modal */}
+            <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Worker</Modal.Title>
+                </Modal.Header>
+                <Form onSubmit={handleUpdateWorker}>
+                    <Modal.Body>
+                        <Form.Group controlId="editFormFirstName">
+                            <Form.Label>First Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={editFirstName}
+                                onChange={(e) => setEditFirstName(e.target.value)}
+                                placeholder="Enter first name"
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="editFormLastName" className="mt-3">
+                            <Form.Label>Last Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={editLastName}
+                                onChange={(e) => setEditLastName(e.target.value)}
+                                placeholder="Enter last name"
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="editFormEmail" className="mt-3">
+                            <Form.Label>Email</Form.Label>
+                            <Form.Control
+                                type="email"
+                                value={editEmail}
+                                onChange={(e) => setEditEmail(e.target.value)}
+                                placeholder="Enter email"
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="editFormPhoneNumber" className="mt-3">
+                            <Form.Label>Phone Number</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={editPhoneNumber}
+                                onChange={(e) => setEditPhoneNumber(e.target.value)}
+                                placeholder="Enter phone number"
+                                required
+                                isInvalid={!!editPhoneNumberError}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                {editPhoneNumberError}
+                            </Form.Control.Feedback>
+                        </Form.Group>
+                        <Form.Group controlId="editFormTitle" className="mt-3">
+                            <Form.Label>Title</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={editTitle}
+                                onChange={(e) => setEditTitle(e.target.value)}
+                                placeholder="Enter title"
+                                required
+                            />
+                        </Form.Group>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="outline-info" onClick={() => setShowEditModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="danger" onClick={handleShowDeleteModal}>
+                            Delete Worker
+                        </Button>
+                        <Button variant="primary" type="submit">
+                            Update Worker
+                        </Button>
+                    </Modal.Footer>
+                </Form>
+            </Modal>
+
+            {/* Delete Confirmation Modal */}
+            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Bait Worker Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>Are you sure you want to delete this worker?</p>
+                    {relatedTickets.length > 0 ? (
+                        <>
+                            <p>
+                                This worker is linked to the following tickets and cannot be
+                                deleted:
+                            </p>
+                            <ul>
+                                {relatedTickets.map((ticket) => (
+                                    <li key={ticket.id}>
+                                        Ticket ID: {ticket.id}, Name: {ticket.title}, Customer:{' '}
+                                        {ticket.clientName}
+                                    </li>
+                                ))}
+                            </ul>
+                        </>
+                    ) : (
+                        <p>No related tickets found. You can proceed with deletion.</p>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="outline-info" onClick={() => setShowDeleteModal(false)}>
+                        Close
+                    </Button>
+                    {relatedTickets.length === 0 && (
+                        <Button variant="danger" onClick={handleDeleteWorker}>
+                            Delete Worker
+                        </Button>
+                    )}
+                </Modal.Footer>
             </Modal>
         </Container>
     );

@@ -1,128 +1,276 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Container, Row, Col, Card, Button, Spinner, Alert, Modal, Form } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import {
+    Container,
+    Row,
+    Col,
+    Button,
+    Spinner,
+    Alert,
+    Modal,
+    Form,
+} from 'react-bootstrap';
 import config from '../../config/config';
+import { FaEdit } from 'react-icons/fa';
 
 function ViewWorkTypes() {
     const [workTypes, setWorkTypes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // State for Add Modal
     const [showAddModal, setShowAddModal] = useState(false);
-    const [workType, setWorkType] = useState('');
-    const navigate = useNavigate();
+    const [newWorkType, setNewWorkType] = useState('');
+
+    // State for Edit Modal
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedWorkType, setSelectedWorkType] = useState(null);
+    const [editWorkTypeName, setEditWorkTypeName] = useState('');
+
+    // State for Delete Confirmation Modal
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [relatedTickets, setRelatedTickets] = useState([]);
+
+    const [refresh, setRefresh] = useState(false);
 
     useEffect(() => {
-        const fetchWorkTypes = async () => {
-            try {
-                const response = await axios.get(`${config.API_BASE_URL}/work-type/classificator/all`);
-                setWorkTypes(response.data);
-            } catch (error) {
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchWorkTypes();
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [refresh]);
 
-    const handleAddWorkType = async () => {
+    const fetchWorkTypes = async () => {
+        setLoading(true);
         try {
-            await axios.post(`${config.API_BASE_URL}/work-type/classificator/add`, {
-                workType,
-            });
             const response = await axios.get(`${config.API_BASE_URL}/work-type/classificator/all`);
             setWorkTypes(response.data);
-            setShowAddModal(false);
-            setWorkType('');
+            setError(null);
         } catch (error) {
-            setError(error.message);
+            setError('Error fetching work types');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAddWorkType = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.post(`${config.API_BASE_URL}/work-type/classificator/add`, { workType: newWorkType });
+            setShowAddModal(false);
+            setNewWorkType('');
+            setRefresh((prev) => !prev); // Refresh the list
+        } catch (error) {
+            setError('Error adding work type');
         }
     };
 
     const handleEdit = (workType) => {
-        navigate(`/settings/work-types/edit/${workType.id}`, { state: { workType } });
+        setSelectedWorkType(workType);
+        setEditWorkTypeName(workType.workType);
+        setShowEditModal(true);
     };
 
-    if (loading) {
-        return (
-            <Container className="text-center mt-5">
-                <Spinner animation="border" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                </Spinner>
-            </Container>
-        );
-    }
+    const handleUpdateWorkType = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.put(
+                `${config.API_BASE_URL}/work-type/classificator/update/${selectedWorkType.id}`,
+                { workType: editWorkTypeName }
+            );
+            setShowEditModal(false);
+            setSelectedWorkType(null);
+            setRefresh((prev) => !prev); // Refresh the list
+        } catch (error) {
+            setError('Error updating work type');
+        }
+    };
 
-    if (error) {
-        return (
-            <Container className="mt-5">
-                <Alert variant="danger">
-                    <Alert.Heading>Error</Alert.Heading>
-                    <p>{error}</p>
-                </Alert>
-            </Container>
-        );
-    }
+    const handleShowDeleteModal = async () => {
+        await fetchRelatedTickets();
+        setShowDeleteModal(true);
+    };
 
-    const handleNavigate = () => {
-        navigate('/history', { state: { endpoint: `work-type/classificator/deleted` } });
-    }
+    const handleCloseDeleteModal = () => {
+        setShowDeleteModal(false);
+    };
+
+    const fetchRelatedTickets = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/search`, {
+                params: { workTypeId: selectedWorkType.id },
+            });
+            setRelatedTickets(response.data);
+        } catch (error) {
+            setError('Error fetching related tickets');
+        }
+    };
+
+    const handleDeleteWorkType = async () => {
+        try {
+            await axios.delete(`${config.API_BASE_URL}/work-type/classificator/${selectedWorkType.id}`);
+            setShowDeleteModal(false);
+            setShowEditModal(false);
+            setSelectedWorkType(null);
+            setRefresh((prev) => !prev); // Refresh the list
+        } catch (error) {
+            setError('Error deleting work type');
+        }
+    };
 
     return (
         <Container className="mt-5">
-            <Row className="d-flex justify-content-between align-items-center mb-4">
-                <Col className="col-md-auto">
-                    <h1>Work Types</h1>
-                </Col>
-                <Col className="col-md-auto">
-                    <Row>
-                        <Col className="col-md-auto">
-                            <Button variant="secondary" onClick={handleNavigate}>See Deleted</Button>
-                        </Col>
-                        <Col className="col-md-auto">
-                            <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Work Type</Button>
-                        </Col>
-                    </Row>
-                </Col>
-            </Row>
-            <Row>
-                {workTypes.map((workType) => (
-                    <Col md={4} key={workType.id} className="mb-4">
-                        <Card>
-                            <Card.Body>
-                                <Card.Title>{workType.workType}</Card.Title>
-                                <Button variant="secondary" onClick={() => handleEdit(workType)} className="me-2">Edit</Button>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                ))}
-            </Row>
+            <h1>Work Types</h1>
+            <Button variant="primary" className="mb-4" onClick={() => window.history.back()}>
+                Back
+            </Button>
+            <div className="d-flex justify-content-end align-items-center mb-4">
+                <Button variant="primary" onClick={() => setShowAddModal(true)}>
+                    Add Work Type
+                </Button>
+            </div>
+
+            {loading ? (
+                <Container className="text-center mt-5">
+                    <Spinner animation="border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </Spinner>
+                </Container>
+            ) : error ? (
+                <Alert variant="danger">{error}</Alert>
+            ) : (
+                <>
+                    {workTypes.length === 0 ? (
+                        <Alert variant="info">No work types found.</Alert>
+                    ) : (
+                        <>
+                            {/* Table header */}
+                            <Row className="fw-bold mt-2">
+                                <Col md={10}>Work Type</Col>
+                                <Col md={2}>Actions</Col>
+                            </Row>
+                            <hr />
+                            {/* Work Type rows */}
+                            {workTypes.map((workType, index) => {
+                                const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                                return (
+                                    <Row
+                                        key={workType.id}
+                                        className="align-items-center"
+                                        style={{ backgroundColor: rowBgColor }}
+                                    >
+                                        <Col md={10}>{workType.workType}</Col>
+                                        <Col md={2}>
+                                            <Button
+                                                variant="link"
+                                                className="p-0"
+                                                onClick={() => handleEdit(workType)}
+                                            >
+                                                <FaEdit />
+                                            </Button>
+                                        </Col>
+                                    </Row>
+                                );
+                            })}
+                        </>
+                    )}
+                </>
+            )}
+
+            {/* Add Work Type Modal */}
             <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add Work Type</Modal.Title>
                 </Modal.Header>
                 <Form onSubmit={handleAddWorkType}>
                     <Modal.Body>
-                            <Form.Group controlId="formWorkType">
-                                <Form.Label>Work Type</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    value={workType}
-                                    onChange={(e) => setWorkType(e.target.value)}
-                                    placeholder="Enter work type"
-                                    required
-                                />
-                            </Form.Group>
+                        <Form.Group controlId="formNewWorkType">
+                            <Form.Label>Work Type</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={newWorkType}
+                                onChange={(e) => setNewWorkType(e.target.value)}
+                                placeholder="Enter work type"
+                                required
+                            />
+                        </Form.Group>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
-                        <Button variant="primary" type="submit">Add Work Type</Button>
+                        <Button variant="outline-info" onClick={() => setShowAddModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="primary" type="submit">
+                            Add Work Type
+                        </Button>
                     </Modal.Footer>
                 </Form>
             </Modal>
-            <Button onClick={() => navigate('/settings')}>Back</Button>
+
+            {/* Edit Work Type Modal */}
+            <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Work Type</Modal.Title>
+                </Modal.Header>
+                <Form onSubmit={handleUpdateWorkType}>
+                    <Modal.Body>
+                        <Form.Group controlId="formEditWorkType">
+                            <Form.Label>Work Type</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={editWorkTypeName}
+                                onChange={(e) => setEditWorkTypeName(e.target.value)}
+                                placeholder="Enter work type"
+                                required
+                            />
+                        </Form.Group>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="outline-info" onClick={() => setShowEditModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="danger" onClick={handleShowDeleteModal}>
+                            Delete Work Type
+                        </Button>
+                        <Button variant="primary" type="submit">
+                            Update Work Type
+                        </Button>
+                    </Modal.Footer>
+                </Form>
+            </Modal>
+
+            {/* Delete Confirmation Modal */}
+            <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Work Type Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {relatedTickets.length > 0 ? (
+                        <>
+                            <p>
+                                This work type is associated with the following tickets and cannot be deleted:
+                            </p>
+                            <ul>
+                                {relatedTickets.map((ticket) => (
+                                    <li key={ticket.id}>
+                                        <strong>Ticket ID:</strong> {ticket.id} <br />
+                                        <strong>Title:</strong> {ticket.title} <br />
+                                    </li>
+                                ))}
+                            </ul>
+                        </>
+                    ) : (
+                        <p>No tickets are linked to this work type. You can proceed with deletion.</p>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="outline-info" onClick={handleCloseDeleteModal}>
+                        Close
+                    </Button>
+                    {relatedTickets.length === 0 && (
+                        <Button variant="danger" onClick={handleDeleteWorkType}>
+                            Delete Work Type
+                        </Button>
+                    )}
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 }

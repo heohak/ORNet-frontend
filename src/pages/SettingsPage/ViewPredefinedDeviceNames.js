@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Container, Row, Col, Card, Button, Spinner, Alert, Modal, Form } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import {
+    Container,
+    Row,
+    Col,
+    Button,
+    Spinner,
+    Alert,
+    Modal,
+    Form,
+} from 'react-bootstrap';
 import config from '../../config/config';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FaTrash } from 'react-icons/fa';
 
 function ViewPredefinedDeviceNames() {
     const [deviceNames, setDeviceNames] = useState([]);
@@ -12,7 +19,10 @@ function ViewPredefinedDeviceNames() {
     const [error, setError] = useState(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [newDeviceName, setNewDeviceName] = useState('');
-    const navigate = useNavigate();
+
+    // State for Delete Confirmation Modal
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedDeviceName, setSelectedDeviceName] = useState(null);
 
     useEffect(() => {
         fetchDeviceNames();
@@ -23,6 +33,7 @@ function ViewPredefinedDeviceNames() {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/predefined/names`);
             setDeviceNames(response.data);
+            setError(null);
         } catch (error) {
             setError('Error fetching predefined device names');
         } finally {
@@ -46,10 +57,19 @@ function ViewPredefinedDeviceNames() {
         }
     };
 
-    const handleDeleteDeviceName = async (nameId) => {
+    // Function to handle delete confirmation
+    const handleShowDeleteModal = (deviceName) => {
+        setSelectedDeviceName(deviceName);
+        setShowDeleteModal(true);
+    };
+
+    // Function to delete the device name
+    const handleDeleteDeviceName = async () => {
         try {
-            await axios.delete(`${config.API_BASE_URL}/predefined/delete/${nameId}`);
+            await axios.delete(`${config.API_BASE_URL}/predefined/delete/${selectedDeviceName.id}`);
             fetchDeviceNames(); // Refresh the list
+            setShowDeleteModal(false);
+            setSelectedDeviceName(null);
         } catch (error) {
             setError('Error deleting predefined device name');
         }
@@ -57,42 +77,61 @@ function ViewPredefinedDeviceNames() {
 
     return (
         <Container className="mt-5">
-            <Row className="d-flex justify-content-between align-items-center mb-4">
-                <Col className="col-md-auto">
-                    <h1>Predefined Device Names</h1>
-                </Col>
-                <Col className="col-md-auto">
-                    <Button variant="primary" onClick={() => setShowAddModal(true)}>
-                        Add Device Name
-                    </Button>
-                </Col>
-            </Row>
+            <h1>Predefined Device Names</h1>
+            <Button
+                variant="primary"
+                className="mb-4"
+                onClick={() => window.history.back()}
+            >
+                Back
+            </Button>
+            <div className="d-flex justify-content-end align-items-center mb-4">
+                <Button variant="primary" onClick={() => setShowAddModal(true)}>
+                    Add Device Name
+                </Button>
+            </div>
 
             {loading ? (
-                <Spinner animation="border" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                </Spinner>
+                <Container className="text-center mt-5">
+                    <Spinner animation="border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </Spinner>
+                </Container>
             ) : error ? (
                 <Alert variant="danger">{error}</Alert>
+            ) : deviceNames.length === 0 ? (
+                <Alert variant="info">No device names found.</Alert>
             ) : (
-                <Row>
-                    {deviceNames.map((deviceName) => (
-                        <Col md={3} key={deviceName.id} className="mb-4">
-                            <Card>
-                                <Card.Body className="d-flex justify-content-between align-items-center">
-                                    <div>{deviceName.name}</div>
+                <>
+                    {/* Table header */}
+                    <Row className="fw-bold mt-2">
+                        <Col md={10}>Device Name</Col>
+                        <Col md={2}>Actions</Col>
+                    </Row>
+                    <hr />
+                    {/* Device Name rows */}
+                    {deviceNames.map((deviceName, index) => {
+                        const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                        return (
+                            <Row
+                                key={deviceName.id}
+                                className="align-items-center"
+                                style={{ backgroundColor: rowBgColor }}
+                            >
+                                <Col md={10}>{deviceName.name}</Col>
+                                <Col md={2}>
                                     <Button
-                                        variant="danger"
-                                        size="sm"
-                                        onClick={() => handleDeleteDeviceName(deviceName.id)}
+                                        variant="link"
+                                        className="p-0"
+                                        onClick={() => handleShowDeleteModal(deviceName)}
                                     >
-                                        <FontAwesomeIcon icon={faTrash} />
+                                        <FaTrash />
                                     </Button>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    ))}
-                </Row>
+                                </Col>
+                            </Row>
+                        );
+                    })}
+                </>
             )}
 
             {/* Add Device Name Modal */}
@@ -114,7 +153,7 @@ function ViewPredefinedDeviceNames() {
                         </Form.Group>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowAddModal(false)}>
+                        <Button variant="outline-info" onClick={() => setShowAddModal(false)}>
                             Cancel
                         </Button>
                         <Button variant="primary" type="submit">
@@ -124,7 +163,28 @@ function ViewPredefinedDeviceNames() {
                 </Form>
             </Modal>
 
-            <Button onClick={() => navigate('/settings')}>Back</Button>
+            {/* Delete Confirmation Modal */}
+            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {selectedDeviceName && (
+                        <p>
+                            Are you sure you want to delete the device name "
+                            <strong>{selectedDeviceName.name}</strong>"?
+                        </p>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="outline-info" onClick={() => setShowDeleteModal(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={handleDeleteDeviceName}>
+                        Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 }

@@ -23,19 +23,13 @@ import ViewTicketStatusClassificators from './pages/SettingsPage/ViewTicketStatu
 import ViewThirdPartyITs from './pages/SettingsPage/ViewThirdPartyITs';
 import ViewLinkedDevices from './pages/SettingsPage/ViewLinkedDevices';
 import ViewClientWorkerRoles from './pages/SettingsPage/ViewClientWorkerRoles';
-import ViewClientWorkers from './pages/SettingsPage/ViewClientWorkers';
 import ViewSoftware from './pages/SettingsPage/ViewSoftware';
 import ViewFiles from './pages/SettingsPage/ViewFiles';
 import ViewWorkTypes from './pages/SettingsPage/ViewWorkTypes';
 import EditClient from "./pages/OneClientPage/EditClient";
-import EditBaitWorker from "./pages/SettingsPage/EditBaitWorker";
-import EditLocation from "./pages/SettingsPage/EditLocation";
-import EditDeviceClassificator from "./pages/SettingsPage/EditDeviceClassificator";
-import EditTicketStatusClassificator from "./pages/SettingsPage/EditTicketStatusClassificator";
 import EditDevice from "./pages/OneDevicePage/EditDevice";
-import EditThirdPartyIT from "./pages/SettingsPage/EditThirdPartyIT";
-import EditLinkedDevice from "./pages/SettingsPage/EditLinkedDevice";
-import EditClientWorkerRole from "./pages/SettingsPage/EditClientWorkerRole";
+import EditLinkedDevice from "./pages/SettingsPage/EditLinkedDeviceModal";
+import EditClientWorkerRole from "./pages/SettingsPage/EditClientWorkerRoleModal";
 import EditSoftware from "./pages/SettingsPage/EditSoftware";
 import EditWorkType from "./pages/SettingsPage/EditWorkType";
 import HistoryTable from "./components/HistoryTable";
@@ -70,17 +64,11 @@ function App() {
                         <Route path="/settings/third-party-its" element={<ViewThirdPartyITs />} />
                         <Route path="/settings/linked-devices" element={<ViewLinkedDevices />} />
                         <Route path="/settings/client-worker-roles" element={<ViewClientWorkerRoles />} />
-                        <Route path="/settings/client-workers" element={<ViewClientWorkers />} />
                         <Route path="/settings/software" element={<ViewSoftware />} />
                         <Route path="/settings/files" element={<ViewFiles />} />
                         <Route path="/settings/work-types" element={<ViewWorkTypes />} />
                         <Route path="/client/edit/:clientId" element={<EditClient />} />
-                        <Route path="/edit-bait-worker/:baitWorkerId" element={<EditBaitWorker />} />
-                        <Route path="/edit-location/:locationId" element={<EditLocation />} />
-                        <Route path="/settings/device-classificators/edit/:classificatorId" element={<EditDeviceClassificator />} />
-                        <Route path="/settings/ticket-status-classificators/edit/:id" element={<EditTicketStatusClassificator />} />
                         <Route path="/device/edit/:deviceId" element={<EditDevice />} />
-                        <Route path="/settings/third-party-its/edit/:id" element={<EditThirdPartyIT />} />
                         <Route path="/settings/linked-devices/edit/:id" element={<EditLinkedDevice />} />
                         <Route path="/settings/client-worker-roles/edit/:id" element={<EditClientWorkerRole />} />
                         <Route path="/settings/software/edit/:id" element={<EditSoftware />} />
