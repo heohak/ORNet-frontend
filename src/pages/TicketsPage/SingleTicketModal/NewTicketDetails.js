@@ -6,7 +6,7 @@ import config from "../../../config/config";
 import Select from "react-select";
 import {useNavigate} from "react-router-dom";
 
-const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, reFetch }) => {
+const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, reFetch, clientId }) => {
     const [responsibleName, setResponsibleName] = useState('');
     const [availableWorkTypes, setAvailableWorkTypes] = useState([]);
     const [selectedWorkTypes, setSelectedWorkTypes] = useState([]);
@@ -362,7 +362,13 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                             selectedDevices.map((device, index) => (
                                                 <React.Fragment key={device.id}>
                                                       <span
-                                                          onClick={() => navigate(`/device/${device.id}`, { state: { fromTicketId: ticket.id } })}
+                                                          onClick={() => navigate(`/device/${device.id}`, {
+                                                              state: {
+                                                                  fromPath: clientId
+                                                                      ? `/customer/${clientId}/ticket/${ticket.id}`
+                                                                      : `/tickets/${ticket.id}`,
+                                                              }
+                                                          })}
                                                           style={{ color: 'blue', cursor: 'pointer' }} // Styling for clickable text
                                                       >
                                                         {device.deviceName}

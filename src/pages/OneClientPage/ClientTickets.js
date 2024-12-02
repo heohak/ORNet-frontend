@@ -1,39 +1,56 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Button, Alert } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Row, Col, Button, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import '../../css/Customers.css';
+import '../../css/OneClientPage/OneClient.css';
 import config from '../../config/config';
 import NewTicket from '../TicketsPage/SingleTicketModal/NewTicket';
-import '../../css/OneClientPage/OneClient.css';
-
 
 function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
     const navigate = useNavigate();
+    const { ticketId } = useParams();
     const [ticketModal, setTicketModal] = useState(false);
     const [ticket, setTicket] = useState(null);
     const [statuses, setStatuses] = useState([]);
     const [closedStatusId, setClosedStatusId] = useState("");
     const [locations, setLocations] = useState({});
+    const [loading, setLoading] = useState(false);
 
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-GB');
-    };
+    // Load ticket and statuses if ticketId is present
+    useEffect(() => {
+        const loadTicketData = async () => {
+            if (ticketId) {
+                setLoading(true);
+                await fetchTicketById(ticketId);
+                if (statuses.length === 0) await fetchStatuses();
+                setTicketModal(true);
+                setLoading(false);
+            } else {
+                setTicketModal(false);
+                setTicket(null);
+            }
+        };
+        loadTicketData();
+    }, [ticketId]);
 
-    const handleTicketClick = (ticket) => {
-        setTicket(ticket);
-        setTicketModal(true);
-        fetchStatuses();
-    };
-    const fetchTickets = async() => {
+    const fetchTicketById = async (id) => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/client/${clientId}`)
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/${id}`);
+            setTicket(response.data);
+        } catch (error) {
+            console.error('Error fetching ticket by ID:', error);
+        }
+    };
+
+    const fetchTickets = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/client/${clientId}`);
             setTickets(response.data);
         } catch (error) {
-            console.error("Error fetching Customer Tickets", error);
+            console.error('Error fetching Customer Tickets:', error);
         }
-    }
+    };
 
     const fetchStatuses = async () => {
         try {
@@ -61,37 +78,43 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
         }
     };
 
+    // Load locations on mount
     useEffect(() => {
         fetchLocations();
     }, []);
 
+    const handleTicketClick = (ticket) => {
+        navigate(`/customer/${clientId}/ticket/${ticket.id}`);
+    };
+
     const handleClose = () => {
+        navigate(`/customer/${clientId}`);
         setTicketModal(false);
+    };
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-GB');
     };
 
     return (
         <>
             <Row className="row-margin-0 mb-2">
                 <Col className="col-md-auto">
-                    <h2 className="mb-0" style={{paddingBottom: "20px"}}>
-                        Tickets
-                    </h2>
+                    <h2 className="mb-0" style={{ paddingBottom: "20px" }}>Tickets</h2>
                 </Col>
             </Row>
             {tickets.length > 0 ? (
                 <>
-                    {/* Table header with columns */}
                     <Row className="row-margin-0 fw-bold mt-2">
                         <Col md={2}>No</Col>
                         <Col md={3}>Title</Col>
                         <Col md={2}>Date</Col>
                         <Col md={2}>Location</Col>
-                        <Col className="d-flex justify-content-center"  md={2}>Status</Col>
+                        <Col className="d-flex justify-content-center" md={2}>Status</Col>
                         <Col className="d-flex justify-content-center" md={1}>Priority</Col>
                     </Row>
                     <hr />
-
-                    {/* Tickets row structure */}
                     {tickets.map((ticket, index) => {
                         const status = statusMap[ticket.statusId];
                         const priorityColor = ticket.crisis ? 'red' : 'green';
@@ -101,10 +124,10 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
                             <Row
                                 key={ticket.id}
                                 className="align-items-center"
-                                style={{cursor: 'pointer', margin: "0 0"}}
+                                style={{ cursor: 'pointer', margin: "0 0" }}
                                 onClick={() => handleTicketClick(ticket)}
                             >
-                                <Col className="py-1" style={{backgroundColor: rowBgColor}}>
+                                <Col className="py-1" style={{ backgroundColor: rowBgColor }}>
                                     <Row className="align-items-center">
                                         <Col md={2}>{ticket.baitNumeration || 'N/A'}</Col>
                                         <Col md={3}>{ticket.title}</Col>
@@ -141,8 +164,7 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
                 <Alert variant="info">No tickets found for this client.</Alert>
             )}
 
-            {/* Modal for ticket details */}
-            {ticketModal && ticket && statuses.length > 0 && (
+            {ticketModal && ticket && statuses.length > 0 && !loading && (
                 <NewTicket
                     show={ticketModal}
                     onClose={handleClose}
@@ -150,6 +172,7 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
                     statuses={statuses}
                     isTicketClosed={closedStatusId === ticket.statusId}
                     reFetch={fetchTickets}
+                    clientId={clientId}
                 />
             )}
         </>
