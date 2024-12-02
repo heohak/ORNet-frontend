@@ -262,14 +262,14 @@ function NewAddCustomer({ show, onClose }) {
                     <Row>
                         <Col md={8}>
                             <Form.Group className="mb-3">
-                                <Row>
+                                <Row className="mb-1">
                                     <Col className="col-md-auto align-content-center">
                                         <Form.Label className="mb-0">
                                             Locations
                                         </Form.Label>
                                     </Col>
                                     <Col className="col-md-auto px-0 py-0">
-                                        <Button variant="link" onClick={() => setShowLocationModal(true)}>
+                                        <Button className="px-0 py-0" variant="link" onClick={() => setShowLocationModal(true)}>
                                             Add New Location
                                         </Button>
                                     </Col>

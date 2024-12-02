@@ -17,7 +17,7 @@ import '../../../css/NewTicket.css';
 import { FaTrash } from "react-icons/fa";
 import TicketDeleteModal from "./TicketDeleteModal"; // Import trash icon
 
-const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch }) => {
+const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, clientId }) => {
     const [ticket, setTicket] = useState(firstTicket);
     const [activeKey, setActiveKey] = useState('0');
     const [isClosed, setIsClosed] = useState(isTicketClosed);
@@ -173,6 +173,7 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch }) 
                             handleAccordionToggle={handleAccordionToggle}
                             eventKey="0"
                             reFetch={reFetchTicket}
+                            clientId={clientId}
                         />
                         <NewTicketFiles
                             ticket={ticket}

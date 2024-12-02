@@ -47,7 +47,7 @@ const NewTicketFiles = ({ ticket, eventKey, activeKey, handleAccordionToggle }) 
 
     // Trigger file input on icon click
     const handleIconClick = (e) => {
-        e.stopPropagation(); // Prevent accordion from collapsing
+        e.preventDefault(); // Prevent accordion from collapsing
         fileInputRef.current.click(); // Trigger file input
     };
 

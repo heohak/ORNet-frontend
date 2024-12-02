@@ -1,119 +1,128 @@
 import React, { useState } from 'react';
+import { Modal, Form, Button, Alert } from 'react-bootstrap';
 import axios from 'axios';
-import { Container, Form, Button, Alert } from 'react-bootstrap';
-import { useLocation, useNavigate } from 'react-router-dom';
 import config from '../../config/config';
-import EditTicketStatusAndWorkTypeModal from "../../modals/EditTicketStatusAndWorkTypeModal";
-import DeleteConfirmationModal from "../../modals/DeleteConfirmationModal";
+import { FaTrash } from 'react-icons/fa';
 
-function EditWorkType() {
-    const location = useLocation();
-    const navigate = useNavigate();
-    const { workType } = location.state || {}; // Get the workType passed from the previous page
+function EditWorkTypeModal({ show, onHide, workType, onUpdate }) {
     const [editedWorkType, setEditedWorkType] = useState(workType.workType);
     const [error, setError] = useState(null);
-
     const [ticketList, setTicketList] = useState([]);
-    const [showEditTicketStatusModal, setShowEditTicketStatusModal] = useState(false);
     const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
-    const historyEndpoint = "work-type/classificator/history"
 
     const handleUpdate = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(`${config.API_BASE_URL}/work-type/classificator/update/${workType.id}`, {
-                workType: editedWorkType,
-            });
-            navigate('/settings/work-types');
+            await axios.put(
+                `${config.API_BASE_URL}/work-type/classificator/update/${workType.id}`,
+                {
+                    workType: editedWorkType,
+                }
+            );
+            if (onUpdate) {
+                onUpdate();
+            }
         } catch (error) {
             setError(error.message);
         }
     };
-
 
     const handleDelete = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/ticket/search`, {
                 params: {
-                    workTypeId: workType.id
-                }
+                    workTypeId: workType.id,
+                },
             });
             setTicketList(response.data);
             if (response.data.length < 1) {
                 setShowDeleteConfirmationModal(true);
             } else {
-                setShowEditTicketStatusModal(true);
+                // Handle the case where tickets are associated
+                alert('Cannot delete work type associated with tickets.');
             }
         } catch (error) {
             setError(error.message);
         }
-
     };
 
-    const deleteClassificator = async() => {
+    const deleteClassificator = async () => {
         try {
             await axios.delete(`${config.API_BASE_URL}/work-type/classificator/${workType.id}`);
-            navigate('/settings/work-types');
+            if (onUpdate) {
+                onUpdate();
+            }
+            setShowDeleteConfirmationModal(false);
+            onHide();
         } catch (error) {
-            setError(error.message)
+            setError(error.message);
         }
-    }
+    };
 
-    const handleNavigate = () => {
-        if (workType && workType.id) {
-            navigate('/history', { state: { endpoint: `${historyEndpoint}/${workType.id}` } });
-        } else {
-            console.error("workType or workType.id is undefined");
-        }
+    const handleCloseDeleteModal = () => {
+        setShowDeleteConfirmationModal(false);
     };
 
     return (
-        <Container className="mt-5">
-            <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                <h1>Edit Work Type</h1>
-                <Button variant="secondary" onClick={handleNavigate} className="mt-3 ms-3">
-                    See history
-                </Button>
-            </div>
-            {error && (
-                <Alert variant="danger">
-                    <Alert.Heading>Error</Alert.Heading>
-                    <p>{error}</p>
-                </Alert>
-            )}
-            <Form onSubmit={handleUpdate}>
-                <Form.Group controlId="formWorkType">
-                    <Form.Label>Work Type</Form.Label>
-                    <Form.Control
-                        type="text"
-                        value={editedWorkType}
-                        onChange={(e) => setEditedWorkType(e.target.value)}
-                        placeholder="Enter work type"
-                        required
-                    />
-                </Form.Group>
-                <Button variant="primary" type="submit" className="mt-3">
-                    Update Work Type
-                </Button>
-                <Button variant="danger" onClick={handleDelete} className="mt-3 ms-3">
-                    Delete Work Type
-                </Button>
-                <Button variant="secondary" onClick={() => navigate('/settings/work-types')} className="mt-3 ms-3">
-                    Cancel
-                </Button>
-            </Form>
-            <EditTicketStatusAndWorkTypeModal
-                show={showEditTicketStatusModal}
-                handleClose={() => setShowEditTicketStatusModal(false)}
-                ticketList={ticketList}
-            />
-            <DeleteConfirmationModal
-                show={showDeleteConfirmationModal}
-                handleClose={() => setShowDeleteConfirmationModal(false)}
-                handleDelete={deleteClassificator}
-            />
-        </Container>
+        <>
+            <Modal show={show} onHide={onHide} backdrop="static" keyboard={false}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Work Type</Modal.Title>
+                </Modal.Header>
+                <Form onSubmit={handleUpdate}>
+                    <Modal.Body>
+                        {error && (
+                            <Alert variant="danger">
+                                <Alert.Heading>Error</Alert.Heading>
+                                <p>{error}</p>
+                            </Alert>
+                        )}
+                        <Form.Group controlId="formWorkType">
+                            <Form.Label>Work Type</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={editedWorkType}
+                                onChange={(e) => setEditedWorkType(e.target.value)}
+                                placeholder="Enter work type"
+                                required
+                            />
+                        </Form.Group>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="outline-info" onClick={onHide}>
+                            Cancel
+                        </Button>
+                        <Button variant="danger" onClick={handleDelete}>
+                            <FaTrash /> Delete Work Type
+                        </Button>
+                        <Button variant="primary" type="submit">
+                            Update Work Type
+                        </Button>
+                    </Modal.Footer>
+                </Form>
+            </Modal>
+
+            {/* Delete Confirmation Modal */}
+            <Modal show={showDeleteConfirmationModal} onHide={handleCloseDeleteModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Work Type Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>
+                        Are you sure you want to delete this work type? This action cannot be undone.
+                    </p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="outline-info" onClick={handleCloseDeleteModal}>
+                        Close
+                    </Button>
+                    <Button variant="danger" onClick={deleteClassificator}>
+                        Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        </>
     );
 }
 
-export default EditWorkType;
+export default EditWorkTypeModal;

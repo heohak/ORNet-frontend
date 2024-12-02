@@ -27,6 +27,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
     const [clients, setClients] = useState([]);
     const [locations, setLocations] = useState([]);
     const [contacts, setContacts] = useState([]);
+    const [availableContacts, setAvailableContacts] = useState([]);
     const [selectedContacts, setSelectedContacts] = useState([]);
     const [baitWorkers, setBaitWorkers] = useState([]);
     const [openStatusId, setOpenStatusId] = useState(null);
@@ -42,11 +43,31 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
     const [submitType, setSubmitType] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-
+    const sortList = (list, type) => {
+        if (type === "Contact" || type === "BaitWorker") {
+            list = list.sort((a, b) => (a.firstName + " " + a.lastName).localeCompare(b.firstName + " " + b.lastName))
+        } else if (type === "Device") {
+            list = list.sort((a, b) => a.deviceName.localeCompare(b.deviceName))
+        } else if (type === "WorkType") {
+            list = list.sort((a, b) => a.label.localeCompare(b.label))
+        } else {
+            list = list.sort((a, b) => a.name.localeCompare(b.name))
+        }
+        return list
+    }
     const changeAvailableDevices = (locationId) => {
         locationId = parseInt(locationId)
-        setAvailableDevices(devices.filter(device => device.locationId === locationId))
+        const filteredList = devices.filter(device => device.locationId === locationId)
+        const sortedList = sortList(filteredList, "Device")
+        setAvailableDevices(sortedList)
     };
+
+    const changeAvailableContacts = (locationId) => {
+        locationId = parseInt(locationId)
+        const filteredList = contacts.filter(contact => contact.locationId === locationId)
+        const sortedList = sortList(filteredList, "Contact")
+        setAvailableContacts(sortedList)
+    }
 
     useEffect(() => {
         const fetchData = async () => {
@@ -65,9 +86,9 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
                         setOpenStatusId(open.id);
                     }
                 }
-                setBaitWorkers(baitWorkerRes.data);
-                setWorkTypes(workTypeRes.data.map(workType => ({value: workType.id, label: workType.workType})));
-                setClients(clientRes.data);
+                setBaitWorkers(sortList(baitWorkerRes.data, "BaitWorker"));
+                setWorkTypes(sortList(workTypeRes.data.map(workType => ({value: workType.id, label: workType.workType})), "WorkType"));
+                setClients(clientRes.data.sort((a, b) => a.shortName.localeCompare(b.shortName)));
 
             } catch (error) {
                 setError(error.message);
@@ -92,7 +113,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
                         })
                     );
 
-                    setLocations(locationRes.data);
+                    setLocations(locationRes.data.sort((a, b) => a.name.localeCompare(b.name)));
                     setContacts(contactsWithRoles);
                     setDevices(deviceRes.data);
                 } catch (error) {
@@ -113,6 +134,8 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
             newValue = parseInt(value);
         } else if (id === 'locationId') {
             changeAvailableDevices(value);
+            changeAvailableContacts(value);
+            setSelectedContacts([]);
             setSelectedDevices([]);
         }
         setFormData( prevData => ({...prevData, [id]: newValue}));
@@ -338,13 +361,19 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
                                 </div>
                                 <Select
                                     isMulti
-                                    options={contacts}
+                                    options={availableContacts}
                                     value={selectedContacts}
                                     onChange={setSelectedContacts}
-                                    isDisabled={!formData.clientId}
                                     getOptionLabel={option => `${option.favorite ? '★ ' : ''}${option.firstName} ${option.lastName}`}
                                     getOptionValue={option => option.id}
-                                    placeholder={!formData.clientId ? 'Pick a customer before picking a contact' : 'Select contacts'}
+                                    isDisabled={!formData.clientId || !formData.locationId}
+                                    placeholder={
+                                        !formData.clientId
+                                            ? "Pick a customer before picking contacts"
+                                            : !formData.locationId
+                                                ? "Pick a location before picking contacts"
+                                                : "Select contacts"
+                                    }
                                     components={{ Option: ContactOption }}
 
                                 />
@@ -405,7 +434,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
                         <Col md={5}>
                             <Form.Group className="mb-3">
                                 <div className="d-flex mb-2">
-                                    <Form.Label className="align-items-centre mb-0">Selected Work Types</Form.Label>
+                                    <Form.Label className="align-items-centre mb-0">Work Types</Form.Label>
                                     <Button
                                         variant="link"
                                         onClick={() => setShowWorkTypeModal(true)}
@@ -430,7 +459,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
                     <Row>
                         <Col md={4}>
                             <Form.Group className="mb-3">
-                                <Form.Label>Client Numeration</Form.Label>
+                                <Form.Label>Customer Numeration</Form.Label>
                                 <Form.Control
                                     type="text"
                                     value={formData.clientNumeration}
@@ -455,7 +484,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
                         </Col>
                         <Col md={5}>
                             <Form.Group className="mb-3">
-                                <Form.Label>Responsible</Form.Label>
+                                <Form.Label>Assignee</Form.Label>
                                 <Form.Control
                                     as="select"
                                     value={formData.baitWorkerId}
@@ -463,7 +492,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
                                     id="baitWorkerId"
                                     required
                                 >
-                                    <option value="">Select Responsible</option>
+                                    <option value="">Select Assignee</option>
                                     {baitWorkers.map(baitWorker => (
                                         <option key={baitWorker.id} value={baitWorker.id}>
                                             {baitWorker.firstName + " " + baitWorker.lastName}

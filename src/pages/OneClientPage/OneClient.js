@@ -98,6 +98,9 @@ function OneClient() {
         } else if (location.state?.openAccordion === 'activity') {
             setActiveAccordionKeys(['3']); // Open the Activity accordion
             handleAccordionScroll('3');    // Scroll to the Activity accordion
+        } else if (location.state?.openAccordion === 'tickets') {
+            setActiveAccordionKeys(['4']); // Open the Tickets accordion
+            handleAccordionScroll('4');    // Scroll to the Tickets accordion
         }
     }, [location]);
 

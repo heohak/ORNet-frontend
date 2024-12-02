@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Container, Row, Col, Card, Button, Spinner, Alert, Modal, Form } from 'react-bootstrap';
+import {
+    Container,
+    Row,
+    Col,
+    Button,
+    Spinner,
+    Alert,
+    Modal,
+    Form,
+} from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import config from '../../config/config';
-import noImg from "../../assets/no-img.jpg";
-
+import { FaDownload } from 'react-icons/fa';
 
 function ViewFiles() {
     const [loading, setLoading] = useState(false);
@@ -68,9 +76,14 @@ function ViewFiles() {
 
     return (
         <Container className="mt-5">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1>View and Upload Files</h1>
-                <Button variant="primary" onClick={() => setShowAddModal(true)}>Upload Files</Button>
+            <h1>View and Upload Files</h1>
+            <Button variant="primary" className="mb-4" onClick={() => navigate(-1)}>
+                Back
+            </Button>
+            <div className="d-flex justify-content-end align-items-center mb-4">
+                <Button variant="primary" onClick={() => setShowAddModal(true)}>
+                    Upload Files
+                </Button>
             </div>
             {loading && (
                 <Spinner animation="border" role="status">
@@ -83,72 +96,80 @@ function ViewFiles() {
                     <p>{error}</p>
                 </Alert>
             )}
-            <Row>
-                {files.map((file, index) => (
-                    <Col key={file.id} md={4} className="mb-4">
-                        <Card>
-                            <Card.Img
-                                variant="top"
-                                src={`${config.API_BASE_URL}/file/thumbnail/${file.id}`}
-                                alt={file.fileName || "No image available"} // Use file name or default text for alt
-                                onError={(e) => { e.target.onerror = null; e.target.src = noImg; }} // Set default image on error
-                                style={{ height: '200px', objectFit: 'cover', objectPosition: 'center center' }}
-                            />
-                            <Card.Body>
-                                <Card.Title>File {index + 1}</Card.Title>
-                                <Card.Text>
-                                    <strong>Name: </strong>{file.fileName}
-                                </Card.Text>
-                                <a
-                                    href={`${config.API_BASE_URL}/file/open/${file.id}`} // Link to open the file in a new tab
-                                    target="_blank" // Open in a new tab
-                                    rel="noopener noreferrer" // Security feature
-                                    className="file-link"
-                                    style={{ display: 'inline-block', marginRight: '10px' }} // Only take width of the text
-                                >
-                                    <Button variant="primary" className="ms-2">Open</Button>
-
-                                </a>
-                                <Button variant="primary" href={`${config.API_BASE_URL}/file/download/${file.id}`} className="ms-2">Download</Button>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                ))}
-            </Row>
+            {files.length === 0 ? (
+                <Alert variant="info">No files found.</Alert>
+            ) : (
+                <>
+                    {/* Table Header */}
+                    <Row className="fw-bold mt-2">
+                        <Col>File Name</Col>
+                        <Col md="auto">Actions</Col>
+                    </Row>
+                    <hr />
+                    {/* Files Rows */}
+                    {files.map((file, index) => {
+                        const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                        return (
+                            <Row
+                                key={file.id}
+                                className="align-items-center"
+                                style={{ backgroundColor: rowBgColor }}
+                            >
+                                <Col>
+                                    <a
+                                        href={`${config.API_BASE_URL}/file/open/${file.id}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{ textDecoration: 'none', color: 'inherit' }}
+                                    >
+                                        {file.fileName}
+                                    </a>
+                                </Col>
+                                <Col md="auto">
+                                    <a href={`${config.API_BASE_URL}/file/download/${file.id}`}>
+                                        <Button variant="link" className="p-0">
+                                            <FaDownload />
+                                        </Button>
+                                    </a>
+                                </Col>
+                            </Row>
+                        );
+                    })}
+                </>
+            )}
+            {/* Upload Files Modal */}
             <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Upload Files</Modal.Title>
                 </Modal.Header>
                 <Form onSubmit={handleUploadFiles}>
                     <Modal.Body>
-                        <Container>
-                            {error && (
-                                <Alert variant="danger">
-                                    <Alert.Heading>Error</Alert.Heading>
-                                    <p>{error}</p>
-                                </Alert>
-                            )}
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Select Files</Form.Label>
-                                    <Form.Control
-                                        type="file"
-                                        multiple
-                                        onChange={handleFileChange}
-                                        required
-                                    />
-                                </Form.Group>
-
-                        </Container>
+                        {error && (
+                            <Alert variant="danger">
+                                <Alert.Heading>Error</Alert.Heading>
+                                <p>{error}</p>
+                            </Alert>
+                        )}
+                        <Form.Group className="mb-3">
+                            <Form.Label>Select Files</Form.Label>
+                            <Form.Control
+                                type="file"
+                                multiple
+                                onChange={handleFileChange}
+                                required
+                            />
+                        </Form.Group>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
+                        <Button variant="outline-info" onClick={() => setShowAddModal(false)}>
+                            Cancel
+                        </Button>
                         <Button variant="primary" type="submit" disabled={loading}>
                             {loading ? 'Uploading...' : 'Upload Files'}
                         </Button>
                     </Modal.Footer>
                 </Form>
             </Modal>
-            <Button onClick={() => navigate(-1)}>Back</Button>
         </Container>
     );
 }

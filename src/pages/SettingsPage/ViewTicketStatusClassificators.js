@@ -1,161 +1,319 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Container, Row, Col, Card, Button, Spinner, Alert, Modal, Form } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import {
+    Container,
+    Row,
+    Col,
+    Button,
+    Spinner,
+    Alert,
+    Modal,
+    Form,
+} from 'react-bootstrap';
 import config from '../../config/config';
-import {faEdit} from "@fortawesome/free-solid-svg-icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import { FaEdit } from 'react-icons/fa';
 
 function ViewTicketStatusClassificators() {
     const [classificators, setClassificators] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // State for Add Modal
     const [showAddModal, setShowAddModal] = useState(false);
-    const [status, setStatus] = useState('');
-    const navigate = useNavigate();
+    const [newStatus, setNewStatus] = useState('');
+    const [newColor, setNewColor] = useState('#007bff');
+
+    // State for Edit Modal
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedClassificator, setSelectedClassificator] = useState(null);
+    const [editStatus, setEditStatus] = useState('');
+    const [editColor, setEditColor] = useState('');
+
+    // State for Delete Confirmation Modal
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [relatedTickets, setRelatedTickets] = useState([]);
 
     useEffect(() => {
-        const fetchClassificators = async () => {
-            try {
-                const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`);
-                setClassificators(response.data);
-            } catch (error) {
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchClassificators();
     }, []);
+
+    const fetchClassificators = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`);
+            setClassificators(response.data);
+            setError(null);
+        } catch (error) {
+            setError('Error fetching ticket status classificators');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleAddClassificator = async (e) => {
         e.preventDefault();
         try {
             await axios.post(`${config.API_BASE_URL}/ticket/classificator/add`, {
-                status: status
+                status: newStatus,
+                color: newColor,
             });
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`);
-            setClassificators(response.data);
             setShowAddModal(false);
-            setStatus('');
+            setNewStatus('');
+            setNewColor('#007bff');
+            fetchClassificators(); // Refresh the list
         } catch (error) {
             setError('Error adding ticket status classificator');
         }
     };
 
     const handleEdit = (classificator) => {
-        navigate(`/settings/ticket-status-classificators/edit/${classificator.id}`, { state: { classificator } });
+        setSelectedClassificator(classificator);
+        setEditStatus(classificator.status);
+        setEditColor(classificator.color || '#007bff');
+        setShowEditModal(true);
     };
 
-    if (loading) {
-        return (
-            <Container className="text-center mt-5">
-                <Spinner animation="border" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                </Spinner>
-            </Container>
-        );
-    }
+    const handleUpdateClassificator = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.put(
+                `${config.API_BASE_URL}/ticket/classificator/update/${selectedClassificator.id}`,
+                { status: editStatus, color: editColor }
+            );
+            setShowEditModal(false);
+            setSelectedClassificator(null);
+            fetchClassificators(); // Refresh the list
+        } catch (error) {
+            setError('Error updating ticket status classificator');
+        }
+    };
 
-    if (error) {
-        return (
-            <Container className="mt-5">
-                <Alert variant="danger">
-                    <Alert.Heading>Error</Alert.Heading>
-                    <p>{error}</p>
-                </Alert>
-            </Container>
-        );
-    }
+    const handleShowDeleteModal = async () => {
+        await fetchRelatedTickets();
+        setShowDeleteModal(true);
+    };
 
-    const handleNavigate = () => {
-        navigate('/history', { state: { endpoint: `ticket/classificator/deleted` } });
-    }
+    const handleCloseDeleteModal = () => {
+        setShowDeleteModal(false);
+    };
+
+    const fetchRelatedTickets = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/ticket/search`, {
+                params: { statusId: selectedClassificator.id },
+            });
+            setRelatedTickets(response.data);
+        } catch (error) {
+            setError('Error fetching related tickets');
+        }
+    };
+
+    const handleDeleteClassificator = async () => {
+        try {
+            await axios.delete(`${config.API_BASE_URL}/ticket/classificator/${selectedClassificator.id}`);
+            setShowDeleteModal(false);
+            setShowEditModal(false);
+            setSelectedClassificator(null);
+            fetchClassificators(); // Refresh the list
+        } catch (error) {
+            setError('Error deleting ticket status classificator');
+        }
+    };
 
     return (
         <Container className="mt-5">
-            <Row className="d-flex justify-content-between align-items-center mb-4">
-                <Col className="col-md-auto">
-                    <h1>Ticket Status Classificators</h1>
-                </Col>
-                <Col className="col-md-auto">
-                    <Row>
-                        <Col className="col-md-auto">
-                            <Button variant='secondary' onClick={handleNavigate}>
-                                See Deleted
-                            </Button>
-                        </Col>
-                        <Col className="col-md-auto">
-                            <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Classificator</Button>
-                        </Col>
-                    </Row>
-                </Col>
-            </Row>
-            <Row>
-                {classificators.map((classificator) => {
-                    const statusName = classificator?.status || 'Unknown Status';
-                    const statusColor = classificator?.color || '#007bff';
-                    return (
-                    <Col md={3} key={classificator.id} className="mb-4">
-                        <Card>
-                            <Row className="d-flex justify-content-between">
-                                <Col className="col-md-auto">
-                                    <div className="d-flex align-items-center">
-                                        <h3 className="p-2 fw-semibold">{statusName}</h3>
-                                        <Button
-                                            style={{
-                                                width: "20px",
-                                                height: "20px", // Ensure the box is square
-                                                backgroundColor: statusColor,
-                                                borderColor: statusColor,
-                                                marginLeft: "10px"
-                                            }}
-                                            disabled
-                                            className="p-0 ms-2" // Remove padding for a clean square
-                                        />
-                                    </div>
-                                </Col>
+            <h1>Ticket Status Classificators</h1>
+            <Button
+                variant="primary"
+                className="mb-4"
+                onClick={() => window.history.back()}
+            >
+                Back
+            </Button>
+            <div className="d-flex justify-content-end align-items-center mb-4">
+                <Button variant="primary" onClick={() => setShowAddModal(true)}>
+                    Add Classificator
+                </Button>
+            </div>
 
-                                <Col className="col-md-auto">
-                                    <Button
-                                        variant="link"
-                                        onClick={() => handleEdit(classificator)}
-                                        className="" // Align to the top-right corner
-                                    >
-                                        <FontAwesomeIcon icon={faEdit} title="Edit Customer" />
-                                    </Button>
-                                </Col>
+            {loading ? (
+                <Container className="text-center mt-5">
+                    <Spinner animation="border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </Spinner>
+                </Container>
+            ) : error ? (
+                <Alert variant="danger">{error}</Alert>
+            ) : (
+                <>
+                    {classificators.length === 0 ? (
+                        <Alert variant="info">No ticket status classificators found.</Alert>
+                    ) : (
+                        <>
+                            {/* Table header */}
+                            <Row className="fw-bold mt-2">
+                                <Col md={9}>Status</Col>
+                                <Col md={1}>Color</Col>
+                                <Col md={2}>Actions</Col>
                             </Row>
-                        </Card>
+                            <hr />
+                            {/* Status rows */}
+                            {classificators.map((classificator, index) => {
+                                const rowBgColor =
+                                    index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                                return (
+                                    <Row
+                                        key={classificator.id}
+                                        className="align-items-center"
+                                        style={{ backgroundColor: rowBgColor }}
+                                    >
+                                        <Col md={9}>{classificator.status}</Col>
+                                        <Col md={1}>
+                                            <div
+                                                style={{
+                                                    width: '20px',
+                                                    height: '20px',
+                                                    backgroundColor: classificator.color || '#007bff',
+                                                    border: '1px solid #000',
+                                                    borderRadius: '4px',
+                                                }}
+                                            ></div>
+                                        </Col>
+                                        <Col md={2}>
+                                            <Button
+                                                variant="link"
+                                                className="p-0"
+                                                onClick={() => handleEdit(classificator)}
+                                            >
+                                                <FaEdit />
+                                            </Button>
+                                        </Col>
+                                    </Row>
+                                );
+                            })}
+                        </>
+                    )}
+                </>
+            )}
 
-                    </Col>
-                    )})}
-            </Row>
+            {/* Add Classificator Modal */}
             <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Add Classificator</Modal.Title>
+                    <Modal.Title>Add Ticket Status</Modal.Title>
                 </Modal.Header>
                 <Form onSubmit={handleAddClassificator}>
                     <Modal.Body>
-                            <Form.Group controlId="formStatus">
-                                <Form.Label>Status</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    value={status}
-                                    onChange={(e) => setStatus(e.target.value)}
-                                    placeholder="Enter status"
-                                    required
-                                />
-                            </Form.Group>
+                        <Form.Group controlId="formNewStatus">
+                            <Form.Label>Status</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={newStatus}
+                                onChange={(e) => setNewStatus(e.target.value)}
+                                placeholder="Enter status"
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formNewColor" className="mt-3">
+                            <Form.Label>Color</Form.Label>
+                            <Form.Control
+                                type="color"
+                                value={newColor}
+                                onChange={(e) => setNewColor(e.target.value)}
+                                title="Choose a color"
+                                required
+                            />
+                        </Form.Group>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
-                        <Button variant="primary" type="submit">Add Classificator</Button>
+                        <Button variant="outline-info" onClick={() => setShowAddModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="primary" type="submit">
+                            Add Status
+                        </Button>
                     </Modal.Footer>
-            </Form>
+                </Form>
             </Modal>
-            <Button onClick={() => navigate('/settings')}>Back</Button>
+
+            {/* Edit Classificator Modal */}
+            <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Ticket Status</Modal.Title>
+                </Modal.Header>
+                <Form onSubmit={handleUpdateClassificator}>
+                    <Modal.Body>
+                        <Form.Group controlId="formEditStatus">
+                            <Form.Label>Status</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={editStatus}
+                                onChange={(e) => setEditStatus(e.target.value)}
+                                placeholder="Enter status"
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formEditColor" className="mt-3">
+                            <Form.Label>Color</Form.Label>
+                            <Form.Control
+                                type="color"
+                                value={editColor}
+                                onChange={(e) => setEditColor(e.target.value)}
+                                title="Choose a color"
+                                required
+                            />
+                        </Form.Group>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="outline-info" onClick={() => setShowEditModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="danger" onClick={handleShowDeleteModal}>
+                            Delete Status
+                        </Button>
+                        <Button variant="primary" type="submit">
+                            Update Status
+                        </Button>
+                    </Modal.Footer>
+                </Form>
+            </Modal>
+
+            {/* Delete Confirmation Modal */}
+            <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Status Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {relatedTickets.length > 0 ? (
+                        <>
+                            <p>
+                                This status is associated with the following tickets and cannot be
+                                deleted:
+                            </p>
+                            <ul>
+                                {relatedTickets.map((ticket) => (
+                                    <li key={ticket.id}>
+                                        <strong>Ticket ID:</strong> {ticket.id} <br />
+                                        <strong>Title:</strong> {ticket.title} <br />
+                                        <strong>Customer:</strong> {ticket.clientName}
+                                    </li>
+                                ))}
+                            </ul>
+                        </>
+                    ) : (
+                        <p>No tickets are linked to this status. You can proceed with deletion.</p>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="outline-info" onClick={handleCloseDeleteModal}>
+                        Close
+                    </Button>
+                    {relatedTickets.length === 0 && (
+                        <Button variant="danger" onClick={handleDeleteClassificator}>
+                            Delete Status
+                        </Button>
+                    )}
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 }

@@ -7,19 +7,19 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
     const [locations, setLocations] = useState([]);
     const [locationsLoading, setLocationsLoading] = useState(true);
     const [locationsError, setLocationsError] = useState(null);
-    const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'ascending' });
+    const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'descending' });
 
     // Function to format the date to DD.MM.YYYY
     const formatDate = (dateString) => {
         const date = new Date(dateString);
-        return date.toLocaleDateString('en-GB'); // This will format it to DD.MM.YYYY
+        return date.toLocaleDateString('en-GB'); // DD.MM.YYYY
     };
 
     // Fetch all locations when the component mounts
     useEffect(() => {
         const fetchLocations = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/location/all`); // Adjust the endpoint as needed
+                const response = await axios.get(`${config.API_BASE_URL}/location/all`);
                 const data = await response.data;
                 setLocations(data);
                 setLocationsLoading(false);
@@ -50,8 +50,8 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
             } else if (key === 'clientName' || key === 'location' || key === 'title') {
                 const nameA = key === 'location' ? getLocationName(a.locationId) : a[key];
                 const nameB = key === 'location' ? getLocationName(b.locationId) : b[key];
-                if (nameA < nameB) return direction === 'ascending' ? -1 : 1;
-                if (nameA > nameB) return direction === 'ascending' ? 1 : -1;
+                if (nameA < nameB) return direction === 'descending' ? -1 : 1;
+                if (nameA > nameB) return direction === 'descending' ? 1 : -1;
                 return 0;
             }
             return 0;
@@ -60,7 +60,7 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
     };
 
     const handleSort = (key) => {
-        let direction = 'ascending';
+        let direction = 'ascending'; // Default direction for the first click
         if (sortConfig.key === key && sortConfig.direction === 'ascending') {
             direction = 'descending';
         }
@@ -91,9 +91,7 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
     if (tickets.length === 0) {
         return (
             <div className="mt-5">
-                <Alert variant="info">
-                    No tickets found.
-                </Alert>
+                <Alert variant="info">No tickets found.</Alert>
             </div>
         );
     }
@@ -105,7 +103,9 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
     };
 
     // Sort tickets based on the current sort config
-    const sortedTickets = sortTickets(tickets, sortConfig.key, sortConfig.direction);
+    const sortedTickets = sortConfig.key
+        ? sortTickets(tickets, sortConfig.key, sortConfig.direction)
+        : tickets;
 
     // Function to render sort arrows
     const renderSortArrow = (key) => {

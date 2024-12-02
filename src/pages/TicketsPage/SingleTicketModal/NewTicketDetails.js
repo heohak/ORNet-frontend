@@ -6,7 +6,7 @@ import config from "../../../config/config";
 import Select from "react-select";
 import {useNavigate} from "react-router-dom";
 
-const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, reFetch }) => {
+const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, reFetch, clientId }) => {
     const [responsibleName, setResponsibleName] = useState('');
     const [availableWorkTypes, setAvailableWorkTypes] = useState([]);
     const [selectedWorkTypes, setSelectedWorkTypes] = useState([]);
@@ -96,13 +96,19 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
 
     // Toggle edit mode
     const handleEditToggle = (e) => {
-        e.stopPropagation();  // Prevent the accordion from collapsing
+        e.preventDefault()
         if (editMode) {
             // If in edit mode, save the changes to the server
             handleSaveChanges();
         }
         setEditMode(!editMode);
     };
+
+    const handleAccordionHeaderClick = (e) => {
+        e.stopPropagation();  // Prevent the accordion from collapsing when the button is clicked
+        handleAccordionToggle(eventKey);  // Trigger accordion toggle if needed
+    };
+
 
     // Handle input changes for the edited ticket
     const handleInputChange = (e) => {
@@ -204,12 +210,14 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
         <>
             <Accordion activeKey={activeKey}>
                 <Accordion.Item eventKey={eventKey}>
-                    <Accordion.Header onClick={() => handleAccordionToggle(eventKey)}>
+                    <Form onSubmit={handleEditToggle}>
+                        <Accordion.Header onClick={handleAccordionHeaderClick}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                             Details
                             <Button
                                 variant="link"
-                                onClick={handleEditToggle}  // Stop event propagation here
+                                type="submit"
+                                onClick={(e) => {e.stopPropagation()}}  // Prevent the accordion from collapsing
                                 style={{ textDecoration: 'none', padding: 0 }} // Style button
                                 className="me-2 d-flex"
                             >
@@ -239,6 +247,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                             name="clientNumeration"
                                             value={editedTicket.clientNumeration}
                                             onChange={handleInputChange}
+                                            required
                                         />
                                     ) : editedTicket.clientNumeration}
                                 </Col>
@@ -301,9 +310,12 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                                 components={{ Option: ContactOption }}
                                             />
                                         </Form.Group>
-                                    ) : (
-                                        selectedContacts.map(contact => contact.firstName + " " + contact.lastName).join(', ')
-                                    )}
+                                    ) : ( selectedContacts.length > 0
+                                        ? selectedContacts.map(contact => contact.firstName + " " + contact.lastName).join(', ')
+                                        : (
+                                            <span style={{ fontStyle: 'italic', color: 'gray' }}>No Contacts</span>
+                                        ))
+                                    }
                                 </Col>
                             </Row>
 
@@ -320,6 +332,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                                 value={selectedWorkTypes}
                                                 onChange={setSelectedWorkTypes}
                                                 placeholder="Select Work Types"
+                                                required
                                             />
                                         </Form.Group>
                                     ): selectedWorkTypes.map(workType => workType.label).join(', ')}
@@ -349,7 +362,13 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                             selectedDevices.map((device, index) => (
                                                 <React.Fragment key={device.id}>
                                                       <span
-                                                          onClick={() => navigate(`/device/${device.value}`, { state: { fromTicketId: ticket.id } })}
+                                                          onClick={() => navigate(`/device/${device.id}`, {
+                                                              state: {
+                                                                  fromPath: clientId
+                                                                      ? `/customer/${clientId}/ticket/${ticket.id}`
+                                                                      : `/tickets/${ticket.id}`,
+                                                              }
+                                                          })}
                                                           style={{ color: 'blue', cursor: 'pointer' }} // Styling for clickable text
                                                       >
                                                         {device.deviceName}
@@ -380,9 +399,9 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                     {formatDateString(ticket.updateDateTime)}
                                 </Col>
                             </Row>
-
                         </div>
                     </Accordion.Body>
+                    </Form>
                 </Accordion.Item>
             </Accordion>
         </>
