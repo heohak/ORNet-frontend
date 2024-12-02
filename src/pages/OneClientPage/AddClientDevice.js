@@ -52,7 +52,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                 axios.get(`${config.API_BASE_URL}/device/classificator/all`)
             ]);
             const sortedLocations = locationsRes.data.sort((a, b) => a.name.localeCompare(b.name))
-            setLocations(locationsRes.data);
+            setLocations(sortedLocations);
 
             const sortedClassificators = classificatorsRes.data.sort((a, b) => a.name.localeCompare(b.name))
             setClassificators(sortedClassificators)

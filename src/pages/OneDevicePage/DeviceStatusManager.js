@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import config from '../../config/config';
+import ReactDatePicker from "react-datepicker";
 
 function DeviceStatusManager({ deviceId, introducedDate, writtenOffDate, setRefresh }) {
     // States for handling written-off status
@@ -118,12 +119,15 @@ function DeviceStatusManager({ deviceId, introducedDate, writtenOffDate, setRefr
                     <Modal.Body>
                         <Form.Group controlId="writtenOffDate">
                             <Form.Label>Written Off Date</Form.Label>
-                            <Form.Control
-                                type="date"
-                                value={currentWrittenOffDate}
-                                onChange={(e) => setCurrentWrittenOffDate(e.target.value)}
-                                max={today}
+                            <ReactDatePicker
+                                selected={currentWrittenOffDate}
+                                onChange={(date) => setCurrentWrittenOffDate(date)}
+                                dateFormat="dd/MM/yyyy"
+                                className="form-control dark-placeholder"
+                                placeholderText="Select a date"
+                                isClearable={currentWrittenOffDate !== ''}
                                 required
+                                minDate={introducedDate}
                             />
                         </Form.Group>
 
