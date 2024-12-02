@@ -142,7 +142,6 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, deviceId
                             dateFormat="dd/MM/yyyy"
                             className="form-control dark-placeholder"
                             placeholderText="Select a date"
-                            maxDate={new Date()} // Prevent future dates
                             isClearable
                             required
                         />
