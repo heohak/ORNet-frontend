@@ -88,7 +88,7 @@ function OneDevice() {
 
     const handleBackNavigation = () => {
         if (location.state?.fromPath) {
-            navigate(`${location.state.fromPath}`);
+            navigate(`${location.state.fromPath}`, { state: { openAccordion: 'tickets' }});
         } else if (location.state && location.state.from === 'all-devices') {
             navigate('/devices');
         } else if (device && device.clientId) {
