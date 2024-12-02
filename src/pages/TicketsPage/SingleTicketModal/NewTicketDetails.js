@@ -96,13 +96,19 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
 
     // Toggle edit mode
     const handleEditToggle = (e) => {
-        e.stopPropagation();  // Prevent the accordion from collapsing
+        e.preventDefault()
         if (editMode) {
             // If in edit mode, save the changes to the server
             handleSaveChanges();
         }
         setEditMode(!editMode);
     };
+
+    const handleAccordionHeaderClick = (e) => {
+        e.stopPropagation();  // Prevent the accordion from collapsing when the button is clicked
+        handleAccordionToggle(eventKey);  // Trigger accordion toggle if needed
+    };
+
 
     // Handle input changes for the edited ticket
     const handleInputChange = (e) => {
@@ -204,12 +210,14 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
         <>
             <Accordion activeKey={activeKey}>
                 <Accordion.Item eventKey={eventKey}>
-                    <Accordion.Header onClick={() => handleAccordionToggle(eventKey)}>
+                    <Form onSubmit={handleEditToggle}>
+                        <Accordion.Header onClick={handleAccordionHeaderClick}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                             Details
                             <Button
                                 variant="link"
-                                onClick={handleEditToggle}  // Stop event propagation here
+                                type="submit"
+                                onClick={(e) => {e.stopPropagation()}}  // Prevent the accordion from collapsing
                                 style={{ textDecoration: 'none', padding: 0 }} // Style button
                                 className="me-2 d-flex"
                             >
@@ -239,6 +247,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                             name="clientNumeration"
                                             value={editedTicket.clientNumeration}
                                             onChange={handleInputChange}
+                                            required
                                         />
                                     ) : editedTicket.clientNumeration}
                                 </Col>
@@ -323,6 +332,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                                 value={selectedWorkTypes}
                                                 onChange={setSelectedWorkTypes}
                                                 placeholder="Select Work Types"
+                                                required
                                             />
                                         </Form.Group>
                                     ): selectedWorkTypes.map(workType => workType.label).join(', ')}
@@ -383,9 +393,9 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                     {formatDateString(ticket.updateDateTime)}
                                 </Col>
                             </Row>
-
                         </div>
                     </Accordion.Body>
+                    </Form>
                 </Accordion.Item>
             </Accordion>
         </>
