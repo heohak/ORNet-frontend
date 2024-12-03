@@ -8,6 +8,7 @@ import { validatePhoneAndPostalCode } from '../../utils/Validation';
 import AddThirdPartyITModal from "./AddThirdPartyITModal";
 import AddLocationModal from "./AddLocationModal";
 import AsyncSelect from "react-select/async";
+import AddTechnicalInfoModal from "./AddTechnicalInfoModal";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTimes} from "@fortawesome/free-solid-svg-icons";
 import ReactDatePicker from 'react-datepicker';
@@ -42,7 +43,18 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
     const [selectedCountry, setSelectedCountry] = useState(null);
     const [showModal, setShowModal] = useState(true);
     const [assignedSoftwares, setAssignedSoftwares] = useState([]);
+    const [allSoftwares, setAllSoftwares] = useState([]);
+    const [showAddSoftwareModal, setShowAddSoftwareModal] = useState(false);
 
+
+    const fetchAllSoftwares = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/software/all`);
+            setAllSoftwares(response.data);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
 
     // Fetch client data
     const fetchClientData = async () => {
@@ -101,7 +113,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
         if (error && errorRef.current) {
             errorRef.current.scrollIntoView({ behavior: 'smooth' });
         }
-
+        fetchAllSoftwares();
         fetchClientData();
         fetchLocations();
         fetchAllThirdPartyITs();
@@ -204,20 +216,36 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             locationIds: [...prevData.locationIds, addedLocation.id],
         }));
     };
+    const handleSoftwareAdd = async (e) => {
+        const softwareId = parseInt(e.target.value);
+        const softwareToAdd = allSoftwares.find((sw) => sw.id === softwareId);
+
+        try {
+            await axios.put(`${config.API_BASE_URL}/software/add/client/${softwareId}/${clientId}`);
+
+            // Update assignedSoftwares state
+            setAssignedSoftwares((prevSoftwares) => [...prevSoftwares, softwareToAdd]);
+
+            // Trigger refresh to update availableSoftwares
+            setRefresh((prev) => !prev);
+        } catch (error) {
+            setError('Failed to assign Technical Information.');
+            console.error('Error assigning software:', error);
+        }
+    };
+
 
     const handleUnassignSoftware = async (softwareId) => {
         try {
             await axios.put(`${config.API_BASE_URL}/software/remove/${softwareId}`);
 
-            // Option A: Update the assignedSoftwares state locally
+            // Update assignedSoftwares state
             setAssignedSoftwares((prevSoftwares) =>
                 prevSoftwares.filter((software) => software.id !== softwareId)
             );
 
-            // Trigger refresh in parent component
-            if (setRefresh) {
-                setRefresh((prev) => !prev); // Toggle the refresh state
-            }
+            // Trigger refresh to update availableSoftwares
+            setRefresh((prev) => !prev);
         } catch (error) {
             setError('Failed to unassign Technical Information.');
             console.error('Error unassigning software:', error);
@@ -271,6 +299,10 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             setError(error.message);
         }
     };
+
+    const availableSoftwares = allSoftwares.filter(
+        (software) => !assignedSoftwares.some((assignedSoftware) => assignedSoftware.id === software.id)
+    );
 
     // Available options
     const availableLocations = allLocations.filter(
@@ -453,7 +485,16 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                     <Row className="mb-3">
                         <Col md={8}>
                             <Form.Group className="mb-3">
-                                <Form.Label>Technical Information</Form.Label>
+                                <Row>
+                                    <Col className="col-md-auto align-content-center">
+                                        <Form.Label className="mb-0">Technical Information</Form.Label>
+                                    </Col>
+                                    <Col className="col-md-auto px-0 py-0">
+                                        <Button variant="link" onClick={() => setShowAddSoftwareModal(true)}>
+                                            Add New Technical Information
+                                        </Button>
+                                    </Col>
+                                </Row>
                                 {assignedSoftwares.length > 0 ? (
                                     <ListGroup className="mb-2">
                                         {assignedSoftwares.map((software) => (
@@ -477,9 +518,20 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                 ) : (
                                     <p>No Technical Information assigned.</p>
                                 )}
+                                <Form.Select onChange={handleSoftwareAdd} value="">
+                                    <option value="" disabled>
+                                        Select Technical Information
+                                    </option>
+                                    {availableSoftwares.map((software) => (
+                                        <option key={software.id} value={software.id}>
+                                            {software.name}
+                                        </option>
+                                    ))}
+                                </Form.Select>
                             </Form.Group>
                         </Col>
                     </Row>
+
 
 
                     {/* Customer Types: Header and Checkboxes on the Same Line */}
@@ -590,6 +642,20 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                 onHide={() => setShowThirdPartyITModal(false)}
                 onNewThirdPartyIT={handleNewThirdPartyIT}
             />
+
+            {/* Add Technical Information Modal */}
+            <AddTechnicalInfoModal
+                show={showAddSoftwareModal}
+                onHide={() => setShowAddSoftwareModal(false)}
+                onAddTechnicalInfo={() => {
+                    setRefresh((prev) => !prev); // Use the prop 'setRefresh' to trigger refresh in parent
+                    setShowAddSoftwareModal(false);
+                    fetchClientData(); // Fetch updated client data
+                }}
+                clientId={clientId}
+            />
+
+
         </Modal>
     );
 }
