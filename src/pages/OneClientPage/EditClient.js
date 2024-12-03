@@ -4,15 +4,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Form, Button, Alert, ListGroup, Row, Col, Modal, Badge } from 'react-bootstrap';
 import config from '../../config/config';
-import { validatePhoneAndPostalCode } from '../../utils/Validation';
 import AddThirdPartyITModal from "./AddThirdPartyITModal";
 import AddLocationModal from "./AddLocationModal";
 import AsyncSelect from "react-select/async";
+import AddTechnicalInfoModal from "./AddTechnicalInfoModal";
+import AddClientWorker from "./AddClientWorker";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTimes} from "@fortawesome/free-solid-svg-icons";
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import {format} from "date-fns";
+import '../../css/DarkenedModal.css';
 
 
 function EditClient({ clientId, onClose, onSave, setRefresh }) {
@@ -42,7 +44,31 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
     const [selectedCountry, setSelectedCountry] = useState(null);
     const [showModal, setShowModal] = useState(true);
     const [assignedSoftwares, setAssignedSoftwares] = useState([]);
+    const [allSoftwares, setAllSoftwares] = useState([]);
+    const [showAddSoftwareModal, setShowAddSoftwareModal] = useState(false);
+    const [allContacts, setAllContacts] = useState([]); // State for all contacts
+    const [showAddContactModal, setShowAddContactModal] = useState(false);
+    const [clientContacts, setClientContacts] = useState([]);
 
+
+    const fetchAllContacts = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/worker/all`);
+            setAllContacts(response.data);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
+
+    const fetchAllSoftwares = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/software/all`);
+            setAllSoftwares(response.data);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
 
     // Fetch client data
     const fetchClientData = async () => {
@@ -56,6 +82,8 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             );
             const locations = locationResponses.map(res => res.data);
 
+
+
             // Fetch third-party ITs
             const thirdPartyResponses = await Promise.all(
                 client.thirdPartyIds.map(id => axios.get(`${config.API_BASE_URL}/third-party/${id}`))
@@ -65,17 +93,22 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             const softwareResponse = await axios.get(`${config.API_BASE_URL}/software/client/${clientId}`);
             const softwares = softwareResponse.data;
 
+            const contactResponse = await axios.get(`${config.API_BASE_URL}/worker/${clientId}`);
+            const contacts = contactResponse.data;
+
             const lastMaintenanceDate = client.lastMaintenance ? new Date(client.lastMaintenance) : null;
             const nextMaintenanceDate = client.nextMaintenance ? new Date(client.nextMaintenance) : null;
 
             setClientData({
                 ...client,
+                contacts,
                 locations,
                 thirdPartyITs,
                 lastMaintenance: lastMaintenanceDate,
                 nextMaintenance: nextMaintenanceDate,
             });
             setAssignedSoftwares(softwares);
+            setClientContacts(contacts);
         } catch (error) {
             setError(error.message);
         }
@@ -101,7 +134,8 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
         if (error && errorRef.current) {
             errorRef.current.scrollIntoView({ behavior: 'smooth' });
         }
-
+        fetchAllContacts();
+        fetchAllSoftwares();
         fetchClientData();
         fetchLocations();
         fetchAllThirdPartyITs();
@@ -204,24 +238,76 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             locationIds: [...prevData.locationIds, addedLocation.id],
         }));
     };
+    const handleSoftwareAdd = async (e) => {
+        const softwareId = parseInt(e.target.value);
+        const softwareToAdd = allSoftwares.find((sw) => sw.id === softwareId);
+
+        try {
+            await axios.put(`${config.API_BASE_URL}/software/add/client/${softwareId}/${clientId}`);
+
+            // Update assignedSoftwares state
+            setAssignedSoftwares((prevSoftwares) => [...prevSoftwares, softwareToAdd]);
+
+            // Trigger refresh to update availableSoftwares
+            setRefresh((prev) => !prev);
+        } catch (error) {
+            setError('Failed to assign Technical Information.');
+            console.error('Error assigning software:', error);
+        }
+    };
+
 
     const handleUnassignSoftware = async (softwareId) => {
         try {
             await axios.put(`${config.API_BASE_URL}/software/remove/${softwareId}`);
 
-            // Option A: Update the assignedSoftwares state locally
+            // Update assignedSoftwares state
             setAssignedSoftwares((prevSoftwares) =>
                 prevSoftwares.filter((software) => software.id !== softwareId)
             );
 
-            // Trigger refresh in parent component
-            if (setRefresh) {
-                setRefresh((prev) => !prev); // Toggle the refresh state
-            }
+            // Trigger refresh to update availableSoftwares
+            setRefresh((prev) => !prev);
         } catch (error) {
             setError('Failed to unassign Technical Information.');
             console.error('Error unassigning software:', error);
         }
+    };
+
+    const handleContactAdd = async (e) => {
+        const contactId = parseInt(e.target.value);
+        const contactToAdd = allContacts.find((contact) => contact.id === contactId);
+
+        try {
+            await axios.put(`${config.API_BASE_URL}/worker/${contactId}/${clientId}`); // Assign contact to client
+
+            setClientContacts((prevContacts) => [...prevContacts, contactToAdd]);
+            setRefresh((prev) => !prev);
+        } catch (error) {
+            setError('Failed to add contact.');
+            console.error('Error adding contact:', error);
+        }
+    };
+
+
+    const handleContactRemove = async (contactId) => {
+        try {
+            await axios.put(`${config.API_BASE_URL}/worker/remove/${contactId}`);
+
+            setClientContacts((prevContacts) =>
+                prevContacts.filter((contact) => contact.id !== contactId)
+            );
+        } catch (error) {
+            setError('Failed to remove contact.');
+            console.error('Error removing contact:', error);
+        }
+    };
+
+
+
+    const handleNewContact = (newWorker) => {
+        setClientContacts((prevContacts) => [...prevContacts, newWorker]);
+        setRefresh((prev) => !prev);
     };
 
 
@@ -257,11 +343,17 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
 
             await axios.put(`${config.API_BASE_URL}/client/update/${clientId}`, updatedClientData);
 
+
             const updatedClientResponse = await axios.get(`${config.API_BASE_URL}/client/${clientId}`);
             const updatedClient = updatedClientResponse.data;
 
             if (onSave) {
                 onSave(updatedClient);
+            }
+
+            // Optionally, trigger a refresh
+            if (setRefresh) {
+                setRefresh((prev) => !prev);
             }
 
             if (onClose) {
@@ -271,6 +363,14 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             setError(error.message);
         }
     };
+
+    const availableContacts = allContacts.filter(
+        (contact) => !clientContacts.some((clientContact) => clientContact.id === contact.id)
+    );
+
+    const availableSoftwares = allSoftwares.filter(
+        (software) => !assignedSoftwares.some((assignedSoftware) => assignedSoftware.id === software.id)
+    );
 
     // Available options
     const availableLocations = allLocations.filter(
@@ -290,7 +390,14 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
     };
 
     return (
-        <Modal show={showModal} onHide={handleClose} size="xl" backdrop="static" keyboard={false}>
+        <Modal
+            show={showModal}
+            onHide={handleClose}
+            size="xl"
+            backdrop="static"
+            keyboard={false}
+            dialogClassName={showThirdPartyITModal || showAddContactModal || showLocationModal || showAddSoftwareModal ? "dimmed" : ""}
+        >
             <Modal.Header closeButton>
                 <Modal.Title className="w-100 text-center">Edit Customer</Modal.Title>
             </Modal.Header>
@@ -303,7 +410,9 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                 <Form onSubmit={handleSubmit}>
                     {/* Row 1: Full Name and Short Name */}
                     <Row>
+                        {/* Left Column (col-md-8) */}
                         <Col md={8}>
+                            {/* Full Name */}
                             <Form.Group className="mb-3">
                                 <Form.Label>Full Name</Form.Label>
                                 <Form.Control
@@ -314,33 +423,19 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                     required
                                 />
                             </Form.Group>
-                        </Col>
-                        <Col>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Short Name</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="shortName"
-                                    value={clientData.shortName}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </Form.Group>
-                        </Col>
-                    </Row>
 
-                    {/* Row 2: Locations and Country */}
-                    <Row>
-                        <Col md={8}>
+                            {/* Locations */}
                             <Form.Group className="mb-3">
-                                <Row>
+                                <Row className="mb-2" style={{height: "24px"}}>
                                     <Col className="col-md-auto align-content-center">
-                                        <Form.Label className="mb-0">
-                                            Locations
-                                        </Form.Label>
+                                        <Form.Label className="mb-0">Locations</Form.Label>
                                     </Col>
-                                    <Col className="col-md-auto px-0 py-0">
-                                        <Button variant="link" onClick={() => setShowLocationModal(true)}>
+                                    <Col className="col-md-auto">
+                                        <Button
+                                            className="px-0 py-0"
+                                            variant="link"
+                                            onClick={() => setShowLocationModal(true)}
+                                        >
                                             Add New Location
                                         </Button>
                                     </Col>
@@ -360,18 +455,13 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                                         >
                                                             <FontAwesomeIcon icon={faTimes} />
                                                         </Button>
-
-
                                                     </Col>
                                                 </Row>
                                             </ListGroup.Item>
                                         ))}
                                     </ListGroup>
                                 )}
-                                <Form.Select
-                                    onChange={handleLocationAdd}
-                                    value=""
-                                >
+                                <Form.Select onChange={handleLocationAdd} value="">
                                     <option value="" disabled>Select Location</option>
                                     {availableLocations.map((location) => (
                                         <option key={location.id} value={location.id}>
@@ -380,80 +470,19 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                     ))}
                                 </Form.Select>
                             </Form.Group>
-                        </Col>
-                        <Col md={4}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Country</Form.Label>
-                                <AsyncSelect
-                                    cacheOptions
-                                    defaultOptions
-                                    loadOptions={loadCountryOptions}
-                                    value={selectedCountry}
-                                    onChange={handleCountryChange}
-                                    placeholder="Select a country..."
-                                    isClearable
-                                />
-                            </Form.Group>
-                        </Col>
-                    </Row>
 
-                    {/* Third Party ITs */}
-                    <Row className="mb-3">
-                        <Col md={8}>
+                            {/* Technical Information */}
                             <Form.Group className="mb-3">
                                 <Row>
                                     <Col className="col-md-auto align-content-center">
-                                        <Form.Label className="mb-0">
-                                            Third Party ITs
-                                        </Form.Label>
+                                        <Form.Label className="mb-0">Technical Information</Form.Label>
                                     </Col>
                                     <Col className="col-md-auto px-0 py-0">
-                                        <Button variant="link" onClick={() => setShowThirdPartyITModal(true)}>
-                                            Add New Third Party IT
+                                        <Button variant="link" onClick={() => setShowAddSoftwareModal(true)}>
+                                            Add New Technical Information
                                         </Button>
                                     </Col>
                                 </Row>
-                                {clientData.thirdPartyITs.length > 0 && (
-                                    <ListGroup className="mb-2">
-                                        {clientData.thirdPartyITs.map((thirdPartyIT) => (
-                                            <ListGroup.Item key={thirdPartyIT.id}>
-                                                <Row className="align-items-center">
-                                                    <Col>{thirdPartyIT.name}</Col>
-                                                    <Col xs="auto">
-                                                        <Button
-                                                            variant="link"
-                                                            size="sm"
-                                                            onClick={() => handleThirdPartyITRemove(thirdPartyIT.id)}
-                                                            style={{ color: 'grey' }}
-                                                        >
-                                                            <FontAwesomeIcon icon={faTimes} />
-                                                        </Button>
-                                                    </Col>
-                                                </Row>
-                                            </ListGroup.Item>
-                                        ))}
-                                    </ListGroup>
-                                )}
-                                <Form.Select
-                                    onChange={handleThirdPartyITAdd}
-                                    value=""
-                                >
-                                    <option value="" disabled>Select Third Party IT</option>
-                                    {availableThirdPartyITs.map((it) => (
-                                        <option key={it.id} value={it.id}>
-                                            {it.name}
-                                        </option>
-                                    ))}
-                                </Form.Select>
-                            </Form.Group>
-                        </Col>
-                    </Row>
-
-                    {/* Technical Information */}
-                    <Row className="mb-3">
-                        <Col md={8}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Technical Information</Form.Label>
                                 {assignedSoftwares.length > 0 ? (
                                     <ListGroup className="mb-2">
                                         {assignedSoftwares.map((software) => (
@@ -477,9 +506,103 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                 ) : (
                                     <p>No Technical Information assigned.</p>
                                 )}
+                                <Form.Select onChange={handleSoftwareAdd} value="">
+                                    <option value="" disabled>
+                                        Select Technical Information
+                                    </option>
+                                    {availableSoftwares.map((software) => (
+                                        <option key={software.id} value={software.id}>
+                                            {software.name}
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
+
+                        {/* Right Column (col-md-4) */}
+                        <Col md={4}>
+                            {/* Short Name */}
+                            <Form.Group className="mb-3">
+                                <Form.Label>Short Name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="shortName"
+                                    value={clientData.shortName}
+                                    onChange={handleInputChange}
+                                    required
+                                />
+                            </Form.Group>
+
+                            {/* Country */}
+                            <Form.Group className="mb-3">
+                                <Row className="mb-2">
+                                    <Col className="col-md-auto align-content-center">
+                                        <Form.Label className="mb-0">Country</Form.Label>
+                                    </Col>
+                                </Row>
+                                <AsyncSelect
+                                    cacheOptions
+                                    defaultOptions
+                                    loadOptions={loadCountryOptions}
+                                    value={selectedCountry}
+                                    onChange={handleCountryChange}
+                                    placeholder="Select a country..."
+                                    isClearable
+                                />
+                            </Form.Group>
+
+                            {/* Contacts */}
+                            <Form.Group className="mb-3">
+                                <Row className="mb-3" style={{height: "24px"}}>
+                                    <Col className="col-md-auto align-content-center">
+                                        <Form.Label className="mb-0">Contacts</Form.Label>
+                                    </Col>
+                                    <Col className="col-md-auto">
+                                        <Button
+                                            variant="link"
+                                            onClick={() => setShowAddContactModal(true)}
+                                            className="px-0 py-0"
+                                        >
+                                            Add New Contact
+                                        </Button>
+                                    </Col>
+                                </Row>
+                                {clientContacts.length > 0 && (
+                                    <ListGroup className="mb-2">
+                                        {clientContacts.map((contact) => (
+                                            <ListGroup.Item key={contact.id}>
+                                                <Row className="align-items-center">
+                                                    <Col>{`${contact.firstName} ${contact.lastName}`}</Col>
+                                                    <Col xs="auto">
+                                                        <Button
+                                                            variant="link"
+                                                            size="sm"
+                                                            onClick={() => handleContactRemove(contact.id)}
+                                                            style={{ color: 'grey' }}
+                                                        >
+                                                            <FontAwesomeIcon icon={faTimes} />
+                                                        </Button>
+                                                    </Col>
+                                                </Row>
+                                            </ListGroup.Item>
+                                        ))}
+                                    </ListGroup>
+                                )}
+                                <Form.Select onChange={handleContactAdd} value="">
+                                    <option value="" disabled>
+                                        Select Contact
+                                    </option>
+                                    {availableContacts.map((contact) => (
+                                        <option key={contact.id} value={contact.id}>
+                                            {`${contact.firstName} ${contact.lastName}`}
+                                        </option>
+                                    ))}
+                                </Form.Select>
                             </Form.Group>
                         </Col>
                     </Row>
+
+
 
 
                     {/* Customer Types: Header and Checkboxes on the Same Line */}
@@ -590,6 +713,29 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                 onHide={() => setShowThirdPartyITModal(false)}
                 onNewThirdPartyIT={handleNewThirdPartyIT}
             />
+
+            {/* Add Technical Information Modal */}
+            <AddTechnicalInfoModal
+                show={showAddSoftwareModal}
+                onHide={() => setShowAddSoftwareModal(false)}
+                onAddTechnicalInfo={() => {
+                    setRefresh((prev) => !prev); // Use the prop 'setRefresh' to trigger refresh in parent
+                    setShowAddSoftwareModal(false);
+                    fetchClientData(); // Fetch updated client data
+                }}
+                clientId={clientId}
+            />
+
+            {/* AddClientWorker Modal */}
+            <AddClientWorker
+                show={showAddContactModal}
+                onClose={() => setShowAddContactModal(false)}
+                clientId={clientId}
+                onSuccess={handleNewContact}
+            />
+
+
+
         </Modal>
     );
 }

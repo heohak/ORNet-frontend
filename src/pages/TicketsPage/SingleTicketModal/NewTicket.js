@@ -8,7 +8,6 @@ import NewTicketRootCause from "./NewTicketRootCause";
 import NewTicketStatusDropdown from "./NewTicketStatusDropdown";
 import NewTicketActivity from "./NewTicketActivity";
 import NewTicketInsideInfo from "./NewTicketInsideInfo";
-import NewTicketResponse from "./NewTicketResponse";
 import axios from "axios";
 import config from "../../../config/config";
 import ToggleSwitch from "./ToggleSwitch";
@@ -26,6 +25,7 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
     const [paidTime, setPaidTime] = useState(ticket.paidTime);
     const [timeSpent, setTimeSpent] = useState(ticket.timeSpent);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showRootCauseModal, setShowRootCauseModal] = useState(false);
 
 
     useEffect(() => {
@@ -116,7 +116,13 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
 
 
     return (
-        <Modal id="custom-modal" show onHide={onClose} className="custom-width-modal" dialogClassName="custom-modal">
+        <Modal
+            id="custom-modal"
+            show
+            onHide={onClose}
+            className="custom-width-modal"
+            dialogClassName={showDeleteModal || showRootCauseModal ? "dimmed custom-modal" : "custom-modal"}
+        >
             <Modal.Header closeButton>
                 <div className="w-100">
                     <Modal.Title>{ticket.title} {ticket.crisis && <Badge bg="danger">Priority</Badge>}</Modal.Title>
@@ -150,6 +156,7 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
                                             ticket={ticket}
                                             setIsClosed={setIsClosed}
                                             reFetch={reFetchTicket}
+                                            setShowRootCauseModal={setShowRootCauseModal}
                                         />
                                     </Col>
                                     <Col className="col-md-auto px-2">

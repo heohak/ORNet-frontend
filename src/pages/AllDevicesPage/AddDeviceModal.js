@@ -6,7 +6,8 @@ import AddClassificatorModal from "./AddDeviceModals/AddClassificatorModal";
 import AddLocationModal from "../TicketsPage/AddTicketModal/AddLocationModal"; // Using the modal from ticketPage
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import '../../css/OneClientPage/AddActivityModal.css'; // Adjust the path as needed
+import '../../css/OneClientPage/AddActivityModal.css';
+import '../../css/DarkenedModal.css';
 import { format } from 'date-fns';
 import CreatableSelect from 'react-select/creatable';
 
@@ -199,7 +200,12 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
 
     return (
         <>
-            <Modal show={show} onHide={onHide} size="lg">
+            <Modal
+                show={show}
+                onHide={onHide}
+                size="lg"
+                dialogClassName={showAddClassificatorModal || showLocationModal ? 'dimmed' : ''}
+            >
                 <Modal.Header closeButton>
                     <Modal.Title>Add Device</Modal.Title>
                 </Modal.Header>

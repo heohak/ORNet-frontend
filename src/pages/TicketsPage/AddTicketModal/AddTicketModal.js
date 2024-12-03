@@ -7,6 +7,7 @@ import Select from "react-select";
 import AddWorkTypeModal from "./AddWorkTypeModal";
 import AddLocationModal from "./AddLocationModal";
 import AddContactModal from "./AddContactModal";
+import '../../../css/DarkenedModal.css';
 
 
 
@@ -281,7 +282,13 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
 
 
     return (
-        <Modal show={show} onHide={onClose} size="xl" centered>
+        <Modal
+            show={show}
+            onHide={onClose}
+            size="xl"
+            className="mt-4"
+            dialogClassName={showLocationModal || showContactModal || showWorkTypeModal ? 'dimmed' : ''}
+        >
             <Modal.Header closeButton>
                 <Modal.Title>Add a New Ticket</Modal.Title>
             </Modal.Header>

@@ -7,7 +7,7 @@ import Select from 'react-select';
 import config from "../../config/config";
 import AddContactModal from "./AddContactModal";
 import AsyncSelect from 'react-select/async';
-import { validatePhoneAndPostalCode } from '../../utils/Validation';
+import '../../css/DarkenedModal.css';
 import AddLocationModal from "../OneClientPage/AddLocationModal";
 
 function NewAddCustomer({ show, onClose }) {
@@ -221,7 +221,12 @@ function NewAddCustomer({ show, onClose }) {
     };
 
     return (
-        <Modal show={show} onHide={onClose} size="xl">
+        <Modal
+            show={show}
+            onHide={onClose}
+            size="xl"
+            dialogClassName={showAddContactModal || showLocationModal || showThirdPartyModal ? "dimmed" : ""}
+        >
             <Modal.Header closeButton>
                 <Modal.Title className="w-100 text-center">Add New Customer</Modal.Title>
             </Modal.Header>

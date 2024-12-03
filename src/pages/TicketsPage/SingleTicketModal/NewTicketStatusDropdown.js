@@ -3,7 +3,7 @@ import { DropdownButton, InputGroup, Dropdown, Modal, Button, Form } from "react
 import axios from "axios";
 import config from "../../../config/config";
 
-const NewTicketStatusDropdown = ({ ticket, statuses, setIsClosed, reFetch }) => {
+const NewTicketStatusDropdown = ({ ticket, statuses, setIsClosed, reFetch, setShowRootCauseModal }) => {
     const [statusName, setStatusName] = useState("");
     const [statusColor, setStatusColor] = useState("");
     const [showModal, setShowModal] = useState(false); // For handling modal visibility
@@ -17,6 +17,7 @@ const NewTicketStatusDropdown = ({ ticket, statuses, setIsClosed, reFetch }) => 
 
     const handleStatusChange = async (status) => {
         if (status.status === "Closed") {
+            setShowRootCauseModal(true);
             setShowModal(true);  // Show the modal if "Closed" status is selected
         } else {
             await updateTicketStatus(status);
@@ -42,6 +43,7 @@ const NewTicketStatusDropdown = ({ ticket, statuses, setIsClosed, reFetch }) => 
             setIsClosed(true);
             setStatusName(newStatus.status);
             setStatusColor(newStatus.color);
+            setShowRootCauseModal(false);
             setShowModal(false); // Hide the modal after submission
             reFetch();
         } catch (error) {

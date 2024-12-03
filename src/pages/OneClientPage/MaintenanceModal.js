@@ -1,13 +1,13 @@
-// MaintenanceModal.js
 import React, { useState, useEffect, useRef } from 'react';
-import {Modal, Row, Col, Accordion, Button, Spinner} from 'react-bootstrap';
+import { Modal, Row, Col, Accordion, Button, Spinner } from 'react-bootstrap';
 import axios from 'axios';
-import config from "../../config/config";
-import {FaUpload} from 'react-icons/fa';
+import config from '../../config/config';
+import { FaUpload } from 'react-icons/fa';
 import FileList from '../../modals/FileList';
-import MaintenanceComment from "./MaintenanceComment";
+import MaintenanceComment from './MaintenanceComment';
+import { format } from 'date-fns';
 
-function MaintenanceModal({ show, handleClose, maintenanceId }) {
+function MaintenanceModal({ show, handleClose, maintenanceId, locationName }) {
     const [maintenance, setMaintenance] = useState(null);
     const [files, setFiles] = useState([]);
     const [activeKey, setActiveKey] = useState('0');
@@ -20,10 +20,22 @@ function MaintenanceModal({ show, handleClose, maintenanceId }) {
         }
     }, [maintenanceId, show]);
 
+
+
     const fetchMaintenanceDetails = async (id) => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/maintenance/${id}`);
-            setMaintenance(response.data);
+            const maintenanceData = response.data;
+
+            // Extract maintenance name and date directly from the maintenance object
+            const maintenanceName = maintenanceData.maintenanceName || 'Maintenance';
+            const maintenanceDate = maintenanceData.maintenanceDate
+                ? format(new Date(maintenanceData.maintenanceDate), 'dd.MM.yyyy')
+                : '';
+
+            maintenanceData.displayName = `${maintenanceName} - ${maintenanceDate}`;
+
+            setMaintenance(maintenanceData);
             fetchMaintenanceFiles(id);
         } catch (error) {
             console.error('Error fetching maintenance data:', error);
@@ -44,12 +56,12 @@ function MaintenanceModal({ show, handleClose, maintenanceId }) {
         if (selectedFile && maintenance) {
             try {
                 const formData = new FormData();
-                formData.append("files", selectedFile);
+                formData.append('files', selectedFile);
 
                 await axios.put(`${config.API_BASE_URL}/maintenance/upload/${maintenance.id}`, formData, {
                     headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
+                        'Content-Type': 'multipart/form-data',
+                    },
                 });
 
                 fetchMaintenanceFiles(maintenance.id);
@@ -65,8 +77,21 @@ function MaintenanceModal({ show, handleClose, maintenanceId }) {
     };
 
     const handleAccordionToggle = (key) => {
-        setActiveKey(prevKey => prevKey === key ? null : key);
+        setActiveKey((prevKey) => (prevKey === key ? null : key));
     };
+
+    if (!maintenance) {
+        return (
+            <Modal show={show} onHide={handleClose} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>Maintenance Details</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Spinner animation="border" />
+                </Modal.Body>
+            </Modal>
+        );
+    }
 
     return (
         <Modal show={show} onHide={handleClose} size="lg">
@@ -74,21 +99,33 @@ function MaintenanceModal({ show, handleClose, maintenanceId }) {
                 <Modal.Title>Maintenance Details</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                {maintenance ? (
+                <>
+                    {/* Display Maintenance Name and Date */}
+                    <Row className="mb-3">
+                        <Col>
+                            <h5>{maintenance.displayName}</h5>
+                            {locationName && <p>{locationName}</p>}
+                        </Col>
+                    </Row>
+
+                    {/* Existing Content */}
                     <Row>
                         <Col md={8}>
                             <MaintenanceComment maintenance={maintenance} />
                         </Col>
                         <Col md={4}>
+                            {/* Files Accordion */}
                             <Accordion activeKey={activeKey}>
                                 <Accordion.Item eventKey="1">
-                                    <Accordion.Header onClick={() => handleAccordionToggle("1")}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                                    <Accordion.Header onClick={() => handleAccordionToggle('1')}>
+                                        <div
+                                            style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}
+                                        >
                                             Files
                                             <Button
                                                 variant="link"
                                                 onClick={handleIconClick}
-                                                style={{ textDecoration: "none", padding: 0 }}
+                                                style={{ textDecoration: 'none', padding: 0 }}
                                                 className="me-2 d-flex"
                                             >
                                                 <FaUpload />
@@ -97,7 +134,7 @@ function MaintenanceModal({ show, handleClose, maintenanceId }) {
                                         <input
                                             type="file"
                                             ref={fileInputRef}
-                                            style={{ display: "none" }}
+                                            style={{ display: 'none' }}
                                             onChange={handleFileChange}
                                         />
                                     </Accordion.Header>
@@ -108,9 +145,7 @@ function MaintenanceModal({ show, handleClose, maintenanceId }) {
                             </Accordion>
                         </Col>
                     </Row>
-                ) : (
-                    <Spinner animation="border" />
-                )}
+                </>
             </Modal.Body>
         </Modal>
     );
