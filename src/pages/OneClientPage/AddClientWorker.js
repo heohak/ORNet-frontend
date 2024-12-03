@@ -5,6 +5,7 @@ import axios from 'axios';
 import {Alert, Button, Form, Modal} from 'react-bootstrap';
 import Select from 'react-select';
 import config from "../../config/config";
+import '../../css/DarkenedModal.css';
 
 function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
     const [firstName, setFirstName] = useState('');
@@ -148,7 +149,11 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
     return (
         <>
             {/* Main Modal */}
-            <Modal show={show} onHide={onClose}>
+            <Modal
+                show={show}
+                onHide={onClose}
+                dialogClassName={showRoleModal ? 'dimmed' : ''} //Apply blur when the second modal is opened
+            >
                 <Form onSubmit={handleSubmit}>
                     <Modal.Header closeButton>
                         <Modal.Title>Add Contact</Modal.Title>

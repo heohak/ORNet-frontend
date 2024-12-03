@@ -6,6 +6,7 @@ import Select from 'react-select';
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../../css/OneClientPage/AddActivityModal.css';
+import '../../css/DarkenedModal.css';
 import CreatableSelect from 'react-select/creatable';
 
 
@@ -159,7 +160,12 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
 
     return (
         <>
-            <Modal show={true} onHide={onClose} size="lg">
+            <Modal
+                show={true}
+                onHide={onClose}
+                size="lg"
+                dialogClassName={showClassificatorModal ? 'dimmed' : ''}
+            >
                 <Modal.Header closeButton>
                     <Modal.Title>Add Device</Modal.Title>
                 </Modal.Header>

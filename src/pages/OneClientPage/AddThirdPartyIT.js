@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Container, Form, Button, Alert, Modal } from 'react-bootstrap';
 import config from "../../config/config";
 import Select from 'react-select';
-import clientThirdPartyIT from "./ClientThirdPartyIT";
+import '../../css/DarkenedModal.css';
 
 function AddThirdPartyIT({ clientId, show, onClose, setRefresh, clientThirdParties }) {
     const [availableThirdParties, setAvailableThirdParties] = useState([]);
@@ -114,7 +114,11 @@ function AddThirdPartyIT({ clientId, show, onClose, setRefresh, clientThirdParti
     };
 
     return (
-        <Modal show={show} onHide={onClose}>
+        <Modal
+            show={show}
+            onHide={onClose}
+            dialogClassName={showThirdPartyModal ? 'dimmed' : ''}
+        >
             <Modal.Header closeButton>
                 <Modal.Title>Add Third-Party IT</Modal.Title>
             </Modal.Header>
