@@ -191,6 +191,7 @@ function OneClient() {
                                         client={client}
                                         clientId={clientId}
                                         setRefresh={setRefresh}
+                                        refresh={refresh}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>

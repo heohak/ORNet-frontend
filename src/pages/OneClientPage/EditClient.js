@@ -4,11 +4,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Form, Button, Alert, ListGroup, Row, Col, Modal, Badge } from 'react-bootstrap';
 import config from '../../config/config';
-import { validatePhoneAndPostalCode } from '../../utils/Validation';
 import AddThirdPartyITModal from "./AddThirdPartyITModal";
 import AddLocationModal from "./AddLocationModal";
 import AsyncSelect from "react-select/async";
 import AddTechnicalInfoModal from "./AddTechnicalInfoModal";
+import AddClientWorker from "./AddClientWorker";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTimes} from "@fortawesome/free-solid-svg-icons";
 import ReactDatePicker from 'react-datepicker';
@@ -45,6 +45,19 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
     const [assignedSoftwares, setAssignedSoftwares] = useState([]);
     const [allSoftwares, setAllSoftwares] = useState([]);
     const [showAddSoftwareModal, setShowAddSoftwareModal] = useState(false);
+    const [allContacts, setAllContacts] = useState([]); // State for all contacts
+    const [showAddContactModal, setShowAddContactModal] = useState(false);
+    const [clientContacts, setClientContacts] = useState([]);
+
+
+    const fetchAllContacts = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/worker/all`);
+            setAllContacts(response.data);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
 
 
     const fetchAllSoftwares = async () => {
@@ -68,6 +81,8 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             );
             const locations = locationResponses.map(res => res.data);
 
+
+
             // Fetch third-party ITs
             const thirdPartyResponses = await Promise.all(
                 client.thirdPartyIds.map(id => axios.get(`${config.API_BASE_URL}/third-party/${id}`))
@@ -77,17 +92,22 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             const softwareResponse = await axios.get(`${config.API_BASE_URL}/software/client/${clientId}`);
             const softwares = softwareResponse.data;
 
+            const contactResponse = await axios.get(`${config.API_BASE_URL}/worker/${clientId}`);
+            const contacts = contactResponse.data;
+
             const lastMaintenanceDate = client.lastMaintenance ? new Date(client.lastMaintenance) : null;
             const nextMaintenanceDate = client.nextMaintenance ? new Date(client.nextMaintenance) : null;
 
             setClientData({
                 ...client,
+                contacts,
                 locations,
                 thirdPartyITs,
                 lastMaintenance: lastMaintenanceDate,
                 nextMaintenance: nextMaintenanceDate,
             });
             setAssignedSoftwares(softwares);
+            setClientContacts(contacts);
         } catch (error) {
             setError(error.message);
         }
@@ -113,6 +133,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
         if (error && errorRef.current) {
             errorRef.current.scrollIntoView({ behavior: 'smooth' });
         }
+        fetchAllContacts();
         fetchAllSoftwares();
         fetchClientData();
         fetchLocations();
@@ -252,6 +273,42 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
         }
     };
 
+    const handleContactAdd = async (e) => {
+        const contactId = parseInt(e.target.value);
+        const contactToAdd = allContacts.find((contact) => contact.id === contactId);
+
+        try {
+            await axios.put(`${config.API_BASE_URL}/worker/${contactId}/${clientId}`); // Assign contact to client
+
+            setClientContacts((prevContacts) => [...prevContacts, contactToAdd]);
+            setRefresh((prev) => !prev);
+        } catch (error) {
+            setError('Failed to add contact.');
+            console.error('Error adding contact:', error);
+        }
+    };
+
+
+    const handleContactRemove = async (contactId) => {
+        try {
+            await axios.put(`${config.API_BASE_URL}/worker/remove/${contactId}/${clientId}`);
+
+            setClientContacts((prevContacts) =>
+                prevContacts.filter((contact) => contact.id !== contactId)
+            );
+        } catch (error) {
+            setError('Failed to remove contact.');
+            console.error('Error removing contact:', error);
+        }
+    };
+
+
+
+    const handleNewContact = (newWorker) => {
+        setClientContacts((prevContacts) => [...prevContacts, newWorker]);
+        setRefresh((prev) => !prev);
+    };
+
 
 
 
@@ -285,11 +342,17 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
 
             await axios.put(`${config.API_BASE_URL}/client/update/${clientId}`, updatedClientData);
 
+
             const updatedClientResponse = await axios.get(`${config.API_BASE_URL}/client/${clientId}`);
             const updatedClient = updatedClientResponse.data;
 
             if (onSave) {
                 onSave(updatedClient);
+            }
+
+            // Optionally, trigger a refresh
+            if (setRefresh) {
+                setRefresh((prev) => !prev);
             }
 
             if (onClose) {
@@ -299,6 +362,10 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             setError(error.message);
         }
     };
+
+    const availableContacts = allContacts.filter(
+        (contact) => !clientContacts.some((clientContact) => clientContact.id === contact.id)
+    );
 
     const availableSoftwares = allSoftwares.filter(
         (software) => !assignedSoftwares.some((assignedSoftware) => assignedSoftware.id === software.id)
@@ -426,6 +493,52 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                     isClearable
                                 />
                             </Form.Group>
+
+                            {/* Contacts */}
+                            <Form.Group className="mb-3">
+                                <Row>
+                                    <Col className="col-md-auto align-content-center">
+                                        <Form.Label className="mb-0">Contacts</Form.Label>
+                                    </Col>
+                                    <Col className="col-md-auto px-0 py-0">
+                                        <Button variant="link" onClick={() => setShowAddContactModal(true)}>
+                                            Add New Contact
+                                        </Button>
+                                    </Col>
+                                </Row>
+                                {clientContacts.length > 0 && (
+                                    <ListGroup className="mb-2">
+                                        {clientContacts.map((contact) => (
+                                            <ListGroup.Item key={contact.id}>
+                                                <Row className="align-items-center">
+                                                    <Col>{`${contact.firstName} ${contact.lastName}`}</Col>
+                                                    <Col xs="auto">
+                                                        <Button
+                                                            variant="link"
+                                                            size="sm"
+                                                            onClick={() => handleContactRemove(contact.id)}
+                                                            style={{ color: 'grey' }}
+                                                        >
+                                                            <FontAwesomeIcon icon={faTimes} />
+                                                        </Button>
+                                                    </Col>
+                                                </Row>
+                                            </ListGroup.Item>
+                                        ))}
+                                    </ListGroup>
+                                )}
+                                <Form.Select onChange={handleContactAdd} value="">
+                                    <option value="" disabled>
+                                        Select Contact
+                                    </option>
+                                    {availableContacts.map((contact) => (
+                                        <option key={contact.id} value={contact.id}>
+                                            {`${contact.firstName} ${contact.lastName}`}
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+
                         </Col>
                     </Row>
 
@@ -654,6 +767,15 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                 }}
                 clientId={clientId}
             />
+
+            {/* AddClientWorker Modal */}
+            <AddClientWorker
+                show={showAddContactModal}
+                onClose={() => setShowAddContactModal(false)}
+                clientId={clientId}
+                onSuccess={handleNewContact}
+            />
+
 
 
         </Modal>
