@@ -6,6 +6,7 @@ import axios from 'axios';
 import config from '../../config/config';
 import Select from 'react-select';
 import AddTechnicalInfoModal from './AddTechnicalInfoModal'; // Import the new component
+import '../../css/DarkenedModal.css';
 
 function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) {
     const [softwareList, setSoftwareList] = useState([]);
@@ -51,7 +52,11 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
 
     return (
         <>
-            <Modal show={show} onHide={handleClose}>
+            <Modal
+                show={show}
+                onHide={handleClose}
+                dialogClassName={showAddNewSoftwareModal ? 'dimmed' : ''}
+            >
                 <Modal.Header closeButton>
                     <Modal.Title>Add Technical Information to {client.shortName}</Modal.Title>
                 </Modal.Header>
