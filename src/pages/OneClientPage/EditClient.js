@@ -14,6 +14,7 @@ import {faTimes} from "@fortawesome/free-solid-svg-icons";
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import {format} from "date-fns";
+import '../../css/DarkenedModal.css';
 
 
 function EditClient({ clientId, onClose, onSave, setRefresh }) {
@@ -389,7 +390,14 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
     };
 
     return (
-        <Modal show={showModal} onHide={handleClose} size="xl" backdrop="static" keyboard={false}>
+        <Modal
+            show={showModal}
+            onHide={handleClose}
+            size="xl"
+            backdrop="static"
+            keyboard={false}
+            dialogClassName={showThirdPartyITModal || showAddContactModal || showLocationModal || showAddSoftwareModal ? "dimmed" : ""}
+        >
             <Modal.Header closeButton>
                 <Modal.Title className="w-100 text-center">Edit Customer</Modal.Title>
             </Modal.Header>
@@ -402,7 +410,9 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                 <Form onSubmit={handleSubmit}>
                     {/* Row 1: Full Name and Short Name */}
                     <Row>
+                        {/* Left Column (col-md-8) */}
                         <Col md={8}>
+                            {/* Full Name */}
                             <Form.Group className="mb-3">
                                 <Form.Label>Full Name</Form.Label>
                                 <Form.Control
@@ -413,33 +423,19 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                     required
                                 />
                             </Form.Group>
-                        </Col>
-                        <Col>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Short Name</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="shortName"
-                                    value={clientData.shortName}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </Form.Group>
-                        </Col>
-                    </Row>
 
-                    {/* Row 2: Locations and Country */}
-                    <Row>
-                        <Col md={8}>
+                            {/* Locations */}
                             <Form.Group className="mb-3">
-                                <Row>
+                                <Row className="mb-2" style={{height: "24px"}}>
                                     <Col className="col-md-auto align-content-center">
-                                        <Form.Label className="mb-0">
-                                            Locations
-                                        </Form.Label>
+                                        <Form.Label className="mb-0">Locations</Form.Label>
                                     </Col>
-                                    <Col className="col-md-auto px-0 py-0">
-                                        <Button variant="link" onClick={() => setShowLocationModal(true)}>
+                                    <Col className="col-md-auto">
+                                        <Button
+                                            className="px-0 py-0"
+                                            variant="link"
+                                            onClick={() => setShowLocationModal(true)}
+                                        >
                                             Add New Location
                                         </Button>
                                     </Col>
@@ -459,18 +455,13 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                                         >
                                                             <FontAwesomeIcon icon={faTimes} />
                                                         </Button>
-
-
                                                     </Col>
                                                 </Row>
                                             </ListGroup.Item>
                                         ))}
                                     </ListGroup>
                                 )}
-                                <Form.Select
-                                    onChange={handleLocationAdd}
-                                    value=""
-                                >
+                                <Form.Select onChange={handleLocationAdd} value="">
                                     <option value="" disabled>Select Location</option>
                                     {availableLocations.map((location) => (
                                         <option key={location.id} value={location.id}>
@@ -479,124 +470,8 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                     ))}
                                 </Form.Select>
                             </Form.Group>
-                        </Col>
-                        <Col md={4}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Country</Form.Label>
-                                <AsyncSelect
-                                    cacheOptions
-                                    defaultOptions
-                                    loadOptions={loadCountryOptions}
-                                    value={selectedCountry}
-                                    onChange={handleCountryChange}
-                                    placeholder="Select a country..."
-                                    isClearable
-                                />
-                            </Form.Group>
 
-                            {/* Contacts */}
-                            <Form.Group className="mb-3">
-                                <Row>
-                                    <Col className="col-md-auto align-content-center">
-                                        <Form.Label className="mb-0">Contacts</Form.Label>
-                                    </Col>
-                                    <Col className="col-md-auto px-0 py-0">
-                                        <Button variant="link" onClick={() => setShowAddContactModal(true)}>
-                                            Add New Contact
-                                        </Button>
-                                    </Col>
-                                </Row>
-                                {clientContacts.length > 0 && (
-                                    <ListGroup className="mb-2">
-                                        {clientContacts.map((contact) => (
-                                            <ListGroup.Item key={contact.id}>
-                                                <Row className="align-items-center">
-                                                    <Col>{`${contact.firstName} ${contact.lastName}`}</Col>
-                                                    <Col xs="auto">
-                                                        <Button
-                                                            variant="link"
-                                                            size="sm"
-                                                            onClick={() => handleContactRemove(contact.id)}
-                                                            style={{ color: 'grey' }}
-                                                        >
-                                                            <FontAwesomeIcon icon={faTimes} />
-                                                        </Button>
-                                                    </Col>
-                                                </Row>
-                                            </ListGroup.Item>
-                                        ))}
-                                    </ListGroup>
-                                )}
-                                <Form.Select onChange={handleContactAdd} value="">
-                                    <option value="" disabled>
-                                        Select Contact
-                                    </option>
-                                    {availableContacts.map((contact) => (
-                                        <option key={contact.id} value={contact.id}>
-                                            {`${contact.firstName} ${contact.lastName}`}
-                                        </option>
-                                    ))}
-                                </Form.Select>
-                            </Form.Group>
-
-                        </Col>
-                    </Row>
-
-                    {/* Third Party ITs */}
-                    <Row className="mb-3">
-                        <Col md={8}>
-                            <Form.Group className="mb-3">
-                                <Row>
-                                    <Col className="col-md-auto align-content-center">
-                                        <Form.Label className="mb-0">
-                                            Third Party ITs
-                                        </Form.Label>
-                                    </Col>
-                                    <Col className="col-md-auto px-0 py-0">
-                                        <Button variant="link" onClick={() => setShowThirdPartyITModal(true)}>
-                                            Add New Third Party IT
-                                        </Button>
-                                    </Col>
-                                </Row>
-                                {clientData.thirdPartyITs.length > 0 && (
-                                    <ListGroup className="mb-2">
-                                        {clientData.thirdPartyITs.map((thirdPartyIT) => (
-                                            <ListGroup.Item key={thirdPartyIT.id}>
-                                                <Row className="align-items-center">
-                                                    <Col>{thirdPartyIT.name}</Col>
-                                                    <Col xs="auto">
-                                                        <Button
-                                                            variant="link"
-                                                            size="sm"
-                                                            onClick={() => handleThirdPartyITRemove(thirdPartyIT.id)}
-                                                            style={{ color: 'grey' }}
-                                                        >
-                                                            <FontAwesomeIcon icon={faTimes} />
-                                                        </Button>
-                                                    </Col>
-                                                </Row>
-                                            </ListGroup.Item>
-                                        ))}
-                                    </ListGroup>
-                                )}
-                                <Form.Select
-                                    onChange={handleThirdPartyITAdd}
-                                    value=""
-                                >
-                                    <option value="" disabled>Select Third Party IT</option>
-                                    {availableThirdPartyITs.map((it) => (
-                                        <option key={it.id} value={it.id}>
-                                            {it.name}
-                                        </option>
-                                    ))}
-                                </Form.Select>
-                            </Form.Group>
-                        </Col>
-                    </Row>
-
-                    {/* Technical Information */}
-                    <Row className="mb-3">
-                        <Col md={8}>
+                            {/* Technical Information */}
                             <Form.Group className="mb-3">
                                 <Row>
                                     <Col className="col-md-auto align-content-center">
@@ -643,7 +518,90 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                 </Form.Select>
                             </Form.Group>
                         </Col>
+
+                        {/* Right Column (col-md-4) */}
+                        <Col md={4}>
+                            {/* Short Name */}
+                            <Form.Group className="mb-3">
+                                <Form.Label>Short Name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="shortName"
+                                    value={clientData.shortName}
+                                    onChange={handleInputChange}
+                                    required
+                                />
+                            </Form.Group>
+
+                            {/* Country */}
+                            <Form.Group className="mb-3">
+                                <Row className="mb-2">
+                                    <Col className="col-md-auto align-content-center">
+                                        <Form.Label className="mb-0">Country</Form.Label>
+                                    </Col>
+                                </Row>
+                                <AsyncSelect
+                                    cacheOptions
+                                    defaultOptions
+                                    loadOptions={loadCountryOptions}
+                                    value={selectedCountry}
+                                    onChange={handleCountryChange}
+                                    placeholder="Select a country..."
+                                    isClearable
+                                />
+                            </Form.Group>
+
+                            {/* Contacts */}
+                            <Form.Group className="mb-3">
+                                <Row className="mb-3" style={{height: "24px"}}>
+                                    <Col className="col-md-auto align-content-center">
+                                        <Form.Label className="mb-0">Contacts</Form.Label>
+                                    </Col>
+                                    <Col className="col-md-auto">
+                                        <Button
+                                            variant="link"
+                                            onClick={() => setShowAddContactModal(true)}
+                                            className="px-0 py-0"
+                                        >
+                                            Add New Contact
+                                        </Button>
+                                    </Col>
+                                </Row>
+                                {clientContacts.length > 0 && (
+                                    <ListGroup className="mb-2">
+                                        {clientContacts.map((contact) => (
+                                            <ListGroup.Item key={contact.id}>
+                                                <Row className="align-items-center">
+                                                    <Col>{`${contact.firstName} ${contact.lastName}`}</Col>
+                                                    <Col xs="auto">
+                                                        <Button
+                                                            variant="link"
+                                                            size="sm"
+                                                            onClick={() => handleContactRemove(contact.id)}
+                                                            style={{ color: 'grey' }}
+                                                        >
+                                                            <FontAwesomeIcon icon={faTimes} />
+                                                        </Button>
+                                                    </Col>
+                                                </Row>
+                                            </ListGroup.Item>
+                                        ))}
+                                    </ListGroup>
+                                )}
+                                <Form.Select onChange={handleContactAdd} value="">
+                                    <option value="" disabled>
+                                        Select Contact
+                                    </option>
+                                    {availableContacts.map((contact) => (
+                                        <option key={contact.id} value={contact.id}>
+                                            {`${contact.firstName} ${contact.lastName}`}
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
                     </Row>
+
 
 
 
