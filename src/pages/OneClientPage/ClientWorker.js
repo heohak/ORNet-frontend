@@ -9,7 +9,7 @@ import {faEdit, faMapMarkerAlt} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import AddClientWorker from "./AddClientWorker";
 
-function ClientWorker({workers, client, clientId, setRefresh}) {
+function ClientWorker({workers, client, clientId,refresh, setRefresh}) {
     const [showAddWorkerModal, setShowAddWorkerModal] = useState(false);
     const [showEditWorkerModal, setShowEditWorkerModal] = useState(false);
     const [workerLocations, setWorkerLocations] = useState({});
@@ -30,7 +30,7 @@ function ClientWorker({workers, client, clientId, setRefresh}) {
 
     useEffect(() => {
         filterWorkers();
-    }, [selectedFilterRoleId, searchQuery, favoriteFilter]);
+    }, [selectedFilterRoleId, searchQuery, favoriteFilter, refresh]);
 
     const fetchWorkerLocations = async () => {
         try {
