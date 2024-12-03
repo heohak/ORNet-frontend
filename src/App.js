@@ -45,6 +45,7 @@ function App() {
                 <MenuBar />
                 <main className="flex-grow-1">
                     <Routes>
+                        <Route path="/" element={<Customers />} />
                         <Route path="/customers" element={<Customers />} />
                         <Route path="/clients/:clientId/devices" element={<ClientDevices />} />
                         <Route path="/tickets" element={<Tickets />} />

@@ -292,7 +292,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
 
     const handleContactRemove = async (contactId) => {
         try {
-            await axios.put(`${config.API_BASE_URL}/worker/remove/${contactId}/${clientId}`);
+            await axios.put(`${config.API_BASE_URL}/worker/remove/${contactId}`);
 
             setClientContacts((prevContacts) =>
                 prevContacts.filter((contact) => contact.id !== contactId)
