@@ -104,6 +104,7 @@ function LocationMaintenances({ show, handleClose, location, setRefresh }) {
                 show={showMaintenanceModal}
                 handleClose={() => setShowMaintenanceModal(false)}
                 maintenanceId={selectedMaintenanceId}
+                locationName={location.name}
             />
         </>
     );
