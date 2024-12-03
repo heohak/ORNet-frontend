@@ -111,7 +111,7 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
                     <Row className="row-margin-0 fw-bold mt-2">
                         <Col md={3}>Title</Col>
                         <Col md={3}>Contact</Col>
-                        <Col md={3}>Date/Deadline?</Col>
+                        <Col md={3}>Deadline</Col>
                         <Col className="d-flex justify-content-center" md={1}>State</Col>
                         <Col className="d-flex justify-content-center" md={1}>Status</Col>
                         <Col className="d-flex justify-content-center" md={1}>Priority</Col>
