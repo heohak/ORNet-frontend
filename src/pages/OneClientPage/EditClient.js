@@ -186,6 +186,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             thirdPartyITs: clientData.thirdPartyITs.filter(it => it.id !== thirdPartyITId),
             thirdPartyIds: clientData.thirdPartyIds.filter(id => id !== thirdPartyITId),
         });
+
     };
 
     const handleNewThirdPartyIT = (newThirdPartyIT) => {
@@ -513,6 +514,49 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                     {availableSoftwares.map((software) => (
                                         <option key={software.id} value={software.id}>
                                             {software.name}
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+
+                            {/* Third-Party ITs */}
+                            <Form.Group className="mb-3">
+                                <Row>
+                                    <Col className="col-md-auto align-content-center">
+                                        <Form.Label className="mb-0">Third-Party ITs</Form.Label>
+                                    </Col>
+                                    <Col className="col-md-auto px-0 py-0">
+                                        <Button variant="link" onClick={() => setShowThirdPartyITModal(true)}>
+                                            Add New Third-Party IT
+                                        </Button>
+                                    </Col>
+                                </Row>
+                                {clientData.thirdPartyITs.length > 0 && (
+                                    <ListGroup className="mb-2">
+                                        {clientData.thirdPartyITs.map((it) => (
+                                            <ListGroup.Item key={it.id}>
+                                                <Row className="align-items-center">
+                                                    <Col>{it.name}</Col>
+                                                    <Col xs="auto">
+                                                        <Button
+                                                            variant="link"
+                                                            size="sm"
+                                                            onClick={() => handleThirdPartyITRemove(it.id)}
+                                                            style={{ color: 'grey' }}
+                                                        >
+                                                            <FontAwesomeIcon icon={faTimes} />
+                                                        </Button>
+                                                    </Col>
+                                                </Row>
+                                            </ListGroup.Item>
+                                        ))}
+                                    </ListGroup>
+                                )}
+                                <Form.Select onChange={handleThirdPartyITAdd} value="">
+                                    <option value="" disabled>Select Third-Party IT</option>
+                                    {availableThirdPartyITs.map((it) => (
+                                        <option key={it.id} value={it.id}>
+                                            {it.name}
                                         </option>
                                     ))}
                                 </Form.Select>
