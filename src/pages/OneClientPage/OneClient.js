@@ -275,6 +275,8 @@ function OneClient() {
                                     <ClientThirdPartyIT
                                         clientId={clientId}
                                         client={client}
+                                        refresh={refresh}
+                                        setRefresh={setRefresh}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
