@@ -145,7 +145,7 @@ function EditLinkedDeviceModal({ show, onHide, linkedDevice, onUpdate }) {
             {/* Delete Confirmation Modal */}
             <Modal show={showDeleteConfirm} onHide={hideDeleteModal}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Confirm Deletion</Modal.Title>
+                    <Modal.Title>Confirm Deletion of {linkedDevice.name} ({linkedDevice.serialNumber})</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {connectedDevice ? (

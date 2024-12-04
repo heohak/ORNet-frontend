@@ -266,7 +266,7 @@ function ViewLocations() {
                     <Modal.Body>
                         {error && <Alert variant="danger">{error}</Alert>}
                         <Form.Group controlId="editFormName">
-                            <Form.Label>Name</Form.Label>
+                            <Form.Label>Location Name</Form.Label>
                             <Form.Control
                                 type="text"
                                 value={editName}
@@ -274,20 +274,6 @@ function ViewLocations() {
                                 placeholder="Enter name"
                                 required
                             />
-                        </Form.Group>
-                        <Form.Group controlId="editFormPhone" className="mt-3">
-                            <Form.Label>Phone</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={editPhone}
-                                onChange={(e) => setEditPhone(e.target.value)}
-                                placeholder="Enter phone number"
-                                isInvalid={!!phoneNumberError}
-                                required
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                {phoneNumberError}
-                            </Form.Control.Feedback>
                         </Form.Group>
                         <Form.Group controlId="editFormCountry" className="mt-3">
                             <Form.Label>Country</Form.Label>
@@ -306,16 +292,6 @@ function ViewLocations() {
                                 value={editCity}
                                 onChange={(e) => setEditCity(e.target.value)}
                                 placeholder="Enter city"
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="editFormEmail" className="mt-3">
-                            <Form.Label>Email</Form.Label>
-                            <Form.Control
-                                type="email"
-                                value={editEmail}
-                                onChange={(e) => setEditEmail(e.target.value)}
-                                placeholder="Enter email"
                                 required
                             />
                         </Form.Group>
@@ -343,6 +319,34 @@ function ViewLocations() {
                                 {postalCodeError}
                             </Form.Control.Feedback>
                         </Form.Group>
+                        <Form.Group controlId="editFormPhone" className="mt-3">
+                            <Form.Label>Phone</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={editPhone}
+                                onChange={(e) => setEditPhone(e.target.value)}
+                                placeholder="Enter phone number"
+                                isInvalid={!!phoneNumberError}
+                                required
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                {phoneNumberError}
+                            </Form.Control.Feedback>
+                        </Form.Group>
+
+
+                        <Form.Group controlId="editFormEmail" className="mt-3">
+                            <Form.Label>Email</Form.Label>
+                            <Form.Control
+                                type="email"
+                                value={editEmail}
+                                onChange={(e) => setEditEmail(e.target.value)}
+                                placeholder="Enter email"
+                                required
+                            />
+                        </Form.Group>
+
+
                     </Modal.Body>
                     <Modal.Footer>
                         <Button
