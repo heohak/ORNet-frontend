@@ -7,12 +7,11 @@ import AddThirdPartyIT from "./AddThirdPartyIT";
 import EditThirdPartyITModal from "../SettingsPage/EditThirdPartyITModal";
 import '../../css/Customers.css';
 
-function ClientThirdPartyIT({ clientId, client }) {
+function ClientThirdPartyIT({ clientId, refresh, setRefresh }) {
     const [thirdPartyITs, setThirdPartyITs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showAddModal, setShowAddModal] = useState(false);
-    const [refresh, setRefresh] = useState(false);
 
     // State for Edit Modal
     const [selectedThirdParty, setSelectedThirdParty] = useState(null);

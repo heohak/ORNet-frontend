@@ -181,7 +181,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                         <Row className="mb-3">
                             <Col md={6}>
                                 <Form.Group>
-                                    <div className="d-flex align-items-center">
+                                    <div className="d-flex align-items-center mb-2">
                                         <Form.Label className="mb-0">Device Type</Form.Label>
                                         <Button
                                             variant="link"

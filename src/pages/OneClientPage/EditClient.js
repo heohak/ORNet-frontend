@@ -15,6 +15,7 @@ import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import {format} from "date-fns";
 import '../../css/DarkenedModal.css';
+import ConfirmationModal from "./ConfirmationModal";
 
 
 function EditClient({ clientId, onClose, onSave, setRefresh }) {
@@ -49,6 +50,63 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
     const [allContacts, setAllContacts] = useState([]); // State for all contacts
     const [showAddContactModal, setShowAddContactModal] = useState(false);
     const [clientContacts, setClientContacts] = useState([]);
+    const [confirmation, setConfirmation] = useState({
+        show: false,
+        title: '',
+        message: '',
+        onConfirm: null,
+    });
+
+    // Handler to open confirmation modal
+    const openConfirmationModal = (type, item) => {
+        let title = '';
+        let message = '';
+        let onConfirm = null;
+
+        switch (type) {
+            case 'location':
+                title = 'Confirm Removal';
+                message = `Are you sure you want to remove the location "${item.name}"?`;
+                onConfirm = () => {
+                    handleLocationRemove(item.id);
+                    setConfirmation({ show: false, title: '', message: '', onConfirm: null });
+                };
+                break;
+            case 'thirdPartyIT':
+                title = 'Confirm Removal';
+                message = `Are you sure you want to remove the Third-Party IT "${item.name}"?`;
+                onConfirm = () => {
+                    handleThirdPartyITRemove(item.id);
+                    setConfirmation({ show: false, title: '', message: '', onConfirm: null });
+                };
+                break;
+            case 'contact':
+                title = 'Confirm Removal';
+                message = `Are you sure you want to remove the contact "${item.firstName} ${item.lastName}"?`;
+                onConfirm = () => {
+                    handleContactRemove(item.id);
+                    setConfirmation({ show: false, title: '', message: '', onConfirm: null });
+                };
+                break;
+            case 'technicalInfo':
+                title = 'Confirm Removal';
+                message = `Are you sure you want to remove the Technical Information "${item.name}"?`;
+                onConfirm = () => {
+                    handleUnassignSoftware(item.id);
+                    setConfirmation({ show: false, title: '', message: '', onConfirm: null });
+                };
+                break;
+            default:
+                break;
+        }
+
+        setConfirmation({
+            show: true,
+            title,
+            message,
+            onConfirm,
+        });
+    };
 
 
     const fetchAllContacts = async () => {
@@ -179,6 +237,9 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             thirdPartyIds: [...clientData.thirdPartyIds, thirdPartyITToAdd.id],
         });
     };
+    const initiateThirdPartyITRemove = (thirdPartyIT) => {
+        openConfirmationModal('thirdPartyIT', thirdPartyIT);
+    };
 
     const handleThirdPartyITRemove = (thirdPartyITId) => {
         setClientData({
@@ -186,6 +247,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             thirdPartyITs: clientData.thirdPartyITs.filter(it => it.id !== thirdPartyITId),
             thirdPartyIds: clientData.thirdPartyIds.filter(id => id !== thirdPartyITId),
         });
+
     };
 
     const handleNewThirdPartyIT = (newThirdPartyIT) => {
@@ -219,6 +281,9 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             locations: [...clientData.locations, locationToAdd],
             locationIds: [...clientData.locationIds, locationToAdd.id],
         });
+    };
+    const initiateLocationRemove = (location) => {
+        openConfirmationModal('location', location);
     };
 
     const handleLocationRemove = (locationId) => {
@@ -256,7 +321,9 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
         }
     };
 
-
+    const initiateUnassignSoftware = (software) => {
+        openConfirmationModal('technicalInfo', software);
+    };
     const handleUnassignSoftware = async (softwareId) => {
         try {
             await axios.put(`${config.API_BASE_URL}/software/remove/${softwareId}`);
@@ -289,7 +356,9 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
         }
     };
 
-
+    const initiateContactRemove = (contact) => {
+        openConfirmationModal('contact', contact);
+    };
     const handleContactRemove = async (contactId) => {
         try {
             await axios.put(`${config.API_BASE_URL}/worker/remove/${contactId}`);
@@ -450,7 +519,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                                         <Button
                                                             variant="link"
                                                             size="sm"
-                                                            onClick={() => handleLocationRemove(location.id)}
+                                                            onClick={() => initiateLocationRemove(location)}
                                                             style={{ color: 'grey' }}
                                                         >
                                                             <FontAwesomeIcon icon={faTimes} />
@@ -493,7 +562,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                                         <Button
                                                             variant="link"
                                                             size="sm"
-                                                            onClick={() => handleUnassignSoftware(software.id)}
+                                                            onClick={() => initiateUnassignSoftware(software)}
                                                             style={{ color: 'grey' }}
                                                         >
                                                             <FontAwesomeIcon icon={faTimes} />
@@ -513,6 +582,49 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                     {availableSoftwares.map((software) => (
                                         <option key={software.id} value={software.id}>
                                             {software.name}
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+
+                            {/* Third-Party ITs */}
+                            <Form.Group className="mb-3">
+                                <Row>
+                                    <Col className="col-md-auto align-content-center">
+                                        <Form.Label className="mb-0">Third-Party ITs</Form.Label>
+                                    </Col>
+                                    <Col className="col-md-auto px-0 py-0">
+                                        <Button variant="link" onClick={() => setShowThirdPartyITModal(true)}>
+                                            Add New Third-Party IT
+                                        </Button>
+                                    </Col>
+                                </Row>
+                                {clientData.thirdPartyITs.length > 0 && (
+                                    <ListGroup className="mb-2">
+                                        {clientData.thirdPartyITs.map((it) => (
+                                            <ListGroup.Item key={it.id}>
+                                                <Row className="align-items-center">
+                                                    <Col>{it.name}</Col>
+                                                    <Col xs="auto">
+                                                        <Button
+                                                            variant="link"
+                                                            size="sm"
+                                                            onClick={() => initiateThirdPartyITRemove(it)}
+                                                            style={{ color: 'grey' }}
+                                                        >
+                                                            <FontAwesomeIcon icon={faTimes} />
+                                                        </Button>
+                                                    </Col>
+                                                </Row>
+                                            </ListGroup.Item>
+                                        ))}
+                                    </ListGroup>
+                                )}
+                                <Form.Select onChange={handleThirdPartyITAdd} value="">
+                                    <option value="" disabled>Select Third-Party IT</option>
+                                    {availableThirdPartyITs.map((it) => (
+                                        <option key={it.id} value={it.id}>
+                                            {it.name}
                                         </option>
                                     ))}
                                 </Form.Select>
@@ -577,7 +689,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                                         <Button
                                                             variant="link"
                                                             size="sm"
-                                                            onClick={() => handleContactRemove(contact.id)}
+                                                            onClick={() => initiateContactRemove(contact)}
                                                             style={{ color: 'grey' }}
                                                         >
                                                             <FontAwesomeIcon icon={faTimes} />
@@ -732,6 +844,14 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                 onClose={() => setShowAddContactModal(false)}
                 clientId={clientId}
                 onSuccess={handleNewContact}
+            />
+
+            <ConfirmationModal
+                show={confirmation.show}
+                onHide={() => setConfirmation({ show: false, title: '', message: '', onConfirm: null })}
+                title={confirmation.title}
+                message={confirmation.message}
+                onConfirm={confirmation.onConfirm}
             />
 
 

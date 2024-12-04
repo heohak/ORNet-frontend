@@ -13,6 +13,7 @@ function LinkedDevices({
                            setLinkedDevices,
                            showModal,
                            setShowModal,
+                           refreshData,
                        }) {
     // State variables
     const [selectedLinkedDeviceId, setSelectedLinkedDeviceId] = useState('');
@@ -35,9 +36,10 @@ function LinkedDevices({
     const [activeTab, setActiveTab] = useState('details');
     const [submitIndex, setSubmitIndex] = useState(0)
     const [isSubmitting, setIsSubmitting] = useState(false);
-    // Comments state
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState("");
+    const [showUnlinkConfirmModal, setShowUnlinkConfirmModal] = useState(false);
+
 
     // Default fields to display
     const defaultFields = [
@@ -372,6 +374,31 @@ function LinkedDevices({
         }
     };
 
+    const handleUnlinkDevice = async () => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+
+        try {
+            await axios.put(`${config.API_BASE_URL}/linked/device/remove/${currentDeviceId}`);
+            // Re-fetch the linked devices
+            const updatedLinkedDevicesResponse = await axios.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
+            setLinkedDevices(updatedLinkedDevicesResponse.data);
+            initializeFieldsConfig(updatedLinkedDevicesResponse.data);
+            if (refreshData) {
+                refreshData();
+            }
+            setShowUnlinkConfirmModal(false);
+            setShowDeviceModal(false);
+        } catch (error) {
+            console.error('Error unlinking device:', error);
+            // Optionally display an error message to the user
+            setFieldError('Failed to unlink the device. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+
     const handleSubmit = (e) => {
         e.preventDefault();
         if (submitIndex === 0) {
@@ -452,6 +479,9 @@ function LinkedDevices({
                             <>
                                 <Form.Group controlId="selectDevice">
                                     <Form.Label>Select Device to Link</Form.Label>
+                                    <Button variant="link" onClick={() => setShowAddNewDeviceForm(true)}>
+                                        Add new linked device
+                                    </Button>
                                     <Form.Control
                                         as="select"
                                         value={selectedLinkedDeviceId}
@@ -465,9 +495,7 @@ function LinkedDevices({
                                         ))}
                                     </Form.Control>
                                 </Form.Group>
-                                <Button variant="link" onClick={() => setShowAddNewDeviceForm(true)}>
-                                    Or add a new device
-                                </Button>
+
                             </>
                         )}
                         {showAddNewDeviceForm && (
@@ -522,7 +550,7 @@ function LinkedDevices({
                         )}
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowModal(false)}>
+                        <Button variant="outline-info" onClick={() => setShowModal(false)}>
                             Cancel
                         </Button>
                         {showAddNewDeviceForm ? (
@@ -657,10 +685,15 @@ function LinkedDevices({
                                 <p>No comments available.</p>
                             )}
                         </Tab>
+                        <Tab eventKey="unlink" title="Unlink Device">
+                            <Button variant="danger" onClick={() => setShowUnlinkConfirmModal(true)}>
+                                Unlink Device
+                            </Button>
+                        </Tab>
                     </Tabs>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowDeviceModal(false)}>
+                    <Button variant="outline-info" onClick={() => setShowDeviceModal(false)}>
                         Close
                     </Button>
                 </Modal.Footer>
@@ -693,6 +726,25 @@ function LinkedDevices({
                     </Button>
                 </Modal.Footer>
             </Modal>
+
+            {/* Unlink Confirmation Modal */}
+            <Modal show={showUnlinkConfirmModal} onHide={() => setShowUnlinkConfirmModal(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Unlink</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    Are you sure you want to unlink this device?
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="outline-info" onClick={() => setShowUnlinkConfirmModal(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={handleUnlinkDevice}>
+                        Unlink
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
         </>
     );
 }
