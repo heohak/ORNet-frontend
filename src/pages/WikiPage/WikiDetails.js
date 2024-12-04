@@ -1,30 +1,48 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Spinner, Alert, Card, Button } from 'react-bootstrap';
+import {Container, Spinner, Alert, Card, Button, Modal, Form} from 'react-bootstrap';
+import { FaTrash, FaEdit } from 'react-icons/fa'; // Icons for delete and edit
 import config from "../../config/config";
 
-function WikiDetails() {
-    const { wikiId } = useParams();
-    const [wiki, setWiki] = useState(null);
-    const [loading, setLoading] = useState(true);
+function WikiDetails({ show, onClose, reFetch, wiki }) {
+    const [problem, setProblem] = useState(wiki.problem);
+    const [solution, setSolution] = useState(wiki.solution);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const navigate = useNavigate();
+    const [editMode, setEditMode] = useState(false);
 
-    useEffect(() => {
-        const fetchWiki = async () => {
-            try {
-                const response = await axios.get(`${config.API_BASE_URL}/wiki/${wikiId}`);
-                setWiki(response.data);
-            } catch (error) {
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const handleDelete = async () => {
+        try {
+            await axios.delete(`${config.API_BASE_URL}/wiki/${wiki.id}`);
+            reFetch();
+            onClose();
+        } catch (error) {
+            setError(error.message);
+        }
+    };
 
-        fetchWiki();
-    }, [wikiId]);
+    const handleEditToggle = (e) => {
+        e.preventDefault()
+        if (editMode) {
+            // If in edit mode, save the changes to the server
+            handleSaveChanges();
+        }
+        setEditMode(!editMode);
+    }
+
+    const handleSaveChanges = async() => {
+        try {
+            await axios.put(`${config.API_BASE_URL}/wiki/update/${wiki.id}`, {
+                solution: solution,
+                problem: problem
+            });
+
+
+        } catch (error) {
+            console.error("Error saving wiki info", error)
+        }
+    }
 
     if (loading) {
         return (
@@ -48,20 +66,36 @@ function WikiDetails() {
     }
 
     return (
-        <Container className="mt-5">
-            <Card>
-                <Card.Body>
-                    <Card.Title>Problem</Card.Title>
-                    <Card.Text>{wiki.problem}</Card.Text>
-                    <Card.Title>Solution</Card.Title>
-                    {/* Preserve text formatting using <pre> */}
-                    <pre style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
-                        {wiki.solution}
-                    </pre>
-                    <Button onClick={() => navigate(-1)}>Back</Button>
-                </Card.Body>
-            </Card>
-        </Container>
+        <Modal show={show} onHide={onClose}>
+            <Modal.Header closeButton>
+                <Modal.Title>{problem}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Card.Text>
+                    <strong>Solution:</strong>
+                    {editMode ? (
+                        <Form.Control
+                            type="text"
+                            name="solution"
+                            value={solution}
+                            onChange={setSolution}
+                            required
+                        />
+                    ) : solution}
+                </Card.Text>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={onClose}>
+                    Close
+                </Button>
+                <Button variant="danger" onClick={handleDelete}>
+                    <FaTrash /> Delete
+                </Button>
+                <Button variant="warning" onClick={handleEditToggle}>
+                    <FaEdit /> Edit
+                </Button>
+            </Modal.Footer>
+        </Modal>
     );
 }
 
