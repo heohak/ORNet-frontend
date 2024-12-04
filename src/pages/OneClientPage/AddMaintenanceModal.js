@@ -149,7 +149,8 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, deviceId
                     <Form.Group className="mb-3">
                         <Form.Label>Comment</Form.Label>
                         <Form.Control
-                            type="text"
+                            as="textarea"
+                            rows={4}
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
                         />
