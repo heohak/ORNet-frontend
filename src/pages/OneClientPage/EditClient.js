@@ -15,6 +15,7 @@ import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import {format} from "date-fns";
 import '../../css/DarkenedModal.css';
+import ConfirmationModal from "./ConfirmationModal";
 
 
 function EditClient({ clientId, onClose, onSave, setRefresh }) {
@@ -49,6 +50,63 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
     const [allContacts, setAllContacts] = useState([]); // State for all contacts
     const [showAddContactModal, setShowAddContactModal] = useState(false);
     const [clientContacts, setClientContacts] = useState([]);
+    const [confirmation, setConfirmation] = useState({
+        show: false,
+        title: '',
+        message: '',
+        onConfirm: null,
+    });
+
+    // Handler to open confirmation modal
+    const openConfirmationModal = (type, item) => {
+        let title = '';
+        let message = '';
+        let onConfirm = null;
+
+        switch (type) {
+            case 'location':
+                title = 'Confirm Removal';
+                message = `Are you sure you want to remove the location "${item.name}"?`;
+                onConfirm = () => {
+                    handleLocationRemove(item.id);
+                    setConfirmation({ show: false, title: '', message: '', onConfirm: null });
+                };
+                break;
+            case 'thirdPartyIT':
+                title = 'Confirm Removal';
+                message = `Are you sure you want to remove the Third-Party IT "${item.name}"?`;
+                onConfirm = () => {
+                    handleThirdPartyITRemove(item.id);
+                    setConfirmation({ show: false, title: '', message: '', onConfirm: null });
+                };
+                break;
+            case 'contact':
+                title = 'Confirm Removal';
+                message = `Are you sure you want to remove the contact "${item.firstName} ${item.lastName}"?`;
+                onConfirm = () => {
+                    handleContactRemove(item.id);
+                    setConfirmation({ show: false, title: '', message: '', onConfirm: null });
+                };
+                break;
+            case 'technicalInfo':
+                title = 'Confirm Removal';
+                message = `Are you sure you want to remove the Technical Information "${item.name}"?`;
+                onConfirm = () => {
+                    handleUnassignSoftware(item.id);
+                    setConfirmation({ show: false, title: '', message: '', onConfirm: null });
+                };
+                break;
+            default:
+                break;
+        }
+
+        setConfirmation({
+            show: true,
+            title,
+            message,
+            onConfirm,
+        });
+    };
 
 
     const fetchAllContacts = async () => {
@@ -179,6 +237,9 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             thirdPartyIds: [...clientData.thirdPartyIds, thirdPartyITToAdd.id],
         });
     };
+    const initiateThirdPartyITRemove = (thirdPartyIT) => {
+        openConfirmationModal('thirdPartyIT', thirdPartyIT);
+    };
 
     const handleThirdPartyITRemove = (thirdPartyITId) => {
         setClientData({
@@ -221,6 +282,9 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             locationIds: [...clientData.locationIds, locationToAdd.id],
         });
     };
+    const initiateLocationRemove = (location) => {
+        openConfirmationModal('location', location);
+    };
 
     const handleLocationRemove = (locationId) => {
         setClientData({
@@ -257,7 +321,9 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
         }
     };
 
-
+    const initiateUnassignSoftware = (software) => {
+        openConfirmationModal('technicalInfo', software);
+    };
     const handleUnassignSoftware = async (softwareId) => {
         try {
             await axios.put(`${config.API_BASE_URL}/software/remove/${softwareId}`);
@@ -290,7 +356,9 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
         }
     };
 
-
+    const initiateContactRemove = (contact) => {
+        openConfirmationModal('contact', contact);
+    };
     const handleContactRemove = async (contactId) => {
         try {
             await axios.put(`${config.API_BASE_URL}/worker/remove/${contactId}`);
@@ -451,7 +519,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                                         <Button
                                                             variant="link"
                                                             size="sm"
-                                                            onClick={() => handleLocationRemove(location.id)}
+                                                            onClick={() => initiateLocationRemove(location)}
                                                             style={{ color: 'grey' }}
                                                         >
                                                             <FontAwesomeIcon icon={faTimes} />
@@ -494,7 +562,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                                         <Button
                                                             variant="link"
                                                             size="sm"
-                                                            onClick={() => handleUnassignSoftware(software.id)}
+                                                            onClick={() => initiateUnassignSoftware(software)}
                                                             style={{ color: 'grey' }}
                                                         >
                                                             <FontAwesomeIcon icon={faTimes} />
@@ -541,7 +609,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                                         <Button
                                                             variant="link"
                                                             size="sm"
-                                                            onClick={() => handleThirdPartyITRemove(it.id)}
+                                                            onClick={() => initiateThirdPartyITRemove(it)}
                                                             style={{ color: 'grey' }}
                                                         >
                                                             <FontAwesomeIcon icon={faTimes} />
@@ -621,7 +689,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                                         <Button
                                                             variant="link"
                                                             size="sm"
-                                                            onClick={() => handleContactRemove(contact.id)}
+                                                            onClick={() => initiateContactRemove(contact)}
                                                             style={{ color: 'grey' }}
                                                         >
                                                             <FontAwesomeIcon icon={faTimes} />
@@ -776,6 +844,14 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                 onClose={() => setShowAddContactModal(false)}
                 clientId={clientId}
                 onSuccess={handleNewContact}
+            />
+
+            <ConfirmationModal
+                show={confirmation.show}
+                onHide={() => setConfirmation({ show: false, title: '', message: '', onConfirm: null })}
+                title={confirmation.title}
+                message={confirmation.message}
+                onConfirm={confirmation.onConfirm}
             />
 
 
