@@ -121,7 +121,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
 
     const fetchAllSoftwares = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/software/all`);
+            const response = await axios.get(`${config.API_BASE_URL}/software/not-used`);
             setAllSoftwares(response.data);
         } catch (error) {
             setError(error.message);
