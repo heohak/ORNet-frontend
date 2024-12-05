@@ -56,6 +56,14 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
         }
         return list
     }
+
+    useEffect(() => {
+        formData.locationId = undefined
+        setSelectedContacts([]);
+        setSelectedDevices([]);
+    },[formData.clientId])
+
+
     const changeAvailableDevices = (locationId) => {
         locationId = parseInt(locationId)
         const filteredList = devices.filter(device => device.locationId === locationId)

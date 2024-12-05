@@ -3,14 +3,14 @@ import { Modal, Button } from 'react-bootstrap';
 import axios from "axios";
 import config from "../../config/config";
 
-function DeleteConfirmModal({ show, onClose, reFetch, wiki }) {
+function DeleteConfirmModal({ show, onClose, wikiId, onConfirm }) {
 
 
     const handleDeleteWiki = async () => {
         try {
-            await axios.delete(`${config.API_BASE_URL}/wiki/${wiki.id}`);
-            reFetch();
-            onClose(false);
+            await axios.delete(`${config.API_BASE_URL}/wiki/${wikiId}`);
+            onConfirm();
+            onClose();
         } catch (error) {
             console.error("Error deleting wiki", error);
         }

@@ -3,7 +3,6 @@ import axios from 'axios';
 import { Container, Row, Col, Button, Spinner, Alert, Form } from 'react-bootstrap';
 import config from "../../config/config";
 import AddWikiModal from "./AddWikiModal";
-import DeleteConfirmModal from "./DeleteConfirmModal";
 import "../../css/Wiki.css";
 import WikiDetails from "./WikiDetails";
 
@@ -13,7 +12,6 @@ function Wiki() {
     const [error, setError] = useState(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [typingTimeout, setTypingTimeout] = useState(null);
     const [selectedWiki, setSelectedWiki] = useState(null);
@@ -95,7 +93,6 @@ function Wiki() {
             {/* Table header */}
             <Row className="row-margin-0 fw-bold mt-2">
                 <Col md={8}>Title</Col>
-                <Col md={2}>Actions</Col>
             </Row>
             <hr />
 
@@ -119,21 +116,13 @@ function Wiki() {
             })}
 
             {/* Add Wiki Modal */}
+
             <AddWikiModal
                 show={showAddModal}
                 onClose={() => setShowAddModal(false)}
                 reFetch={fetchWikis}
             />
 
-            {/* Delete Confirmation Modal */}
-            {selectedWiki &&
-                <DeleteConfirmModal
-                    show={showDeleteConfirm}
-                    onClose={() => setShowDeleteConfirm(false)}
-                    reFetch={fetchWikis}
-                    wiki={selectedWiki}
-                />
-            }
             {/* Wiki Details Modal */}
             {selectedWiki &&
                 <WikiDetails

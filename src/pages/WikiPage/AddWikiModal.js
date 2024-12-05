@@ -8,7 +8,6 @@ function AddWikiModal({ show, onClose, reFetch }) {
     const [solution, setSolution] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-
     const handleAdd = async (e) => {
         e.preventDefault();
         if (isSubmitting) return;
@@ -32,44 +31,44 @@ function AddWikiModal({ show, onClose, reFetch }) {
 
     return (
         <Modal show={show} onHide={onClose}>
-            <Modal.Header closeButton>
-                <Modal.Title>Add Wiki</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <Form onSubmit={handleAdd}>
+            <Form onSubmit={handleAdd}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Add Wiki</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
                     <Form.Group controlId="formProblem">
-                        <Form.Label>Problem</Form.Label>
+                        <Form.Label>Title</Form.Label>
                         <Form.Control
                             type="text"
                             value={problem}
                             onChange={(e) => setProblem(e.target.value)}
-                            placeholder="Enter problem"
+                            placeholder="Enter title"
                             required
                         />
                     </Form.Group>
                     <Form.Group controlId="formSolution" className="mt-3">
-                        <Form.Label>Solution</Form.Label>
+                        <Form.Label>Description</Form.Label>
                         <Form.Control
                             as="textarea"
                             rows={3}
                             value={solution}
                             onChange={(e) => setSolution(e.target.value)}
-                            placeholder="Enter solution"
+                            placeholder="Enter description"
                             required
                         />
                     </Form.Group>
-                </Form>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant="outline-info" onClick={onClose}>Cancel</Button>
-                <Button
-                    variant="primary"
-                    type="submit"
-                    disabled={isSubmitting}
-                >
-                    {isSubmitting ? 'Adding...' : 'Add Wiki'}
-                </Button>
-            </Modal.Footer>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="outline-info" onClick={onClose}>Cancel</Button>
+                    <Button
+                        variant="primary"
+                        type="submit"
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? 'Adding...' : 'Add Wiki'}
+                    </Button>
+                </Modal.Footer>
+            </Form>
         </Modal>
     );
 }
