@@ -111,8 +111,15 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
 
     const fetchAllContacts = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/worker/all`);
-            setAllContacts(response.data);
+            const response = await axios.get(`${config.API_BASE_URL}/worker/not-used`);
+            const sortedContacts = response.data.sort((a, b) => {
+                const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
+                const nameB = `${b.firstName} ${b.lastName}`.toLowerCase();
+                if (nameA < nameB) return -1;
+                if (nameA > nameB) return 1;
+                return 0;
+            });
+            setAllContacts(sortedContacts);
         } catch (error) {
             setError(error.message);
         }
@@ -140,8 +147,6 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             );
             const locations = locationResponses.map(res => res.data);
 
-
-
             // Fetch third-party ITs
             const thirdPartyResponses = await Promise.all(
                 client.thirdPartyIds.map(id => axios.get(`${config.API_BASE_URL}/third-party/${id}`))
@@ -153,6 +158,13 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
 
             const contactResponse = await axios.get(`${config.API_BASE_URL}/worker/${clientId}`);
             const contacts = contactResponse.data;
+            contacts.sort((a, b) => {
+                const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
+                const nameB = `${b.firstName} ${b.lastName}`.toLowerCase();
+                if (nameA < nameB) return -1;
+                if (nameA > nameB) return 1;
+                return 0;
+            });
 
             const lastMaintenanceDate = client.lastMaintenance ? new Date(client.lastMaintenance) : null;
             const nextMaintenanceDate = client.nextMaintenance ? new Date(client.nextMaintenance) : null;
