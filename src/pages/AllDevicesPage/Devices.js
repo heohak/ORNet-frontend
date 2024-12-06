@@ -155,7 +155,7 @@ function Devices() {
 
             {/* Table header and rows */}
 
-                <Row style={{fontWeight: "bold"}} className="font-weight-bold text-center">
+                <Row className="fw-bold">
                     <Col md={3} onClick={() => handleSort('deviceName')}>
                         Name {renderSortArrow('deviceName')}
                     </Col>
@@ -183,7 +183,7 @@ function Devices() {
                     return (
                         <Row
                             key={device.id}
-                            className="align-items-center text-center py-2"
+                            className="mb-2 py-2"
                             style={{ backgroundColor: rowBgColor, cursor: 'pointer'}}
                             onClick={() => navigate(`/device/${device.id}`, {state: {from: 'all-devices'}})}
                         >
