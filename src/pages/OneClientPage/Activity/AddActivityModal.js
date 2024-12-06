@@ -302,7 +302,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                                     value={selectedWorkTypes}
                                     onChange={setSelectedWorkTypes}
                                     placeholder="Select work types"
-                                    required
+
                                 />
                             </Form.Group>
                         </Col>
@@ -318,7 +318,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                                     value={formData.clientNumeration}
                                     onChange={handleChange}
                                     id="clientNumeration"
-                                    required
+
                                 />
                             </Form.Group>
                         </Col>
@@ -343,7 +343,6 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                                     value={formData.baitWorkerId}
                                     onChange={handleChange}
                                     id="baitWorkerId"
-                                    required
                                 >
                                     <option value="">Select Responsible</option>
                                     {baitWorkers.map(baitWorker => (
