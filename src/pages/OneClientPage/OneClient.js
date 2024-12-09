@@ -199,8 +199,11 @@ function OneClient() {
                             <Accordion.Item eventKey="2" className="AccordionLocations" ref={(el) => accordionRefs.current[2] = el}>
                                 <Accordion.Header onClick={() => handleAccordionToggle('2')}>Locations</Accordion.Header>
                                 <Accordion.Body>
-                                    <ClientLocations locations={locations}
-                                                     setRefresh={setRefresh}/>
+                                    <ClientLocations
+                                        locations={locations}
+                                        setRefresh={setRefresh}
+                                        clientId={clientId}
+                                    />
                                 </Accordion.Body>
                             </Accordion.Item>
 
