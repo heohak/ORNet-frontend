@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Button, Alert, Spinner } from 'react-bootstrap';
 import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
+import {useLocation, useNavigate, useParams} from 'react-router-dom';
 import config from '../../config/config';
 import NewTicket from '../TicketsPage/SingleTicketModal/NewTicket';
 
@@ -18,6 +18,7 @@ function DeviceTickets({ deviceId }) {
     const [locations, setLocations] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const location = useLocation();
 
     const { ticketId } = useParams();
 
@@ -91,7 +92,7 @@ function DeviceTickets({ deviceId }) {
 
     const handleClose = () => {
         // Navigate back to device page without the ticketId in the URL
-        navigate(`/device/${deviceId}`);
+        navigate(`/device/${deviceId}`, {state: {fromPath: location.state?.fromPath}});
         setTicketModal(false);
         setTicket(null);
     };
@@ -102,7 +103,7 @@ function DeviceTickets({ deviceId }) {
     };
 
     const handleTicketClick = (ticket) => {
-        navigate(`/device/${deviceId}/ticket/${ticket.id}`);
+        navigate(`/device/${deviceId}/ticket/${ticket.id}`, {state: {fromPath: location.state?.fromPath}});
         setTicketModal(true);
     };
 

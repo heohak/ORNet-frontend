@@ -29,7 +29,6 @@ function OneDevice() {
 
     const accordionRefs = useRef([]);
 
-
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -89,9 +88,7 @@ function OneDevice() {
 
     const handleBackNavigation = () => {
         if (location.state?.fromPath) {
-            navigate(`${location.state.fromPath}`, { state: { openAccordion: 'tickets' }});
-        } else if (location.state && location.state.from === 'all-devices') {
-            navigate('/devices');
+            navigate(`${location.state.fromPath}`, { state: {fromPath: location.state.fromPath, openAccordion: 'tickets' }});
         } else if (device && device.clientId) {
             navigate(`/customer/${device.clientId}`);
         } else {

@@ -185,7 +185,7 @@ function Devices() {
                             key={device.id}
                             className="mb-2 py-2"
                             style={{ backgroundColor: rowBgColor, cursor: 'pointer'}}
-                            onClick={() => navigate(`/device/${device.id}`, {state: {from: 'all-devices'}})}
+                            onClick={() => navigate(`/device/${device.id}`, {state: {fromPath: `/devices`}})}
                         >
                             <Col md={3}>{device.deviceName}</Col>
                             <Col md={2}>{classificators[device.classificatorId] || 'Unknown Type'}</Col>
