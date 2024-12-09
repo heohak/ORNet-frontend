@@ -1,23 +1,14 @@
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
-import axios from "axios";
-import config from "../../config/config";
 
-function DeleteConfirmModal({ show, onClose, wikiId, onConfirm }) {
-
-
-    const handleDeleteWiki = async () => {
-        try {
-            await axios.delete(`${config.API_BASE_URL}/wiki/${wikiId}`);
-            onConfirm();
-            onClose();
-        } catch (error) {
-            console.error("Error deleting wiki", error);
-        }
+function DeleteConfirmModal({ show, handleClose, handleDelete }) {
+    const confirmDelete = async () => {
+        await handleDelete(); // This calls the parent's delete logic, which also closes the EditWikiModal
+        handleClose(); // Now close the DeleteConfirmModal itself
     };
 
     return (
-        <Modal show={show} onHide={onClose}>
+        <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
                 <Modal.Title>Confirm Deletion</Modal.Title>
             </Modal.Header>
@@ -25,10 +16,10 @@ function DeleteConfirmModal({ show, onClose, wikiId, onConfirm }) {
                 <p>Are you sure you want to delete this wiki entry?</p>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={onClose}>
+                <Button variant="secondary" onClick={handleClose}>
                     Cancel
                 </Button>
-                <Button variant="danger" onClick={handleDeleteWiki}>
+                <Button variant="danger" onClick={confirmDelete}>
                     Confirm Delete
                 </Button>
             </Modal.Footer>
