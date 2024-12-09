@@ -261,18 +261,23 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                     {editMode ? (
                                         <Form.Select
                                             name="baitWorkerId"
-                                            value={editedTicket.baitWorkerId}
+                                            value={editedTicket.baitWorkerId || ""}
                                             onChange={handleInputChange}
                                         >
+                                            <option value="">
+                                                Select assignee
+                                            </option>
                                             {baitWorkers.map(worker => (
                                                 <option key={worker.id} value={worker.id}>
                                                     {worker.firstName} {worker.lastName}
                                                 </option>
                                             ))}
                                         </Form.Select>
-                                    ) : responsibleName}
+                                    ) : responsibleName ||
+                                        <span style={{ fontStyle: 'italic', color: 'gray' }}>None</span>}
                                 </Col>
                             </Row>
+
 
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
