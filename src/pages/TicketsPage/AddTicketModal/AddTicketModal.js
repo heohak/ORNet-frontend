@@ -505,7 +505,6 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
                                     value={formData.baitWorkerId}
                                     onChange={handleChange}
                                     id="baitWorkerId"
-                                    required
                                 >
                                     <option value="">Select Assignee</option>
                                     {baitWorkers.map(baitWorker => (
