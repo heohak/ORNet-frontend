@@ -4,9 +4,11 @@ import axios from "axios";
 import { FaEdit, FaCheck } from 'react-icons/fa';  // Import edit and check icons
 import config from "../../../config/config";
 import Select from "react-select";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 
 const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, reFetch, clientId }) => {
+    const location = useLocation();
+    const { fromPath } = location.state || { fromPath: "/" };
     const [responsibleName, setResponsibleName] = useState('');
     const [availableWorkTypes, setAvailableWorkTypes] = useState([]);
     const [selectedWorkTypes, setSelectedWorkTypes] = useState([]);
@@ -18,7 +20,6 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
     const [selectedDevices, setSelectedDevices] = useState([]);
     const [availableDevices, setAvailableDevices] = useState([]);
     const navigate = useNavigate();
-
 
     useEffect(() => {
         fetchResponsibleName();
@@ -368,11 +369,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                                 <React.Fragment key={device.id}>
                                                       <span
                                                           onClick={() => navigate(`/device/${device.id}`, {
-                                                              state: {
-                                                                  fromPath: clientId
-                                                                      ? `/customer/${clientId}/ticket/${ticket.id}`
-                                                                      : `/tickets/${ticket.id}`,
-                                                              }
+                                                              state: { fromPath: fromPath }
                                                           })}
                                                           style={{ color: 'blue', cursor: 'pointer' }} // Styling for clickable text
                                                       >

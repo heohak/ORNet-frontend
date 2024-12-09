@@ -86,7 +86,7 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
     }, []);
 
     const handleTicketClick = (ticket) => {
-        navigate(`/customer/${clientId}/ticket/${ticket.id}`);
+        navigate(`/customer/${clientId}/ticket/${ticket.id}`, {state: {fromPath: `/customer/${clientId}/ticket/${ticket.id}`}});
     };
 
     const handleClose = () => {

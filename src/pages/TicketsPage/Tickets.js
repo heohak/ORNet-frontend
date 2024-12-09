@@ -171,7 +171,7 @@ function Tickets() {
     };
 
     const handleNavigate = (ticket) => {
-        navigate(`/tickets/${ticket.id}`);
+        navigate(`/tickets/${ticket.id}`, {state: {fromPath: `/tickets/${ticket.id}`}});
     };
 
     const closeTicketModal = () => {
