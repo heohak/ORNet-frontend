@@ -6,6 +6,7 @@ import '../../css/Customers.css';
 import '../../css/OneClientPage/OneClient.css';
 import config from '../../config/config';
 import NewTicket from '../TicketsPage/SingleTicketModal/NewTicket';
+import AddTicketModal from "../TicketsPage/AddTicketModal/AddTicketModal";
 
 function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
     const navigate = useNavigate();
@@ -16,6 +17,7 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
     const [closedStatusId, setClosedStatusId] = useState("");
     const [locations, setLocations] = useState({});
     const [loading, setLoading] = useState(false);
+    const [showAddTicketModal, setShowAddTicketModal] = useState(false);
 
     // Load ticket and statuses if ticketId is present
     useEffect(() => {
@@ -99,11 +101,17 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
 
     return (
         <>
-            <Row className="row-margin-0 mb-2">
+            <Row className="row-margin-0 d-flex justify-content-between align-items-center mb-2">
                 <Col className="col-md-auto">
-                    <h2 className="mb-0" style={{ paddingBottom: "20px" }}>Tickets</h2>
+                    <h2 className="mb-0" style={{paddingBottom: "20px"}}>
+                        {'Tickets'}
+                    </h2>
+                </Col>
+                <Col className="col-md-auto">
+                    <Button variant="primary" onClick={() => setShowAddTicketModal(true)}>Add Ticket</Button>
                 </Col>
             </Row>
+
             {tickets.length > 0 ? (
                 <>
                     <Row className="row-margin-0 fw-bold mt-2">
@@ -175,6 +183,12 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
                     clientId={clientId}
                 />
             )}
+            <AddTicketModal
+                show={showAddTicketModal}
+                handleClose={() => setShowAddTicketModal(false)}
+                reFetch={fetchTickets}
+                clientId={clientId}
+            />
         </>
     );
 }
