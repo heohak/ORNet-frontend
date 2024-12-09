@@ -78,6 +78,7 @@ function App() {
                         <Route path="/contacts" element={<Contacts />} />
                         <Route path="/tickets/:ticketId" element={<Tickets />} />
                         <Route path="/customer/:clientId/ticket/:ticketId" element={<OneClient />} />
+                        <Route path="/device/:deviceId/ticket/:ticketId" element={<OneDevice />} />
                         <Route path="/settings/predefined-device-names" element={<ViewPredefinedDeviceNames />}
                         />
                     </Routes>

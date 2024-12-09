@@ -9,6 +9,7 @@ import LinkedDevices from "./LinkedDevices";
 import CommentsModal from "../../modals/CommentsModal";
 import '../../css/OneDevicePage/OneDevice.css';
 import DeviceFileList from "./DeviceFileList";
+import DeviceTickets from "./DeviceTickets";
 
 function OneDevice() {
     const {deviceId} = useParams();
@@ -189,6 +190,18 @@ function OneDevice() {
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
+
+                            <Accordion.Item
+                                eventKey="4"
+                                className="AccordionDeviceTickets"
+                                ref={(el) => (accordionRefs.current[4] = el)}
+                            >
+                                <Accordion.Header onClick={() => handleAccordionToggle('4')}>Tickets</Accordion.Header>
+                                <Accordion.Body>
+                                    <DeviceTickets deviceId={deviceId} />
+                                </Accordion.Body>
+                            </Accordion.Item>
+
 
                             {/* Maintenance Info */}
                             <Accordion.Item
