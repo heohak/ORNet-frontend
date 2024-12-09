@@ -76,8 +76,16 @@ function DeviceTickets({ deviceId }) {
         }
     };
 
+    const fetchTickets = async() => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/device/tickets/${deviceId}`)
+            setTickets(response.data);
+        } catch (error) {
+            console.error("Error fetching tickets", error);
+        }
+    }
+
     const loadTicketDataById = async (id) => {
-        setLoading(true);
         try {
             const response = await axios.get(`${config.API_BASE_URL}/ticket/${id}`);
             setTicket(response.data);
@@ -85,8 +93,6 @@ function DeviceTickets({ deviceId }) {
             setTicketModal(true);
         } catch (err) {
             console.error('Error fetching ticket by ID:', err);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -195,7 +201,7 @@ function DeviceTickets({ deviceId }) {
                     firstTicket={ticket}
                     statuses={statuses}
                     isTicketClosed={closedStatusId === ticket.statusId}
-                    reFetch={fetchData} // Re-fetch device tickets after update
+                    reFetch={fetchTickets} // Re-fetch device tickets after update
                     clientId={ticket.clientId} // Or pass deviceId if needed
                 />
             )}

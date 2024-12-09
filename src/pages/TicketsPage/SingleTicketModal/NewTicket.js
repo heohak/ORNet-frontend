@@ -180,7 +180,6 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
                             handleAccordionToggle={handleAccordionToggle}
                             eventKey="0"
                             reFetch={reFetchTicket}
-                            clientId={clientId}
                         />
                         <NewTicketFiles
                             ticket={ticket}

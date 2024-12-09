@@ -6,7 +6,7 @@ import config from "../../../config/config";
 import Select from "react-select";
 import {useLocation, useNavigate} from "react-router-dom";
 
-const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, reFetch, clientId }) => {
+const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, reFetch }) => {
     const location = useLocation();
     const { fromPath } = location.state || { fromPath: "/" };
     const [responsibleName, setResponsibleName] = useState('');
