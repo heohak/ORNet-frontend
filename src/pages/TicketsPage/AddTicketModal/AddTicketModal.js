@@ -11,12 +11,12 @@ import '../../../css/DarkenedModal.css';
 
 
 
-const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => {
+const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clientId}) => {
 
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        clientId: '',
+        clientId: clientId || '',
         crisis: false,
         workTypeIds: [],
         baitWorkerId: '',
@@ -202,7 +202,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
         setFormData({
             title: '',
             description: '',
-            clientId: '',
+            clientId: clientId || '',
             crisis: false,
             workTypeIds: [],
             baitWorkerId: '',
@@ -309,10 +309,11 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket}) => 
                                 <Form.Label>Customer</Form.Label>
                                 <Form.Control
                                     as="select"
-                                    value={formData.clientId}
+                                    value={clientId || formData.clientId}
                                     onChange={handleChange}
                                     id="clientId"
                                     required
+                                    disabled={clientId}
                                 >
                                     {clients.length > 0 && <option value="">Select Customer</option>}
                                     {clients.map(client => (

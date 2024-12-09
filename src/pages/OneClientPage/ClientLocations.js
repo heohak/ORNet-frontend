@@ -2,30 +2,46 @@ import React, { useState } from 'react';
 import { Row, Col, Alert, Button } from 'react-bootstrap';
 import LocationMaintenances from './LocationMaintenances';
 import '../../css/OneClientPage/OneClient.css';
+import AddLocationModal from "./AddLocationModal";
+import axios from "axios";
+import config from "../../config/config";
 
-function ClientLocations({ locations, setRefresh }) {
+function ClientLocations({ locations, setRefresh, clientId }) {
     const [selectedLocation, setSelectedLocation] = useState(null);
-    const [showModal, setShowModal] = useState(false);
+    const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
+    const [showAddLocationModal, setShowAddLocationModal] = useState(false);
 
     const handleRowClick = (location) => {
         setSelectedLocation(location);
-        setShowModal(true);
+        setShowMaintenanceModal(true);
     };
 
-    const handleCloseModal = () => {
-        setShowModal(false);
+    const handleCloseMaintenanceModal = () => {
+        setShowMaintenanceModal(false);
         setSelectedLocation(null);
     };
+
+    const addLocationToCustomer = async(location) => {
+        try {
+            await axios.put(`${config.API_BASE_URL}/client/${clientId}/${location.id}`)
+            setRefresh((prev) => !prev)
+        } catch (error) {
+            console.error("Error assigning location to customer", error);
+        }
+    }
 
     const sortedLocations = [...locations].sort((a, b) => a.name.localeCompare(b.name));
 
     return (
         <>
-            <Row className="row-margin-0 mb-2">
+            <Row className="row-margin-0 d-flex justify-content-between align-items-center mb-2">
                 <Col className="col-md-auto">
                     <h2 className="mb-0" style={{paddingBottom: "20px"}}>
-                        Locations
+                        {'Locations'}
                     </h2>
+                </Col>
+                <Col className="col-md-auto">
+                    <Button variant="primary" onClick={() => setShowAddLocationModal(true)}>Add Location</Button>
                 </Col>
             </Row>
             {locations.length > 0 ? (
@@ -68,12 +84,17 @@ function ClientLocations({ locations, setRefresh }) {
 
             {selectedLocation && (
                 <LocationMaintenances
-                    show={showModal}
-                    handleClose={handleCloseModal}
+                    show={showMaintenanceModal}
+                    handleClose={handleCloseMaintenanceModal}
                     location={selectedLocation}
                     setRefresh={setRefresh}
                 />
             )}
+            <AddLocationModal
+                show={showAddLocationModal}
+                onHide={() => setShowAddLocationModal(false)}
+                onAddLocation={addLocationToCustomer}
+            />
         </>
     );
 }
