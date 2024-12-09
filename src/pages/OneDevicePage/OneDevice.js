@@ -9,6 +9,7 @@ import LinkedDevices from "./LinkedDevices";
 import CommentsModal from "../../modals/CommentsModal";
 import '../../css/OneDevicePage/OneDevice.css';
 import DeviceFileList from "./DeviceFileList";
+import DeviceTickets from "./DeviceTickets";
 
 function OneDevice() {
     const {deviceId} = useParams();
@@ -27,7 +28,6 @@ function OneDevice() {
     const navigate = useNavigate();
 
     const accordionRefs = useRef([]);
-
 
     useEffect(() => {
         const fetchData = async () => {
@@ -88,9 +88,7 @@ function OneDevice() {
 
     const handleBackNavigation = () => {
         if (location.state?.fromPath) {
-            navigate(`${location.state.fromPath}`, { state: { openAccordion: 'tickets' }});
-        } else if (location.state && location.state.from === 'all-devices') {
-            navigate('/devices');
+            navigate(`${location.state.fromPath}`, { state: {fromPath: location.state.fromPath, openAccordion: 'tickets' }});
         } else if (device && device.clientId) {
             navigate(`/customer/${device.clientId}`);
         } else {
@@ -189,6 +187,18 @@ function OneDevice() {
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
+
+                            <Accordion.Item
+                                eventKey="4"
+                                className="AccordionDeviceTickets"
+                                ref={(el) => (accordionRefs.current[4] = el)}
+                            >
+                                <Accordion.Header onClick={() => handleAccordionToggle('4')}>Tickets</Accordion.Header>
+                                <Accordion.Body>
+                                    <DeviceTickets deviceId={deviceId} />
+                                </Accordion.Body>
+                            </Accordion.Item>
+
 
                             {/* Maintenance Info */}
                             <Accordion.Item

@@ -158,6 +158,9 @@ function EditLinkedDeviceModal({ show, onHide, linkedDevice, onUpdate }) {
                                         {' ('}
                                         {customer ? customer.shortName : 'Unknown Customer'}
                                         {deviceLocation ? `, ${deviceLocation.name}` : ''}
+                                        {') '}
+                                        {'('}
+                                        {connectedDevice.serialNumber}
                                         {')'}
                                     </>
                                 ) : null}

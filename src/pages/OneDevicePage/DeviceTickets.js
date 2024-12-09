@@ -1,97 +1,106 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Row, Col, Button, Alert } from 'react-bootstrap';
+// src/pages/OneDevicePage/DeviceTickets.js
+
+import React, { useEffect, useState } from 'react';
+import { Row, Col, Button, Alert, Spinner } from 'react-bootstrap';
 import axios from 'axios';
-import '../../css/Customers.css';
-import '../../css/OneClientPage/OneClient.css';
+import {useLocation, useNavigate, useParams} from 'react-router-dom';
 import config from '../../config/config';
 import NewTicket from '../TicketsPage/SingleTicketModal/NewTicket';
-import AddTicketModal from "../TicketsPage/AddTicketModal/AddTicketModal";
 
-function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
+function DeviceTickets({ deviceId }) {
     const navigate = useNavigate();
-    const { ticketId } = useParams();
-    const [ticketModal, setTicketModal] = useState(false);
+    const [tickets, setTickets] = useState([]);
     const [ticket, setTicket] = useState(null);
+    const [ticketModal, setTicketModal] = useState(false);
     const [statuses, setStatuses] = useState([]);
-    const [closedStatusId, setClosedStatusId] = useState("");
+    const [statusMap, setStatusMap] = useState({});
+    const [closedStatusId, setClosedStatusId] = useState('');
     const [locations, setLocations] = useState({});
-    const [loading, setLoading] = useState(false);
-    const [showAddTicketModal, setShowAddTicketModal] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const location = useLocation();
 
-    // Load ticket and statuses if ticketId is present
+    const { ticketId } = useParams();
+
     useEffect(() => {
-        const loadTicketData = async () => {
-            if (ticketId) {
-                setLoading(true);
-                await fetchTicketById(ticketId);
-                if (statuses.length === 0) await fetchStatuses();
-                setTicketModal(true);
-                setLoading(false);
-            } else {
-                setTicketModal(false);
-                setTicket(null);
-            }
-        };
-        loadTicketData();
+        fetchData();
+    }, [deviceId]);
+
+    useEffect(() => {
+        if (ticketId) {
+            loadTicketDataById(ticketId);
+        } else {
+            setTicketModal(false);
+            setTicket(null);
+        }
     }, [ticketId]);
 
-    const fetchTicketById = async (id) => {
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const [ticketsRes, statusesRes, locationsRes] = await Promise.all([
+                axios.get(`${config.API_BASE_URL}/device/tickets/${deviceId}`),
+                axios.get(`${config.API_BASE_URL}/ticket/classificator/all`),
+                axios.get(`${config.API_BASE_URL}/location/all`)
+            ]);
+
+            const fetchedTickets = ticketsRes.data;
+            const fetchedStatuses = statusesRes.data;
+            const fetchedLocations = locationsRes.data;
+
+            // Create status map
+            const mappedStatuses = fetchedStatuses.reduce((acc, status) => {
+                acc[status.id] = status;
+                return acc;
+            }, {});
+
+            // Create locations map
+            const locationMap = fetchedLocations.reduce((acc, loc) => {
+                acc[loc.id] = loc.name;
+                return acc;
+            }, {});
+
+            // Identify closed status if needed
+            const closed = fetchedStatuses.find((s) => s.status === 'Closed');
+            const closedId = closed ? closed.id : '';
+
+            setTickets(fetchedTickets);
+            setStatuses(fetchedStatuses);
+            setStatusMap(mappedStatuses);
+            setLocations(locationMap);
+            setClosedStatusId(closedId);
+            setLoading(false);
+        } catch (err) {
+            setError(err.message);
+            setLoading(false);
+        }
+    };
+
+    const fetchTickets = async() => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/device/tickets/${deviceId}`)
+            setTickets(response.data);
+        } catch (error) {
+            console.error("Error fetching tickets", error);
+        }
+    }
+
+    const loadTicketDataById = async (id) => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/ticket/${id}`);
             setTicket(response.data);
-        } catch (error) {
-            console.error('Error fetching ticket by ID:', error);
+            if (statuses.length === 0) await fetchData(); // Ensure statuses and maps are loaded
+            setTicketModal(true);
+        } catch (err) {
+            console.error('Error fetching ticket by ID:', err);
         }
-    };
-
-    const fetchTickets = async () => {
-        try {
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/client/${clientId}`);
-            setTickets(response.data);
-        } catch (error) {
-            console.error('Error fetching Customer Tickets:', error);
-        }
-    };
-
-    const fetchStatuses = async () => {
-        try {
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`);
-            const fetchedStatuses = response.data;
-            setStatuses(fetchedStatuses);
-
-            const closedStatus = fetchedStatuses.find((status) => status.status === 'Closed');
-            if (closedStatus) setClosedStatusId(closedStatus.id);
-        } catch (error) {
-            console.error('Error fetching statuses:', error);
-        }
-    };
-
-    const fetchLocations = async () => {
-        try {
-            const response = await axios.get(`${config.API_BASE_URL}/location/all`);
-            const locationsData = response.data.reduce((acc, location) => {
-                acc[location.id] = location.name;
-                return acc;
-            }, {});
-            setLocations(locationsData);
-        } catch (error) {
-            console.error('Error fetching locations:', error);
-        }
-    };
-
-    // Load locations on mount
-    useEffect(() => {
-        fetchLocations();
-    }, []);
-
-    const handleTicketClick = (ticket) => {
-        navigate(`/customer/${clientId}/ticket/${ticket.id}`, {state: {fromPath: `/customer/${clientId}/ticket/${ticket.id}`}});
     };
 
     const handleClose = () => {
-        navigate(`/customer/${clientId}`);
+        // Navigate back to device page without the ticketId in the URL
+        navigate(`/device/${deviceId}`, {state: {fromPath: location.state?.fromPath}});
         setTicketModal(false);
+        setTicket(null);
     };
 
     const formatDate = (dateString) => {
@@ -99,19 +108,32 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
         return date.toLocaleDateString('en-GB');
     };
 
+    const handleTicketClick = (ticket) => {
+        navigate(`/device/${deviceId}/ticket/${ticket.id}`, {state: {fromPath: location.state?.fromPath}});
+        setTicketModal(true);
+    };
+
+    if (loading) {
+        return (
+            <div className="text-center mt-3">
+                <Spinner animation="border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </Spinner>
+            </div>
+        );
+    }
+
+    if (error) {
+        return <Alert variant="danger">Error: {error}</Alert>;
+    }
+
     return (
         <>
-            <Row className="row-margin-0 d-flex justify-content-between align-items-center mb-2">
+            <Row className="row-margin-0 mb-2">
                 <Col className="col-md-auto">
-                    <h2 className="mb-0" style={{paddingBottom: "20px"}}>
-                        {'Tickets'}
-                    </h2>
-                </Col>
-                <Col className="col-md-auto">
-                    <Button variant="primary" onClick={() => setShowAddTicketModal(true)}>Add Ticket</Button>
+                    <h2 className="mb-0" style={{ paddingBottom: "20px" }}>Tickets</h2>
                 </Col>
             </Row>
-
             {tickets.length > 0 ? (
                 <>
                     <Row className="row-margin-0 fw-bold mt-2">
@@ -169,7 +191,7 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
                     })}
                 </>
             ) : (
-                <Alert variant="info">No tickets found for this client.</Alert>
+                <Alert variant="info">No tickets found for this device.</Alert>
             )}
 
             {ticketModal && ticket && statuses.length > 0 && !loading && (
@@ -179,18 +201,12 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
                     firstTicket={ticket}
                     statuses={statuses}
                     isTicketClosed={closedStatusId === ticket.statusId}
-                    reFetch={fetchTickets}
-                    clientId={clientId}
+                    reFetch={fetchTickets} // Re-fetch device tickets after update
+                    clientId={ticket.clientId} // Or pass deviceId if needed
                 />
             )}
-            <AddTicketModal
-                show={showAddTicketModal}
-                handleClose={() => setShowAddTicketModal(false)}
-                reFetch={fetchTickets}
-                clientId={clientId}
-            />
         </>
     );
 }
 
-export default ClientTickets;
+export default DeviceTickets;

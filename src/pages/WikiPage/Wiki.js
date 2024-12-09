@@ -3,8 +3,10 @@ import axios from 'axios';
 import { Container, Row, Col, Button, Spinner, Alert, Form } from 'react-bootstrap';
 import config from "../../config/config";
 import AddWikiModal from "./AddWikiModal";
-import "../../css/Wiki.css";
+//import "../../css/Wiki.css";
 import WikiDetails from "./WikiDetails";
+import { FaEdit } from 'react-icons/fa';
+import EditWikiModal from "./EditWikiModal";
 
 function Wiki() {
     const [wikis, setWikis] = useState([]);
@@ -12,6 +14,7 @@ function Wiki() {
     const [error, setError] = useState(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [typingTimeout, setTypingTimeout] = useState(null);
     const [selectedWiki, setSelectedWiki] = useState(null);
@@ -45,27 +48,26 @@ function Wiki() {
         }
     };
 
-    if (loading && !wikis.length) {
-        return (
-            <Container className="text-center mt-5">
-                <Spinner animation="border" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                </Spinner>
-            </Container>
-        );
-    }
-
     const openDetailsModal = (wiki) => {
         setSelectedWiki(wiki);
         setShowDetailsModal(true);
-    }
+    };
+
+    const handleEditClick = (wiki, e) => {
+        e.stopPropagation(); // Prevent row click from triggering details modal
+        setSelectedWiki(wiki);
+        setShowEditModal(true);
+    };
 
 
     return (
-        <Container className="mt-5">
+        <Container className="mt-5 wiki-container">
             <Row className="d-flex justify-content-between mb-4">
                 <Col className="col-md-auto">
                     <h1 className="mb-0">Wiki</h1>
+                </Col>
+                <Col className="text-end">
+                    <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Wiki</Button>
                 </Col>
             </Row>
 
@@ -78,9 +80,7 @@ function Wiki() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </Col>
-                <Col className="text-end">
-                    <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Wiki</Button>
-                </Col>
+
             </Row>
 
             {error && (
@@ -93,30 +93,37 @@ function Wiki() {
             {/* Table header */}
             <Row className="row-margin-0 fw-bold mt-2">
                 <Col md={8}>Title</Col>
+                <Col md={1} className="text-center">Actions</Col>
             </Row>
             <hr />
 
             {/* Wiki Rows */}
             {wikis.map((wiki, index) => {
-                const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff'; // Alternating row colors
+                const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
                 return (
                     <Row
                         key={wiki.id}
                         className="align-items-center"
-                        style={{ margin: "0 0", cursor: 'pointer' }}
+                        style={{ margin: "0", cursor: 'pointer', backgroundColor: rowBgColor }}
                         onClick={() => openDetailsModal(wiki)}
                     >
-                        <Col className="py-2" style={{ backgroundColor: rowBgColor}}>
-                            <Row className="align-items-center">
-                                <Col md={8}>{wiki.problem}</Col>
-                            </Row>
+                        <Col md={8} className="py-2">
+                            {wiki.problem}
+                        </Col>
+                        <Col md={1} className="d-flex align-items-center justify-content-center py-2">
+                            <Button variant="link"
+                                    className="p-0"
+                                    style={{ textDecoration: 'none' }}
+                                    onClick={(e) => handleEditClick(wiki, e)}
+                            >
+                                <FaEdit />
+                            </Button>
                         </Col>
                     </Row>
                 );
             })}
 
             {/* Add Wiki Modal */}
-
             <AddWikiModal
                 show={showAddModal}
                 onClose={() => setShowAddModal(false)}
@@ -130,6 +137,16 @@ function Wiki() {
                     onClose={() => setShowDetailsModal(false)}
                     reFetch={fetchWikis}
                     wiki={selectedWiki}
+                />
+            }
+
+            {/* Edit Wiki Modal */}
+            {selectedWiki &&
+                <EditWikiModal
+                    show={showEditModal}
+                    onHide={() => setShowEditModal(false)}
+                    wiki={selectedWiki}
+                    reFetch={fetchWikis}
                 />
             }
         </Container>
