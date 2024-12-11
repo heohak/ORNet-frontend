@@ -24,7 +24,7 @@ function AddLocationModal({ show, onHide, onAddLocation }) {
         if (isSubmittingLocation) return;
         setIsSubmittingLocation(true);
 
-        const { name, city, country, email, postalCode, streetAddress, phone } = newLocation;
+        let { name, city, country, email, postalCode, streetAddress, phone } = newLocation;
 
         // Validate phone number and postal code
         const isValid = validatePhoneAndPostalCode(
@@ -35,6 +35,9 @@ function AddLocationModal({ show, onHide, onAddLocation }) {
             () => setNewLocation({ ...newLocation, phone }),
             () => setNewLocation({ ...newLocation, postalCode })
         );
+        if (phone === '') {
+            phone = null;
+        }
 
         if (!isValid) {
             setIsSubmittingLocation(false);
@@ -175,7 +178,6 @@ function AddLocationModal({ show, onHide, onAddLocation }) {
                             value={newLocation.email}
                             onChange={(e) => setNewLocation({ ...newLocation, email: e.target.value })}
                             placeholder="Enter email"
-                            required
                         />
                     </Form.Group>
                 </Modal.Body>
