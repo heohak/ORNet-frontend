@@ -58,10 +58,13 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
         setError(null);
         const trimmedPhoneNumber = phoneNumber.trim();
         // Check if the phone number contains only digits
-        if (!/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
+        if (trimmedPhoneNumber !== '' && !/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
             setPhoneNumberError('Phone number must contain only numbers and spaces, and may start with a +.');
             setIsSubmitting(false);
             return;
+        }
+        if (trimmedPhoneNumber === '') {
+            setPhoneNumber(null);
         }
         // Reset the error message if validation passes
         setPhoneNumberError('');
@@ -210,7 +213,7 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                required
+
                             />
                         </Form.Group>
                         {/* Phone Number */}
@@ -220,7 +223,7 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
                                 type="text"
                                 value={phoneNumber}
                                 onChange={(e) => setPhoneNumber(e.target.value)}
-                                required
+
                                 isInvalid={!!phoneNumberError}
                             />
                             <Form.Control.Feedback type="invalid">
