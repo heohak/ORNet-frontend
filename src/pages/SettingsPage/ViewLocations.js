@@ -327,7 +327,7 @@ function ViewLocations() {
                                 onChange={(e) => setEditPhone(e.target.value)}
                                 placeholder="Enter phone number"
                                 isInvalid={!!phoneNumberError}
-                                required
+
                             />
                             <Form.Control.Feedback type="invalid">
                                 {phoneNumberError}
@@ -342,7 +342,6 @@ function ViewLocations() {
                                 value={editEmail}
                                 onChange={(e) => setEditEmail(e.target.value)}
                                 placeholder="Enter email"
-                                required
                             />
                         </Form.Group>
 

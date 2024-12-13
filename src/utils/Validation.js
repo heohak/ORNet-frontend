@@ -1,6 +1,6 @@
 // utils/validation.js
 export const validatePhoneAndPostalCode = (phone, postalCode, setPhoneNumberError, setPostalCodeError, setPhone, setPostalCode) => {
-    const trimmedPhoneNumber = phone.trim();
+    const trimmedPhoneNumber = phone ? phone.trim() : '';
     const trimmedPostalCode = postalCode.trim();
     let isValid = true;
 

@@ -114,6 +114,8 @@ function ClientWorker({workers, client, clientId,refresh, setRefresh}) {
     const handleAddWorkerSuccess = async (newWorker) => {
         await fetchRoles();  //Silent fetch to show new roles for the other workers as well
         try {
+            //Assigns the new contact to the customer
+            await axios.put(`${config.API_BASE_URL}/worker/${newWorker.id}/${clientId}`);
             setFilteredWorkers((prevWorkers) => [...prevWorkers, newWorker]);
 
             const rolesResponse = await axios.get(`${config.API_BASE_URL}/worker/role/${newWorker.id}`);

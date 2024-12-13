@@ -72,7 +72,6 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
 
         try {
             const response = await axios.post(`${config.API_BASE_URL}/worker/add`, {
-                clientId,
                 firstName,
                 lastName,
                 email,
@@ -83,8 +82,6 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
 
             if (response.data && response.data.token) {
                 const workerId = response.data.token;
-
-                await axios.put(`${config.API_BASE_URL}/worker/${workerId}/${clientId}`);
 
                 for (const role of selectedRoles) {
                     await axios.put(`${config.API_BASE_URL}/worker/role/${workerId}/${role.value}`);
