@@ -1,18 +1,20 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Card, ListGroup, Form, InputGroup, Button } from "react-bootstrap";
+import { Card, ListGroup, Form, InputGroup, Button, Modal } from "react-bootstrap";
 import { FaPaperPlane, FaEdit, FaCheck } from "react-icons/fa";
 import axios from "axios";
 import config from "../../../config/config";
 import '../../../css/NewTicket.css';
+import TextareaAutosize from 'react-textarea-autosize';
 
-const NewTicketActivity = ({ ticket, reFetch }) => {
+const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
     const [newActivity, setNewActivity] = useState("");
     const [activities, setActivities] = useState([]);
-    const [hours, setHours] = useState(0);
-    const [minutes, setMinutes] = useState(0);
-    const [paid, setPaid] = useState(false);
     const [editMode, setEditMode] = useState(null); // To track which activity is being edited
     const [editedActivity, setEditedActivity] = useState(""); // Store edited activity text
+    const [showModal, setShowModal] = useState(false);
+    const [modalHours, setModalHours] = useState(0);
+    const [modalMinutes, setModalMinutes] = useState(0);
+    const [modalPaid, setModalPaid] = useState(ticket.paid);
     const activityEndRef = useRef(null);
 
     useEffect(() => {
@@ -22,34 +24,41 @@ const NewTicketActivity = ({ ticket, reFetch }) => {
     }, []);
 
     useEffect(() => {
-        scrollToBottom();
-    }, [activities]);
+        setModalPaid(ticket.paid === true);
+    }, [ticket.paid]);
 
     useEffect(() => {
-        setPaid(ticket.paid === true);
-    }, [ticket.paid]);
+        scrollToBottom();
+    }, [activities]);
 
     const handleAddActivity = async (e) => {
         e.preventDefault();
         if (newActivity.trim() !== "") {
-            try {
-                await axios.put(`${config.API_BASE_URL}/ticket/activity/${ticket.id}`, null, {
-                    params: {
-                        activity: newActivity,
-                        hours,
-                        minutes,
-                        paid
-                    },
-                });
-                setNewActivity("");
-                setHours(0);
-                setMinutes(0);
-                setPaid(ticket.paid === true);
-                fetchActivities();
-                reFetch();
-            } catch (error) {
-                console.error("Error posting the activity", error);
-            }
+            setShowAddActivityModal(true); // this is for the parent Component
+            setShowModal(true);
+        }
+    };
+
+    const submitActivity = async () => {
+        try {
+            await axios.put(`${config.API_BASE_URL}/ticket/activity/${ticket.id}`, null, {
+                params: {
+                    activity: newActivity,
+                    hours: modalHours,
+                    minutes: modalMinutes,
+                    paid: modalPaid
+                },
+            });
+            setNewActivity("");
+            setModalPaid(false);
+            setModalHours(0);
+            setModalMinutes(0);
+            setShowAddActivityModal(false);
+            setShowModal(false);
+            fetchActivities();
+            reFetch();
+        } catch (error) {
+            console.error("Error posting the activity", error);
         }
     };
 
@@ -110,7 +119,7 @@ const NewTicketActivity = ({ ticket, reFetch }) => {
 
         // Format date into a readable string
         return date.toLocaleString('en-US', options);
-    }
+    };
 
     return (
         <Card className="border-0 mt-2">
@@ -129,35 +138,35 @@ const NewTicketActivity = ({ ticket, reFetch }) => {
                                     {editMode === index ? (
                                         <FaCheck
                                             size={18}
-                                            style={{ cursor: "pointer"}}
-                                            onClick={() => handleSaveActivity(index, activity.id)} // Save changes
+                                            style={{ cursor: "pointer" }}
+                                            onClick={() => handleSaveActivity(index, activity.id)}
                                         />
                                     ) : (
                                         <FaEdit
                                             size={18}
-                                            style={{ cursor: "pointer"}}
-                                            onClick={() => handleEditClick(index, activity.activity)} // Edit mode
+                                            style={{ cursor: "pointer" }}
+                                            onClick={() => handleEditClick(index, activity.activity)}
                                         />
                                     )}
                                 </div>
                             </div>
                             {editMode === index ? (
-                                <Form.Control
-                                    as="textarea"
-                                    rows={2}
+                                <TextareaAutosize
+                                    minRows={2}
                                     value={editedActivity}
                                     onChange={(e) => setEditedActivity(e.target.value)}
                                     className="mt-2"
+                                    style={{width: "100%"}}
                                 />
                             ) : (
                                 <p className="mb-0 bg-white p-0 rounded">
                                     {activity && activity.activity &&
-                                    activity.activity.split("\n").map((line, index) => (
-                                        <React.Fragment key={index}>
-                                            {line}
-                                            <br />
-                                        </React.Fragment>
-                                    ))}
+                                        activity.activity.split("\n").map((line, index) => (
+                                            <React.Fragment key={index}>
+                                                {line}
+                                                <br />
+                                            </React.Fragment>
+                                        ))}
                                 </p>
                             )}
                             <p style={{ fontStyle: 'italic', color: 'gray' }}>
@@ -169,63 +178,79 @@ const NewTicketActivity = ({ ticket, reFetch }) => {
                 </ListGroup>
             </div>
             <Card.Footer className="bg-white border-0">
-                <div style={{ border: "2px solid rgba(0, 0, 0, 0.5)", borderRadius: "5px", padding: '10px', paddingRight: 0 }}>
-                    <Form onSubmit={handleAddActivity}>
-                        <InputGroup className="custom-checkbox-container d-flex align-items-center">
-                            <Form.Control
-                                as="textarea"
-                                rows={2}
-                                placeholder="Add an activity..."
-                                value={newActivity}
-                                onChange={(e) => setNewActivity(e.target.value)}
-                                className="border-0"
-                                style={{ resize: "none", flex: 2 }}
-                            />
+                <Form onSubmit={handleAddActivity} className="d-flex">
+                    <TextareaAutosize
+                        minRows={3}
+                        placeholder="Add an activity..."
+                        value={newActivity}
+                        onChange={(e) => setNewActivity(e.target.value)}
+                        className="border-0 flex-grow-1"
+                        style={{backgroundColor: "#e9e9e9", borderRadius: "8px"}}
+                    />
+                    <Button
+                        variant="link"
+                        type="submit"
+                        className="text-primary px-3 align-self-end"
 
+                    >
+                        <FaPaperPlane size={20} />
+                    </Button>
+                </Form>
+            </Card.Footer>
+
+            <Modal
+                show={showModal}
+                onHide={() => {
+                    setShowModal(false)
+                    setShowAddActivityModal(false)
+                }}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Enter Details</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Hours</Form.Label>
                             <Form.Control
                                 type="number"
-                                value={hours}
-                                onChange={(e) => setHours(parseInt(e.target.value))}
+                                value={modalHours}
+                                onChange={(e) => setModalHours(parseInt(e.target.value) || 0)}
                                 min="0"
-                                placeholder="Hours"
-                                className="border-0"
-                                style={{ maxWidth: "60px", appearance: "textfield" }}
                             />
-                            <InputGroup.Text>h</InputGroup.Text>
-
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Minutes</Form.Label>
                             <Form.Control
                                 type="number"
-                                value={minutes}
-                                onChange={(e) => setMinutes(parseInt(e.target.value))}
+                                value={modalMinutes}
+                                onChange={(e) => setModalMinutes(parseInt(e.target.value) || 0)}
                                 min="0"
                                 max="59"
-                                placeholder="Minutes"
-                                className="border-0"
-                                style={{ maxWidth: "60px", appearance: "textfield" }}
                             />
-                            <InputGroup.Text>m</InputGroup.Text>
-
-                            <Form.Group className="d-flex align-items-center justify-content-center ms-3">
-                                <InputGroup.Checkbox
-                                    aria-label="Paid"
-                                    checked={paid}
-                                    onChange={(e) => setPaid(e.target.checked)}
-                                />
-                                <Form.Label className="ms-2" style={{ fontSize: '14px', marginBottom: 0 }}>Paid</Form.Label>
-                            </Form.Group>
-
-                            <Button
-                                variant="link"
-                                type="submit"
-                                className="text-primary px-3"
-                                style={{ borderLeft: "none", backgroundColor: "white", paddingTop: 0 }}
-                            >
-                                <FaPaperPlane size={20} />
-                            </Button>
-                        </InputGroup>
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Check
+                                type="checkbox"
+                                label="Paid"
+                                checked={modalPaid}
+                                onChange={(e) => setModalPaid(e.target.checked)}
+                            />
+                        </Form.Group>
                     </Form>
-                </div>
-            </Card.Footer>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => {
+                        setShowModal(false);
+                        setShowAddActivityModal(false);
+                    }}>
+                        Cancel
+                    </Button>
+                    <Button variant="primary" onClick={submitActivity}>
+                        Submit
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Card>
     );
 };

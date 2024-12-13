@@ -26,6 +26,7 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
     const [timeSpent, setTimeSpent] = useState(ticket.timeSpent);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showRootCauseModal, setShowRootCauseModal] = useState(false);
+    const [showAddActivityModal, setShowAddActivityModal] = useState(false);
 
 
     useEffect(() => {
@@ -121,7 +122,7 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
             show
             onHide={onClose}
             className="custom-width-modal"
-            dialogClassName={showDeleteModal || showRootCauseModal ? "dimmed custom-modal" : "custom-modal"}
+            dialogClassName={showDeleteModal || showRootCauseModal || showAddActivityModal ? "dimmed custom-modal" : "custom-modal"}
         >
             <Modal.Header closeButton>
                 <div className="w-100">
@@ -142,7 +143,13 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
                             />
                         )}
                         <TicketSectionButtons activeSection={activeSection} onSectionChange={setActiveSection}/>
-                        {activeSection === 'activity' && <NewTicketActivity ticket={ticket} reFetch={reFetchTicket} />}
+                        {activeSection === 'activity' &&
+                            <NewTicketActivity
+                                ticket={ticket}
+                                reFetch={reFetchTicket}
+                                setShowAddActivityModal={setShowAddActivityModal}
+                            />
+                        }
                         {activeSection === 'info' && <NewTicketInsideInfo ticket={ticket} reFetch={reFetchTicket} />}
                         {/*{activeSection === 'response' && <NewTicketResponse ticket={ticket} />}*/}
                     </Col>
