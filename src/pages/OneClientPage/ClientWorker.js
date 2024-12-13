@@ -3,7 +3,7 @@ import {Alert, Button, Card, Col, Form, Modal, Row} from 'react-bootstrap';
 import EditWorkerModal from './EditWorkerModal'; // Import the EditWorkerModal component
 import axios from 'axios';
 import config from "../../config/config";
-import {FaEnvelope, FaPhone, FaRegStar, FaStar, FaUserTie} from 'react-icons/fa';
+import {FaEnvelope, FaIdBadge, FaPhone, FaRegStar, FaStar, FaUserTie} from 'react-icons/fa';
 import '../../css/Customers.css'
 import {faEdit, faMapMarkerAlt} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -239,19 +239,55 @@ function ClientWorker({workers, client, clientId,refresh, setRefresh}) {
                                             </Button>
                                         </div>
                                     </div>
-                                    <Card.Text className="all-page-cardText">
-                                        {/* Role and title */}
-                                        <FaUserTie className="me-1" /> {worker.roles.map(role => role.role).join(', ')} {worker.title ? `(${worker.title})` : ''} <br />
 
-                                        {/* Location */}
-                                        <FontAwesomeIcon icon={faMapMarkerAlt} className="me-2" /> {workerLocations[worker.id]?.name || "N/A"} <br />
+                                    <Card.Text
+                                        className="all-page-cardText"
+                                        style={{ wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}
+                                    >
+                                        <Row>
+                                            {/* Left Column */}
+                                            <Col>
+                                                {/* Role */}
+                                                <FaUserTie className="me-1" />
+                                                {worker.roles.map(role => role.role).join(', ')}
+                                                <br />
 
-                                        {/* Phone */}
-                                        <FaPhone className="me-1" /> {worker.phoneNumber} <br />
+                                                {/* Title */}
+                                                {worker.title && (
+                                                    <>
+                                                        <FaIdBadge className="me-1" />
+                                                        {worker.title}
+                                                        <br />
+                                                    </>
+                                                )}
 
-                                        {/* Email */}
-                                        <FaEnvelope className="me-1" /> {worker.email}
+                                                {/* Location */}
+                                                <FontAwesomeIcon icon={faMapMarkerAlt} className="me-2" />
+                                                {workerLocations[worker.id]?.name || "N/A"}
+                                            </Col>
+
+                                            {/* Right Column */}
+                                            <Col>
+                                                {/* Phone */}
+                                                <FaPhone className="me-1" /> {worker.phoneNumber || "N/A"}
+                                                <br />
+
+                                                {/* Email */}
+                                                <FaEnvelope className="me-1" />
+                                                <a
+                                                    href={`https://outlook.office.com/mail/deeplink/compose?to=${worker.email}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    style={{ textDecoration: 'none', color: 'inherit' }}
+                                                >
+                                                    {worker.email || "N/A"}
+                                                </a>
+                                            </Col>
+                                        </Row>
                                     </Card.Text>
+
+
+
                                 </Card.Body>
                             </Card>
                         </Col>

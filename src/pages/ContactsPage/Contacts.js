@@ -142,33 +142,59 @@ function Contacts() {
                                         {worker.favorite && <Badge bg="warning">Favorite</Badge>}
                                     </Card.Title>
                                     <Card.Text className="all-page-cardText">
-                                        <Row className="g-1"> {/* Adjusted gutter spacing */}
+                                        <Row className="g-1">
+                                            {/* Left Column */}
                                             <Col>
-                                                {/* Roles and Title */}
+                                                {/* Roles */}
                                                 {workerRoles[worker.id]?.length > 0 && (
                                                     <>
                                                         <FaUserTie className="me-1" />
                                                         {workerRoles[worker.id].join(', ')}
-                                                        {worker.title ? ` (${worker.title})` : ''} <br />
+                                                        <br />
                                                     </>
                                                 )}
+
+                                                {/* Title */}
+                                                {worker.title && (
+                                                    <>
+                                                        <FaUserTie className="me-1" />
+                                                        {worker.title}
+                                                        <br />
+                                                    </>
+                                                )}
+
                                                 {/* Employer */}
                                                 <FontAwesomeIcon icon={faBuilding} className="me-2" />
-                                                {workerEmployers[worker.id] || "Unknown"} <br />
+                                                {workerEmployers[worker.id] || "Unknown"}
+                                                <br />
 
+
+                                            </Col>
+
+                                            {/* Right Column */}
+                                            <Col>
                                                 {/* Location */}
                                                 <FontAwesomeIcon icon={faMapMarkerAlt} className="me-2" />
                                                 {workerLocations[worker.id] || "N/A"}
-                                            </Col>
-                                            <Col>
+                                                <br />
                                                 {/* Phone */}
-                                                <FaPhone className="me-1" /> {worker.phoneNumber} <br />
+                                                <FaPhone className="me-1" /> {worker.phoneNumber || "N/A"}
+                                                <br />
 
                                                 {/* Email */}
-                                                <FaEnvelope className="me-1" /> {worker.email}
+                                                <FaEnvelope className="me-1" />
+                                                <a
+                                                    href={`https://outlook.office.com/mail/deeplink/compose?to=${worker.email}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    style={{ textDecoration: 'none', color: 'inherit' }}
+                                                >
+                                                    {worker.email || "N/A"}
+                                                </a>
                                             </Col>
                                         </Row>
                                     </Card.Text>
+
 
                                 </Card.Body>
                             </Card>
