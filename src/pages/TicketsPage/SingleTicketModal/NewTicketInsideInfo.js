@@ -3,6 +3,7 @@ import {faCheck, faEdit} from "@fortawesome/free-solid-svg-icons";
 import React, {useState} from "react";
 import axios from "axios";
 import config from "../../../config/config";
+import TextareaAutosize from "react-textarea-autosize";
 
 
 const NewTicketInsideInfo = ({ ticket, reFetch }) => {
@@ -29,10 +30,9 @@ const NewTicketInsideInfo = ({ ticket, reFetch }) => {
             >
                 <h4>Internal Comments</h4>
                 {isEditing ? (
-                    <textarea
+                    <TextareaAutosize
                         value={insideInfo}
                         onChange={(e) => setInsideInfo(e.target.value)}
-                        rows={4}
                         style={{ width: '100%' }}
                     />
                 ) : (
