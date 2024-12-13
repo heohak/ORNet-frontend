@@ -3,6 +3,7 @@ import { Modal, Form, Button, Alert } from 'react-bootstrap';
 import Select from 'react-select';
 import axios from 'axios';
 import config from "../../config/config";
+import '../../css/DarkenedModal.css';
 
 function AddContactModal({ show, handleClose, onSave, locationOptions }) {
     const [firstName, setFirstName] = useState('');
@@ -122,7 +123,11 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
 
     return (
         <>
-            <Modal show={show} onHide={handleClose}>
+            <Modal
+                show={show}
+                onHide={handleClose}
+                dialogClassName={showRoleModal ? 'dimmed' : ''}
+            >
                 <Form onSubmit={handleSubmit}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add New Contact</Modal.Title>

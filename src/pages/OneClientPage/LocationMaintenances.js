@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Row, Col, Card, Alert } from 'react-bootstrap';
+import { Modal, Button, Row, Col, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../config/config";
 import MaintenanceModal from './MaintenanceModal';
 import AddMaintenanceModal from "./AddMaintenanceModal";
 import '../../css/Customers.css';
+import '../../css/DarkenedModal.css';
 
 function LocationMaintenances({ show, handleClose, location, setRefresh }) {
     const [maintenances, setMaintenances] = useState([]);
@@ -41,7 +42,12 @@ function LocationMaintenances({ show, handleClose, location, setRefresh }) {
 
     return (
         <>
-            <Modal show={show} onHide={handleClose} size="lg">
+            <Modal
+                show={show}
+                onHide={handleClose}
+                size="lg"
+                dialogClassName={showAddMaintenanceModal ? 'dimmed' : ''}
+            >
                 <Modal.Header closeButton>
                     <Modal.Title>Maintenances for {location.name}</Modal.Title>
                 </Modal.Header>
