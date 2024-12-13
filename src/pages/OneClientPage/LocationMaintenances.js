@@ -71,7 +71,7 @@ function LocationMaintenances({ show, handleClose, location, setRefresh }) {
                             return (
                                 <Row
                                     key={maintenance.id}
-                                    className="align-items-center text-center mb-2"
+                                    className="align-items-center text-center py-2"
                                     style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
                                     onClick={() => handleMaintenanceClick(maintenance.id)}
                                 >
