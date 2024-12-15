@@ -7,6 +7,7 @@ import config from "../../config/config";
 import { format } from 'date-fns';
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import CreatableSelect from "react-select/creatable";
 
 
 function EditDevice({ deviceId, onClose, setRefresh }) {
@@ -33,7 +34,7 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
     const [locations, setLocations] = useState([]);
     const [classificators, setClassificators] = useState([]);
     const [error, setError] = useState(null);
-    const today = new Date().toISOString().split('T')[0];
+    const [predefinedDeviceNames, setPredefinedDeviceNames] = useState([]);
 
     useEffect(() => {
         const fetchDeviceData = async () => {
@@ -69,6 +70,7 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
 
         fetchDeviceData();
         fetchDropdownData();
+        fetchPredefinedDeviceNames();
     }, [deviceId]);
 
     useEffect(() => {
@@ -85,6 +87,20 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
 
         fetchLocations();
     }, [deviceData.clientId]);
+
+    const fetchPredefinedDeviceNames = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/predefined/names`);
+            // Assuming response.data is an array of objects { name: '...' }
+            const options = response.data
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((item) => ({ value: item.name, label: item.name }));
+            setPredefinedDeviceNames(options);
+        } catch (error) {
+            console.error('Error fetching predefined device names:', error);
+            setError(error.message);
+        }
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -103,6 +119,13 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
                 ...prevState.attributes,
                 [name]: value
             }
+        }));
+    };
+
+    const handleDeviceNameChange = (selectedOption) => {
+        setDeviceData((prevState) => ({
+            ...prevState,
+            deviceName: selectedOption ? selectedOption.value : ''
         }));
     };
 
@@ -164,12 +187,12 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
                             <Col md={6}>
                                 <Form.Group>
                                     <Form.Label>Device Name</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="deviceName"
-                                        value={deviceData.deviceName}
-                                        onChange={handleInputChange}
-                                        required
+                                    <CreatableSelect
+                                        isClearable
+                                        onChange={handleDeviceNameChange}
+                                        options={predefinedDeviceNames}
+                                        placeholder="Select or type device name"
+                                        value={deviceData.deviceName ? { value: deviceData.deviceName, label: deviceData.deviceName } : null}
                                     />
                                 </Form.Group>
                             </Col>

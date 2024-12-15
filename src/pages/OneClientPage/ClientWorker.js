@@ -1,24 +1,29 @@
 import React, {useEffect, useState} from 'react';
-import {Alert, Button, Card, Col, Form, Modal, Row} from 'react-bootstrap';
-import EditWorkerModal from './EditWorkerModal'; // Import the EditWorkerModal component
+import {Alert, Button, Card, Col, Form, Row} from 'react-bootstrap';
+import EditWorkerModal from './EditWorkerModal';
 import axios from 'axios';
 import config from "../../config/config";
-import {FaEnvelope, FaPhone, FaRegStar, FaStar, FaUserTie} from 'react-icons/fa';
+import {FaEnvelope, FaIdBadge, FaPhone, FaRegStar, FaStar, FaUserTie, FaComment} from 'react-icons/fa';
 import '../../css/Customers.css'
 import {faEdit, faMapMarkerAlt} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import AddClientWorker from "./AddClientWorker";
+import WorkerCommentModal from "./WorkerCommentModal";
 
-function ClientWorker({workers, client, clientId,refresh, setRefresh}) {
+function ClientWorker({workers, client, clientId, refresh, setRefresh}) {
     const [showAddWorkerModal, setShowAddWorkerModal] = useState(false);
     const [showEditWorkerModal, setShowEditWorkerModal] = useState(false);
     const [workerLocations, setWorkerLocations] = useState({});
-    const [selectedWorker, setSelectedWorker] = useState(null); // State to hold the selected worker for editing
+    const [selectedWorker, setSelectedWorker] = useState(null);
     const [roles, setRoles] = useState([]);
-    const [selectedFilterRoleId, setSelectedFilterRoleId] = useState(''); // State for filtering
+    const [selectedFilterRoleId, setSelectedFilterRoleId] = useState('');
     const [filteredWorkers, setFilteredWorkers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [favoriteFilter, setFavoriteFilter] = useState(false);
+
+    // For comment modal
+    const [showCommentModal, setShowCommentModal] = useState(false);
+    const [commentWorker, setCommentWorker] = useState(null);
 
     useEffect(() => {
         fetchRoles();
@@ -60,7 +65,6 @@ function ClientWorker({workers, client, clientId,refresh, setRefresh}) {
         }
     };
 
-
     const filterWorkers = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/worker/search`, {
@@ -74,7 +78,6 @@ function ClientWorker({workers, client, clientId,refresh, setRefresh}) {
 
             let workersWithRoles = await Promise.all(response.data.map(async worker => {
                 const rolesResponse = await axios.get(`${config.API_BASE_URL}/worker/role/${worker.id}`);
-                // Sort roles alphabetically (or based on any desired criteria)
                 const sortedRoles = rolesResponse.data.sort((a, b) => a.role.localeCompare(b.role));
                 return {
                     ...worker,
@@ -82,7 +85,7 @@ function ClientWorker({workers, client, clientId,refresh, setRefresh}) {
                 };
             }));
 
-            // Sort workers by favorite status and alphabetically by name
+            // Sort by favorite, then name
             workersWithRoles = workersWithRoles.sort((a, b) => {
                 if (a.favorite === b.favorite) {
                     return (a.firstName + " " + a.lastName).localeCompare(b.firstName + " " + b.lastName);
@@ -102,18 +105,19 @@ function ClientWorker({workers, client, clientId,refresh, setRefresh}) {
 
     const handleEditWorker = (worker) => {
         setSelectedWorker(worker);
-        setShowEditWorkerModal(true); // Open the EditWorkerModal
+        setShowEditWorkerModal(true);
     };
 
     const handleUpdateSuccess = async () => {
         filterWorkers();
         setRefresh(prev => !prev);
-        setShowEditWorkerModal(false); // Close the modal after update
+        setShowEditWorkerModal(false);
     };
 
     const handleAddWorkerSuccess = async (newWorker) => {
-        await fetchRoles();  //Silent fetch to show new roles for the other workers as well
+        await fetchRoles();
         try {
+            await axios.put(`${config.API_BASE_URL}/worker/${newWorker.id}/${clientId}`);
             setFilteredWorkers((prevWorkers) => [...prevWorkers, newWorker]);
 
             const rolesResponse = await axios.get(`${config.API_BASE_URL}/worker/role/${newWorker.id}`);
@@ -132,20 +136,15 @@ function ClientWorker({workers, client, clientId,refresh, setRefresh}) {
     const toggleFavorite = async (workerId) => {
         try {
             await axios.put(`${config.API_BASE_URL}/worker/favorite/${workerId}`);
-
-            // Update and re-sort the workers
             setFilteredWorkers((prevWorkers) => {
                 const updatedWorkers = prevWorkers.map((worker) =>
                     worker.id === workerId ? { ...worker, favorite: !worker.favorite } : worker
                 );
 
-                // Sort by favorite status and alphabetically by name
                 return updatedWorkers.sort((a, b) => {
                     if (a.favorite === b.favorite) {
-                        // If both have the same favorite status, sort by name
                         return (a.firstName + " " + a.lastName).localeCompare(b.firstName + " " + b.lastName);
                     }
-                    // Favorites come first
                     return a.favorite ? -1 : 1;
                 });
             });
@@ -155,6 +154,18 @@ function ClientWorker({workers, client, clientId,refresh, setRefresh}) {
             filterWorkers();
         }
     };
+
+    const handleOpenCommentModal = (worker) => {
+        setCommentWorker(worker);
+        setShowCommentModal(true);
+    };
+
+    const handleCommentSaved = (workerId, newComment) => {
+        setFilteredWorkers((prev) =>
+            prev.map((w) => (w.id === workerId ? { ...w, comment: newComment } : w))
+        );
+    };
+
 
     return (
         <>
@@ -210,7 +221,7 @@ function ClientWorker({workers, client, clientId,refresh, setRefresh}) {
             {filteredWorkers.length > 0 ? (
                 <Row className="mt-3">
                     {filteredWorkers.map((worker) => (
-                        <Col md={4} key={worker.id} className="mb-4"> {/* Adjust column size as needed */}
+                        <Col md={4} key={worker.id} className="mb-4">
                             <Card className="h-100 position-relative customer-page-card">
                                 <Card.Body className="all-page-cardBody">
                                     <div style={{
@@ -221,7 +232,7 @@ function ClientWorker({workers, client, clientId,refresh, setRefresh}) {
                                         <Card.Title className='all-page-cardTitle'>
                                             {worker.firstName} {worker.lastName}
                                         </Card.Title>
-                                        <div>
+                                        <div style={{display: 'flex', alignItems: 'center'}}>
                                             <span
                                                 style={{
                                                     cursor: 'pointer',
@@ -234,23 +245,53 @@ function ClientWorker({workers, client, clientId,refresh, setRefresh}) {
                                             </span>
 
                                             <Button variant="link" onClick={() => handleEditWorker(worker)}>
-                                                <FontAwesomeIcon icon={faEdit}
-                                                                 title="Edit contact"/>
+                                                <FontAwesomeIcon icon={faEdit} title="Edit contact"/>
+                                            </Button>
+
+                                            {/* Comment icon */}
+                                            <Button variant="link" onClick={() => handleOpenCommentModal(worker)}>
+                                                <FaComment title="View/Edit Comment" />
                                             </Button>
                                         </div>
                                     </div>
-                                    <Card.Text className="all-page-cardText">
-                                        {/* Role and title */}
-                                        <FaUserTie className="me-1" /> {worker.roles.map(role => role.role).join(', ')} {worker.title ? `(${worker.title})` : ''} <br />
 
-                                        {/* Location */}
-                                        <FontAwesomeIcon icon={faMapMarkerAlt} className="me-2" /> {workerLocations[worker.id]?.name || "N/A"} <br />
+                                    <Card.Text
+                                        className="all-page-cardText"
+                                        style={{ wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}
+                                    >
+                                        <Row>
+                                            <Col>
+                                                <FaUserTie className="me-1" />
+                                                {worker.roles.map(role => role.role).join(', ')}
+                                                <br />
 
-                                        {/* Phone */}
-                                        <FaPhone className="me-1" /> {worker.phoneNumber} <br />
+                                                {worker.title && (
+                                                    <>
+                                                        <FaIdBadge className="me-1" />
+                                                        {worker.title}
+                                                        <br />
+                                                    </>
+                                                )}
 
-                                        {/* Email */}
-                                        <FaEnvelope className="me-1" /> {worker.email}
+                                                <FontAwesomeIcon icon={faMapMarkerAlt} className="me-2" />
+                                                {workerLocations[worker.id]?.name || "N/A"}
+                                            </Col>
+
+                                            <Col>
+                                                <FaPhone className="me-1" /> {worker.phoneNumber || "N/A"}
+                                                <br />
+
+                                                <FaEnvelope className="me-1" />
+                                                <a
+                                                    href={`https://outlook.office.com/mail/deeplink/compose?to=${worker.email}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    style={{ textDecoration: 'none', color: 'inherit' }}
+                                                >
+                                                    {worker.email || "N/A"}
+                                                </a>
+                                            </Col>
+                                        </Row>
                                     </Card.Text>
                                 </Card.Body>
                             </Card>
@@ -277,6 +318,16 @@ function ClientWorker({workers, client, clientId,refresh, setRefresh}) {
                     onUpdateSuccess={handleUpdateSuccess}
                     roles={roles}
                     clientId={clientId}
+                />
+            )}
+
+            {/* Comment Modal */}
+            {commentWorker && (
+                <WorkerCommentModal
+                    show={showCommentModal}
+                    onHide={() => setShowCommentModal(false)}
+                    worker={commentWorker}
+                    onCommentSaved={handleCommentSaved}
                 />
             )}
         </>

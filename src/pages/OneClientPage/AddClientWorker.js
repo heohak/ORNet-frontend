@@ -58,10 +58,13 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
         setError(null);
         const trimmedPhoneNumber = phoneNumber.trim();
         // Check if the phone number contains only digits
-        if (!/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
+        if (trimmedPhoneNumber !== '' && !/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
             setPhoneNumberError('Phone number must contain only numbers and spaces, and may start with a +.');
             setIsSubmitting(false);
             return;
+        }
+        if (trimmedPhoneNumber === '') {
+            setPhoneNumber(null);
         }
         // Reset the error message if validation passes
         setPhoneNumberError('');
@@ -69,7 +72,6 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
 
         try {
             const response = await axios.post(`${config.API_BASE_URL}/worker/add`, {
-                clientId,
                 firstName,
                 lastName,
                 email,
@@ -80,8 +82,6 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
 
             if (response.data && response.data.token) {
                 const workerId = response.data.token;
-
-                await axios.put(`${config.API_BASE_URL}/worker/${workerId}/${clientId}`);
 
                 for (const role of selectedRoles) {
                     await axios.put(`${config.API_BASE_URL}/worker/role/${workerId}/${role.value}`);
@@ -103,13 +103,14 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
                 onSuccess(newWorker); // Call the onSuccess function with the new worker data
             }
 
-            onClose(); // Close the modal after adding the worker
+            handleClose(); // Close the modal after adding the worker
         } catch (error) {
             setError(error.message);
         } finally {
             setIsSubmitting(false);
         }
     };
+
 
     const handleAddRole = async (e) => {
         e.preventDefault();
@@ -133,8 +134,7 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
 
             setRoles(prevRoles => [...prevRoles, newRoleOption]);
             setSelectedRoles(prevSelected => [...prevSelected, newRoleOption]);
-            setNewRole({ role: '' });
-            setShowRoleModal(false);
+            handleCloseRoleModal();
             setError(null); // Clear any previous errors
         } catch (error) {
             setError('Error adding role.');
@@ -145,13 +145,32 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
         }
     };
 
+    const handleClose = () => {
+        onClose()
+        //Empties all the fields
+        setFirstName('')
+        setLastName('');
+        setEmail('');
+        setPhoneNumber('')
+        setTitle('');
+        setLocationId('');
+        setSelectedRoles([]);
+
+    }
+
+    const handleCloseRoleModal = () => {
+        setNewRole({ role: '' });
+        //Empties the field
+        setShowRoleModal(false)
+    }
+
 
     return (
         <>
             {/* Main Modal */}
             <Modal
                 show={show}
-                onHide={onClose}
+                onHide={handleClose}
                 dialogClassName={showRoleModal ? 'dimmed' : ''} //Apply blur when the second modal is opened
             >
                 <Form onSubmit={handleSubmit}>
@@ -191,7 +210,7 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                required
+
                             />
                         </Form.Group>
                         {/* Phone Number */}
@@ -201,7 +220,7 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
                                 type="text"
                                 value={phoneNumber}
                                 onChange={(e) => setPhoneNumber(e.target.value)}
-                                required
+
                                 isInvalid={!!phoneNumberError}
                             />
                             <Form.Control.Feedback type="invalid">
@@ -246,7 +265,7 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
                         </Form.Group>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="outline-info" onClick={onClose}>Cancel</Button>
+                        <Button variant="outline-info" onClick={handleClose}>Cancel</Button>
                         <Button variant="primary" type="submit" disabled={isSubmitting}>
                             {isSubmitting ? 'Adding...' : 'Add Contact'}
                         </Button>
@@ -255,7 +274,7 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
             </Modal>
 
             {/* Modal for adding a new role */}
-            <Modal show={showRoleModal} onHide={() => setShowRoleModal(false)}>
+            <Modal show={showRoleModal} onHide={() => handleCloseRoleModal()}>
                 <Form onSubmit={handleAddRole}>
                     <Modal.Header closeButton>
                         <Modal.Title>Add New Role</Modal.Title>
@@ -273,7 +292,7 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
                         </Form.Group>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="outline-info" onClick={() => setShowRoleModal(false)}>Cancel</Button>
+                        <Button variant="outline-info" onClick={handleCloseRoleModal}>Cancel</Button>
                         <Button variant="primary" type="submit" disabled={isSubmittingRole}>
                             {isSubmittingRole ? 'Adding...' : 'Add Role'}
                         </Button>

@@ -1,8 +1,6 @@
-// EditClient.js
-
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Form, Button, Alert, ListGroup, Row, Col, Modal, Badge } from 'react-bootstrap';
+import { Form, Button, Alert, ListGroup, Row, Col, Modal } from 'react-bootstrap';
 import config from '../../config/config';
 import AddThirdPartyITModal from "./AddThirdPartyITModal";
 import AddLocationModal from "./AddLocationModal";
@@ -17,25 +15,9 @@ import {format} from "date-fns";
 import '../../css/DarkenedModal.css';
 import ConfirmationModal from "./ConfirmationModal";
 
-
 function EditClient({ clientId, onClose, onSave, setRefresh }) {
-    const [clientData, setClientData] = useState({
-        fullName: '',
-        shortName: '',
-        pathologyClient: false,
-        surgeryClient: false,
-        editorClient: false,
-        otherMedicalDevices: false,
-        lastMaintenance: null,
-        nextMaintenance: null,
-        locationIds: [],
-        locations: [],
-        thirdPartyIds: [],
-        thirdPartyITs: [],
-        country: '',
-        prospect: false,
-        agreement: false,
-    });
+    const [originalClientData, setOriginalClientData] = useState(null);
+    const [clientData, setClientData] = useState(null);
     const [allThirdPartyITs, setAllThirdPartyITs] = useState([]);
     const [showThirdPartyITModal, setShowThirdPartyITModal] = useState(false);
     const [showLocationModal, setShowLocationModal] = useState(false);
@@ -44,12 +26,19 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
     const errorRef = useRef(null);
     const [selectedCountry, setSelectedCountry] = useState(null);
     const [showModal, setShowModal] = useState(true);
-    const [assignedSoftwares, setAssignedSoftwares] = useState([]);
+
     const [allSoftwares, setAllSoftwares] = useState([]);
     const [showAddSoftwareModal, setShowAddSoftwareModal] = useState(false);
-    const [allContacts, setAllContacts] = useState([]); // State for all contacts
+
+    const [allContacts, setAllContacts] = useState([]);
     const [showAddContactModal, setShowAddContactModal] = useState(false);
-    const [clientContacts, setClientContacts] = useState([]);
+
+    // Local arrays for edits:
+    const [localContacts, setLocalContacts] = useState([]);
+    const [localSoftwares, setLocalSoftwares] = useState([]);
+    const [localThirdPartyITs, setLocalThirdPartyITs] = useState([]);
+    const [localLocations, setLocalLocations] = useState([]);
+
     const [confirmation, setConfirmation] = useState({
         show: false,
         title: '',
@@ -57,7 +46,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
         onConfirm: null,
     });
 
-    // Handler to open confirmation modal
+    // Confirmation modal logic
     const openConfirmationModal = (type, item) => {
         let title = '';
         let message = '';
@@ -92,7 +81,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                 title = 'Confirm Removal';
                 message = `Are you sure you want to remove the Technical Information "${item.name}"?`;
                 onConfirm = () => {
-                    handleUnassignSoftware(item.id);
+                    handleSoftwareRemove(item.id);
                     setConfirmation({ show: false, title: '', message: '', onConfirm: null });
                 };
                 break;
@@ -108,23 +97,19 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
         });
     };
 
-
     const fetchAllContacts = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/worker/not-used`);
             const sortedContacts = response.data.sort((a, b) => {
                 const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
                 const nameB = `${b.firstName} ${b.lastName}`.toLowerCase();
-                if (nameA < nameB) return -1;
-                if (nameA > nameB) return 1;
-                return 0;
+                return nameA.localeCompare(nameB);
             });
             setAllContacts(sortedContacts);
         } catch (error) {
             setError(error.message);
         }
     };
-
 
     const fetchAllSoftwares = async () => {
         try {
@@ -135,7 +120,6 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
         }
     };
 
-    // Fetch client data
     const fetchClientData = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/client/${clientId}`);
@@ -153,32 +137,39 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             );
             const thirdPartyITs = thirdPartyResponses.map(res => res.data);
 
+            // Fetch assigned softwares
             const softwareResponse = await axios.get(`${config.API_BASE_URL}/software/client/${clientId}`);
             const softwares = softwareResponse.data;
 
+            // Fetch contacts
             const contactResponse = await axios.get(`${config.API_BASE_URL}/worker/${clientId}`);
             const contacts = contactResponse.data;
             contacts.sort((a, b) => {
                 const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
                 const nameB = `${b.firstName} ${b.lastName}`.toLowerCase();
-                if (nameA < nameB) return -1;
-                if (nameA > nameB) return 1;
-                return 0;
+                return nameA.localeCompare(nameB);
             });
 
             const lastMaintenanceDate = client.lastMaintenance ? new Date(client.lastMaintenance) : null;
             const nextMaintenanceDate = client.nextMaintenance ? new Date(client.nextMaintenance) : null;
 
-            setClientData({
+            const updatedClientData = {
                 ...client,
                 contacts,
                 locations,
                 thirdPartyITs,
                 lastMaintenance: lastMaintenanceDate,
                 nextMaintenance: nextMaintenanceDate,
-            });
-            setAssignedSoftwares(softwares);
-            setClientContacts(contacts);
+            };
+
+            setOriginalClientData(updatedClientData);
+            setClientData({ ...updatedClientData });
+
+            // Initialize local arrays for editing
+            setLocalContacts([...contacts]);
+            setLocalSoftwares([...softwares]);
+            setLocalThirdPartyITs([...thirdPartyITs]);
+            setLocalLocations([...locations]);
         } catch (error) {
             setError(error.message);
         }
@@ -200,26 +191,6 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
         }
     };
 
-    useEffect(() => {
-        if (error && errorRef.current) {
-            errorRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-        fetchAllContacts();
-        fetchAllSoftwares();
-        fetchClientData();
-        fetchLocations();
-        fetchAllThirdPartyITs();
-    }, [clientId]);
-
-    useEffect(() => {
-        if (clientData.country) {
-            loadCountryOptions('').then((options) => {
-                const countryOption = options.find(option => option.value === clientData.country);
-                setSelectedCountry(countryOption || null);
-            });
-        }
-    }, [clientData.country]);
-
     const fetchLocations = async () => {
         try {
             const response = await axios.get(`${config.API_BASE_URL}/location/all`);
@@ -238,37 +209,25 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
         }
     };
 
-    // Handlers for adding/removing third-party ITs
-    const handleThirdPartyITAdd = (e) => {
-        const thirdPartyITId = e.target.value;
-        const thirdPartyITToAdd = allThirdPartyITs.find(it => it.id === parseInt(thirdPartyITId));
+    useEffect(() => {
+        if (error && errorRef.current) {
+            errorRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+        fetchAllContacts();
+        fetchAllSoftwares();
+        fetchClientData();
+        fetchLocations();
+        fetchAllThirdPartyITs();
+    }, [clientId]);
 
-        setClientData({
-            ...clientData,
-            thirdPartyITs: [...clientData.thirdPartyITs, thirdPartyITToAdd],
-            thirdPartyIds: [...clientData.thirdPartyIds, thirdPartyITToAdd.id],
-        });
-    };
-    const initiateThirdPartyITRemove = (thirdPartyIT) => {
-        openConfirmationModal('thirdPartyIT', thirdPartyIT);
-    };
-
-    const handleThirdPartyITRemove = (thirdPartyITId) => {
-        setClientData({
-            ...clientData,
-            thirdPartyITs: clientData.thirdPartyITs.filter(it => it.id !== thirdPartyITId),
-            thirdPartyIds: clientData.thirdPartyIds.filter(id => id !== thirdPartyITId),
-        });
-
-    };
-
-    const handleNewThirdPartyIT = (newThirdPartyIT) => {
-        setClientData(prevData => ({
-            ...prevData,
-            thirdPartyITs: [...prevData.thirdPartyITs, newThirdPartyIT],
-            thirdPartyIds: [...prevData.thirdPartyIds, newThirdPartyIT.id],
-        }));
-    };
+    useEffect(() => {
+        if (clientData?.country) {
+            loadCountryOptions('').then((options) => {
+                const countryOption = options.find(option => option.value === clientData.country);
+                setSelectedCountry(countryOption || null);
+            });
+        }
+    }, [clientData?.country]);
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -283,120 +242,75 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
         setClientData({ ...clientData, country: selectedOption ? selectedOption.value : '' });
     };
 
-    // Handlers for adding/removing locations
+    // Locations
     const handleLocationAdd = (e) => {
-        const locationId = e.target.value;
-        const locationToAdd = allLocations.find((loc) => loc.id === parseInt(locationId));
-
-        setClientData({
-            ...clientData,
-            locations: [...clientData.locations, locationToAdd],
-            locationIds: [...clientData.locationIds, locationToAdd.id],
-        });
+        const locationId = parseInt(e.target.value);
+        const locationToAdd = allLocations.find((loc) => loc.id === locationId);
+        setLocalLocations((prev) => [...prev, locationToAdd]);
     };
     const initiateLocationRemove = (location) => {
         openConfirmationModal('location', location);
     };
-
     const handleLocationRemove = (locationId) => {
-        setClientData({
-            ...clientData,
-            locations: clientData.locations.filter((loc) => loc.id !== locationId),
-            locationIds: clientData.locationIds.filter((id) => id !== locationId),
-        });
+        setLocalLocations((prev) => prev.filter((loc) => loc.id !== locationId));
     };
-
-    // Handler for adding a new location
     const handleAddLocation = (addedLocation) => {
         setAllLocations(prevLocations => [...prevLocations, addedLocation]);
-        setClientData(prevData => ({
-            ...prevData,
-            locations: [...prevData.locations, addedLocation],
-            locationIds: [...prevData.locationIds, addedLocation.id],
-        }));
-    };
-    const handleSoftwareAdd = async (e) => {
-        const softwareId = parseInt(e.target.value);
-        const softwareToAdd = allSoftwares.find((sw) => sw.id === softwareId);
-
-        try {
-            await axios.put(`${config.API_BASE_URL}/software/add/client/${softwareId}/${clientId}`);
-
-            // Update assignedSoftwares state
-            setAssignedSoftwares((prevSoftwares) => [...prevSoftwares, softwareToAdd]);
-
-            // Trigger refresh to update availableSoftwares
-            setRefresh((prev) => !prev);
-        } catch (error) {
-            setError('Failed to assign Technical Information.');
-            console.error('Error assigning software:', error);
-        }
+        setLocalLocations(prev => [...prev, addedLocation]);
     };
 
-    const initiateUnassignSoftware = (software) => {
-        openConfirmationModal('technicalInfo', software);
+    // Third-Party IT
+    const handleThirdPartyITAdd = (e) => {
+        const thirdPartyITId = parseInt(e.target.value);
+        const thirdPartyITToAdd = allThirdPartyITs.find(it => it.id === thirdPartyITId);
+        setLocalThirdPartyITs((prev) => [...prev, thirdPartyITToAdd]);
     };
-    const handleUnassignSoftware = async (softwareId) => {
-        try {
-            await axios.put(`${config.API_BASE_URL}/software/remove/${softwareId}`);
-
-            // Update assignedSoftwares state
-            setAssignedSoftwares((prevSoftwares) =>
-                prevSoftwares.filter((software) => software.id !== softwareId)
-            );
-
-            // Trigger refresh to update availableSoftwares
-            setRefresh((prev) => !prev);
-        } catch (error) {
-            setError('Failed to unassign Technical Information.');
-            console.error('Error unassigning software:', error);
-        }
+    const initiateThirdPartyITRemove = (thirdPartyIT) => {
+        openConfirmationModal('thirdPartyIT', thirdPartyIT);
+    };
+    const handleThirdPartyITRemove = (thirdPartyITId) => {
+        setLocalThirdPartyITs((prev) => prev.filter(it => it.id !== thirdPartyITId));
+    };
+    const handleNewThirdPartyIT = (newThirdPartyIT) => {
+        setLocalThirdPartyITs((prev) => [...prev, newThirdPartyIT]);
     };
 
-    const handleContactAdd = async (e) => {
+    // Contacts
+    const handleContactAdd = (e) => {
         const contactId = parseInt(e.target.value);
         const contactToAdd = allContacts.find((contact) => contact.id === contactId);
-
-        try {
-            await axios.put(`${config.API_BASE_URL}/worker/${contactId}/${clientId}`); // Assign contact to client
-
-            setClientContacts((prevContacts) => [...prevContacts, contactToAdd]);
-            setRefresh((prev) => !prev);
-        } catch (error) {
-            setError('Failed to add contact.');
-            console.error('Error adding contact:', error);
-        }
+        setLocalContacts((prev) => [...prev, contactToAdd]);
     };
-
     const initiateContactRemove = (contact) => {
         openConfirmationModal('contact', contact);
     };
-    const handleContactRemove = async (contactId) => {
-        try {
-            await axios.put(`${config.API_BASE_URL}/worker/remove/${contactId}`);
-
-            setClientContacts((prevContacts) =>
-                prevContacts.filter((contact) => contact.id !== contactId)
-            );
-        } catch (error) {
-            setError('Failed to remove contact.');
-            console.error('Error removing contact:', error);
-        }
+    const handleContactRemove = (contactId) => {
+        setLocalContacts((prev) => prev.filter((contact) => contact.id !== contactId));
     };
-
-
-
     const handleNewContact = (newWorker) => {
-        setClientContacts((prevContacts) => [...prevContacts, newWorker]);
-        setRefresh((prev) => !prev);
+        setLocalContacts((prev) => [...prev, newWorker]);
     };
 
+    // Technical Information (Software)
+    const handleSoftwareAdd = (e) => {
+        const softwareId = parseInt(e.target.value);
+        const softwareToAdd = allSoftwares.find((sw) => sw.id === softwareId);
+        setLocalSoftwares((prev) => [...prev, softwareToAdd]);
+    };
+    const initiateUnassignSoftware = (software) => {
+        openConfirmationModal('technicalInfo', software);
+    };
+    const handleSoftwareRemove = (softwareId) => {
+        setLocalSoftwares((prev) => prev.filter((software) => software.id !== softwareId));
+    };
 
-
-
-    // Submit handler
+    // On Save: Compare original and local states, send changes to server
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!originalClientData || !clientData) {
+            return; // Data not loaded
+        }
 
         const today = new Date();
 
@@ -413,17 +327,84 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             setError('Next Maintenance date cannot be before the Last Maintenance date.');
             return;
         }
+
         try {
+            // Determine which contacts were added or removed
+            const originalContactIds = originalClientData.contacts.map(c => c.id);
+            const localContactIds = localContacts.map(c => c.id);
+
+            const addedContacts = localContactIds.filter(id => !originalContactIds.includes(id));
+            const removedContacts = originalContactIds.filter(id => !localContactIds.includes(id));
+
+            // Determine which softwares were added or removed
+            const originalSoftwareIds = (await axios.get(`${config.API_BASE_URL}/software/client/${clientId}`)).data.map(s => s.id);
+            const localSoftwareIds = localSoftwares.map(s => s.id);
+
+            const addedSoftwares = localSoftwareIds.filter(id => !originalSoftwareIds.includes(id));
+            const removedSoftwares = originalSoftwareIds.filter(id => !localSoftwareIds.includes(id));
+
+            // Determine which Third-Party ITs were added or removed
+            const originalThirdPartyITIds = originalClientData.thirdPartyITs.map(it => it.id);
+            const localThirdPartyITIds = localThirdPartyITs.map(it => it.id);
+
+            const addedThirdPartyITs = localThirdPartyITIds.filter(id => !originalThirdPartyITIds.includes(id));
+            const removedThirdPartyITs = originalThirdPartyITIds.filter(id => !localThirdPartyITIds.includes(id));
+
+            // Determine which locations were added or removed
+            const originalLocationIds = originalClientData.locations.map(l => l.id);
+            const localLocationIds = localLocations.map(l => l.id);
+
+            const addedLocations = localLocationIds.filter(id => !originalLocationIds.includes(id));
+            const removedLocations = originalLocationIds.filter(id => !localLocationIds.includes(id));
+
+            // Persist changes:
+            // 1. Contacts
+            for (const contactId of addedContacts) {
+                await axios.put(`${config.API_BASE_URL}/worker/${contactId}/${clientId}`);
+            }
+            for (const contactId of removedContacts) {
+                await axios.put(`${config.API_BASE_URL}/worker/remove/${contactId}`);
+            }
+
+            // 2. Technical Information (Software)
+            for (const swId of addedSoftwares) {
+                await axios.put(`${config.API_BASE_URL}/software/add/client/${swId}/${clientId}`);
+            }
+            for (const swId of removedSoftwares) {
+                await axios.put(`${config.API_BASE_URL}/software/remove/${swId}`);
+            }
+
+            // 3. Third-Party IT
+            for (const itId of addedThirdPartyITs) {
+                // Assume some endpoint to link IT to client
+                await axios.put(`${config.API_BASE_URL}/third-party/add/${itId}/${clientId}`);
+            }
+            for (const itId of removedThirdPartyITs) {
+                // Assume some endpoint to remove IT from client
+                await axios.put(`${config.API_BASE_URL}/third-party/remove/${itId}/${clientId}`);
+            }
+
+            // 4. Locations
+            for (const locId of addedLocations) {
+                // Assume some endpoint to link location to client
+                await axios.put(`${config.API_BASE_URL}/location/addToClient/${locId}/${clientId}`);
+            }
+            for (const locId of removedLocations) {
+                // Assume some endpoint to remove location from client
+                await axios.put(`${config.API_BASE_URL}/location/removeFromClient/${locId}/${clientId}`);
+            }
+
             const updatedClientData = {
                 ...clientData,
-                lastMaintenance: clientData.lastMaintenance ? format(clientData.lastMaintenance, 'yyyy-MM-dd') : null,
-                nextMaintenance: clientData.nextMaintenance ? format(clientData.nextMaintenance, 'yyyy-MM-dd') : null,
                 locations: undefined,
                 thirdPartyITs: undefined,
+                contacts: undefined,
+                lastMaintenance: clientData.lastMaintenance ? format(clientData.lastMaintenance, 'yyyy-MM-dd') : null,
+                nextMaintenance: clientData.nextMaintenance ? format(clientData.nextMaintenance, 'yyyy-MM-dd') : null,
             };
 
+            // Update the client itself
             await axios.put(`${config.API_BASE_URL}/client/update/${clientId}`, updatedClientData);
-
 
             const updatedClientResponse = await axios.get(`${config.API_BASE_URL}/client/${clientId}`);
             const updatedClient = updatedClientResponse.data;
@@ -432,7 +413,6 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                 onSave(updatedClient);
             }
 
-            // Optionally, trigger a refresh
             if (setRefresh) {
                 setRefresh((prev) => !prev);
             }
@@ -445,30 +425,30 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
         }
     };
 
-    const availableContacts = allContacts.filter(
-        (contact) => !clientContacts.some((clientContact) => clientContact.id === contact.id)
-    );
-
-    const availableSoftwares = allSoftwares.filter(
-        (software) => !assignedSoftwares.some((assignedSoftware) => assignedSoftware.id === software.id)
-    );
-
-    // Available options
-    const availableLocations = allLocations.filter(
-        (loc) => !clientData.locations.some((clientLoc) => clientLoc.id === loc.id)
-    );
-
-    const availableThirdPartyITs = allThirdPartyITs.filter(
-        (it) => !clientData.thirdPartyITs.some((clientIt) => clientIt.id === it.id)
-    );
-
-    // Close modal handler
     const handleClose = () => {
         setShowModal(false);
         if (onClose) {
             onClose();
         }
     };
+
+    if (!clientData) {
+        return null; // or a spinner
+    }
+
+    // Available options
+    const availableContacts = allContacts.filter(
+        (contact) => !localContacts.some((clientContact) => clientContact.id === contact.id)
+    );
+    const availableSoftwares = allSoftwares.filter(
+        (software) => !localSoftwares.some((assignedSoftware) => assignedSoftware.id === software.id)
+    );
+    const availableLocations = allLocations.filter(
+        (loc) => !localLocations.some((clientLoc) => clientLoc.id === loc.id)
+    );
+    const availableThirdPartyITs = allThirdPartyITs.filter(
+        (it) => !localThirdPartyITs.some((clientIt) => clientIt.id === it.id)
+    );
 
     return (
         <Modal
@@ -489,11 +469,8 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                     </Alert>
                 )}
                 <Form onSubmit={handleSubmit}>
-                    {/* Row 1: Full Name and Short Name */}
                     <Row>
-                        {/* Left Column (col-md-8) */}
                         <Col md={8}>
-                            {/* Full Name */}
                             <Form.Group className="mb-3">
                                 <Form.Label>Full Name</Form.Label>
                                 <Form.Control
@@ -521,9 +498,9 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                         </Button>
                                     </Col>
                                 </Row>
-                                {clientData.locations.length > 0 && (
+                                {localLocations.length > 0 && (
                                     <ListGroup className="mb-2">
-                                        {clientData.locations.map((location) => (
+                                        {localLocations.map((location) => (
                                             <ListGroup.Item key={location.id}>
                                                 <Row className="align-items-center">
                                                     <Col>{location.name}</Col>
@@ -564,9 +541,9 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                         </Button>
                                     </Col>
                                 </Row>
-                                {assignedSoftwares.length > 0 ? (
+                                {localSoftwares.length > 0 ? (
                                     <ListGroup className="mb-2">
-                                        {assignedSoftwares.map((software) => (
+                                        {localSoftwares.map((software) => (
                                             <ListGroup.Item key={software.id}>
                                                 <Row className="align-items-center">
                                                     <Col>{software.name}</Col>
@@ -611,9 +588,9 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                         </Button>
                                     </Col>
                                 </Row>
-                                {clientData.thirdPartyITs.length > 0 && (
+                                {localThirdPartyITs.length > 0 && (
                                     <ListGroup className="mb-2">
-                                        {clientData.thirdPartyITs.map((it) => (
+                                        {localThirdPartyITs.map((it) => (
                                             <ListGroup.Item key={it.id}>
                                                 <Row className="align-items-center">
                                                     <Col>{it.name}</Col>
@@ -643,7 +620,6 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                             </Form.Group>
                         </Col>
 
-                        {/* Right Column (col-md-4) */}
                         <Col md={4}>
                             {/* Short Name */}
                             <Form.Group className="mb-3">
@@ -659,11 +635,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
 
                             {/* Country */}
                             <Form.Group className="mb-3">
-                                <Row className="mb-2">
-                                    <Col className="col-md-auto align-content-center">
-                                        <Form.Label className="mb-0">Country</Form.Label>
-                                    </Col>
-                                </Row>
+                                <Form.Label className="mb-0">Country</Form.Label>
                                 <AsyncSelect
                                     cacheOptions
                                     defaultOptions
@@ -691,9 +663,9 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                         </Button>
                                     </Col>
                                 </Row>
-                                {clientContacts.length > 0 && (
+                                {localContacts.length > 0 && (
                                     <ListGroup className="mb-2">
-                                        {clientContacts.map((contact) => (
+                                        {localContacts.map((contact) => (
                                             <ListGroup.Item key={contact.id}>
                                                 <Row className="align-items-center">
                                                     <Col>{`${contact.firstName} ${contact.lastName}`}</Col>
@@ -726,10 +698,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                         </Col>
                     </Row>
 
-
-
-
-                    {/* Customer Types: Header and Checkboxes on the Same Line */}
+                    {/* Customer Types */}
                     <Form.Group className="mb-3 d-flex align-items-center">
                         <Form.Label className="me-3 mb-0">Customer Types:</Form.Label>
                         <Form.Check
@@ -782,7 +751,6 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                         />
                     </Form.Group>
 
-                    {/* Maintenance Dates */}
                     <Row>
                         <Col xs={12} md={6}>
                             <Form.Group className="mb-3">
@@ -812,7 +780,6 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                                     isClearable
                                 />
                             </Form.Group>
-
                         </Col>
                     </Row>
                 </Form>
@@ -824,33 +791,31 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                 </Button>
             </Modal.Footer>
 
-            {/* Use AddLocationModal */}
             <AddLocationModal
                 show={showLocationModal}
                 onHide={() => setShowLocationModal(false)}
                 onAddLocation={handleAddLocation}
             />
 
-            {/* Third Party IT Modal */}
             <AddThirdPartyITModal
                 show={showThirdPartyITModal}
                 onHide={() => setShowThirdPartyITModal(false)}
                 onNewThirdPartyIT={handleNewThirdPartyIT}
             />
 
-            {/* Add Technical Information Modal */}
             <AddTechnicalInfoModal
                 show={showAddSoftwareModal}
                 onHide={() => setShowAddSoftwareModal(false)}
                 onAddTechnicalInfo={() => {
-                    setRefresh((prev) => !prev); // Use the prop 'setRefresh' to trigger refresh in parent
+                    setRefresh((prev) => !prev);
                     setShowAddSoftwareModal(false);
-                    fetchClientData(); // Fetch updated client data
+                    // After adding, re-fetch local data:
+                    // Actually, just fetch client data and re-init local arrays
+                    fetchClientData();
                 }}
                 clientId={clientId}
             />
 
-            {/* AddClientWorker Modal */}
             <AddClientWorker
                 show={showAddContactModal}
                 onClose={() => setShowAddContactModal(false)}
@@ -865,9 +830,6 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                 message={confirmation.message}
                 onConfirm={confirmation.onConfirm}
             />
-
-
-
         </Modal>
     );
 }

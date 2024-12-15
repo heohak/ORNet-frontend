@@ -10,7 +10,8 @@ import {
     InputGroup,
     DropdownButton,
     Dropdown,
-    Spinner
+    Spinner,
+    Form
 } from 'react-bootstrap';
 import config from "../../config/config";
 import NewAddCustomer from "./NewAddCustomer";
@@ -20,13 +21,13 @@ import noImg from '../../assets/no-img.jpg';
 import personIcon from '../../assets/thumbnail_person icon.png';
 import {useNavigate} from "react-router-dom";
 
-
 function Customers() {
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [customerType, setCustomerType] = useState('');
+    // Instead of a single customerType string, we now maintain an array of selected client types
+    const [selectedClientTypes, setSelectedClientTypes] = useState([]);
     const [showNewAddCustomerModal, setShowNewAddCustomerModal] = useState(false);
     const [showGenerateReportModal, setShowGenerateReportModal] = useState(false);
     const [typingTimeout, setTypingTimeout] = useState(null);
@@ -37,26 +38,28 @@ function Customers() {
     const [activityDates, setActivityDates] = useState({});
     const countryFlagApi = "https://restcountries.com/v3.1/alpha";
     const navigate = useNavigate();
+
     useEffect(() => {
         fetchAvailableCountries();
         fetchCustomers();
         fetchActivityDates();
     }, []);
 
-    const fetchCustomers = async (query = '', type = '', country = '') => {
+    const fetchCustomers = async (query = '', clientTypes = [], country = '') => {
         setLoading(true);
         setError(null);
         try {
-            const params = {};
-            if (query) params.q = query;
-            if (type) params.clientType = type;
-            if (country) params.country = country;
+            const params = new URLSearchParams();
+            if (query) params.append('q', query);
+            if (clientTypes && clientTypes.length > 0) {
+                clientTypes.forEach(type => params.append('clientTypes', type));
+            }
+            if (country) params.append('country', country);
 
             const response = await axios.get(`${config.API_BASE_URL}/client/search`, { params });
             const customersData = response.data;
 
             setCustomers(customersData);
-
             fetchCountryFlags(customersData); // Fetch flags separately
         } catch (error) {
             setError(error.message);
@@ -64,6 +67,7 @@ function Customers() {
             setLoading(false);
         }
     };
+
 
     const fetchAvailableCountries = async () => {
         try {
@@ -135,17 +139,14 @@ function Customers() {
         return 'green';
     };
 
-
-
-
     useEffect(() => {
         if (typingTimeout) clearTimeout(typingTimeout);
         const timeout = setTimeout(() => {
-            fetchCustomers(searchQuery, customerType, selectedCountry);
+            fetchCustomers(searchQuery, selectedClientTypes, selectedCountry);
         }, 300); // 300ms delay before search triggers
         setTypingTimeout(timeout);
         return () => clearTimeout(timeout);
-    }, [searchQuery, customerType, selectedCountry]);
+    }, [searchQuery, selectedClientTypes, selectedCountry]);
 
     const handleNewAddCustomer = () => {
         setShowNewAddCustomerModal(true);
@@ -153,10 +154,6 @@ function Customers() {
 
     const handleSearchChange = (value) => {
         setSearchQuery(value);
-    };
-
-    const handleFilterChange = (type) => {
-        setCustomerType(type);
     };
 
     const handleCountryChange = (country) => {
@@ -203,6 +200,15 @@ function Customers() {
         return '↕';
     };
 
+    const handleClientTypeCheck = (e) => {
+        const { value, checked } = e.target;
+        if (checked) {
+            setSelectedClientTypes(prev => [...prev, value]);
+        } else {
+            setSelectedClientTypes(prev => prev.filter(type => type !== value));
+        }
+    };
+
     if (error) {
         return (
             <Container className="mt-5">
@@ -220,44 +226,19 @@ function Customers() {
                 <Col>
                     <h1>Customers</h1>
                 </Col>
-
             </Row>
 
-            {/* Filters and Add Customer Button */}
             <Row className="mb-4 align-items-center justify-content-between">
-                <Col>
-                    <Row>
-                        {/* Search Bar */}
-                        <Col md={6}>
+                {/* Left side: Search & Country on the same row, then checkboxes below */}
+                <Col md={6}>
+                    <Row className="mb-2">
+                        <Col>
                             <InputGroup>
                                 <FormControl
                                     placeholder="Search customers..."
                                     value={searchQuery}
                                     onChange={(e) => handleSearchChange(e.target.value)}
                                 />
-                            </InputGroup>
-                        </Col>
-
-                        {/* Customer Type Filter */}
-                        <Col className="col-md-auto">
-                            <InputGroup>
-                                <DropdownButton
-                                    as={InputGroup.Append}
-                                    variant="outline-secondary"
-                                    title={customerType ? capitalizeFirstLetter(customerType) : 'All Types'}
-                                    id="input-group-dropdown-type"
-                                >
-                                    <Dropdown.Item onClick={() => handleFilterChange('')}>All Types</Dropdown.Item>
-                                    <Dropdown.Item onClick={() => handleFilterChange('pathology')}>Pathology</Dropdown.Item>
-                                    <Dropdown.Item onClick={() => handleFilterChange('surgery')}>Surgery</Dropdown.Item>
-                                    <Dropdown.Item onClick={() => handleFilterChange('editor')}>Editor</Dropdown.Item>
-                                </DropdownButton>
-                            </InputGroup>
-                        </Col>
-
-                        {/* Country Filter */}
-                        <Col className="col-md-auto">
-                            <InputGroup>
                                 <DropdownButton
                                     as={InputGroup.Append}
                                     variant="outline-secondary"
@@ -274,20 +255,77 @@ function Customers() {
                             </InputGroup>
                         </Col>
                     </Row>
-                </Col>
-                <Col className="text-end">
-                    <Button variant="primary" onClick={handleGenerateReport}>
-                        Generate Report
-                    </Button>
+                    <Row>
+                        <Col>
+                            {/* Client Type Filter (Checkboxes) */}
+                            <Form>
+                                <div className="d-flex flex-wrap">
+                                    <Form.Check
+                                        type="checkbox"
+                                        label="Pathology"
+                                        value="pathology"
+                                        checked={selectedClientTypes.includes('pathology')}
+                                        onChange={handleClientTypeCheck}
+                                        className="me-3 mb-2"
+                                    />
+                                    <Form.Check
+                                        type="checkbox"
+                                        label="Surgery"
+                                        value="surgery"
+                                        checked={selectedClientTypes.includes('surgery')}
+                                        onChange={handleClientTypeCheck}
+                                        className="me-3 mb-2"
+                                    />
+                                    <Form.Check
+                                        type="checkbox"
+                                        label="Editor"
+                                        value="editor"
+                                        checked={selectedClientTypes.includes('editor')}
+                                        onChange={handleClientTypeCheck}
+                                        className="me-3 mb-2"
+                                    />
+                                    <Form.Check
+                                        type="checkbox"
+                                        label="Other"
+                                        value="other"
+                                        checked={selectedClientTypes.includes('other')}
+                                        onChange={handleClientTypeCheck}
+                                        className="me-3 mb-2"
+                                    />
+                                    <Form.Check
+                                        type="checkbox"
+                                        label="Prospect"
+                                        value="prospect"
+                                        checked={selectedClientTypes.includes('prospect')}
+                                        onChange={handleClientTypeCheck}
+                                        className="me-3 mb-2"
+                                    />
+                                    <Form.Check
+                                        type="checkbox"
+                                        label="Agreement"
+                                        value="agreement"
+                                        checked={selectedClientTypes.includes('agreement')}
+                                        onChange={handleClientTypeCheck}
+                                        className="me-3 mb-2"
+                                    />
+                                </div>
+                            </Form>
+                        </Col>
+                    </Row>
                 </Col>
 
-                {/* Add Customer Button */}
-                <Col className="col-md-auto text-end">
+                {/* Right side: Buttons */}
+                <Col className="text-end">
+                    <Button variant="primary" onClick={handleGenerateReport} className="me-2">
+                        Generate Report
+                    </Button>
                     <Button variant="primary" onClick={handleNewAddCustomer}>
                         Add Customer
                     </Button>
                 </Col>
             </Row>
+
+
 
             {/* Loading Spinner */}
             {loading && (
@@ -333,9 +371,13 @@ function Customers() {
                                 if (customer.pathologyClient) customerTypes.push('Pathology');
                                 if (customer.surgeryClient) customerTypes.push('Surgery');
                                 if (customer.editorClient) customerTypes.push('Editor');
-                                const customerTypeDisplay = customerTypes.join('/') || 'N/A';
+                                if (customer.otherMedicalDevices) customerTypes.push('Other');
+                                if (customer.prospect) customerTypes.push('Prospect');
+                                if (customer.agreement) customerTypes.push('Agreement');
+
+                                const customerTypeDisplay = customerTypes.length > 0 ? customerTypes.join(', ') : 'N/A';
+
                                 const deadlineColor = getDeadlineColor(activityDates[customer.id]?.endDateTime)
-                                console.log(activityDates[customer.id])
 
                                 const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
 
@@ -372,7 +414,7 @@ function Customers() {
                                                     display: "grid",
                                                     alignContent: "center",
                                                     justifyContent: "center",
-                                                    cursor: 'pointer' // Makes it clear that the icon is clickable
+                                                    cursor: 'pointer'
                                                 }}
                                                 onClick={(e) => {
                                                     e.stopPropagation(); // Prevent the click from bubbling up to the row
@@ -403,20 +445,18 @@ function Customers() {
                                                     navigate(`/customer/${customer.id}`, { state: { openAccordion: 'activity' } });
                                                 }}
                                             >
-    <span
-        style={{
-            display: 'inline-block',
-            width: '12px',
-            height: '12px',
-            borderRadius: '50%',
-            backgroundColor: deadlineColor,
-            marginRight: '8px',
-        }}
-    />
+                                                <span
+                                                    style={{
+                                                        display: 'inline-block',
+                                                        width: '12px',
+                                                        height: '12px',
+                                                        borderRadius: '50%',
+                                                        backgroundColor: deadlineColor,
+                                                        marginRight: '8px',
+                                                    }}
+                                                />
                                                 {formatDate(activityDates[customer.id]?.updateDateTime) || "N/A"}
                                             </div>
-
-
                                         </Col>
                                     </Row>
                                 );

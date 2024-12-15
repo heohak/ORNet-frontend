@@ -481,7 +481,6 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
                                     value={formData.clientNumeration}
                                     onChange={handleChange}
                                     id="clientNumeration"
-                                    required
                                 />
                             </Form.Group>
                         </Col>
