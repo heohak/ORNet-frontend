@@ -40,7 +40,14 @@ function CommentsModal({ show, handleClose, deviceId, isLinkedDevice = false }) 
             const url = isLinkedDevice
                 ? `${config.API_BASE_URL}/linked/device/comment/${deviceId}`
                 : `${config.API_BASE_URL}/device/comment/${deviceId}`;
-            await axios.put(url, null, { params: { comment: newComment } });
+            await axios.put(url,
+                newComment,
+                {
+                    headers: {
+                        "Content-Type": "text/plain", // Important to specify the correct content type
+                    }
+                }
+            );
             setComments([{ comment: newComment, timestamp: new Date() }, ...comments]);
             setNewComment("");
         } catch (error) {

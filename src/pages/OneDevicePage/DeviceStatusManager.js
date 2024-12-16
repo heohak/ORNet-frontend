@@ -24,12 +24,19 @@ function DeviceStatusManager({ deviceId, introducedDate, writtenOffDate, setRefr
             setDateError('Written Off Date cannot be before the Introduced Date.');
             return;
         }
+        const formattedDate = new Date(currentWrittenOffDate).toISOString().split("T")[0];
 
         try {
             await axios.put(
                 `${config.API_BASE_URL}/device/written-off/${deviceId}`,
-                { writtenOffDate: currentWrittenOffDate }, // Sending the writtenOffDate in the request body
-                { params: { comment: writtenOffComment } } // Sending the comment as a request parameter
+                writtenOffComment, // Sending the writtenOffComment in the request body
+                {
+                    params:
+                        { writtenOffDate: formattedDate },
+                    headers: {
+                        "Content-Type": "text/plain", // Important to specify the correct content type
+                    }
+                }
             );
             setIsWrittenOff(true); // Mark the device as written off
             setRefresh(prev => !prev); // Refresh data
@@ -46,8 +53,12 @@ function DeviceStatusManager({ deviceId, introducedDate, writtenOffDate, setRefr
         try {
             await axios.put(
                 `${config.API_BASE_URL}/device/reactivate/${deviceId}`,
-                null,
-                { params: { comment: writtenOffComment } } // Sending the comment as a request parameter
+                writtenOffComment,
+                {
+                    headers: {
+                        "Content-Type": "text/plain", // Important to specify the correct content type
+                    }
+                }
             );
             setCurrentWrittenOffDate(''); // Clear the written off date
             setIsWrittenOff(false); // Update the status
