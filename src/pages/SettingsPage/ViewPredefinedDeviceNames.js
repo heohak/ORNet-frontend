@@ -76,16 +76,16 @@ function ViewPredefinedDeviceNames() {
     };
 
     return (
-        <Container className="mt-5">
-            <h1>Predefined Device Names</h1>
+        <Container className="mt-4">
             <Button
                 variant="primary"
-                className="mb-4"
                 onClick={() => window.history.back()}
+                className="mb-4"
             >
                 Back
             </Button>
-            <div className="d-flex justify-content-end align-items-center mb-4">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h1>Predefined Device Names</h1>
                 <Button variant="primary" onClick={() => setShowAddModal(true)}>
                     Add Device Name
                 </Button>
