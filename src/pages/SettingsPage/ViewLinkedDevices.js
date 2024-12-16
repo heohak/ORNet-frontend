@@ -10,7 +10,7 @@ import {
     Modal,
     Form,
 } from 'react-bootstrap';
-import { FaEdit } from 'react-icons/fa';
+import {FaArrowLeft, FaEdit} from 'react-icons/fa';
 import config from '../../config/config';
 import EditLinkedDeviceModal from "./EditLinkedDeviceModal";
 
@@ -85,12 +85,18 @@ function ViewLinkedDevices() {
     ];
 
     return (
-        <Container className="mt-5">
-            <h1>Linked Devices</h1>
-            <Button variant="primary" className="mb-4" onClick={() => window.history.back()}>
-                Back
+        <Container className="mt-4">
+
+            <Button
+                variant="link"
+                onClick={() => window.history.back()}
+                className="mb-4 p-0"
+                style={{ fontSize: '1.5rem', color: '#0d6efd' }} // Adjust styling as desired
+            >
+                <FaArrowLeft title="Go back" />
             </Button>
-            <div className="d-flex justify-content-end align-items-center mb-4">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h1>Linked Devices</h1>
                 <Button variant="primary" onClick={() => setShowAddModal(true)}>
                     Add Linked Device
                 </Button>

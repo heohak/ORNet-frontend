@@ -10,6 +10,7 @@ import CommentsModal from "../../modals/CommentsModal";
 import '../../css/OneDevicePage/OneDevice.css';
 import DeviceFileList from "./DeviceFileList";
 import DeviceTickets from "./DeviceTickets";
+import {FaArrowLeft} from "react-icons/fa";
 
 function OneDevice() {
     const {deviceId} = useParams();
@@ -126,7 +127,15 @@ function OneDevice() {
             <div className="device-header-background">
                 <Container>
                     <div className="device-name d-flex align-items-center justify-content-between">
-                        <Button onClick={handleBackNavigation}>Back</Button>
+                        <Button
+                            variant="link"
+                            onClick={handleBackNavigation}
+                            className="p-0 me-2"
+                            style={{ fontSize: '1.5rem', color: '#0d6efd' }}
+                            aria-label="Go back"
+                        >
+                            <FaArrowLeft title="Go back" />
+                        </Button>
                         <h1 className="device-title">
                             {device ? `${device.deviceName} Details` : 'Device Details'}
                         </h1>

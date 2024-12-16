@@ -14,6 +14,7 @@ import ClientLocations from "./ClientLocations";
 import '../../css/Customers.css';
 import '../../css/OneClientPage/OneClient.css';
 import CustomerActivity from "./Activity/CustomerActivity";
+import {FaArrowLeft} from "react-icons/fa";
 
 function OneClient() {
     const { clientId } = useParams();
@@ -162,7 +163,15 @@ function OneClient() {
             <div className="client-header-background">
                 <Container>
                     <div className="client-name">
-                        <Button onClick={() => navigate('/customers')}>Back</Button>
+                        <Button
+                            variant="link"
+                            onClick={() => navigate('/customers')}
+                            className="p-0 me-2"
+                            style={{ fontSize: '1.5rem', color: '#0d6efd' }}
+                            aria-label="Go back"
+                        >
+                            <FaArrowLeft title="Go back" />
+                        </Button>
                         <h1 className="client-title">{client ? `${client.shortName} Details` : 'Client Details'}</h1>
                     </div>
                 </Container>

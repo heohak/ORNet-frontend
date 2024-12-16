@@ -12,7 +12,7 @@ import {
     Form
 } from 'react-bootstrap';
 import config from '../../config/config';
-import { FaPhone, FaEnvelope, FaEdit } from 'react-icons/fa';
+import {FaPhone, FaEnvelope, FaEdit, FaArrowLeft} from 'react-icons/fa';
 import EditThirdPartyITModal from "./EditThirdPartyITModal";
 
 function ViewThirdPartyITs() {
@@ -96,12 +96,20 @@ function ViewThirdPartyITs() {
     };
 
     return (
-        <Container className="mt-5">
+        <Container className="mt-4">
+            <Button
+                variant="link"
+                onClick={() => window.history.back()}
+                className="mb-4 p-0"
+                style={{ fontSize: '1.5rem', color: '#0d6efd' }} // Adjust styling as desired
+            >
+                <FaArrowLeft title="Go back" />
+            </Button>
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h1>Third Party ITs</h1>
                 <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Third Party IT</Button>
             </div>
-            <Button variant="primary" className="mb-4" onClick={() => window.history.back()}>Back</Button>
+
             {loading ? (
                 <Container className="text-center mt-5">
                     <Spinner animation="border" role="status">

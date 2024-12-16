@@ -11,7 +11,7 @@ import {
     Form,
 } from 'react-bootstrap';
 import config from '../../config/config';
-import { FaTrash } from 'react-icons/fa';
+import {FaArrowLeft, FaTrash} from 'react-icons/fa';
 
 function ViewPredefinedDeviceNames() {
     const [deviceNames, setDeviceNames] = useState([]);
@@ -78,11 +78,12 @@ function ViewPredefinedDeviceNames() {
     return (
         <Container className="mt-4">
             <Button
-                variant="primary"
+                variant="link"
                 onClick={() => window.history.back()}
-                className="mb-4"
+                className="mb-4 p-0"
+                style={{ fontSize: '1.5rem', color: '#0d6efd' }} // Adjust styling as desired
             >
-                Back
+                <FaArrowLeft title="Go back" />
             </Button>
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h1>Predefined Device Names</h1>
