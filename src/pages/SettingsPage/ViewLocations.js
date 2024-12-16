@@ -12,7 +12,7 @@ import {
 } from 'react-bootstrap';
 import config from '../../config/config';
 import AddLocationModal from '../OneClientPage/AddLocationModal';
-import { FaEdit } from 'react-icons/fa';
+import {FaArrowLeft, FaEdit} from 'react-icons/fa';
 import { validatePhoneAndPostalCode } from '../../utils/Validation';
 
 function ViewLocations() {
@@ -165,16 +165,19 @@ function ViewLocations() {
     };
 
     return (
-        <Container className="mt-5">
-            <h1>Locations</h1>
+        <Container className="mt-4">
+
             <Button
-                variant="primary"
-                className="mb-4"
+                variant="link"
                 onClick={() => window.history.back()}
+                className="mb-4 p-0"
+                style={{ fontSize: '1.5rem', color: '#0d6efd' }} // Adjust styling as desired
             >
-                Back
+                <FaArrowLeft title="Go back" />
             </Button>
-            <div className="d-flex justify-content-end align-items-center mb-4">
+
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h1>Locations</h1>
                 <Button variant="primary" onClick={() => setShowAddModal(true)}>
                     Add Location
                 </Button>
