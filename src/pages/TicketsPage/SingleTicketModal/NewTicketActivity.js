@@ -41,14 +41,20 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
 
     const submitActivity = async () => {
         try {
-            await axios.put(`${config.API_BASE_URL}/ticket/activity/${ticket.id}`, null, {
-                params: {
-                    activity: newActivity,
-                    hours: modalHours,
-                    minutes: modalMinutes,
-                    paid: modalPaid
-                },
-            });
+            await axios.put(
+                `${config.API_BASE_URL}/ticket/activity/${ticket.id}`,
+                newActivity, // Send as a plain string
+                {
+                    params: {
+                        hours: modalHours,
+                        minutes: modalMinutes,
+                        paid: modalPaid,
+                    },
+                    headers: {
+                        "Content-Type": "text/plain", // Important to specify the correct content type
+                    },
+                }
+            );
             setNewActivity("");
             setModalPaid(false);
             setModalHours(0);
