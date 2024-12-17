@@ -132,6 +132,9 @@ function AddThirdPartyIT({ clientId, show, onClose, setRefresh, clientThirdParti
                 <Form onSubmit={handleSubmit}>
                     <Form.Group className="mb-3">
                         <Form.Label>Select Third-Party IT</Form.Label>
+                        <Button variant="link" onClick={() => setShowThirdPartyModal(true)}>
+                            Add New
+                        </Button>
                         <Select
                             options={availableThirdParties}
                             value={selectedThirdParty}
@@ -139,10 +142,7 @@ function AddThirdPartyIT({ clientId, show, onClose, setRefresh, clientThirdParti
                             placeholder="Select a third-party IT"
                         />
                         <Form.Text className="text-muted">
-                            Can't find the third-party IT?{' '}
-                            <Button variant="link" onClick={() => setShowThirdPartyModal(true)}>
-                                Add New
-                            </Button>
+
                         </Form.Text>
                     </Form.Group>
                     <Modal.Footer>
@@ -165,9 +165,10 @@ function AddThirdPartyIT({ clientId, show, onClose, setRefresh, clientThirdParti
                 <Form onSubmit={handleAddThirdParty}>
                     <Modal.Body>
                         <Form.Group className="mb-3">
-                            <Form.Label>Third-Party Name</Form.Label>
+                            <Form.Label>Name</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter Name"
                                 value={newThirdParty.name}
                                 onChange={(e) => setNewThirdParty({ ...newThirdParty, name: e.target.value })}
                                 required
@@ -177,15 +178,17 @@ function AddThirdPartyIT({ clientId, show, onClose, setRefresh, clientThirdParti
                             <Form.Label>Email</Form.Label>
                             <Form.Control
                                 type="email"
+                                placeholder="Enter Email"
                                 value={newThirdParty.email}
                                 onChange={(e) => setNewThirdParty({ ...newThirdParty, email: e.target.value })}
                                 required
                             />
                         </Form.Group>
                         <Form.Group className="mb-3">
-                            <Form.Label>Phone</Form.Label>
+                            <Form.Label>Phone Number</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter Phone Number"
                                 value={newThirdParty.phone}
                                 onChange={(e) => setNewThirdParty({ ...newThirdParty, phone: e.target.value })}
                                 required

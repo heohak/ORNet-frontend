@@ -50,6 +50,7 @@ const AddContactModal = ({ show, handleClose, onAdd, locations, clientId }) => {
                         <Form.Label>First Name</Form.Label>
                         <Form.Control
                             type="text"
+                            placeholder="Enter First Name"
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
                             required
@@ -59,6 +60,7 @@ const AddContactModal = ({ show, handleClose, onAdd, locations, clientId }) => {
                         <Form.Label>Last Name</Form.Label>
                         <Form.Control
                             type="text"
+                            placeholder="Enter Last Name"
                             value={lastName}
                             onChange={(e) => setLastName(e.target.value)}
                         />
@@ -67,6 +69,7 @@ const AddContactModal = ({ show, handleClose, onAdd, locations, clientId }) => {
                         <Form.Label>Title</Form.Label>
                         <Form.Control
                             type="text"
+                            placeholder="Enter Title"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                         />
@@ -75,6 +78,7 @@ const AddContactModal = ({ show, handleClose, onAdd, locations, clientId }) => {
                         <Form.Label>Email</Form.Label>
                         <Form.Control
                             type="email"
+                            placeholder="Enter Email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
@@ -84,6 +88,7 @@ const AddContactModal = ({ show, handleClose, onAdd, locations, clientId }) => {
                         <Form.Label>Phone Number</Form.Label>
                         <Form.Control
                             type="text"
+                            placeholder="Enter Phone Number"
                             value={phoneNumber}
                             onChange={(e) => setPhoneNumber(e.target.value)}
                         />

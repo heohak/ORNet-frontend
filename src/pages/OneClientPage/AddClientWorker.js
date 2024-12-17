@@ -188,6 +188,7 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
                             <Form.Label>First Name</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter First Name"
                                 value={firstName}
                                 onChange={(e) => setFirstName(e.target.value)}
                                 required
@@ -198,6 +199,7 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
                             <Form.Label>Last Name</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter Last Name"
                                 value={lastName}
                                 onChange={(e) => setLastName(e.target.value)}
                                 required
@@ -208,6 +210,7 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
                             <Form.Label>Email</Form.Label>
                             <Form.Control
                                 type="email"
+                                placeholder="Enter Email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
 
@@ -218,6 +221,7 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
                             <Form.Label>Phone Number</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter Phone Number"
                                 value={phoneNumber}
                                 onChange={(e) => setPhoneNumber(e.target.value)}
 
@@ -232,6 +236,7 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
                             <Form.Label>Title</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter Title"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                                 required
@@ -251,6 +256,7 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
                         {/* Roles */}
                         <Form.Group className="mb-3">
                             <Form.Label>Roles</Form.Label>
+                            <Button variant="link" onClick={() => setShowRoleModal(true)}>Add New</Button>
                             <Select
                                 isMulti
                                 options={roles}
@@ -259,8 +265,7 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
                                 placeholder="Select roles"
                             />
                             <Form.Text className="text-muted">
-                                Can't find the role?{' '}
-                                <Button variant="link" onClick={() => setShowRoleModal(true)}>Add New</Button>
+
                             </Form.Text>
                         </Form.Group>
                     </Modal.Body>
@@ -285,6 +290,7 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
                             <Form.Label>Role</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter Role Name"
                                 value={newRole.role}
                                 onChange={(e) => setNewRole({ ...newRole, role: e.target.value })}
                                 required

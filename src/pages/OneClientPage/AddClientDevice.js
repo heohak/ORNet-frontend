@@ -167,7 +167,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                 dialogClassName={showClassificatorModal ? 'dimmed' : ''}
             >
                 <Modal.Header closeButton>
-                    <Modal.Title>Add Device</Modal.Title>
+                    <Modal.Title>Add New Device</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {error && (
@@ -239,6 +239,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                                     <Form.Label>Department</Form.Label>
                                     <Form.Control
                                         type="text"
+                                        placeholder="Enter Department"
                                         value={department}
                                         onChange={(e) => setDepartment(e.target.value)}
                                     />
@@ -253,6 +254,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                                     <Form.Label>Room</Form.Label>
                                     <Form.Control
                                         type="text"
+                                        placeholder="Enter Room"
                                         value={room}
                                         onChange={(e) => setRoom(e.target.value)}
                                     />
@@ -263,6 +265,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                                     <Form.Label>Serial Number</Form.Label>
                                     <Form.Control
                                         type="text"
+                                        placeholder="Enter Serial Number"
                                         value={serialNumber}
                                         onChange={(e) => setSerialNumber(e.target.value)}
                                         required
@@ -280,6 +283,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                                     <Form.Label>License Number</Form.Label>
                                     <Form.Control
                                         type="text"
+                                        placeholder="Enter License Number"
                                         value={licenseNumber}
                                         onChange={(e) => setLicenseNumber(e.target.value)}
                                     />
@@ -290,6 +294,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                                     <Form.Label>Version</Form.Label>
                                     <Form.Control
                                         type="text"
+                                        placeholder="Enter Version"
                                         value={version}
                                         onChange={(e) => setVersion(e.target.value)}
                                     />
@@ -304,6 +309,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                                     <Form.Label>Software Key</Form.Label>
                                     <Form.Control
                                         type="text"
+                                        placeholder="Enter Software Key"
                                         value={softwareKey}
                                         onChange={(e) => setSoftwareKey(e.target.value)}
                                     />
@@ -358,6 +364,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                                         <Form.Label>First IP Address</Form.Label>
                                         <Form.Control
                                             type="text"
+                                            placeholder="Enter First IP Address"
                                             value={firstIPAddress}
                                             onChange={(e) => setFirstIPAddress(e.target.value)}
                                         />
@@ -368,6 +375,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                                         <Form.Label>Second IP Address</Form.Label>
                                         <Form.Control
                                             type="text"
+                                            placeholder="Enter Second IP Address"
                                             value={secondIPAddress}
                                             onChange={(e) => setSecondIPAddress(e.target.value)}
                                         />
@@ -378,6 +386,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                                         <Form.Label>Subnet Mask</Form.Label>
                                         <Form.Control
                                             type="text"
+                                            placeholder="Enter Subnet Mask"
                                             value={subnetMask}
                                             onChange={(e) => setSubnetMask(e.target.value)}
                                         />
@@ -405,9 +414,10 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                 </Modal.Header>
                 <Modal.Body>
                     <Form.Group className="mb-3">
-                        <Form.Label>Device Type Name</Form.Label>
+                        <Form.Label>Device Type</Form.Label>
                         <Form.Control
                             type="text"
+                            placeholder="Enter Device Type"
                             value={newClassificator}
                             onChange={(e) => setNewClassificator(e.target.value)}
                             required

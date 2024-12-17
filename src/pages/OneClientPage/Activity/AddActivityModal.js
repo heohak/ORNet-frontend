@@ -252,6 +252,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                                 <Form.Label>Title</Form.Label>
                                 <Form.Control
                                     type="text"
+                                    placeholder="Enter Title"
                                     value={formData.title}
                                     onChange={handleChange}
                                     id="title"
@@ -283,6 +284,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                                 <Form.Label>Description</Form.Label>
                                 <Form.Control
                                     as="textarea"
+                                    placeholder="Enter Description"
                                     rows={4}
                                     value={formData.description}
                                     onChange={handleChange}
@@ -312,9 +314,10 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                     <Row>
                         <Col md={4}>
                             <Form.Group className="mb-3">
-                                <Form.Label>Client Numeration</Form.Label>
+                                <Form.Label>Customer Numeration</Form.Label>
                                 <Form.Control
                                     type="text"
+                                    placeholder="Enter Customer Numeration"
                                     value={formData.clientNumeration}
                                     onChange={handleChange}
                                     id="clientNumeration"

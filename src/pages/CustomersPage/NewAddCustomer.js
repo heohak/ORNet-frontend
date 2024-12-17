@@ -244,6 +244,7 @@ function NewAddCustomer({ show, onClose }) {
                                 <Form.Label>Full Name</Form.Label>
                                 <Form.Control
                                     type="text"
+                                    placeholder="Enter Full Name"
                                     value={fullName}
                                     onChange={(e) => setFullName(e.target.value)}
                                     required
@@ -255,6 +256,7 @@ function NewAddCustomer({ show, onClose }) {
                                 <Form.Label>Short Name</Form.Label>
                                 <Form.Control
                                     type="text"
+                                    placeholder="Enter Short Name"
                                     value={shortName}
                                     onChange={(e) => setShortName(e.target.value)}
                                     required

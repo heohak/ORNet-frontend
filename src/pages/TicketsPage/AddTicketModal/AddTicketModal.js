@@ -402,6 +402,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
                                 <Form.Label>Title</Form.Label>
                                 <Form.Control
                                     type="text"
+                                    placeholder="Enter Title"
                                     value={formData.title}
                                     onChange={handleChange}
                                     id="title"
@@ -439,6 +440,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
                                 <Form.Label>Description</Form.Label>
                                 <Form.Control
                                     as="textarea"
+                                    placeholder="Enter Description"
                                     rows={4}
                                     value={formData.description}
                                     onChange={handleChange}
@@ -478,6 +480,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
                                 <Form.Label>Customer Numeration</Form.Label>
                                 <Form.Control
                                     type="text"
+                                    placeholder="Enter Customer Numeration"
                                     value={formData.clientNumeration}
                                     onChange={handleChange}
                                     id="clientNumeration"

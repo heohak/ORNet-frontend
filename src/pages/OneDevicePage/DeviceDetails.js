@@ -434,7 +434,7 @@ function DeviceDetails({
                                     }
                                     className="mb-3"
                                 />
-                                <Button variant="success" onClick={handleAddField}>
+                                <Button variant="primary" onClick={handleAddField}>
                                     Add Field
                                 </Button>
                             </Form>
@@ -472,7 +472,7 @@ function DeviceDetails({
                 </Modal.Body>
                 <Modal.Footer>
                     <Button
-                        variant="secondary"
+                        variant="outline-info"
                         onClick={() => setShowDeviceFieldModal(false)}
                     >
                         Close

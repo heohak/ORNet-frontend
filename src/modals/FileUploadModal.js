@@ -77,7 +77,7 @@ function FileUploadModal({ show, handleClose, uploadEndpoint, onUploadSuccess })
                 </ListGroup>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>Cancel</Button>
+                <Button variant="outline-info" onClick={handleClose}>Cancel</Button>
                 <Button variant="primary" onClick={handleFileUpload}>Upload</Button>
             </Modal.Footer>
         </Modal>

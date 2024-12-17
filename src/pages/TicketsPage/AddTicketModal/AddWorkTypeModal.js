@@ -30,6 +30,7 @@ const AddWorkTypeModal = ({ show, handleClose, onAdd }) => {
                     <Form.Label>Work Type</Form.Label>
                     <Form.Control
                         type="text"
+                        placeholder="Enter Work Type"
                         value={workType}
                         onChange={(e) => setWorkType(e.target.value)}
                     />
