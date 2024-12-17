@@ -90,7 +90,7 @@ function CommentsModal({ show, handleClose, deviceId, isLinkedDevice = false }) 
                 )}
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>Close</Button>
+                <Button variant="outline-info" onClick={handleClose}>Close</Button>
             </Modal.Footer>
         </Modal>
     );

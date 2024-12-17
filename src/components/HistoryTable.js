@@ -4,6 +4,7 @@ import {Table, Container, Button} from 'react-bootstrap';
 import config from "../config/config";
 import '../css/HistoryTable.css';
 import {useLocation, useNavigate} from "react-router-dom";
+import {FaArrowLeft} from "react-icons/fa";
 
 function HistoryTable() {
     const location = useLocation();
@@ -200,8 +201,14 @@ function HistoryTable() {
     return (
         <>
             <Container fluid className="mt-4 table-wrapper">
-                <Button className="mb-3" onClick={() => navigate(-1)}>
-                    Back
+                <Button
+                    variant="link"
+                    onClick={() => navigate(-1)}
+                    className="p-0 me-2 mb-2"
+                    style={{ fontSize: '1.5rem', color: '#0d6efd' }}
+                    aria-label="Go back"
+                >
+                    <FaArrowLeft title="Go back" />
                 </Button>
                 {data.length === 0 ? (
                     <p>No data available</p>

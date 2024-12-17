@@ -143,7 +143,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
     return (
         <Modal show={show} onHide={onHide} size="lg" backdrop="static" keyboard={false}>
             <Modal.Header closeButton>
-                <Modal.Title>Add Technical Information</Modal.Title>
+                <Modal.Title>Add New Technical Information</Modal.Title>
             </Modal.Header>
             <Form onSubmit={handleAddTechnicalInfo}>
                 <Modal.Body>
@@ -157,6 +157,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                         <Form.Label>Name</Form.Label>
                         <Form.Control
                             type="text"
+                            placeholder="Enter Name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
@@ -166,6 +167,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                         <Form.Label>DB Version</Form.Label>
                         <Form.Control
                             type="text"
+                            placeholder="Enter DB Version"
                             value={dbVersion}
                             onChange={(e) => setDbVersion(e.target.value)}
                             required
@@ -179,7 +181,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                             <Col md={4}>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Vendor Name"
+                                    placeholder="Enter Vendor Name"
                                     value={his.vendorName}
                                     onChange={(e) => setHis({ ...his, vendorName: e.target.value })}
                                 />
@@ -187,7 +189,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                             <Col md={4}>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Version"
+                                    placeholder=" Enter Version"
                                     value={his.version}
                                     onChange={(e) => setHis({ ...his, version: e.target.value })}
                                 />
@@ -198,7 +200,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                                     onChange={(date) => setHis({ ...his, updateDate: date })}
                                     dateFormat="dd/MM/yyyy"
                                     className="form-control dark-placeholder"
-                                    placeholderText="Update Date"
+                                    placeholderText="Select an Update Date"
                                     maxDate={new Date()}
                                     isClearable
                                 />
@@ -213,7 +215,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                             <Col md={4}>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Vendor Name"
+                                    placeholder="Enter Vendor Name"
                                     value={pacs.vendorName}
                                     onChange={(e) => setPacs({ ...pacs, vendorName: e.target.value })}
                                 />
@@ -221,7 +223,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                             <Col md={4}>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Version"
+                                    placeholder="Enter Version"
                                     value={pacs.version}
                                     onChange={(e) => setPacs({ ...pacs, version: e.target.value })}
                                 />
@@ -232,7 +234,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                                     onChange={(date) => setPacs({ ...pacs, updateDate: date })}
                                     dateFormat="dd/MM/yyyy"
                                     className="form-control dark-placeholder"
-                                    placeholderText="Update Date"
+                                    placeholderText="Select an Update Date"
                                     maxDate={new Date()}
                                     isClearable
                                 />
@@ -247,7 +249,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                             <Col md={4}>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Vendor Name"
+                                    placeholder="Enter Vendor Name"
                                     value={dicom.vendorName}
                                     onChange={(e) => setDicom({ ...dicom, vendorName: e.target.value })}
                                 />
@@ -255,7 +257,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                             <Col md={4}>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Version"
+                                    placeholder="Enter Version"
                                     value={dicom.version}
                                     onChange={(e) => setDicom({ ...dicom, version: e.target.value })}
                                 />
@@ -266,7 +268,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                                     onChange={(date) => setDicom({ ...dicom, updateDate: date })}
                                     dateFormat="dd/MM/yyyy"
                                     className="form-control dark-placeholder"
-                                    placeholderText="Update Date"
+                                    placeholderText="Select an Update Date"
                                     maxDate={new Date()}
                                     isClearable
                                 />
@@ -281,7 +283,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                             <Col md={4}>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Vendor Name"
+                                    placeholder="Enter Vendor Name"
                                     value={hl7.vendorName}
                                     onChange={(e) => setHl7({ ...hl7, vendorName: e.target.value })}
                                 />
@@ -289,7 +291,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                             <Col md={4}>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Version"
+                                    placeholder="Enter Version"
                                     value={hl7.version}
                                     onChange={(e) => setHl7({ ...hl7, version: e.target.value })}
                                 />
@@ -300,7 +302,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                                     onChange={(date) => setHl7({ ...hl7, updateDate: date })}
                                     dateFormat="dd/MM/yyyy"
                                     className="form-control dark-placeholder"
-                                    placeholderText="Update Date"
+                                    placeholderText="Select an Update Date"
                                     maxDate={new Date()}
                                     isClearable
                                 />
@@ -315,7 +317,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                             <Col md={4}>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Vendor Name"
+                                    placeholder="Enter Vendor Name"
                                     value={lis.vendorName}
                                     onChange={(e) => setLis({ ...lis, vendorName: e.target.value })}
                                 />
@@ -323,7 +325,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                             <Col md={4}>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Version"
+                                    placeholder="Enter Version"
                                     value={lis.version}
                                     onChange={(e) => setLis({ ...lis, version: e.target.value })}
                                 />
@@ -334,7 +336,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                                     onChange={(date) => setLis({ ...lis, updateDate: date })}
                                     dateFormat="dd/MM/yyyy"
                                     className="form-control dark-placeholder"
-                                    placeholderText="Update Date"
+                                    placeholderText="Select an Update Date"
                                     maxDate={new Date()}
                                     isClearable
                                 />
@@ -357,7 +359,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                             <Col md={4}>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Link"
+                                    placeholder="Enter Link"
                                     value={returnImagesToLIS.link}
                                     onChange={(e) => setReturnImagesToLIS({ ...returnImagesToLIS, link: e.target.value })}
                                 />
@@ -368,7 +370,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                                     onChange={(date) => setReturnImagesToLIS({ ...returnImagesToLIS, updateDate: date })}
                                     dateFormat="dd/MM/yyyy"
                                     className="form-control dark-placeholder"
-                                    placeholderText="Update Date"
+                                    placeholderText="Select an Update Date"
                                     maxDate={new Date()}
                                     isClearable
                                 />
@@ -383,7 +385,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                             <Col md={6}>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Version"
+                                    placeholder="Enter Version"
                                     value={orNetAPI.version}
                                     onChange={(e) => setOrNetAPI({ ...orNetAPI, version: e.target.value })}
                                 />
@@ -394,7 +396,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                                     onChange={(date) => setOrNetAPI({ ...orNetAPI, updateDate: date })}
                                     dateFormat="dd/MM/yyyy"
                                     className="form-control dark-placeholder"
-                                    placeholderText="Update Date"
+                                    placeholderText="Select an Update Date"
                                     maxDate={new Date()}
                                     isClearable
                                 />
@@ -410,7 +412,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                             onChange={(date) => setTxtIntegrationDate(date)}
                             dateFormat="dd/MM/yyyy"
                             className="form-control dark-placeholder"
-                            placeholderText="Integration Date"
+                            placeholderText="Select an Integration Date"
                             maxDate={new Date()}
                             isClearable
                         />
@@ -423,7 +425,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                             <Col md={4}>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Vendor Name"
+                                    placeholder="Enter Vendor Name"
                                     value={customerAPI.vendorName}
                                     onChange={(e) => setCustomerAPI({ ...customerAPI, vendorName: e.target.value })}
                                 />
@@ -431,7 +433,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                             <Col md={4}>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Version"
+                                    placeholder=" Enter Version"
                                     value={customerAPI.version}
                                     onChange={(e) => setCustomerAPI({ ...customerAPI, version: e.target.value })}
                                 />
@@ -442,7 +444,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                                     onChange={(date) => setCustomerAPI({ ...customerAPI, updateDate: date })}
                                     dateFormat="dd/MM/yyyy"
                                     className="form-control dark-placeholder"
-                                    placeholderText="Update Date"
+                                    placeholderText="Select an Update Date"
                                     maxDate={new Date()}
                                     isClearable
                                 />
@@ -457,7 +459,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                             <Col md={6}>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Version"
+                                    placeholder="Enter Version"
                                     value={orNetAPIClient.version}
                                     onChange={(e) => setOrNetAPIClient({ ...orNetAPIClient, version: e.target.value })}
                                 />
@@ -468,7 +470,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                                     onChange={(date) => setOrNetAPIClient({ ...orNetAPIClient, updateDate: date })}
                                     dateFormat="dd/MM/yyyy"
                                     className="form-control dark-placeholder"
-                                    placeholderText="Update Date"
+                                    placeholderText="Select an Update Date"
                                     maxDate={new Date()}
                                     isClearable
                                 />
@@ -483,7 +485,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                             <Col md={6}>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Version"
+                                    placeholder="Enter Version"
                                     value={consultationModule.version}
                                     onChange={(e) => setConsultationModule({ ...consultationModule, version: e.target.value })}
                                 />
@@ -494,7 +496,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                                     onChange={(date) => setConsultationModule({ ...consultationModule, updateDate: date })}
                                     dateFormat="dd/MM/yyyy"
                                     className="form-control dark-placeholder"
-                                    placeholderText="Update Date"
+                                    placeholderText="Select an Update Date"
                                     maxDate={new Date()}
                                     isClearable
                                 />
@@ -509,7 +511,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                             <Col md={6}>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Version"
+                                    placeholder="Enter Version"
                                     value={aiModule.version}
                                     onChange={(e) => setAiModule({ ...aiModule, version: e.target.value })}
                                 />
@@ -520,7 +522,7 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                                     onChange={(date) => setAiModule({ ...aiModule, updateDate: date })}
                                     dateFormat="dd/MM/yyyy"
                                     className="form-control dark-placeholder"
-                                    placeholderText="Update Date"
+                                    placeholderText="Select an Update Date"
                                     maxDate={new Date()}
                                     isClearable
                                 />

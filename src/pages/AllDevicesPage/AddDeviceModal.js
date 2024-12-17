@@ -326,6 +326,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                                     <Form.Label>Department</Form.Label>
                                     <Form.Control
                                         type="text"
+                                        placeholder="Enter Department"
                                         value={department}
                                         onChange={(e) => setDepartment(e.target.value)}
                                     />
@@ -336,6 +337,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                                     <Form.Label>Room</Form.Label>
                                     <Form.Control
                                         type="text"
+                                        placeholder="Enter Room"
                                         value={room}
                                         onChange={(e) => setRoom(e.target.value)}
                                     />
@@ -350,6 +352,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                                     <Form.Label>Serial Number</Form.Label>
                                     <Form.Control
                                         type="text"
+                                        placeholder="Enter Serial Number"
                                         value={serialNumber}
                                         onChange={(e) => setSerialNumber(e.target.value)}
                                         required
@@ -363,6 +366,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                                     <Form.Label>License Number</Form.Label>
                                     <Form.Control
                                         type="text"
+                                        placeholder="Enter License Number"
                                         value={licenseNumber}
                                         onChange={(e) => setLicenseNumber(e.target.value)}
                                     />
@@ -377,6 +381,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                                     <Form.Label>Version</Form.Label>
                                     <Form.Control
                                         type="text"
+                                        placeholder="Enter Version"
                                         value={version}
                                         onChange={(e) => setVersion(e.target.value)}
                                     />
@@ -401,6 +406,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                                     <Form.Label>Software Key</Form.Label>
                                     <Form.Control
                                         type="text"
+                                        placeholder="Enter Software Key"
                                         value={softwareKey}
                                         onChange={(e) => setSoftwareKey(e.target.value)}
                                     />
@@ -439,6 +445,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                                         <Form.Label>First IP Address</Form.Label>
                                         <Form.Control
                                             type="text"
+                                            placeholder="Enter First IP Address"
                                             value={firstIPAddress}
                                             onChange={(e) => setFirstIPAddress(e.target.value)}
                                         />
@@ -449,6 +456,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                                         <Form.Label>Second IP Address</Form.Label>
                                         <Form.Control
                                             type="text"
+                                            placeholder="Enter Second IP Address"
                                             value={secondIPAddress}
                                             onChange={(e) => setSecondIPAddress(e.target.value)}
                                         />
@@ -459,6 +467,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                                         <Form.Label>Subnet Mask</Form.Label>
                                         <Form.Control
                                             type="text"
+                                            placeholder="Enter Subnet Mask"
                                             value={subnetMask}
                                             onChange={(e) => setSubnetMask(e.target.value)}
                                         />

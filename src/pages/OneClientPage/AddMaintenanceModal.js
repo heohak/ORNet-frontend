@@ -115,7 +115,7 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, deviceId
     return (
         <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
-                <Modal.Title>Add Maintenance</Modal.Title>
+                <Modal.Title>Add New Maintenance</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 {addError && (
@@ -129,6 +129,7 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, deviceId
                         <Form.Label>Maintenance Name</Form.Label>
                         <Form.Control
                             type="text"
+                            placeholder="Enter Maintenance Name"
                             value={maintenanceName}
                             onChange={(e) => setMaintenanceName(e.target.value)}
                             required
@@ -150,6 +151,7 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, deviceId
                         <Form.Label>Comment</Form.Label>
                         <Form.Control
                             as="textarea"
+                            placeholder="Enter Comment"
                             rows={4}
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}

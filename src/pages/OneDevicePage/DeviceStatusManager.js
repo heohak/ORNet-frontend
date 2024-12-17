@@ -155,7 +155,7 @@ function DeviceStatusManager({ deviceId, introducedDate, writtenOffDate, setRefr
                     </Modal.Body>
                     <Modal.Footer>
                         <Button
-                            variant="secondary"
+                            variant="outline-info"
                             onClick={() => setShowWrittenOffModal(false)}
                         >
                             Close
@@ -190,7 +190,7 @@ function DeviceStatusManager({ deviceId, introducedDate, writtenOffDate, setRefr
                     </Modal.Body>
                     <Modal.Footer>
                         <Button
-                            variant="secondary"
+                            variant="outline-info"
                             onClick={() => setShowReactivateModal(false)}
                         >
                             Close

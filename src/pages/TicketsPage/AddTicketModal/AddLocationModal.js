@@ -90,7 +90,7 @@ function AddLocationModal({ show, onHide, onAdd }) {
                             type="text"
                             value={newLocation.name}
                             onChange={(e) => setNewLocation({ ...newLocation, name: e.target.value })}
-                            placeholder="Enter name"
+                            placeholder="Enter Name"
                             required
                         />
                     </Form.Group>
@@ -100,7 +100,7 @@ function AddLocationModal({ show, onHide, onAdd }) {
                             type="text"
                             value={newLocation.city}
                             onChange={(e) => setNewLocation({ ...newLocation, city: e.target.value })}
-                            placeholder="Enter city"
+                            placeholder="Enter City"
                             required
                         />
                     </Form.Group>
@@ -110,7 +110,7 @@ function AddLocationModal({ show, onHide, onAdd }) {
                             type="text"
                             value={newLocation.country}
                             onChange={(e) => setNewLocation({ ...newLocation, country: e.target.value })}
-                            placeholder="Enter country"
+                            placeholder="Enter Country"
                             required
                         />
                     </Form.Group>
@@ -120,7 +120,7 @@ function AddLocationModal({ show, onHide, onAdd }) {
                             type="email"
                             value={newLocation.email}
                             onChange={(e) => setNewLocation({ ...newLocation, email: e.target.value })}
-                            placeholder="Enter email"
+                            placeholder="Enter Email"
                             required
                         />
                     </Form.Group>
@@ -130,7 +130,7 @@ function AddLocationModal({ show, onHide, onAdd }) {
                             type="text"
                             value={newLocation.postalCode}
                             onChange={(e) => setNewLocation({ ...newLocation, postalCode: e.target.value })}
-                            placeholder="Enter postal code"
+                            placeholder="Enter Postal Code"
                             required
                             isInvalid={!!postalCodeError}
                         />
@@ -144,7 +144,7 @@ function AddLocationModal({ show, onHide, onAdd }) {
                             type="text"
                             value={newLocation.streetAddress}
                             onChange={(e) => setNewLocation({ ...newLocation, streetAddress: e.target.value })}
-                            placeholder="Enter street address"
+                            placeholder="Enter Street Address"
                             required
                         />
                     </Form.Group>
@@ -154,7 +154,7 @@ function AddLocationModal({ show, onHide, onAdd }) {
                             type="text"
                             value={newLocation.phone}
                             onChange={(e) => setNewLocation({ ...newLocation, phone: e.target.value })}
-                            placeholder="Enter phone number"
+                            placeholder="Enter Phone Number"
                             isInvalid={!!phoneNumberError}
                         />
                         <Form.Control.Feedback type="invalid">
