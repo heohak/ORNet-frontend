@@ -28,6 +28,7 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showRootCauseModal, setShowRootCauseModal] = useState(false);
     const [showAddActivityModal, setShowAddActivityModal] = useState(false);
+    const [error, setError] = useState("");
 
 
     useEffect(() => {
@@ -111,9 +112,13 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
     };
 
     const handleDelete = async() => {
-        await axiosInstance.delete(`${config.API_BASE_URL}/ticket/delete/${ticket.id}`);
-        reFetch();
-        onClose();
+        try {
+            await axiosInstance.delete(`${config.API_BASE_URL}/admin/ticket/delete/${ticket.id}`);
+            reFetch();
+            onClose();
+        } catch (err) {
+            setError(err.response?.data || "An error occurred");
+        }
     }
 
 
@@ -212,8 +217,9 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
             </Modal.Footer>
             <TicketDeleteModal
                 show={showDeleteModal}
-                handleClose={() => setShowDeleteModal(false)}
+                handleClose={() => {setShowDeleteModal(false); setError("");}}
                 handleDelete={handleDelete}
+                error={error}
             />
         </Modal>
     );
