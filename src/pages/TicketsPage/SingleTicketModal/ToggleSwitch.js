@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../../../css/ToggleSwitch.css";
 import axios from "axios";
 import config from "../../../config/config";
+import axiosInstance from "../../../config/axiosInstance";
 
 const ToggleSwitch = ({ ticket, reFetch }) => {
     const [isActive, setIsActive] = useState(ticket.paid === true); // Initialize based on ticket.paid
@@ -23,7 +24,7 @@ const ToggleSwitch = ({ ticket, reFetch }) => {
                 : `${config.API_BASE_URL}/ticket/remove/paid/${ticket.id}`;
 
             // Make a request to the appropriate endpoint based on the new status
-            await axios.put(endpoint);
+            await axiosInstance.put(endpoint);
             reFetch();
 
         } catch (error) {

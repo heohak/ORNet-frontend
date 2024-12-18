@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import config from "../../config/config";
 import { Form, Button } from "react-bootstrap";
+import axiosInstance from "../../config/axiosInstance";
 
 const MaintenanceComment = ({ maintenance }) => {
     const [isEditing, setIsEditing] = useState(false);  // Edit mode state
@@ -12,7 +13,7 @@ const MaintenanceComment = ({ maintenance }) => {
 
     const handleSaveComment = async () => {
         try {
-            await axios.put(`${config.API_BASE_URL}/maintenance/update/${maintenance.id}`, {
+            await axiosInstance.put(`${config.API_BASE_URL}/maintenance/update/${maintenance.id}`, {
                 comment: comment,
             });
             setIsEditing(false); // Exit edit mode after saving

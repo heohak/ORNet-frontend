@@ -3,6 +3,7 @@ import { Modal, Form, Button, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import config from '../../config/config';
 import { FaTrash } from 'react-icons/fa';
+import axiosInstance from "../../config/axiosInstance";
 
 function EditWorkTypeModal({ show, onHide, workType, onUpdate }) {
     const [editedWorkType, setEditedWorkType] = useState(workType.workType);
@@ -13,7 +14,7 @@ function EditWorkTypeModal({ show, onHide, workType, onUpdate }) {
     const handleUpdate = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(
+            await axiosInstance.put(
                 `${config.API_BASE_URL}/work-type/classificator/update/${workType.id}`,
                 {
                     workType: editedWorkType,
@@ -29,7 +30,7 @@ function EditWorkTypeModal({ show, onHide, workType, onUpdate }) {
 
     const handleDelete = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/search`, {
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/ticket/search`, {
                 params: {
                     workTypeId: workType.id,
                 },
@@ -48,7 +49,7 @@ function EditWorkTypeModal({ show, onHide, workType, onUpdate }) {
 
     const deleteClassificator = async () => {
         try {
-            await axios.delete(`${config.API_BASE_URL}/work-type/classificator/${workType.id}`);
+            await axiosInstance.delete(`${config.API_BASE_URL}/work-type/classificator/${workType.id}`);
             if (onUpdate) {
                 onUpdate();
             }

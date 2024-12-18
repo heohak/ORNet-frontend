@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Container, Form, Button, Alert, Modal } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
 import config from '../../config/config';
+import axiosInstance from "../../config/axiosInstance";
 
 function EditSoftware() {
     const location = useLocation();
@@ -32,7 +33,7 @@ function EditSoftware() {
     const handleUpdateSoftware = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(`${config.API_BASE_URL}/software/update/${software.id}`, {
+            await axiosInstance.put(`${config.API_BASE_URL}/software/update/${software.id}`, {
                 name,
                 dbVersion,
                 his,
@@ -56,12 +57,12 @@ function EditSoftware() {
 
     const fetchSoftwareWithClient = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/software/${software.id}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/software/${software.id}`);
             const clientId = response.data.clientId;
 
             if (clientId) {
                 // Fetch client details using clientId
-                const clientResponse = await axios.get(`${config.API_BASE_URL}/client/${clientId}`);
+                const clientResponse = await axiosInstance.get(`${config.API_BASE_URL}/client/${clientId}`);
                 setAssociatedClient(clientResponse.data); // Assuming API returns full client details
             } else {
                 // No associated client
@@ -75,7 +76,7 @@ function EditSoftware() {
 
     const handleDeleteSoftware = async () => {
         try {
-            await axios.delete(`${config.API_BASE_URL}/software/${software.id}`);
+            await axiosInstance.delete(`${config.API_BASE_URL}/software/${software.id}`);
             navigate(-1);
         } catch (error) {
             setError(error.message);

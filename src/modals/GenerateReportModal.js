@@ -7,6 +7,7 @@ import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../css/OneClientPage/AddActivityModal.css';
 import {format} from "date-fns";
+import axiosInstance from "../config/axiosInstance";
 
 function GenerateReportModal({ show, handleClose }) {
     const [clients, setClients] = useState([]);
@@ -29,7 +30,7 @@ function GenerateReportModal({ show, handleClose }) {
 
     const fetchClients = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/client/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/client/all`);
             setClients(response.data);
         } catch (error) {
             setError('Error fetching clients.');
@@ -62,7 +63,7 @@ function GenerateReportModal({ show, handleClose }) {
                     ? `${config.API_BASE_URL}/report/all-clients-tickets`
                     : `${config.API_BASE_URL}/report/all-clients-maintenances`;
 
-                response = await axios.get(reportEndpoint, {
+                response = await axiosInstance.get(reportEndpoint, {
                     params: {
                         startDate: formattedStartDate,
                         endDate: formattedEndDate,
@@ -77,7 +78,7 @@ function GenerateReportModal({ show, handleClose }) {
                     : `${config.API_BASE_URL}/report/client-maintenances`;
 
                 // Generate report for selected client
-                response = await axios.get(reportEndpoint, {
+                response = await axiosInstance.get(reportEndpoint, {
                     params: {
                         clientId: selectedClientId,
                         startDate: formattedStartDate,

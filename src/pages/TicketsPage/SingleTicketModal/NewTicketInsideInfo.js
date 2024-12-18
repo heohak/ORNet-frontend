@@ -4,6 +4,7 @@ import React, {useState} from "react";
 import axios from "axios";
 import config from "../../../config/config";
 import TextareaAutosize from "react-textarea-autosize";
+import axiosInstance from "../../../config/axiosInstance";
 
 
 const NewTicketInsideInfo = ({ ticket, reFetch }) => {
@@ -13,7 +14,7 @@ const NewTicketInsideInfo = ({ ticket, reFetch }) => {
 
     const handleSaveInsideInfo = async () => {
         try {
-            await axios.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`, {
+            await axiosInstance.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`, {
                 insideInfo: insideInfo
             });
             setIsEditing(false); // Exit edit mode after saving

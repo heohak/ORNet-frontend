@@ -20,6 +20,7 @@ import '../../css/Customers.css';
 import noImg from '../../assets/no-img.jpg';
 import personIcon from '../../assets/thumbnail_person icon.png';
 import {useNavigate} from "react-router-dom";
+import axiosInstance from "../../config/axiosInstance";
 
 function Customers() {
     const [customers, setCustomers] = useState([]);
@@ -56,7 +57,7 @@ function Customers() {
             }
             if (country) params.append('country', country);
 
-            const response = await axios.get(`${config.API_BASE_URL}/client/search`, { params });
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/client/search`, { params });
             const customersData = response.data;
 
             setCustomers(customersData);
@@ -71,7 +72,7 @@ function Customers() {
 
     const fetchAvailableCountries = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/client/countries`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/client/countries`);
             setAvailableCountries(response.data);
         } catch (error) {
             console.error('Error fetching countries:', error);
@@ -80,7 +81,7 @@ function Customers() {
 
     const fetchActivityDates = async() => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/client/activity/dates`)
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/client/activity/dates`)
             setActivityDates(response.data);
         } catch (error) {
             console.error('Error fetching activity dates', error);
@@ -100,7 +101,7 @@ function Customers() {
             const countryCode = customer.country;
             if (!flags[countryCode]) { // Avoid duplicate fetches
                 try {
-                    const response = await axios.get(`${countryFlagApi}/${countryCode}`);
+                    const response = await axiosInstance.get(`${countryFlagApi}/${countryCode}`);
                     flags[countryCode] = response.data[0].flags.png;
                 } catch (error) {
                     console.error(`Error fetching flag for ${countryCode}:`, error);

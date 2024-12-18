@@ -3,13 +3,14 @@ import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../../config/config";
+import axiosInstance from "../../../config/axiosInstance";
 
 const AddWorkTypeModal = ({ show, handleClose, onAdd }) => {
     const [workType, setWorkType] = useState('');
 
     const handleAddWorkType = async () => {
         try {
-            const response = await axios.post(`${config.API_BASE_URL}/work-type/classificator/add`, {
+            const response = await axiosInstance.post(`${config.API_BASE_URL}/work-type/classificator/add`, {
                 workType,
             });
             setWorkType('');

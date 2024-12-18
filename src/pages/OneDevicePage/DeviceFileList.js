@@ -4,7 +4,8 @@ import config from "../../config/config";
 import FileUploadModal from "../../modals/FileUploadModal";
 import FileList from "../../modals/FileList";
 import { Button } from "react-bootstrap";
-import { FaUpload } from 'react-icons/fa'; // Import the upload icon
+import { FaUpload } from 'react-icons/fa';
+import axiosInstance from "../../config/axiosInstance"; // Import the upload icon
 
 const DeviceFileList = ({ deviceId }) => {
     const [files, setFiles] = useState([]);
@@ -16,7 +17,7 @@ const DeviceFileList = ({ deviceId }) => {
 
     const fetchFiles = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/device/files/${deviceId}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/device/files/${deviceId}`);
             setFiles(response.data);
         } catch (error) {
             console.error(error.message);

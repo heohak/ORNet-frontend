@@ -6,6 +6,7 @@ import MaintenanceModal from './MaintenanceModal';
 import AddMaintenanceModal from "./AddMaintenanceModal";
 import '../../css/Customers.css';
 import '../../css/DarkenedModal.css';
+import axiosInstance from "../../config/axiosInstance";
 
 function LocationMaintenances({ show, handleClose, location, setRefresh }) {
     const [maintenances, setMaintenances] = useState([]);
@@ -27,7 +28,7 @@ function LocationMaintenances({ show, handleClose, location, setRefresh }) {
 
     const fetchLocationMaintenances = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/location/maintenances/${location.id}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/location/maintenances/${location.id}`);
             const sortedMaintenances = response.data.sort((a, b) => new Date(b.maintenanceDate) - new Date(a.maintenanceDate));
             setMaintenances(sortedMaintenances);
         } catch (error) {

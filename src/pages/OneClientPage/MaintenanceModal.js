@@ -6,6 +6,7 @@ import { FaUpload } from 'react-icons/fa';
 import FileList from '../../modals/FileList';
 import MaintenanceComment from './MaintenanceComment';
 import { format } from 'date-fns';
+import axiosInstance from "../../config/axiosInstance";
 
 function MaintenanceModal({ show, handleClose, maintenanceId, locationName }) {
     const [maintenance, setMaintenance] = useState(null);
@@ -24,7 +25,7 @@ function MaintenanceModal({ show, handleClose, maintenanceId, locationName }) {
 
     const fetchMaintenanceDetails = async (id) => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/maintenance/${id}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/maintenance/${id}`);
             const maintenanceData = response.data;
 
             // Extract maintenance name and date directly from the maintenance object
@@ -44,7 +45,7 @@ function MaintenanceModal({ show, handleClose, maintenanceId, locationName }) {
 
     const fetchMaintenanceFiles = async (id) => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/maintenance/files/${id}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/maintenance/files/${id}`);
             setFiles(response.data);
         } catch (error) {
             console.error('Error fetching maintenance files:', error);
@@ -58,7 +59,7 @@ function MaintenanceModal({ show, handleClose, maintenanceId, locationName }) {
                 const formData = new FormData();
                 formData.append('files', selectedFile);
 
-                await axios.put(`${config.API_BASE_URL}/maintenance/upload/${maintenance.id}`, formData, {
+                await axiosInstance.put(`${config.API_BASE_URL}/maintenance/upload/${maintenance.id}`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },

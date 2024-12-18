@@ -5,7 +5,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import config from "../../../config/config";
 import Datetime from 'react-datetime';
-import 'react-datetime/css/react-datetime.css'; // Import the CSS for Datetime component
+import 'react-datetime/css/react-datetime.css';
+import axiosInstance from "../../../config/axiosInstance"; // Import the CSS for Datetime component
 
 const NewTicketResponse = ({ ticket }) => {
     const [isEditing, setIsEditing] = useState(false);  // Edit mode state
@@ -14,7 +15,7 @@ const NewTicketResponse = ({ ticket }) => {
 
     const handleSaveResponse = async () => {
         try {
-            await axios.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`, {
+            await axiosInstance.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`, {
                 response: response,
                 responseDateTime: responseDateTime // Send the response datetime to the backend
             });

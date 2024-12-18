@@ -15,6 +15,7 @@ import '../../css/Customers.css';
 import '../../css/OneClientPage/OneClient.css';
 import CustomerActivity from "./Activity/CustomerActivity";
 import {FaArrowLeft} from "react-icons/fa";
+import axiosInstance from "../../config/axiosInstance";
 
 function OneClient() {
     const { clientId } = useParams();
@@ -46,14 +47,14 @@ function OneClient() {
             try {
                 const [clientRes, workerRes, softwareRes, ticketsRes, maintenanceRes, statusesRes,
                     locationsRes, activityRes] = await Promise.all([
-                    axios.get(`${config.API_BASE_URL}/client/${clientId}`),
-                    axios.get(`${config.API_BASE_URL}/worker/${clientId}`),
-                    axios.get(`${config.API_BASE_URL}/software/client/${clientId}`),
-                    axios.get(`${config.API_BASE_URL}/ticket/client/${clientId}`),
-                    axios.get(`${config.API_BASE_URL}/client/maintenance/${clientId}`),
-                    axios.get(`${config.API_BASE_URL}/ticket/classificator/all`),
-                    axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`),
-                    axios.get(`${config.API_BASE_URL}/client/activities/${clientId}`)
+                    axiosInstance.get(`${config.API_BASE_URL}/client/${clientId}`),
+                    axiosInstance.get(`${config.API_BASE_URL}/worker/${clientId}`),
+                    axiosInstance.get(`${config.API_BASE_URL}/software/client/${clientId}`),
+                    axiosInstance.get(`${config.API_BASE_URL}/ticket/client/${clientId}`),
+                    axiosInstance.get(`${config.API_BASE_URL}/client/maintenance/${clientId}`),
+                    axiosInstance.get(`${config.API_BASE_URL}/ticket/classificator/all`),
+                    axiosInstance.get(`${config.API_BASE_URL}/client/locations/${clientId}`),
+                    axiosInstance.get(`${config.API_BASE_URL}/client/activities/${clientId}`)
                 ]);
 
                 setClient(clientRes.data);

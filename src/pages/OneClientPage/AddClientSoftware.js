@@ -7,6 +7,7 @@ import config from '../../config/config';
 import Select from 'react-select';
 import AddTechnicalInfoModal from './AddTechnicalInfoModal'; // Import the new component
 import '../../css/DarkenedModal.css';
+import axiosInstance from "../../config/axiosInstance";
 
 function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) {
     const [softwareList, setSoftwareList] = useState([]);
@@ -21,7 +22,7 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
 
     const fetchSoftware = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/software/not-used`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/software/not-used`);
             const sortedSofts = response.data.sort((a, b) => a.name.localeCompare(b.name));
             setSoftwareList(sortedSofts.map(software => ({ value: software.id, label: software.name })));
         } catch (error) {
@@ -34,7 +35,7 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
         setIsSubmittingMainForm(true);
         if (selectedSoftware) {
             try {
-                await axios.put(`${config.API_BASE_URL}/software/add/client/${selectedSoftware.value}/${clientId}`);
+                await axiosInstance.put(`${config.API_BASE_URL}/software/add/client/${selectedSoftware.value}/${clientId}`);
                 setRefresh(prev => !prev); // Trigger refresh by toggling state
                 fetchSoftware();
                 handleClose();

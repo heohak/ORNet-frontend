@@ -11,6 +11,7 @@ import CreatableSelect from 'react-select/creatable';
 
 
 import { format } from 'date-fns';
+import axiosInstance from "../../config/axiosInstance";
 
 function AddClientDevice({ clientId, onClose, setRefresh }) {
 
@@ -49,8 +50,8 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
     const fetchData = async () => {
         try {
             const [locationsRes, classificatorsRes] = await Promise.all([
-                axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`),
-                axios.get(`${config.API_BASE_URL}/device/classificator/all`)
+                axiosInstance.get(`${config.API_BASE_URL}/client/locations/${clientId}`),
+                axiosInstance.get(`${config.API_BASE_URL}/device/classificator/all`)
             ]);
             const sortedLocations = locationsRes.data.sort((a, b) => a.name.localeCompare(b.name))
             setLocations(sortedLocations);
@@ -63,7 +64,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
     };
     const fetchPredefinedDeviceNames = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/predefined/names`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/predefined/names`);
             // Map the data to the format expected by react-select
             const options = response.data.map((name) => ({
                 value: name.name,
@@ -92,7 +93,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
             const formattedVersionUpdateDate = versionUpdateDate ? format(versionUpdateDate, 'yyyy-MM-dd') : null;
             const formattedIntroducedDate = introducedDate ? format(introducedDate, 'yyyy-MM-dd') : null;
 
-            const deviceResponse = await axios.post(`${config.API_BASE_URL}/device/add`, {
+            const deviceResponse = await axiosInstance.post(`${config.API_BASE_URL}/device/add`, {
                 clientId,
                 locationId,
                 deviceName,
@@ -112,7 +113,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
             const deviceId = deviceResponse.data.token;
 
             if (deviceClassificatorId) {
-                await axios.put(`${config.API_BASE_URL}/device/classificator/${deviceId}/${deviceClassificatorId}`);
+                await axiosInstance.put(`${config.API_BASE_URL}/device/classificator/${deviceId}/${deviceClassificatorId}`);
             }
 
             setRefresh(prev => !prev);
@@ -136,7 +137,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
         }
 
         try {
-            const response = await axios.post(`${config.API_BASE_URL}/device/classificator/add`, {
+            const response = await axiosInstance.post(`${config.API_BASE_URL}/device/classificator/add`, {
                 name: newClassificator,
             });
 

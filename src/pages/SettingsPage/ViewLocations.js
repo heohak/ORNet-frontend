@@ -14,6 +14,7 @@ import config from '../../config/config';
 import AddLocationModal from '../OneClientPage/AddLocationModal';
 import {FaArrowLeft, FaEdit} from 'react-icons/fa';
 import { validatePhoneAndPostalCode } from '../../utils/Validation';
+import axiosInstance from "../../config/axiosInstance";
 
 function ViewLocations() {
     const [locations, setLocations] = useState([]);
@@ -54,7 +55,7 @@ function ViewLocations() {
         const fetchLocations = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/location/search`, {
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/location/search`, {
                     params: { q: debouncedQuery.length >= 3 ? debouncedQuery : '' },
                 });
                 setLocations(response.data);
@@ -98,7 +99,7 @@ function ViewLocations() {
         );
         if (isValid) {
             try {
-                await axios.put(
+                await axiosInstance.put(
                     `${config.API_BASE_URL}/location/update/${selectedLocation.id}`,
                     {
                         name: editName,
@@ -111,7 +112,7 @@ function ViewLocations() {
                     }
                 );
                 // Refresh the locations list
-                const response = await axios.get(`${config.API_BASE_URL}/location/search`, {
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/location/search`, {
                     params: { q: debouncedQuery.length >= 3 ? debouncedQuery : '' },
                 });
                 setLocations(response.data);
@@ -125,7 +126,7 @@ function ViewLocations() {
 
     const fetchRelatedEntities = async () => {
         try {
-            const clientResponse = await axios.get(`${config.API_BASE_URL}/client/search`, {
+            const clientResponse = await axiosInstance.get(`${config.API_BASE_URL}/client/search`, {
                 params: { locationId: selectedLocation.id },
             });
             setRelatedClients(clientResponse.data);
@@ -133,7 +134,7 @@ function ViewLocations() {
             const clientIds = clientResponse.data.map((client) => client.id);
             const workerResponse = await Promise.all(
                 clientIds.map((clientId) =>
-                    axios.get(`${config.API_BASE_URL}/worker/search`, { params: { clientId } })
+                    axiosInstance.get(`${config.API_BASE_URL}/worker/search`, { params: { clientId } })
                 )
             );
             const workers = workerResponse.flatMap((res) => res.data);
@@ -150,9 +151,9 @@ function ViewLocations() {
 
     const handleDeleteLocation = async () => {
         try {
-            await axios.delete(`${config.API_BASE_URL}/location/${selectedLocation.id}`);
+            await axiosInstance.delete(`${config.API_BASE_URL}/location/${selectedLocation.id}`);
             // Refresh the locations list
-            const response = await axios.get(`${config.API_BASE_URL}/location/search`, {
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/location/search`, {
                 params: { q: debouncedQuery.length >= 3 ? debouncedQuery : '' },
             });
             setLocations(response.data);
@@ -227,7 +228,7 @@ function ViewLocations() {
                                 return (
                                     <Row
                                         key={location.id}
-                                        className="align-items-center"
+                                        className="align-items-center py-1"
                                         style={{ backgroundColor: rowBgColor }}
                                     >
                                         <Col md={3}>{location.name}</Col>
@@ -239,7 +240,7 @@ function ViewLocations() {
                                         <Col md={1}>
                                             <Button
                                                 variant="link"
-                                                className="p-0"
+                                                className="d-flex p-0"
                                                 onClick={() => handleEdit(location)}
                                             >
                                                 <FaEdit />

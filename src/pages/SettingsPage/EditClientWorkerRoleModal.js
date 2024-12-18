@@ -4,6 +4,7 @@ import axios from 'axios';
 import config from '../../config/config';
 import EditWorkerRoleModal from '../../modals/EditWorkerRoleModal';
 import DeleteConfirmationModal from '../../modals/DeleteConfirmationModal';
+import axiosInstance from "../../config/axiosInstance";
 
 function EditClientWorkerRoleModal({ show, onHide, role, onUpdate }) {
     const [roleName, setRoleName] = useState(role?.role || '');
@@ -16,7 +17,7 @@ function EditClientWorkerRoleModal({ show, onHide, role, onUpdate }) {
     const handleUpdateRole = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(`${config.API_BASE_URL}/worker/classificator/update/${role.id}`, {
+            await axiosInstance.put(`${config.API_BASE_URL}/worker/classificator/update/${role.id}`, {
                 role: roleName,
             });
             onUpdate();
@@ -28,7 +29,7 @@ function EditClientWorkerRoleModal({ show, onHide, role, onUpdate }) {
 
     const handleDeleteRole = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/worker/search`, {
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/worker/search`, {
                 params: {
                     roleId: role.id,
                 },
@@ -42,7 +43,7 @@ function EditClientWorkerRoleModal({ show, onHide, role, onUpdate }) {
                 const workerListWithEmployer = await Promise.all(
                     workers.map(async (worker) => {
                         try {
-                            const employerResponse = await axios.get(
+                            const employerResponse = await axiosInstance.get(
                                 `${config.API_BASE_URL}/worker/employer/${worker.id}`
                             );
                             return {
@@ -66,7 +67,7 @@ function EditClientWorkerRoleModal({ show, onHide, role, onUpdate }) {
 
     const deleteClassificator = async () => {
         try {
-            await axios.delete(`${config.API_BASE_URL}/worker/classificator/${role.id}`);
+            await axiosInstance.delete(`${config.API_BASE_URL}/worker/classificator/${role.id}`);
             onUpdate();
             onHide();
         } catch (error) {

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Row, Col, Spinner, Alert, Button } from 'react-bootstrap';
 import axios from 'axios';
 import config from '../../config/config';
+import axiosInstance from "../../config/axiosInstance";
 
 const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
     const [locations, setLocations] = useState([]);
@@ -19,7 +20,7 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
     useEffect(() => {
         const fetchLocations = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/location/all`);
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/location/all`);
                 const data = await response.data;
                 setLocations(data);
                 setLocationsLoading(false);

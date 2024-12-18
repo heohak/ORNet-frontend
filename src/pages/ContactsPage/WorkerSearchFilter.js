@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Alert, Col, Form, FormCheck, Row} from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../config/config";
+import axiosInstance from "../../config/axiosInstance";
 
 function WorkerSearchFilter({setWorkers}) {
     const [searchQuery, setSearchQuery] = useState("");
@@ -20,8 +21,8 @@ function WorkerSearchFilter({setWorkers}) {
         const fetchClientsAndRoles = async () => {
             try {
                 const [clientsRes, rolesRes] = await Promise.all([
-                    axios.get(`${config.API_BASE_URL}/client/all`),
-                    axios.get(`${config.API_BASE_URL}/worker/classificator/all`)
+                    axiosInstance.get(`${config.API_BASE_URL}/client/all`),
+                    axiosInstance.get(`${config.API_BASE_URL}/worker/classificator/all`)
                 ]);
                 // Sort clients by shortName
                 const sortedClients = clientsRes.data.sort((a, b) =>
@@ -46,7 +47,7 @@ function WorkerSearchFilter({setWorkers}) {
         };
         const fetchAllLocations = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/location/all`);
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/location/all`);
                 // Sort locations by name
                 const sortedLocations = response.data.sort((a, b) =>
                     a.name.localeCompare(b.name)
@@ -69,7 +70,7 @@ function WorkerSearchFilter({setWorkers}) {
         const fetchClientLocations = async () => {
             if (clientId) {
                 try {
-                    const response = await axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`);
+                    const response = await axiosInstance.get(`${config.API_BASE_URL}/client/locations/${clientId}`);
                     setLocations(response.data);
                 } catch (error) {
                     console.error('Error fetching client locations:', error);
@@ -85,7 +86,7 @@ function WorkerSearchFilter({setWorkers}) {
 
     const handleSearchAndFilter = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/worker/search`, {
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/worker/search`, {
                 params: {
                     q: searchQuery,
                     roleId: roleId || undefined,

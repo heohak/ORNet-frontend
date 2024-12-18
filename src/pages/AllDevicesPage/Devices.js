@@ -7,6 +7,7 @@ import DeviceSearchFilter from './DeviceSearchFilter';
 import SummaryModal from './SummaryModal';
 import '../../css/AllDevicesPage/Devices.css';
 import {useNavigate} from "react-router-dom";
+import axiosInstance from "../../config/axiosInstance";
 
 function Devices() {
     const [devices, setDevices] = useState([]);
@@ -23,7 +24,7 @@ function Devices() {
     useEffect(() => {
         const fetchDevices = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/device/all`);
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/device/all`);
                 const filteredDevices = response.data.filter(device => !device.writtenOffDate);
                 setDevices(filteredDevices);
             } catch (error) {
@@ -35,7 +36,7 @@ function Devices() {
 
         const fetchClassificators = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/device/classificator/all`);
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/device/classificator/all`);
                 const classificatorsData = {};
                 response.data.forEach(classificator => {
                     classificatorsData[classificator.id] = classificator.name;
@@ -48,7 +49,7 @@ function Devices() {
 
         const fetchClients = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/client/all`);
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/client/all`);
                 setClients(response.data);
             } catch (error) {
                 console.error("Couldn't fetch clients", error);

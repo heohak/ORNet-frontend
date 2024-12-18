@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import axios from "axios";
 import config from "../../config/config";
+import axiosInstance from "../../config/axiosInstance";
 
 function AddWikiModal({ show, onClose, reFetch }) {
     const [problem, setProblem] = useState('');
@@ -13,7 +14,7 @@ function AddWikiModal({ show, onClose, reFetch }) {
         if (isSubmitting) return;
         setIsSubmitting(true);
         try {
-            await axios.post(`${config.API_BASE_URL}/wiki/add`, {
+            await axiosInstance.post(`${config.API_BASE_URL}/wiki/add`, {
                 problem,
                 solution,
             });

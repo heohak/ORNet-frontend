@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import config from '../../config/config';
+import axiosInstance from "../../config/axiosInstance";
 
 function AddThirdPartyITModal({ show, onHide, onNewThirdPartyIT }) {
     const [newThirdParty, setNewThirdParty] = useState({ name: '', email: '', phone: '' });
@@ -29,7 +30,7 @@ function AddThirdPartyITModal({ show, onHide, onNewThirdPartyIT }) {
         }
 
         try {
-            const response = await axios.post(`${config.API_BASE_URL}/third-party/add`, {
+            const response = await axiosInstance.post(`${config.API_BASE_URL}/third-party/add`, {
                 name,
                 email,
                 phone,

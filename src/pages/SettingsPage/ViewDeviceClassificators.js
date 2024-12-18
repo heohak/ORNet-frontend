@@ -12,6 +12,7 @@ import {
 } from 'react-bootstrap';
 import config from '../../config/config';
 import {FaArrowLeft, FaEdit} from 'react-icons/fa';
+import axiosInstance from "../../config/axiosInstance";
 
 function ViewDeviceClassificators() {
     const [classificators, setClassificators] = useState([]);
@@ -38,7 +39,7 @@ function ViewDeviceClassificators() {
     const fetchClassificators = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/device/classificator/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/device/classificator/all`);
             setClassificators(response.data);
             setError(null);
         } catch (error) {
@@ -51,7 +52,7 @@ function ViewDeviceClassificators() {
     const handleAddClassificator = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(`${config.API_BASE_URL}/device/classificator/add`, { name: newName });
+            await axiosInstance.post(`${config.API_BASE_URL}/device/classificator/add`, { name: newName });
             setShowAddModal(false);
             setNewName('');
             fetchClassificators(); // Refresh the list
@@ -69,7 +70,7 @@ function ViewDeviceClassificators() {
     const handleUpdateClassificator = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(
+            await axiosInstance.put(
                 `${config.API_BASE_URL}/device/classificator/update/${selectedClassificator.id}`,
                 { name: editName }
             );
@@ -92,7 +93,7 @@ function ViewDeviceClassificators() {
 
     const fetchRelatedDevices = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/device/search`, {
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/device/search`, {
                 params: { classificatorId: selectedClassificator.id },
             });
             setRelatedDevices(response.data);
@@ -103,7 +104,7 @@ function ViewDeviceClassificators() {
 
     const handleDeleteClassificator = async () => {
         try {
-            await axios.delete(`${config.API_BASE_URL}/device/classificator/${selectedClassificator.id}`);
+            await axiosInstance.delete(`${config.API_BASE_URL}/device/classificator/${selectedClassificator.id}`);
             setShowDeleteModal(false);
             setShowEditModal(false);
             setSelectedClassificator(null);
@@ -158,14 +159,14 @@ function ViewDeviceClassificators() {
                                 return (
                                     <Row
                                         key={classificator.id}
-                                        className="align-items-center"
+                                        className="align-items-center py-1"
                                         style={{ backgroundColor: rowBgColor }}
                                     >
                                         <Col md={10}>{classificator.name}</Col>
                                         <Col md={2}>
                                             <Button
                                                 variant="link"
-                                                className="p-0"
+                                                className="d-flex p-0"
                                                 onClick={() => handleEdit(classificator)}
                                             >
                                                 <FaEdit />

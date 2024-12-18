@@ -3,6 +3,7 @@ import { Modal, Form, Button, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../config/config";
 import DeleteConfirmModal from "./DeleteConfirmModal";
+import axiosInstance from "../../config/axiosInstance";
 
 function EditWikiModal({ show, onHide, wiki, reFetch }) {
     const [problem, setProblem] = useState(wiki?.problem || '');
@@ -16,7 +17,7 @@ function EditWikiModal({ show, onHide, wiki, reFetch }) {
         setIsSubmitting(true);
         setError(null);
         try {
-            await axios.put(`${config.API_BASE_URL}/wiki/update/${wiki.id}`, {
+            await axiosInstance.put(`${config.API_BASE_URL}/wiki/update/${wiki.id}`, {
                 problem,
                 solution
             });
@@ -31,7 +32,7 @@ function EditWikiModal({ show, onHide, wiki, reFetch }) {
 
     const handleDeleteConfirmed = async () => {
         try {
-            await axios.delete(`${config.API_BASE_URL}/wiki/${wiki.id}`);
+            await axiosInstance.delete(`${config.API_BASE_URL}/wiki/${wiki.id}`);
             reFetch();
             onHide(); // Close the EditWikiModal
         } catch (err) {

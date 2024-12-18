@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Spinner, Alert, ListGroup } from 'react-bootstrap';
 import axios from 'axios';
 import config from '../../config/config';
+import axiosInstance from "../../config/axiosInstance";
 
 function SummaryModal({ show, handleClose, devices }) {
     const [summary, setSummary] = useState({});
@@ -20,7 +21,7 @@ function SummaryModal({ show, handleClose, devices }) {
         try {
             const deviceIds = devices.map(device => device.id);
 
-            const response = await axios.get(`${config.API_BASE_URL}/device/summary`, {
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/device/summary`, {
                 params: {
                     deviceIds: deviceIds.join(',')
                 }

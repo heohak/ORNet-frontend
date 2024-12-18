@@ -3,6 +3,7 @@ import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import config from '../../../config/config';
 import { validatePhoneAndPostalCode } from '../../../utils/Validation';
+import axiosInstance from "../../../config/axiosInstance";
 
 function AddLocationModal({ show, onHide, onAdd }) {
     const [newLocation, setNewLocation] = useState({
@@ -42,7 +43,7 @@ function AddLocationModal({ show, onHide, onAdd }) {
         }
 
         try {
-            const response = await axios.post(`${config.API_BASE_URL}/location/add`, {
+            const response = await axiosInstance.post(`${config.API_BASE_URL}/location/add`, {
                 name,
                 country,
                 city,

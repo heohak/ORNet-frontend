@@ -12,6 +12,7 @@ import {
 } from 'react-bootstrap';
 import config from '../../config/config';
 import {FaArrowLeft, FaTrash} from 'react-icons/fa';
+import axiosInstance from "../../config/axiosInstance";
 
 function ViewPredefinedDeviceNames() {
     const [deviceNames, setDeviceNames] = useState([]);
@@ -31,7 +32,7 @@ function ViewPredefinedDeviceNames() {
     const fetchDeviceNames = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/predefined/names`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/predefined/names`);
             setDeviceNames(response.data);
             setError(null);
         } catch (error) {
@@ -44,7 +45,7 @@ function ViewPredefinedDeviceNames() {
     const handleAddDeviceName = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(`${config.API_BASE_URL}/predefined/add`, null, {
+            await axiosInstance.post(`${config.API_BASE_URL}/predefined/add`, null, {
                 params: {
                     deviceName: newDeviceName,
                 },
@@ -66,7 +67,7 @@ function ViewPredefinedDeviceNames() {
     // Function to delete the device name
     const handleDeleteDeviceName = async () => {
         try {
-            await axios.delete(`${config.API_BASE_URL}/predefined/delete/${selectedDeviceName.id}`);
+            await axiosInstance.delete(`${config.API_BASE_URL}/predefined/delete/${selectedDeviceName.id}`);
             fetchDeviceNames(); // Refresh the list
             setShowDeleteModal(false);
             setSelectedDeviceName(null);
@@ -116,14 +117,14 @@ function ViewPredefinedDeviceNames() {
                         return (
                             <Row
                                 key={deviceName.id}
-                                className="align-items-center"
+                                className="align-items-center py-1"
                                 style={{ backgroundColor: rowBgColor }}
                             >
                                 <Col md={10}>{deviceName.name}</Col>
                                 <Col md={2}>
                                     <Button
                                         variant="link"
-                                        className="p-0"
+                                        className="d-flex p-0"
                                         onClick={() => handleShowDeleteModal(deviceName)}
                                     >
                                         <FaTrash />

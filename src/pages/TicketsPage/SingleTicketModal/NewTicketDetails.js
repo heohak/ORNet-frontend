@@ -5,6 +5,7 @@ import { FaEdit, FaCheck } from 'react-icons/fa';  // Import edit and check icon
 import config from "../../../config/config";
 import Select from "react-select";
 import {useLocation, useNavigate} from "react-router-dom";
+import axiosInstance from "../../../config/axiosInstance";
 
 const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, reFetch }) => {
     const location = useLocation();
@@ -32,7 +33,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
 
     const fetchDevices = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/device/client/${ticket.clientId}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/device/client/${ticket.clientId}`);
             setAvailableDevices(response.data.filter(device => device.locationId === ticket.locationId));
             setSelectedDevices(ticket.deviceIds.map(deviceId => response.data.find(device => device.id === deviceId)));
         } catch (error) {
@@ -42,7 +43,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
 
     const fetchResponsibleName = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/bait/worker/${ticket.baitWorkerId}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/bait/worker/${ticket.baitWorkerId}`);
             const fullName = response.data.firstName + " " + response.data.lastName;
             setResponsibleName(fullName);
         } catch (error) {
@@ -52,11 +53,11 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
 
     const fetchContacts = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/worker/${ticket.clientId}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/worker/${ticket.clientId}`);
 
             const contactsWithRoles = await Promise.all(
                 response.data.map(async contact => {
-                    const rolesRes = await axios.get(`${config.API_BASE_URL}/worker/role/${contact.id}`);
+                    const rolesRes = await axiosInstance.get(`${config.API_BASE_URL}/worker/role/${contact.id}`);
                     return {...contact, roles: rolesRes.data.map(role => role.role)};
                 })
             );
@@ -77,7 +78,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
 
     const fetchWorkTypes = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/work-type/classificator/all`)
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/work-type/classificator/all`)
             const fetchedWorkTypes = response.data.map(workType => ({value: workType.id, label: workType.workType}))
             setAvailableWorkTypes(fetchedWorkTypes)
             setSelectedWorkTypes(editedTicket.workTypeIds.map(workTypeId => fetchedWorkTypes.find(workType => workType.value === workTypeId)))
@@ -88,7 +89,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
 
     const fetchBaitWorkers = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/bait/worker/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/bait/worker/all`);
             setBaitWorkers(response.data);
         } catch (error) {
             console.error('Error fetching bait workers:', error);
@@ -127,7 +128,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
     // Save updated information to the backend
     const handleSaveChanges = async () => {
         try {
-            await axios.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`, {
+            await axiosInstance.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`, {
                 ...editedTicket,
                 contactIds: selectedContacts.map(contact => contact.id),
                 workTypeIds: selectedWorkTypes.map(workType => workType.value),

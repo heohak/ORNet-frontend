@@ -5,6 +5,7 @@ import { faCog, faCheck, faEdit, faHistory } from '@fortawesome/free-solid-svg-i
 import EditClient from "./EditClient";
 import axios from "axios";
 import config from "../../config/config";
+import axiosInstance from "../../config/axiosInstance";
 
 // Define the default visibility of each field
 
@@ -20,7 +21,7 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles 
 
     const fetchClientData = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/client/${clientId}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/client/${clientId}`);
             setClient(response.data);
         } catch (error) {
             setError(error.message);

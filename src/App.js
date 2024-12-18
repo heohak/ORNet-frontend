@@ -5,6 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import MenuBar from './components/MenuBar';
 import Footer from './components/Footer';
 import Customers from './pages/CustomersPage/Customers';
+import Login from './pages/LoginPage/Login';
 import ClientDevices from './pages/OneClientPage/ClientDevices';
 import Tickets from './pages/TicketsPage/Tickets';
 import AddClientWorker from './pages/OneClientPage/AddClientWorker';
@@ -36,6 +37,13 @@ import HistoryTable from "./components/HistoryTable";
 import Contacts from "./pages/ContactsPage/Contacts";
 import ScrollToTop from "./components/ScrollToTop";
 import ViewPredefinedDeviceNames from "./pages/SettingsPage/ViewPredefinedDeviceNames";
+import ProtectedRoute from "./pages/ProtectedRoute";
+import axios from "axios";
+import AdminDashboard from "./pages/TestPages/AdminDashboard";
+import UserProfile from "./pages/TestPages/UserProfile";
+import UserDetails from "./pages/TestPages/UserDetails";
+
+axios.defaults.withCredentials=true;
 
 function App() {
     return (
@@ -45,41 +53,330 @@ function App() {
                 <MenuBar />
                 <main className="flex-grow-1">
                     <Routes>
-                        <Route path="/" element={<Customers />} />
-                        <Route path="/customers" element={<Customers />} />
-                        <Route path="/clients/:clientId/devices" element={<ClientDevices />} />
-                        <Route path="/tickets" element={<Tickets />} />
-                        <Route path="/add-client-worker" element={<AddClientWorker />} />
-                        <Route path="/devices" element={<Devices />} />
-                        <Route path="/device/:deviceId" element={<OneDevice />} />
-                        <Route path="/add-client-device" element={<AddClientDevice />} />
-                        <Route path="/software/:softwareId" element={<SoftwareDetails />} />
-                        <Route path="/customer/:clientId" element={<OneClient />} />
-                        <Route path="/wiki" element={<Wiki />} />
-                        <Route path="/wiki/:wikiId" element={<WikiDetails />} />
-                        <Route path="/settings" element={<Settings />} />
-                        <Route path="/view-bait-workers" element={<ViewBaitWorkers />} />
-                        <Route path="/settings/locations" element={<ViewLocations />} />
-                        <Route path="/settings/device-classificators" element={<ViewDeviceClassificators />} />
-                        <Route path="/settings/ticket-status-classificators" element={<ViewTicketStatusClassificators />} />
-                        <Route path="/settings/third-party-its" element={<ViewThirdPartyITs />} />
-                        <Route path="/settings/linked-devices" element={<ViewLinkedDevices />} />
-                        <Route path="/settings/client-worker-roles" element={<ViewClientWorkerRoles />} />
-                        <Route path="/settings/software" element={<ViewSoftware />} />
-                        <Route path="/settings/files" element={<ViewFiles />} />
-                        <Route path="/settings/work-types" element={<ViewWorkTypes />} />
-                        <Route path="/client/edit/:clientId" element={<EditClient />} />
-                        <Route path="/device/edit/:deviceId" element={<EditDevice />} />
-                        <Route path="/settings/linked-devices/edit/:id" element={<EditLinkedDevice />} />
-                        <Route path="/settings/client-worker-roles/edit/:id" element={<EditClientWorkerRole />} />
-                        <Route path="/settings/software/edit/:id" element={<EditSoftware />} />
-                        <Route path="/settings/work-types/edit/:id" element={<EditWorkType />} />
-                        <Route path="/history" element={<HistoryTable />} />
-                        <Route path="/contacts" element={<Contacts />} />
-                        <Route path="/tickets/:ticketId" element={<Tickets />} />
-                        <Route path="/customer/:clientId/ticket/:ticketId" element={<OneClient />} />
-                        <Route path="/device/:deviceId/ticket/:ticketId" element={<OneDevice />} />
-                        <Route path="/settings/predefined-device-names" element={<ViewPredefinedDeviceNames />}
+                        {/* Public Routes */}
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/user/details" element={<UserDetails />} />
+
+                        {/* Protected Routes */}
+                        <Route
+                            path="/"
+                            element={
+                                <ProtectedRoute>
+                                    <Customers />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin/dashboard"
+                            element={
+                                <ProtectedRoute>
+                                    <AdminDashboard />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/user/profile"
+                            element={
+                                <ProtectedRoute>
+                                    <UserProfile />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/customers"
+                            element={
+                                <ProtectedRoute>
+                                    <Customers />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/clients/:clientId/devices"
+                            element={
+                                <ProtectedRoute>
+                                    <ClientDevices />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/tickets"
+                            element={
+                                <ProtectedRoute>
+                                    <Tickets />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/add-client-worker"
+                            element={
+                                <ProtectedRoute>
+                                    <AddClientWorker />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/devices"
+                            element={
+                                <ProtectedRoute>
+                                    <Devices />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/device/:deviceId"
+                            element={
+                                <ProtectedRoute>
+                                    <OneDevice />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/add-client-device"
+                            element={
+                                <ProtectedRoute>
+                                    <AddClientDevice />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/software/:softwareId"
+                            element={
+                                <ProtectedRoute>
+                                    <SoftwareDetails />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/customer/:clientId"
+                            element={
+                                <ProtectedRoute>
+                                    <OneClient />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/wiki"
+                            element={
+                                <ProtectedRoute>
+                                    <Wiki />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/wiki/:wikiId"
+                            element={
+                                <ProtectedRoute>
+                                    <WikiDetails />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/settings"
+                            element={
+                                <ProtectedRoute>
+                                    <Settings />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/view-bait-workers"
+                            element={
+                                <ProtectedRoute>
+                                    <ViewBaitWorkers />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/settings/locations"
+                            element={
+                                <ProtectedRoute>
+                                    <ViewLocations />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/settings/device-classificators"
+                            element={
+                                <ProtectedRoute>
+                                    <ViewDeviceClassificators />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/settings/ticket-status-classificators"
+                            element={
+                                <ProtectedRoute>
+                                    <ViewTicketStatusClassificators />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/settings/third-party-its"
+                            element={
+                                <ProtectedRoute>
+                                    <ViewThirdPartyITs />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/settings/linked-devices"
+                            element={
+                                <ProtectedRoute>
+                                    <ViewLinkedDevices />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/settings/client-worker-roles"
+                            element={
+                                <ProtectedRoute>
+                                    <ViewClientWorkerRoles />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/settings/software"
+                            element={
+                                <ProtectedRoute>
+                                    <ViewSoftware />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/settings/files"
+                            element={
+                                <ProtectedRoute>
+                                    <ViewFiles />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/settings/work-types"
+                            element={
+                                <ProtectedRoute>
+                                    <ViewWorkTypes />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/client/edit/:clientId"
+                            element={
+                                <ProtectedRoute>
+                                    <EditClient />
+                                </ProtectedRoute>
+                            }
+                        />
+                        {/*<Route*/}
+                        {/*    path="/edit-bait-worker/:baitWorkerId"*/}
+                        {/*    element={*/}
+                        {/*        <ProtectedRoute>*/}
+                        {/*            <EditBaitWorker />*/}
+                        {/*        </ProtectedRoute>*/}
+                        {/*    }*/}
+                        {/*/>*/}
+                        {/*<Route*/}
+                        {/*    path="/edit-location/:locationId"*/}
+                        {/*    element={*/}
+                        {/*        <ProtectedRoute>*/}
+                        {/*            <EditLocation />*/}
+                        {/*        </ProtectedRoute>*/}
+                        {/*    }*/}
+                        {/*/>*/}
+                        {/*<Route*/}
+                        {/*    path="/settings/device-classificators/edit/:classificatorId"*/}
+                        {/*    element={*/}
+                        {/*        <ProtectedRoute>*/}
+                        {/*            <EditDeviceClassificator />*/}
+                        {/*        </ProtectedRoute>*/}
+                        {/*    }*/}
+                        {/*/>*/}
+                        {/*<Route*/}
+                        {/*    path="/settings/ticket-status-classificators/edit/:id"*/}
+                        {/*    element={*/}
+                        {/*        <ProtectedRoute>*/}
+                        {/*            <EditTicketStatusClassificator />*/}
+                        {/*        </ProtectedRoute>*/}
+                        {/*    }*/}
+                        {/*/>*/}
+                        <Route
+                            path="/device/edit/:deviceId"
+                            element={
+                                <ProtectedRoute>
+                                    <EditDevice />
+                                </ProtectedRoute>
+                            }
+                        />
+                        {/*<Route*/}
+                        {/*    path="/settings/third-party-its/edit/:id"*/}
+                        {/*    element={*/}
+                        {/*        <ProtectedRoute>*/}
+                        {/*            <EditThirdPartyIT />*/}
+                        {/*        </ProtectedRoute>*/}
+                        {/*    }*/}
+                        {/*/>*/}
+                        <Route
+                            path="/settings/linked-devices/edit/:id"
+                            element={
+                                <ProtectedRoute>
+                                    <EditLinkedDevice />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/settings/client-worker-roles/edit/:id"
+                            element={
+                                <ProtectedRoute>
+                                    <EditClientWorkerRole />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/settings/software/edit/:id"
+                            element={
+                                <ProtectedRoute>
+                                    <EditSoftware />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/settings/work-types/edit/:id"
+                            element={
+                                <ProtectedRoute>
+                                    <EditWorkType />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/history"
+                            element={
+                                <ProtectedRoute>
+                                    <HistoryTable />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/contacts"
+                            element={
+                                <ProtectedRoute>
+                                    <Contacts />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/tickets/:ticketId"
+                            element={
+                                <ProtectedRoute>
+                                    <Tickets />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/settings/predefined-device-names"
+                            element={
+                                <ProtectedRoute>
+                                    <ViewPredefinedDeviceNames />
+                                </ProtectedRoute>
+                            }
                         />
                     </Routes>
                 </main>

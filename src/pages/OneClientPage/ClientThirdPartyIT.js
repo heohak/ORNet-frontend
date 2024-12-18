@@ -6,6 +6,7 @@ import config from "../../config/config";
 import AddThirdPartyIT from "./AddThirdPartyIT";
 import EditThirdPartyITModal from "../SettingsPage/EditThirdPartyITModal";
 import '../../css/Customers.css';
+import axiosInstance from "../../config/axiosInstance";
 
 function ClientThirdPartyIT({ clientId, refresh, setRefresh }) {
     const [thirdPartyITs, setThirdPartyITs] = useState([]);
@@ -20,7 +21,7 @@ function ClientThirdPartyIT({ clientId, refresh, setRefresh }) {
     useEffect(() => {
         const fetchThirdPartyITs = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/client/third-parties/${clientId}`);
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/client/third-parties/${clientId}`);
                 setThirdPartyITs(response.data.sort((a, b) => a.name.localeCompare(b.name)));
             } catch (error) {
                 setError(error.message);
