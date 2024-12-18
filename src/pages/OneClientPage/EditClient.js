@@ -16,7 +16,7 @@ import '../../css/DarkenedModal.css';
 import ConfirmationModal from "./ConfirmationModal";
 import axiosInstance from "../../config/axiosInstance";
 
-function EditClient({ clientId, onClose, onSave, setRefresh }) {
+function EditClient({ clientId, onClose, onSave, setRefresh, reFetchRoles, setRoles }) {
     const [originalClientData, setOriginalClientData] = useState(null);
     const [clientData, setClientData] = useState(null);
     const [allThirdPartyITs, setAllThirdPartyITs] = useState([]);
@@ -118,6 +118,17 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             setAllSoftwares(response.data);
         } catch (error) {
             setError(error.message);
+        }
+    };
+
+    const fetchRoles = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/worker/classificator/all`);
+            const rolesMap = response.data.map(role => ({value: role.id, label: role.role}))
+            const sortedRoles = rolesMap.sort((a, b) => a.label.localeCompare(b.label))
+            setRoles(sortedRoles);
+        } catch (error) {
+            console.error('Error fetching roles:', error);
         }
     };
 
@@ -822,6 +833,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
                 onClose={() => setShowAddContactModal(false)}
                 clientId={clientId}
                 onSuccess={handleNewContact}
+                reFetchRoles={fetchRoles}
             />
 
             <ConfirmationModal

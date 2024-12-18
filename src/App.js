@@ -378,6 +378,22 @@ function App() {
                                 </ProtectedRoute>
                             }
                         />
+                        <Route
+                            path="/customer/:clientId/ticket/:ticketId"
+                            element={
+                                <ProtectedRoute>
+                                    <OneClient />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/device/:deviceId/ticket/:ticketId"
+                            element={
+                                <ProtectedRoute>
+                                    <OneDevice />
+                                </ProtectedRoute>
+                            }
+                        />
                     </Routes>
                 </main>
                 <Footer />

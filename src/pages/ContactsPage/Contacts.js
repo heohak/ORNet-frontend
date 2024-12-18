@@ -5,7 +5,7 @@ import { Alert, Button, Card, Col, Container, Row, Spinner, Badge } from "react-
 import config from "../../config/config";
 import WorkerSearchFilter from './WorkerSearchFilter';
 import '../../css/Contacts.css';
-import {FaEnvelope, FaPhone, FaUserTie, FaComment} from "react-icons/fa";
+import {FaEnvelope, FaPhone, FaUserTie, FaComment, FaIdBadge} from "react-icons/fa";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBuilding, faMapMarkerAlt} from "@fortawesome/free-solid-svg-icons";
 import WorkerCommentModal from "../OneClientPage/WorkerCommentModal";
@@ -149,7 +149,7 @@ function Contacts() {
                         <Alert variant="info">No contacts found.</Alert>
                     ) : (
                         workers.map((worker) => (
-                            <Col md={4} key={worker.id} className="mb-4">
+                            <Col md={3} key={worker.id} className="mb-4">
                                 <Card className='h-100 position-relative customer-page-card'>
                                     <Card.Body className='all-page-cardBody'>
                                         <div style={{
@@ -166,55 +166,56 @@ function Contacts() {
                                                 <FaComment title="View/Edit Comment" />
                                             </Button>
                                         </div>
-                                        <Card.Text className="all-page-cardText">
-                                            <Row className="g-1">
-                                                <Col>
-                                                    {/* Roles */}
-                                                    {workerRoles[worker.id]?.length > 0 && (
-                                                        <>
-                                                            <FaUserTie className="me-1" />
-                                                            {workerRoles[worker.id].join(', ')}
-                                                            <br />
-                                                        </>
-                                                    )}
+                                        <Card.Text className="all-page-cardText" style={{ wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}>
+                                            {/* Role */}
+                                            <div>
+                                                <FaUserTie className="me-1" />
+                                                {workerRoles[worker.id] && workerRoles[worker.id].length > 0
+                                                    ? workerRoles[worker.id].join(', ')
+                                                    : 'N/A'}
+                                            </div>
 
-                                                    {/* Title */}
-                                                    {worker.title && (
-                                                        <>
-                                                            <FaUserTie className="me-1" />
-                                                            {worker.title}
-                                                            <br />
-                                                        </>
-                                                    )}
+                                            {/* Phone */}
+                                            <div>
+                                                <FaPhone className="me-1" />
+                                                {worker.phoneNumber ? worker.phoneNumber : 'N/A'}
+                                            </div>
 
-                                                    {/* Employer */}
-                                                    <FontAwesomeIcon icon={faBuilding} className="me-2" />
-                                                    {workerEmployers[worker.id] || "Unknown"}
-                                                    <br />
-                                                </Col>
-
-                                                <Col>
-                                                    {/* Location */}
-                                                    <FontAwesomeIcon icon={faMapMarkerAlt} className="me-2" />
-                                                    {workerLocations[worker.id] || "N/A"}
-                                                    <br />
-                                                    {/* Phone */}
-                                                    <FaPhone className="me-1" /> {worker.phoneNumber || "N/A"}
-                                                    <br />
-
-                                                    {/* Email */}
-                                                    <FaEnvelope className="me-1" />
+                                            {/* Email */}
+                                            <div>
+                                                <FaEnvelope className="me-1" />
+                                                {worker.email ? (
                                                     <a
                                                         href={`https://outlook.office.com/mail/deeplink/compose?to=${worker.email}`}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         style={{ textDecoration: 'none', color: 'inherit' }}
                                                     >
-                                                        {worker.email || "N/A"}
+                                                        {worker.email}
                                                     </a>
-                                                </Col>
-                                            </Row>
+                                                ) : 'N/A'}
+                                            </div>
+
+                                            {/* Title */}
+                                            <div>
+                                                <FaIdBadge className="me-1" />
+                                                {worker.title ? worker.title : 'N/A'}
+                                            </div>
+
+                                            {/* Location */}
+                                            <div>
+                                                <FontAwesomeIcon icon={faMapMarkerAlt} className="me-2" />
+                                                {workerLocations[worker.id] || 'N/A'}
+                                            </div>
+
+                                            {/* Employer */}
+                                            <div>
+                                                <FontAwesomeIcon icon={faBuilding} className="me-2" />
+                                                {workerEmployers[worker.id] || 'N/A'}
+                                            </div>
                                         </Card.Text>
+
+
                                     </Card.Body>
                                 </Card>
                             </Col>

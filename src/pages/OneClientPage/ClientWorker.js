@@ -11,12 +11,11 @@ import AddClientWorker from "./AddClientWorker";
 import WorkerCommentModal from "./WorkerCommentModal";
 import axiosInstance from "../../config/axiosInstance";
 
-function ClientWorker({workers, client, clientId, refresh, setRefresh}) {
+function ClientWorker({workers, client, clientId, refresh, setRefresh, reFetchRoles, roles}) {
     const [showAddWorkerModal, setShowAddWorkerModal] = useState(false);
     const [showEditWorkerModal, setShowEditWorkerModal] = useState(false);
     const [workerLocations, setWorkerLocations] = useState({});
     const [selectedWorker, setSelectedWorker] = useState(null);
-    const [roles, setRoles] = useState([]);
     const [selectedFilterRoleId, setSelectedFilterRoleId] = useState('');
     const [filteredWorkers, setFilteredWorkers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
@@ -27,7 +26,7 @@ function ClientWorker({workers, client, clientId, refresh, setRefresh}) {
     const [commentWorker, setCommentWorker] = useState(null);
 
     useEffect(() => {
-        fetchRoles();
+        reFetchRoles();
     }, []);
 
     useEffect(() => {
@@ -55,16 +54,6 @@ function ClientWorker({workers, client, clientId, refresh, setRefresh}) {
         }
     };
 
-    const fetchRoles = async () => {
-        try {
-            const response = await axiosInstance.get(`${config.API_BASE_URL}/worker/classificator/all`);
-            const rolesMap = response.data.map(role => ({value: role.id, label: role.role}))
-            const sortedRoles = rolesMap.sort((a, b) => a.label.localeCompare(b.label))
-            setRoles(sortedRoles);
-        } catch (error) {
-            console.error('Error fetching roles:', error);
-        }
-    };
 
     const filterWorkers = async () => {
         try {
@@ -116,7 +105,7 @@ function ClientWorker({workers, client, clientId, refresh, setRefresh}) {
     };
 
     const handleAddWorkerSuccess = async (newWorker) => {
-        await fetchRoles();
+        await reFetchRoles();
         try {
             await axiosInstance.put(`${config.API_BASE_URL}/worker/${newWorker.id}/${clientId}`);
             setFilteredWorkers((prevWorkers) => [...prevWorkers, newWorker]);
@@ -260,40 +249,50 @@ function ClientWorker({workers, client, clientId, refresh, setRefresh}) {
                                         className="all-page-cardText"
                                         style={{ wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}
                                     >
-                                        <Row>
-                                            <Col>
-                                                <FaUserTie className="me-1" />
-                                                {worker.roles.map(role => role.role).join(', ')}
-                                                <br />
+                                        {/* Role */}
+                                        <div>
+                                            <FaUserTie className="me-1" />
+                                            {worker.roles && worker.roles.length > 0
+                                                ? worker.roles.map(role => role.role).join(', ')
+                                                : 'N/A'}
+                                        </div>
 
-                                                {worker.title && (
-                                                    <>
-                                                        <FaIdBadge className="me-1" />
-                                                        {worker.title}
-                                                        <br />
-                                                    </>
-                                                )}
+                                        {/* Phone */}
+                                        <div>
+                                            <FaPhone className="me-1" />
+                                            {worker.phoneNumber ? worker.phoneNumber : 'N/A'}
+                                        </div>
 
-                                                <FontAwesomeIcon icon={faMapMarkerAlt} className="me-2" />
-                                                {workerLocations[worker.id]?.name || "N/A"}
-                                            </Col>
-
-                                            <Col>
-                                                <FaPhone className="me-1" /> {worker.phoneNumber || "N/A"}
-                                                <br />
-
-                                                <FaEnvelope className="me-1" />
+                                        {/* Email */}
+                                        <div>
+                                            <FaEnvelope className="me-1" />
+                                            {worker.email ? (
                                                 <a
                                                     href={`https://outlook.office.com/mail/deeplink/compose?to=${worker.email}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     style={{ textDecoration: 'none', color: 'inherit' }}
                                                 >
-                                                    {worker.email || "N/A"}
+                                                    {worker.email}
                                                 </a>
-                                            </Col>
-                                        </Row>
+                                            ) : 'N/A'}
+                                        </div>
+
+                                        {/* Title */}
+                                        <div>
+                                            <FaIdBadge className="me-1" />
+                                            {worker.title ? worker.title : 'N/A'}
+                                        </div>
+
+                                        {/* Location */}
+                                        <div>
+                                            <FontAwesomeIcon icon={faMapMarkerAlt} className="me-2" />
+                                            {workerLocations[worker.id]?.name || 'N/A'}
+                                        </div>
                                     </Card.Text>
+
+
+
                                 </Card.Body>
                             </Card>
                         </Col>
@@ -309,7 +308,7 @@ function ClientWorker({workers, client, clientId, refresh, setRefresh}) {
                 onClose={() => setShowAddWorkerModal(false)}
                 clientId={clientId}
                 onSuccess={handleAddWorkerSuccess}
-                reFetchRoles={fetchRoles}
+                reFetchRoles={reFetchRoles}
             />
             {selectedWorker && (
                 <EditWorkerModal

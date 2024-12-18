@@ -7,7 +7,7 @@ import ModalStatus from "./ModalStatus";
 import ModalPaidButton from "./ModalPaidButton";
 import DeleteModal from "./DeleteModal";
 import {FaTrash} from "react-icons/fa";
-import axios from "axios";
+import "../../../css/DarkenedModal.css";
 import config from "../../../config/config";
 import axiosInstance from "../../../config/axiosInstance";
 const ActivityModal = ({ activity, handleClose, reFetch, clientName, locations, statuses }) => {
@@ -34,7 +34,7 @@ const ActivityModal = ({ activity, handleClose, reFetch, clientName, locations, 
 
     return (
         <>
-            <Modal show onHide={handleClose} size="xl">
+            <Modal show onHide={handleClose} size="xl" dialogClassName={showDeleteModal ? "dimmed" : ""}>
                 <Modal.Header closeButton>
                     <div className="w-100">
                         <p className="text-muted mb-0">{clientName}</p>
