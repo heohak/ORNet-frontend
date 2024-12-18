@@ -37,7 +37,6 @@ import HistoryTable from "./components/HistoryTable";
 import Contacts from "./pages/ContactsPage/Contacts";
 import ScrollToTop from "./components/ScrollToTop";
 import ViewPredefinedDeviceNames from "./pages/SettingsPage/ViewPredefinedDeviceNames";
-import LogoutButton from "./pages/LoginPage/LogoutButton";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import axios from "axios";
 import AdminDashboard from "./pages/TestPages/AdminDashboard";
@@ -57,7 +56,6 @@ function App() {
                         {/* Public Routes */}
                         <Route path="/login" element={<Login />} />
                         <Route path="/user/details" element={<UserDetails />} />
-                        {/*<Route path="/logout" element={<LogoutButton />} />*/}
 
                         {/* Protected Routes */}
                         <Route
@@ -81,14 +79,6 @@ function App() {
                             element={
                                 <ProtectedRoute>
                                     <UserProfile />
-                                </ProtectedRoute>
-                            }
-                        />
-                        <Route
-                            path="/logout"
-                            element={
-                                <ProtectedRoute>
-                                    <LogoutButton />
                                 </ProtectedRoute>
                             }
                         />
