@@ -4,6 +4,7 @@ import axios from 'axios';
 import config from "../../config/config";
 import Select from 'react-select';
 import axiosInstance from "../../config/axiosInstance";
+import "../../css/DarkenedModal.css";
 
 function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, clientId }) {
     const [editingWorker, setEditingWorker] = useState(worker || {});
@@ -37,6 +38,11 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, cl
         }
     };
 
+    const handleCloseModal = () => {
+        handleClose();
+        setDeleteError(null)
+    }
+
     const handleUpdateWorker = async (e) => {
         e.preventDefault();
         const trimmedPhoneNumber = editingWorker.phoneNumber.trim();
@@ -60,7 +66,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, cl
 
             await axiosInstance.put(`${config.API_BASE_URL}/worker/update/${editingWorker.id}`, updatedWorker);
             onUpdateSuccess();
-            handleClose();
+            handleCloseModal();
         } catch (error) {
             console.error('Error updating worker:', error);
         }
@@ -74,16 +80,20 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, cl
         try {
             await axiosInstance.delete(`${config.API_BASE_URL}/admin/worker/${editingWorker.id}`);
             onUpdateSuccess();
-            handleClose();
+            handleCloseModal();
         } catch (error) {
-            setDeleteError('Error deleting worker.');
+            setDeleteError(error.response?.data || "An error occurred");
             console.error('Error deleting worker:', error);
         }
     };
 
     return (
         <>
-            <Modal show={show} onHide={handleClose}>
+            <Modal
+                show={show}
+                onHide={handleCloseModal}
+                dialogClassName={showDeleteConfirm ? "dimmed" : ""}
+            >
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Contact Details</Modal.Title>
                 </Modal.Header>
@@ -165,7 +175,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, cl
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="outline-info" className="me-2" onClick={handleClose}>Cancel</Button>
+                    <Button variant="outline-info" className="me-2" onClick={handleCloseModal}>Cancel</Button>
                     <Button variant="danger" className="me-2" onClick={() => setShowDeleteConfirm(true)}>
                         Delete
                     </Button>
