@@ -125,7 +125,7 @@ function OneClient() {
 
     const fetchRoles = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/worker/classificator/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/worker/classificator/all`);
             const rolesMap = response.data.map(role => ({value: role.id, label: role.role}))
             const sortedRoles = rolesMap.sort((a, b) => a.label.localeCompare(b.label))
             setRoles(sortedRoles);
