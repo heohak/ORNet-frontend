@@ -259,40 +259,50 @@ function ClientWorker({workers, client, clientId, refresh, setRefresh}) {
                                         className="all-page-cardText"
                                         style={{ wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}
                                     >
-                                        <Row>
-                                            <Col>
-                                                <FaUserTie className="me-1" />
-                                                {worker.roles.map(role => role.role).join(', ')}
-                                                <br />
+                                        {/* Role */}
+                                        <div>
+                                            <FaUserTie className="me-1" />
+                                            {worker.roles && worker.roles.length > 0
+                                                ? worker.roles.map(role => role.role).join(', ')
+                                                : 'N/A'}
+                                        </div>
 
-                                                {worker.title && (
-                                                    <>
-                                                        <FaIdBadge className="me-1" />
-                                                        {worker.title}
-                                                        <br />
-                                                    </>
-                                                )}
+                                        {/* Phone */}
+                                        <div>
+                                            <FaPhone className="me-1" />
+                                            {worker.phoneNumber ? worker.phoneNumber : 'N/A'}
+                                        </div>
 
-                                                <FontAwesomeIcon icon={faMapMarkerAlt} className="me-2" />
-                                                {workerLocations[worker.id]?.name || "N/A"}
-                                            </Col>
-
-                                            <Col>
-                                                <FaPhone className="me-1" /> {worker.phoneNumber || "N/A"}
-                                                <br />
-
-                                                <FaEnvelope className="me-1" />
+                                        {/* Email */}
+                                        <div>
+                                            <FaEnvelope className="me-1" />
+                                            {worker.email ? (
                                                 <a
                                                     href={`https://outlook.office.com/mail/deeplink/compose?to=${worker.email}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     style={{ textDecoration: 'none', color: 'inherit' }}
                                                 >
-                                                    {worker.email || "N/A"}
+                                                    {worker.email}
                                                 </a>
-                                            </Col>
-                                        </Row>
+                                            ) : 'N/A'}
+                                        </div>
+
+                                        {/* Title */}
+                                        <div>
+                                            <FaIdBadge className="me-1" />
+                                            {worker.title ? worker.title : 'N/A'}
+                                        </div>
+
+                                        {/* Location */}
+                                        <div>
+                                            <FontAwesomeIcon icon={faMapMarkerAlt} className="me-2" />
+                                            {workerLocations[worker.id]?.name || 'N/A'}
+                                        </div>
                                     </Card.Text>
+
+
+
                                 </Card.Body>
                             </Card>
                         </Col>
