@@ -119,7 +119,7 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
     return (
         <div className="mt-3">
             {/* Table header with sortable columns */}
-            <Row style={{fontWeight: "bold"}} className="font-weight-bold text-center">
+            <Row className="fw-bold">
                 <Col md={1} onClick={() => handleSort('date')}>
                     Date {renderSortArrow('date')}
                 </Col>
@@ -135,8 +135,8 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
                 <Col md={3} onClick={() => handleSort('title')}>
                     Title {renderSortArrow('title')}
                 </Col>
-                <Col md={1}>Status</Col>
-                <Col md={1}>Priority</Col>
+                <Col className="text-center" md={1}>Status</Col>
+                <Col className="text-center" md={1}>Priority</Col>
             </Row>
 
             <hr />
@@ -154,7 +154,7 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
                 return (
                     <Row
                         key={ticket.id}
-                        className="align-items-center text-center py-1"
+                        className="align-items-center py-1"
                         style={{ backgroundColor: rowBgColor, cursor: 'pointer' }} // Apply background color
                         onClick={() => onNavigate(ticket)}
                     >
@@ -163,7 +163,7 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
                         <Col md={3}>{ticket.clientName}</Col>
                         <Col md={2}>{getLocationName(ticket.locationId)}</Col> {/* Look up location */}
                         <Col md={3}>{ticket.title}</Col>
-                        <Col md={1}>
+                        <Col className="d-flex justify-content-center" md={1}>
                             <Button
                                 style={{ backgroundColor: statusColor, borderColor: statusColor }}
                                 disabled
@@ -171,7 +171,7 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
                                 {statusName}
                             </Button>
                         </Col>
-                        <Col md={1}>
+                        <Col className="text-center" md={1}>
                             <Button
                                 style={{ backgroundColor: priorityColor, borderColor: priorityColor }}
                                 disabled
