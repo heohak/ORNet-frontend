@@ -5,6 +5,7 @@ import config from "../config/config";
 import '../css/HistoryTable.css';
 import {useLocation, useNavigate} from "react-router-dom";
 import {FaArrowLeft} from "react-icons/fa";
+import axiosInstance from "../config/axiosInstance";
 
 function HistoryTable() {
     const location = useLocation();
@@ -25,7 +26,7 @@ function HistoryTable() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/${endpoint}`);
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/${endpoint}`);
                 const fetchedData = response.data;
                 setData(fetchedData);
 
@@ -71,7 +72,7 @@ function HistoryTable() {
 
             // Fetch names for clientIds
             const clientNamesResponse = await Promise.all(
-                Array.from(clientIds).map(id => axios.get(`${config.API_BASE_URL}/client/${id}`))
+                Array.from(clientIds).map(id => axiosInstance.get(`${config.API_BASE_URL}/client/${id}`))
             );
             const clientNamesMap = clientNamesResponse.reduce((acc, response) => {
                 const { id, fullName } = response.data;
@@ -82,7 +83,7 @@ function HistoryTable() {
 
             // Fetch names for classificatorIds
             const classificatorNamesResponse = await Promise.all(
-                Array.from(classificatorIds).map(id => axios.get(`${config.API_BASE_URL}/device/classificator/${id}`))
+                Array.from(classificatorIds).map(id => axiosInstance.get(`${config.API_BASE_URL}/device/classificator/${id}`))
             );
             const classificatorNamesMap = classificatorNamesResponse.reduce((acc, response) => {
                 const { id, name } = response.data;
@@ -93,7 +94,7 @@ function HistoryTable() {
 
             // Fetch names for locationIds
             const locationNamesResponse = await Promise.all(
-                Array.from(locationIds).map(id => axios.get(`${config.API_BASE_URL}/location/${id}`))
+                Array.from(locationIds).map(id => axiosInstance.get(`${config.API_BASE_URL}/location/${id}`))
             );
             const locationNamesMap = locationNamesResponse.reduce((acc, response) => {
                 const { id, name } = response.data;
@@ -104,7 +105,7 @@ function HistoryTable() {
 
             // Fetch names for maintenanceIds
             const maintenanceNamesResponse = await Promise.all(
-                Array.from(maintenanceIds).map(id => axios.get(`${config.API_BASE_URL}/maintenance/${id}`))
+                Array.from(maintenanceIds).map(id => axiosInstance.get(`${config.API_BASE_URL}/maintenance/${id}`))
             );
             const maintenanceNamesMap = maintenanceNamesResponse.reduce((acc, response) => {
                 const { id, maintenanceName } = response.data;
@@ -115,7 +116,7 @@ function HistoryTable() {
 
             // Fetch names for fileIds
             const fileNamesResponse = await Promise.all(
-                Array.from(fileIds).map(id => axios.get(`${config.API_BASE_URL}/file/${id}`))
+                Array.from(fileIds).map(id => axiosInstance.get(`${config.API_BASE_URL}/file/${id}`))
             );
             const fileNamesMap = fileNamesResponse.reduce((acc, response) => {
                 const { id, fileName } = response.data;
@@ -126,7 +127,7 @@ function HistoryTable() {
 
             // Fetch comments for commentIds
             const commentsResponse = await Promise.all(
-                Array.from(commentIds).map(id => axios.get(`${config.API_BASE_URL}/comment/${id}`))
+                Array.from(commentIds).map(id => axiosInstance.get(`${config.API_BASE_URL}/comment/${id}`))
             );
             const commentsMap = commentsResponse.reduce((acc, response) => {
                 const { id, comment } = response.data;
@@ -137,7 +138,7 @@ function HistoryTable() {
 
             // Fetch names for thirdPartyIds (new)
             const thirdPartyNamesResponse = await Promise.all(
-                Array.from(thirdPartyIds).map(id => axios.get(`${config.API_BASE_URL}/third-party/${id}`))
+                Array.from(thirdPartyIds).map(id => axiosInstance.get(`${config.API_BASE_URL}/third-party/${id}`))
             );
             const thirdPartyNamesMap = thirdPartyNamesResponse.reduce((acc, response) => {
                 const { id, name } = response.data;

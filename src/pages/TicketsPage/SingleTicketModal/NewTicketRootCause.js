@@ -3,6 +3,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheck, faEdit} from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import config from "../../../config/config";
+import axiosInstance from "../../../config/axiosInstance";
 
 
 const NewTicketRootCause = ({ticket}) => {
@@ -18,7 +19,7 @@ const NewTicketRootCause = ({ticket}) => {
     // Function to handle saving the updated root cause
     const handleSaveDescription = async () => {
         try {
-            await axios.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`, {
+            await axiosInstance.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`, {
                 rootCause: rootCause
             });
             setIsEditing(false); // Exit edit mode after saving

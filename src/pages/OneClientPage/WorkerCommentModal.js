@@ -5,6 +5,7 @@ import axios from "axios";
 import config from "../../config/config";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faEdit } from "@fortawesome/free-solid-svg-icons";
+import axiosInstance from "../../config/axiosInstance";
 
 function WorkerCommentModal({ show, onHide, worker, onCommentSaved }) {
     const [isEditing, setIsEditing] = useState(false);
@@ -20,7 +21,7 @@ function WorkerCommentModal({ show, onHide, worker, onCommentSaved }) {
 
     const handleSaveComment = async () => {
         try {
-            await axios.put(`${config.API_BASE_URL}/worker/update/${worker.id}`, {
+            await axiosInstance.put(`${config.API_BASE_URL}/worker/update/${worker.id}`, {
                 ...worker,
                 comment: comment
             });

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../../../css/ToggleSwitch.css";
 import axios from "axios";
 import config from "../../../config/config";
+import axiosInstance from "../../../config/axiosInstance";
 
 const ModalPaidButton = ({ activity, reFetch }) => {
     const [isActive, setIsActive] = useState(activity.paid === true); // Initialize based on ticket.paid
@@ -17,7 +18,7 @@ const ModalPaidButton = ({ activity, reFetch }) => {
         setIsActive(newPaidStatus); // Toggle the state visually immediately
 
         try {
-            await axios.put(`${config.API_BASE_URL}/client-activity/update/${activity.id}`, {
+            await axiosInstance.put(`${config.API_BASE_URL}/client-activity/update/${activity.id}`, {
                 paid: newPaidStatus
             });
             reFetch();

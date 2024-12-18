@@ -3,6 +3,7 @@ import {Form, Row, Col, Alert, FormCheck} from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../config/config";
 import SummaryModal from "./SummaryModal";
+import axiosInstance from "../../config/axiosInstance";
 
 function DeviceSearchFilter({ setDevices }) {
     const [searchQuery, setSearchQuery] = useState("");
@@ -20,7 +21,7 @@ function DeviceSearchFilter({ setDevices }) {
     useEffect(() => {
         const fetchClassificators = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/device/classificator/all`);
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/device/classificator/all`);
                 const sortedClassificators = response.data.sort((a, b) => a.name.localeCompare(b.name))
                 setClassificators(sortedClassificators);
             } catch (error) {
@@ -31,7 +32,7 @@ function DeviceSearchFilter({ setDevices }) {
 
         const fetchClients = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/client/all`);
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/client/all`);
                 const sortedCustomers = response.data.sort((a, b) => a.shortName.localeCompare(b.shortName))
                 setClients(sortedCustomers);
             } catch (error) {
@@ -42,7 +43,7 @@ function DeviceSearchFilter({ setDevices }) {
 
         const fetchAllLocations = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/location/all`);
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/location/all`);
                 const sortedLocations = response.data.sort((a, b) => a.name.localeCompare(b.name))
                 setAllLocations(sortedLocations); // Store all locations initially
                 setLocations(sortedLocations); // Displays all locations for now
@@ -61,7 +62,7 @@ function DeviceSearchFilter({ setDevices }) {
         const fetchClientLocations = async () => {
             if (clientId) {
                 try {
-                    const response = await axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`);
+                    const response = await axiosInstance.get(`${config.API_BASE_URL}/client/locations/${clientId}`);
                     const sortedLocations = response.data.sort((a, b) => a.name.localeCompare(b.name))
                     setLocations(sortedLocations);
                 } catch (error) {
@@ -78,7 +79,7 @@ function DeviceSearchFilter({ setDevices }) {
 
     const handleSearchAndFilter = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/device/search`, {
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/device/search`, {
                 params: {
                     q: searchQuery,
                     classificatorId: classificatorId || undefined,

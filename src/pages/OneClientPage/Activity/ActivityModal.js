@@ -9,6 +9,7 @@ import DeleteModal from "./DeleteModal";
 import {FaTrash} from "react-icons/fa";
 import axios from "axios";
 import config from "../../../config/config";
+import axiosInstance from "../../../config/axiosInstance";
 const ActivityModal = ({ activity, handleClose, reFetch, clientName, locations, statuses }) => {
     const [activeKey, setActiveKey] = useState('0');
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -20,7 +21,7 @@ const ActivityModal = ({ activity, handleClose, reFetch, clientName, locations, 
 
     const handleDelete = async() => {
         try {
-            await axios.delete(`${config.API_BASE_URL}/client-activity/delete/${activity.id}`)
+            await axiosInstance.delete(`${config.API_BASE_URL}/client-activity/delete/${activity.id}`)
             reFetch();
             setShowDeleteModal(false);
             handleClose();

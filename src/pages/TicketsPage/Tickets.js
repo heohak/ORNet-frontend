@@ -7,6 +7,7 @@ import TicketsList from "./TicketsList";
 import config from "../../config/config";
 import NewTicket from "./SingleTicketModal/NewTicket";
 import AddTicketModal from "./AddTicketModal/AddTicketModal";
+import axiosInstance from "../../config/axiosInstance";
 
 function Tickets() {
     const [tickets, setTickets] = useState([]);
@@ -38,7 +39,7 @@ function Tickets() {
 
     const fetchStatuses = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/ticket/classificator/all`);
             setStatuses(response.data); // Set statuses once fetched
         } catch (error) {
             console.error("Error fetching statuses", error);
@@ -52,7 +53,7 @@ function Tickets() {
 
     const fetchWorkTypes = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/work-type/classificator/all`); // Adjust the endpoint as needed
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/work-type/classificator/all`); // Adjust the endpoint as needed
             setWorkTypes(response.data);
         } catch (error) {
             console.error("Error fetching work types", error);
@@ -127,7 +128,7 @@ function Tickets() {
             }
 
             const url = `${config.API_BASE_URL}/ticket/search?${params.toString()}`;
-            const response = await axios.get(url);
+            const response = await axiosInstance.get(url);
             setTickets(response.data);
         } catch (error) {
             setError(error.message);
@@ -163,7 +164,7 @@ function Tickets() {
 
     const fetchTicketById = async (id) => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/${id}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/ticket/${id}`);
             setTicket(response.data);
         } catch (error) {
             console.error('Error fetching ticket by ID:', error);

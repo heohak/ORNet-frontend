@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { DropdownButton, InputGroup, Dropdown, Modal, Button, Form } from "react-bootstrap";
 import axios from "axios";
 import config from "../../../config/config";
+import axiosInstance from "../../../config/axiosInstance";
 
 const NewTicketStatusDropdown = ({ ticket, statuses, setIsClosed, reFetch, setShowRootCauseModal }) => {
     const [statusName, setStatusName] = useState("");
@@ -34,7 +35,7 @@ const NewTicketStatusDropdown = ({ ticket, statuses, setIsClosed, reFetch, setSh
 
 
             // Update the ticket with the closed status and endDateTime
-            await axios.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`, {
+            await axiosInstance.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`, {
                 statusId: newStatus.id,
                 endDateTime: now,
                 rootCause: rootCause // Send the root cause to the backend
@@ -53,7 +54,7 @@ const NewTicketStatusDropdown = ({ ticket, statuses, setIsClosed, reFetch, setSh
 
     const updateTicketStatus = async (status) => {
         try {
-            await axios.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`, {
+            await axiosInstance.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`, {
                 statusId: status.id
             });
 

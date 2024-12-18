@@ -13,6 +13,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import config from '../../config/config';
 import {FaArrowLeft, FaDownload} from 'react-icons/fa';
+import axiosInstance from "../../config/axiosInstance";
 
 function ViewFiles() {
     const [loading, setLoading] = useState(false);
@@ -32,7 +33,7 @@ function ViewFiles() {
         setError(null);
 
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/file/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/file/all`);
             setFiles(response.data);
         } catch (error) {
             setError(error.message);
@@ -56,7 +57,7 @@ function ViewFiles() {
         }
 
         try {
-            const response = await axios.post(`${config.API_BASE_URL}/file/upload`, formData, {
+            const response = await axiosInstance.post(`${config.API_BASE_URL}/file/upload`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

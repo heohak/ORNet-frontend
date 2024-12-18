@@ -5,6 +5,7 @@ import { FaEdit, FaCheck } from 'react-icons/fa';  // Import edit and check icon
 import config from "../../../config/config";
 import Select from "react-select";
 import {useNavigate} from "react-router-dom";
+import axiosInstance from "../../../config/axiosInstance";
 
 const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, reFetch }) => {
     const [responsibleName, setResponsibleName] = useState('');
@@ -31,7 +32,7 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
 
     const fetchDevices = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/device/client/${activity.clientId}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/device/client/${activity.clientId}`);
             const fetchedDevices = response.data.map(device => ({value: device.id, label: device.deviceName}))
             setAvailableDevices(fetchedDevices);
             setSelectedDevices(activity.deviceIds.map(deviceId => fetchedDevices.find(device => device.value === deviceId)));
@@ -42,7 +43,7 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
 
     const fetchResponsibleName = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/bait/worker/${activity.baitWorkerId}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/bait/worker/${activity.baitWorkerId}`);
             const fullName = response.data.firstName + " " + response.data.lastName;
             setResponsibleName(fullName);
         } catch (error) {
@@ -52,7 +53,7 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
 
     const fetchContacts = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/worker/${activity.clientId}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/worker/${activity.clientId}`);
             const fetchedContacts = response.data.map(contact => ({value: contact.id, label: `${contact.firstName} ${contact.lastName}`}))
             setAvailableContacts(fetchedContacts);
             setSelectedContacts(editedActivity.contactIds.map(contactId => fetchedContacts.find(contact => contact.value === contactId)));
@@ -63,7 +64,7 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
 
     const fetchWorkTypes = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/work-type/classificator/all`)
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/work-type/classificator/all`)
             const fetchedWorkTypes = response.data.map(workType => ({value: workType.id, label: workType.workType}))
             setAvailableWorkTypes(fetchedWorkTypes)
             setSelectedWorkTypes(editedActivity.workTypeIds.map(workTypeId => fetchedWorkTypes.find(workType => workType.value === workTypeId)))
@@ -74,7 +75,7 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
 
     const fetchBaitWorkers = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/bait/worker/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/bait/worker/all`);
             setBaitWorkers(response.data);
         } catch (error) {
             console.error('Error fetching bait workers:', error);
@@ -107,7 +108,7 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
     // Save updated information to the backend
     const handleSaveChanges = async () => {
         try {
-            await axios.put(`${config.API_BASE_URL}/client-activity/update/${activity.id}`, {
+            await axiosInstance.put(`${config.API_BASE_URL}/client-activity/update/${activity.id}`, {
                 ...editedActivity,
                 contactIds: selectedContacts.map(contact => contact.value),
                 workTypeIds: selectedWorkTypes.map(workType => workType.value),

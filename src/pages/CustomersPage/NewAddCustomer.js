@@ -9,6 +9,7 @@ import AddContactModal from "./AddContactModal";
 import AsyncSelect from 'react-select/async';
 import '../../css/DarkenedModal.css';
 import AddLocationModal from "../OneClientPage/AddLocationModal";
+import axiosInstance from "../../config/axiosInstance";
 
 function NewAddCustomer({ show, onClose }) {
     const [fullName, setFullName] = useState('');
@@ -59,7 +60,7 @@ function NewAddCustomer({ show, onClose }) {
 
     const fetchCountries = async () => {
         try {
-            const response = await axios.get('https://restcountries.com/v3.1/all');
+            const response = await axiosInstance.get('https://restcountries.com/v3.1/all');
             const options = response.data.map(country => ({
                 value: country.cca3,
                 label: country.name.common,
@@ -77,13 +78,13 @@ function NewAddCustomer({ show, onClose }) {
     const loadCountryOptions = async (inputValue) => {
         try {
             if (inputValue.length > 0) {
-                const response = await axios.get(`https://restcountries.com/v3.1/name/${inputValue}`);
+                const response = await axiosInstance.get(`https://restcountries.com/v3.1/name/${inputValue}`);
                 return response.data.map(country => ({
                     value: country.cca3,
                     label: country.name.common,
                 }));
             } else {
-                const response = await axios.get('https://restcountries.com/v3.1/all');
+                const response = await axiosInstance.get('https://restcountries.com/v3.1/all');
                 return response.data.map(country => ({
                     value: country.cca3,
                     label: country.name.common,
@@ -97,7 +98,7 @@ function NewAddCustomer({ show, onClose }) {
 
     const fetchLocations = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/location/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/location/all`);
             setLocationOptions(response.data.map(loc => ({ value: loc.id, label: loc.name })));
         } catch (error) {
             console.error('Error fetching locations:', error);
@@ -106,7 +107,7 @@ function NewAddCustomer({ show, onClose }) {
 
     const fetchThirdParties = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/third-party/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/third-party/all`);
             setThirdPartyOptions(response.data.map(tp => ({ value: tp.id, label: tp.name })));
         } catch (error) {
             console.error('Error fetching third-party ITs:', error);
@@ -134,7 +135,7 @@ function NewAddCustomer({ show, onClose }) {
         }
 
         try {
-            const clientResponse = await axios.post(`${config.API_BASE_URL}/client/add`, {
+            const clientResponse = await axiosInstance.post(`${config.API_BASE_URL}/client/add`, {
                 fullName,
                 shortName,
                 pathologyClient: pathologyCustomer,
@@ -150,12 +151,12 @@ function NewAddCustomer({ show, onClose }) {
             const clientId = clientResponse.data.token;
 
             await Promise.all([
-                ...selectedLocations.map(location => axios.put(`${config.API_BASE_URL}/client/${clientId}/${location.value}`)),
-                ...selectedThirdParties.map(tp => axios.put(`${config.API_BASE_URL}/client/third-party/${clientId}/${tp.value}`))
+                ...selectedLocations.map(location => axiosInstance.put(`${config.API_BASE_URL}/client/${clientId}/${location.value}`)),
+                ...selectedThirdParties.map(tp => axiosInstance.put(`${config.API_BASE_URL}/client/third-party/${clientId}/${tp.value}`))
             ]);
 
             for (const contact of selectedContacts) {
-                const response = await axios.post(`${config.API_BASE_URL}/worker/add`, {
+                const response = await axiosInstance.post(`${config.API_BASE_URL}/worker/add`, {
                     clientId,
                     firstName: contact.firstName,
                     lastName: contact.lastName,
@@ -169,7 +170,7 @@ function NewAddCustomer({ show, onClose }) {
                     const workerId = response.data.token;
 
                     for (const role of contact.roles) {
-                        await axios.put(`${config.API_BASE_URL}/worker/role/${workerId}/${role.id}`);
+                        await axiosInstance.put(`${config.API_BASE_URL}/worker/role/${workerId}/${role.id}`);
                     }
                 }
             }
@@ -190,7 +191,7 @@ function NewAddCustomer({ show, onClose }) {
         const { name, email, phone } = newThirdParty;
 
         try {
-            const response = await axios.post(`${config.API_BASE_URL}/third-party/add`, {
+            const response = await axiosInstance.post(`${config.API_BASE_URL}/third-party/add`, {
                 name,
                 email,
                 phone,

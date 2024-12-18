@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import axios from 'axios';
 import config from '../config/config';
+import axiosInstance from "../config/axiosInstance";
 
 function CommentsModal({ show, handleClose, deviceId, isLinkedDevice = false }) {
     const [comments, setComments] = useState([]);
@@ -14,7 +15,7 @@ function CommentsModal({ show, handleClose, deviceId, isLinkedDevice = false }) 
                 const url = isLinkedDevice
                     ? `${config.API_BASE_URL}/linked/device/comment/${deviceId}`
                     : `${config.API_BASE_URL}/device/comment/${deviceId}`;
-                const response = await axios.get(url);
+                const response = await axiosInstance.get(url);
                 setComments(response.data);
             } catch (error) {
                 console.error('Error fetching comments:', error);
@@ -40,7 +41,7 @@ function CommentsModal({ show, handleClose, deviceId, isLinkedDevice = false }) 
             const url = isLinkedDevice
                 ? `${config.API_BASE_URL}/linked/device/comment/${deviceId}`
                 : `${config.API_BASE_URL}/device/comment/${deviceId}`;
-            await axios.put(url,
+            await axiosInstance.put(url,
                 newComment,
                 {
                     headers: {

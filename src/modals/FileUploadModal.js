@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button, Modal, Form, ListGroup } from 'react-bootstrap';
+import axiosInstance from "../config/axiosInstance";
 
 function FileUploadModal({ show, handleClose, uploadEndpoint, onUploadSuccess }) {
     const [selectedFiles, setSelectedFiles] = useState([]);
@@ -33,7 +34,7 @@ function FileUploadModal({ show, handleClose, uploadEndpoint, onUploadSuccess })
         });
 
         try {
-            await axios.put(uploadEndpoint, formData, {
+            await axiosInstance.put(uploadEndpoint, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

@@ -1,11 +1,26 @@
-import React from 'react';
-import { Navbar, Nav, Container } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
-import { useLocation } from 'react-router-dom';
-import '../css/Navbar.css';
+import React from "react";
+import { Navbar, Nav, Container } from "react-bootstrap";
+import { LinkContainer } from "react-router-bootstrap";
+import { useLocation, useNavigate } from "react-router-dom";
+import axiosInstance from "../config/axiosInstance";
+import { FaSignOutAlt } from "react-icons/fa"; // Import the specific icon
+import "../css/Navbar.css";
 
 const MenuBar = () => {
     const location = useLocation();
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        try {
+            await axiosInstance.post("/auth/logout");
+            localStorage.removeItem("token"); // Remove the token locally
+            navigate("/login");
+        } catch (err) {
+            console.error("Error during logout", err);
+        }
+    };
+
+    const isLoggedIn = !!localStorage.getItem("token"); // Check if the user is logged in
 
     return (
         <Navbar bg="light" expand="lg" fixed="top" className="navbar-custom">
@@ -35,6 +50,13 @@ const MenuBar = () => {
                             <Nav.Link eventKey="/settings">Settings</Nav.Link>
                         </LinkContainer>
                     </Nav>
+                    {isLoggedIn && (
+                        <Nav className="ms-auto">
+                            <Nav.Link onClick={handleLogout} className="logout-icon" title="Log out">
+                                <FaSignOutAlt />
+                            </Nav.Link>
+                        </Nav>
+                    )}
                 </Navbar.Collapse>
             </Container>
         </Navbar>

@@ -13,6 +13,7 @@ import {
 import {FaArrowLeft, FaEdit} from 'react-icons/fa';
 import config from '../../config/config';
 import EditLinkedDeviceModal from "./EditLinkedDeviceModal";
+import axiosInstance from "../../config/axiosInstance";
 
 function ViewLinkedDevices() {
     const [linkedDevices, setLinkedDevices] = useState([]);
@@ -37,7 +38,7 @@ function ViewLinkedDevices() {
     const fetchLinkedDevices = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/linked/device/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/all`);
             setLinkedDevices(response.data);
             setError(null);
         } catch (error) {
@@ -50,7 +51,7 @@ function ViewLinkedDevices() {
     const handleAddLinkedDevice = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(`${config.API_BASE_URL}/linked/device/add`, {
+            await axiosInstance.post(`${config.API_BASE_URL}/linked/device/add`, {
                 name,
                 manufacturer,
                 productCode,
@@ -129,7 +130,7 @@ function ViewLinkedDevices() {
                                 return (
                                     <Row
                                         key={device.id}
-                                        className="align-items-center"
+                                        className="align-items-center py-1"
                                         style={{ backgroundColor: rowBgColor }}
                                     >
                                         {defaultFields.map((field) => (
@@ -138,7 +139,7 @@ function ViewLinkedDevices() {
                                         <Col>
                                             <Button
                                                 variant="link"
-                                                className="p-0"
+                                                className="d-flex p-0"
                                                 onClick={() => handleEdit(device)}
                                             >
                                                 <FaEdit />

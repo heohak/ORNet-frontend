@@ -5,6 +5,7 @@ import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import config from '../../config/config';
 import ReactDatePicker from "react-datepicker";
+import axiosInstance from "../../config/axiosInstance";
 
 function DeviceStatusManager({ deviceId, introducedDate, writtenOffDate, setRefresh }) {
     // States for handling written-off status
@@ -27,7 +28,7 @@ function DeviceStatusManager({ deviceId, introducedDate, writtenOffDate, setRefr
         const formattedDate = new Date(currentWrittenOffDate).toISOString().split("T")[0];
 
         try {
-            await axios.put(
+            await axiosInstance.put(
                 `${config.API_BASE_URL}/device/written-off/${deviceId}`,
                 writtenOffComment, // Sending the writtenOffComment in the request body
                 {
@@ -51,7 +52,7 @@ function DeviceStatusManager({ deviceId, introducedDate, writtenOffDate, setRefr
     // Function to handle reactivating a device
     const handleReactivateDevice = async () => {
         try {
-            await axios.put(
+            await axiosInstance.put(
                 `${config.API_BASE_URL}/device/reactivate/${deviceId}`,
                 writtenOffComment,
                 {

@@ -8,6 +8,7 @@ import { format } from 'date-fns';
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import CreatableSelect from "react-select/creatable";
+import axiosInstance from "../../config/axiosInstance";
 
 
 function EditDevice({ deviceId, onClose, setRefresh }) {
@@ -39,7 +40,7 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
     useEffect(() => {
         const fetchDeviceData = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/device/${deviceId}`);
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/device/${deviceId}`);
                 const data = response.data;
                 // Convert date strings to Date objects
                 const versionUpdateDate = data.versionUpdateDate ? new Date(data.versionUpdateDate) : null;
@@ -58,8 +59,8 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
         const fetchDropdownData = async () => {
             try {
                 const [clientsResponse, classificatorsResponse] = await Promise.all([
-                    axios.get(`${config.API_BASE_URL}/client/all`),
-                    axios.get(`${config.API_BASE_URL}/device/classificator/all`),
+                    axiosInstance.get(`${config.API_BASE_URL}/client/all`),
+                    axiosInstance.get(`${config.API_BASE_URL}/device/classificator/all`),
                 ]);
                 setClients(clientsResponse.data);
                 setClassificators(classificatorsResponse.data);
@@ -77,7 +78,7 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
         const fetchLocations = async () => {
             if (deviceData.clientId) {
                 try {
-                    const locationRes = await axios.get(`${config.API_BASE_URL}/client/locations/${deviceData.clientId}`);
+                    const locationRes = await axiosInstance.get(`${config.API_BASE_URL}/client/locations/${deviceData.clientId}`);
                     setLocations(locationRes.data);
                 } catch (error) {
                     console.error('Error fetching locations:', error);
@@ -90,7 +91,7 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
 
     const fetchPredefinedDeviceNames = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/predefined/names`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/predefined/names`);
             // Assuming response.data is an array of objects { name: '...' }
             const options = response.data
                 .sort((a, b) => a.name.localeCompare(b.name))
@@ -138,7 +139,7 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
                 introducedDate: deviceData.introducedDate ? format(deviceData.introducedDate, 'yyyy-MM-dd') : null,
             };
 
-            await axios.put(`${config.API_BASE_URL}/device/update/${deviceId}`, updatedDeviceData);
+            await axiosInstance.put(`${config.API_BASE_URL}/device/update/${deviceId}`, updatedDeviceData);
             if (setRefresh) {
                 setRefresh(prev => !prev);
             }

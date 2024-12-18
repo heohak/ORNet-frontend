@@ -10,6 +10,7 @@ import '../../css/OneClientPage/AddActivityModal.css';
 import '../../css/DarkenedModal.css';
 import { format } from 'date-fns';
 import CreatableSelect from 'react-select/creatable';
+import axiosInstance from "../../config/axiosInstance";
 
 
 function AddDeviceModal({ show, onHide, setRefresh }) {
@@ -70,7 +71,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
     useEffect(() => {
         const fetchClients = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/client/all`);
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/client/all`);
                 const sortedClients = sortFunction(response.data, "Client")
                 setClients(sortedClients);
             } catch (error) {
@@ -80,7 +81,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
 
         const fetchClassificators = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/device/classificator/all`);
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/device/classificator/all`);
                 const sortedClassificators = sortFunction(response.data, "Classificator")
                 setClassificators(sortedClassificators);
             } catch (error) {
@@ -90,7 +91,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
 
         const fetchPredefinedDeviceNames = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/predefined/names`);
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/predefined/names`);
                 const sortedPreDeviceNames = sortFunction(response.data, "PreDeviceName")
                 // Map the data to the format expected by react-select
                 const options = sortedPreDeviceNames.map((name) => ({
@@ -114,7 +115,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
     const fetchLocations = async () => {
         if (clientId) {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`);
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/client/locations/${clientId}`);
                 const sortedLocations = sortFunction(response.data, "Location")
                 setLocations(sortedLocations);
             } catch (error) {
@@ -144,7 +145,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
             const formattedVersionUpdateDate = versionUpdateDate ? format(versionUpdateDate, 'yyyy-MM-dd') : null;
             const formattedIntroducedDate = introducedDate ? format(introducedDate, 'yyyy-MM-dd') : null;
 
-            const deviceResponse = await axios.post(`${config.API_BASE_URL}/device/add`, {
+            const deviceResponse = await axiosInstance.post(`${config.API_BASE_URL}/device/add`, {
                 clientId,
                 locationId,
                 deviceName,
@@ -164,7 +165,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
             const deviceId = deviceResponse.data.token; // Assuming the response contains the new device's ID
 
             if (deviceClassificatorId) {
-                await axios.put(`${config.API_BASE_URL}/device/classificator/${deviceId}/${deviceClassificatorId}`);
+                await axiosInstance.put(`${config.API_BASE_URL}/device/classificator/${deviceId}/${deviceClassificatorId}`);
             }
 
             setRefresh(prev => !prev); // Trigger refresh by toggling state

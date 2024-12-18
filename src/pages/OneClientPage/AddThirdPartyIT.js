@@ -4,6 +4,7 @@ import { Container, Form, Button, Alert, Modal } from 'react-bootstrap';
 import config from "../../config/config";
 import Select from 'react-select';
 import '../../css/DarkenedModal.css';
+import axiosInstance from "../../config/axiosInstance";
 
 function AddThirdPartyIT({ clientId, show, onClose, setRefresh, clientThirdParties }) {
     const [availableThirdParties, setAvailableThirdParties] = useState([]);
@@ -20,7 +21,7 @@ function AddThirdPartyIT({ clientId, show, onClose, setRefresh, clientThirdParti
     useEffect(() => {
         const fetchThirdParties = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/third-party/all`);
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/third-party/all`);
 
                 // Create a Set of IDs from clientThirdParties for faster lookups
                 const clientThirdPartySet = new Set(clientThirdParties.map(item => item.id));
@@ -55,7 +56,7 @@ function AddThirdPartyIT({ clientId, show, onClose, setRefresh, clientThirdParti
         }
 
         try {
-            await axios.put(`${config.API_BASE_URL}/client/third-party/${clientId}/${selectedThirdParty.value}`);
+            await axiosInstance.put(`${config.API_BASE_URL}/client/third-party/${clientId}/${selectedThirdParty.value}`);
             setRefresh(prev => !prev); // Trigger refresh by toggling state
             onClose(); // Close the modal after adding the third-party IT
         } catch (error) {
@@ -93,7 +94,7 @@ function AddThirdPartyIT({ clientId, show, onClose, setRefresh, clientThirdParti
         }
 
         try {
-            const response = await axios.post(`${config.API_BASE_URL}/third-party/add`, {
+            const response = await axiosInstance.post(`${config.API_BASE_URL}/third-party/add`, {
                 name,
                 email,
                 phone,

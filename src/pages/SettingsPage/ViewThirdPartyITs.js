@@ -14,6 +14,7 @@ import {
 import config from '../../config/config';
 import {FaPhone, FaEnvelope, FaEdit, FaArrowLeft} from 'react-icons/fa';
 import EditThirdPartyITModal from "./EditThirdPartyITModal";
+import axiosInstance from "../../config/axiosInstance";
 
 function ViewThirdPartyITs() {
     const [thirdPartyITs, setThirdPartyITs] = useState([]);
@@ -30,7 +31,7 @@ function ViewThirdPartyITs() {
     useEffect(() => {
         const fetchThirdPartyITs = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/third-party/all`);
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/third-party/all`);
                 setThirdPartyITs(response.data);
             } catch (error) {
                 setError(error.message);
@@ -56,12 +57,12 @@ function ViewThirdPartyITs() {
         setPhone(trimmedPhoneNumber);
 
         try {
-            await axios.post(`${config.API_BASE_URL}/third-party/add`, {
+            await axiosInstance.post(`${config.API_BASE_URL}/third-party/add`, {
                 name,
                 email,
                 phone,
             });
-            const response = await axios.get(`${config.API_BASE_URL}/third-party/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/third-party/all`);
             setThirdPartyITs(response.data);
             setShowAddModal(false);
             setName('');
@@ -86,7 +87,7 @@ function ViewThirdPartyITs() {
         // Fetch the updated list of third parties
         const fetchThirdPartyITs = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/third-party/all`);
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/third-party/all`);
                 setThirdPartyITs(response.data);
             } catch (error) {
                 setError(error.message);

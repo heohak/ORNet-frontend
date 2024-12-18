@@ -5,6 +5,7 @@ import axios from "axios";
 import config from "../../../config/config";
 import '../../../css/NewTicket.css';
 import TextareaAutosize from 'react-textarea-autosize';
+import axiosInstance from "../../../config/axiosInstance";
 
 const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
     const [newActivity, setNewActivity] = useState("");
@@ -41,7 +42,7 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
 
     const submitActivity = async () => {
         try {
-            await axios.put(
+            await axiosInstance.put(
                 `${config.API_BASE_URL}/ticket/activity/${ticket.id}`,
                 newActivity, // Send as a plain string
                 {
@@ -84,7 +85,7 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
 
     const handleSaveActivity = async (index, activityId) => {
         try {
-            await axios.put(`${config.API_BASE_URL}/activity/update/${activityId}`, {
+            await axiosInstance.put(`${config.API_BASE_URL}/activity/update/${activityId}`, {
                 activity: editedActivity,
             });
             setEditMode(null); // Exit edit mode
@@ -97,7 +98,7 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
 
     const fetchActivities = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/activity/${ticket.id}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/ticket/activity/${ticket.id}`);
             setActivities(response.data);
         } catch (error) {
             console.error("Error fetching activities:", error);

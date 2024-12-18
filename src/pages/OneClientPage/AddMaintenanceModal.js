@@ -7,6 +7,7 @@ import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../../css/OneClientPage/AddActivityModal.css'; // Adjust the path as needed
 import { format } from 'date-fns';
+import axiosInstance from "../../config/axiosInstance";
 
 function AddMaintenanceModal({ show, handleClose, clientId, locationId, deviceId, setRefresh, onAddMaintenance }) {
     const [maintenanceName, setMaintenanceName] = useState('');
@@ -33,7 +34,7 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, deviceId
 
             if (clientId) {
                 // For clients, create maintenance and associate it separately
-                const maintenanceResponse = await axios.post(`${config.API_BASE_URL}/maintenance/add`, {
+                const maintenanceResponse = await axiosInstance.post(`${config.API_BASE_URL}/maintenance/add`, {
                     maintenanceName,
                     maintenanceDate: formattedMaintenanceDate,
                     comment
@@ -41,13 +42,13 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, deviceId
 
                 if (maintenanceResponse.data && maintenanceResponse.data.token) {
                     maintenanceId = maintenanceResponse.data.token;
-                    await axios.put(`${config.API_BASE_URL}/client/maintenance/${clientId}/${maintenanceId}`);
+                    await axiosInstance.put(`${config.API_BASE_URL}/client/maintenance/${clientId}/${maintenanceId}`);
                 } else {
                     throw new Error('Failed to create maintenance for client');
                 }
             } else if (locationId) {
                 // For locations, use the endpoint that creates and associates maintenance
-                const response = await axios.put(`${config.API_BASE_URL}/location/maintenance/${locationId}`, {
+                const response = await axiosInstance.put(`${config.API_BASE_URL}/location/maintenance/${locationId}`, {
                     maintenanceName,
                     maintenanceDate,
                     comment
@@ -60,7 +61,7 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, deviceId
                 }
             } else if (deviceId) {
                 // For devices, create maintenance and associate it
-                const maintenanceResponse = await axios.post(`${config.API_BASE_URL}/maintenance/add`, {
+                const maintenanceResponse = await axiosInstance.post(`${config.API_BASE_URL}/maintenance/add`, {
                     maintenanceName,
                     maintenanceDate,
                     comment
@@ -68,7 +69,7 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, deviceId
 
                 if (maintenanceResponse.data && maintenanceResponse.data.token) {
                     maintenanceId = maintenanceResponse.data.token;
-                    await axios.put(`${config.API_BASE_URL}/device/maintenance/${deviceId}/${maintenanceId}`);
+                    await axiosInstance.put(`${config.API_BASE_URL}/device/maintenance/${deviceId}/${maintenanceId}`);
                 } else {
                     throw new Error('Failed to create maintenance for device');
                 }
@@ -102,7 +103,7 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, deviceId
             formData.append('files', file);
         }
         try {
-            await axios.put(`${config.API_BASE_URL}/maintenance/upload/${maintenanceId}`, formData, {
+            await axiosInstance.put(`${config.API_BASE_URL}/maintenance/upload/${maintenanceId}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

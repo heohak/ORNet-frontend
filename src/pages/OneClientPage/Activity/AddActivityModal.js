@@ -6,6 +6,7 @@ import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../../../css/OneClientPage/AddActivityModal.css';
 import Select from "react-select";
+import axiosInstance from "../../../config/axiosInstance";
 
 const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations, clientContacts, clientName}) => {
 
@@ -48,9 +49,9 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
         const fetchData = async () => {
             try {
                 const [statusRes, baitWorkerRes, workTypeRes] = await Promise.all([
-                    axios.get(`${config.API_BASE_URL}/ticket/classificator/all`),
-                    axios.get(`${config.API_BASE_URL}/bait/worker/all`),
-                    axios.get(`${config.API_BASE_URL}/work-type/classificator/all`),
+                    axiosInstance.get(`${config.API_BASE_URL}/ticket/classificator/all`),
+                    axiosInstance.get(`${config.API_BASE_URL}/bait/worker/all`),
+                    axiosInstance.get(`${config.API_BASE_URL}/work-type/classificator/all`),
                 ]);
                 const statuses = statusRes.data;
                 if (statuses.length > 0) {
@@ -75,11 +76,11 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
         const fetchContactsAndDevices = async () => {
             if (formData.clientId) {
                 try {
-                    const deviceRes = await axios.get (`${config.API_BASE_URL}/device/client/${formData.clientId}`)
+                    const deviceRes = await axiosInstance.get (`${config.API_BASE_URL}/device/client/${formData.clientId}`)
 
                     const contactsWithRoles = await Promise.all(
                         contacts.map(async contact => {
-                            const rolesRes = await axios.get(`${config.API_BASE_URL}/worker/role/${contact.id}`);
+                            const rolesRes = await axiosInstance.get(`${config.API_BASE_URL}/worker/role/${contact.id}`);
                             return {...contact, roles: rolesRes.data.map(role => role.role)};
                         })
                     );
@@ -138,7 +139,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                 endDateTime: new Date(formData.endDateTime),
             };
 
-            await axios.post(`${config.API_BASE_URL}/client-activity/add`, newActivity);
+            await axiosInstance.post(`${config.API_BASE_URL}/client-activity/add`, newActivity);
 
             reFetch();
             handleClose();

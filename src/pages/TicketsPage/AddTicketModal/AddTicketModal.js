@@ -8,6 +8,7 @@ import AddWorkTypeModal from "./AddWorkTypeModal";
 import AddLocationModal from "./AddLocationModal";
 import AddContactModal from "./AddContactModal";
 import '../../../css/DarkenedModal.css';
+import axiosInstance from "../../../config/axiosInstance";
 
 
 
@@ -82,10 +83,10 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
         const fetchData = async () => {
             try {
                 const [statusRes, baitWorkerRes, clientRes, workTypeRes] = await Promise.all([
-                    axios.get(`${config.API_BASE_URL}/ticket/classificator/all`),
-                    axios.get(`${config.API_BASE_URL}/bait/worker/all`),
-                    axios.get(`${config.API_BASE_URL}/client/all`),
-                    axios.get(`${config.API_BASE_URL}/work-type/classificator/all`),
+                    axiosInstance.get(`${config.API_BASE_URL}/ticket/classificator/all`),
+                    axiosInstance.get(`${config.API_BASE_URL}/bait/worker/all`),
+                    axiosInstance.get(`${config.API_BASE_URL}/client/all`),
+                    axiosInstance.get(`${config.API_BASE_URL}/work-type/classificator/all`),
                 ]);
                 const statuses = statusRes.data;
                 if (statuses.length > 0) {
@@ -111,13 +112,13 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
         const fetchLocationsAndContactsAndDevices = async () => {
             if (formData.clientId) {
                 try {
-                    const locationRes = await axios.get(`${config.API_BASE_URL}/client/locations/${formData.clientId}`);
-                    const contactRes = await axios.get(`${config.API_BASE_URL}/worker/${formData.clientId}`);
-                    const deviceRes = await axios.get (`${config.API_BASE_URL}/device/client/${formData.clientId}`)
+                    const locationRes = await axiosInstance.get(`${config.API_BASE_URL}/client/locations/${formData.clientId}`);
+                    const contactRes = await axiosInstance.get(`${config.API_BASE_URL}/worker/${formData.clientId}`);
+                    const deviceRes = await axiosInstance.get (`${config.API_BASE_URL}/device/client/${formData.clientId}`)
 
                     const contactsWithRoles = await Promise.all(
                         contactRes.data.map(async contact => {
-                            const rolesRes = await axios.get(`${config.API_BASE_URL}/worker/role/${contact.id}`);
+                            const rolesRes = await axiosInstance.get(`${config.API_BASE_URL}/worker/role/${contact.id}`);
                             return {...contact, roles: rolesRes.data.map(role => role.role)};
                         })
                     );
@@ -174,11 +175,11 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
 
             };
 
-            const response = await axios.post(`${config.API_BASE_URL}/ticket/add`, newTicket);
+            const response = await axiosInstance.post(`${config.API_BASE_URL}/ticket/add`, newTicket);
 
             if (submitType === "submitAndView") {
                 const ticketId = parseInt(response.data.token);
-                const newTicketData = await axios.get(`${config.API_BASE_URL}/ticket/${ticketId}`);
+                const newTicketData = await axiosInstance.get(`${config.API_BASE_URL}/ticket/${ticketId}`);
                 setTicket(newTicketData.data);
                 onNavigate(newTicketData.data);
             }
@@ -238,7 +239,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
     const handleContactAdded = async () => {
         if (formData.clientId) {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/worker/${formData.clientId}`);
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/worker/${formData.clientId}`);
                 setContacts(response.data);
             } catch (error) {
                 console.error('Error fetching contacts:', error);
