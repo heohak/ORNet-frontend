@@ -35,6 +35,7 @@ function OneClient() {
     const accordionRefs = useRef([]); // Array of refs for each Accordion.Item
     const [activeAccordionKeys, setActiveAccordionKeys] = useState([]);
     const [openStatusId, setOpenStatusId] = useState('');
+    const [roles, setRoles] = useState([]);
 
 
     const navigate = useNavigate();
@@ -121,6 +122,17 @@ function OneClient() {
         }
     };
 
+    const fetchRoles = async () => {
+        try {
+            const response = await axios.get(`${config.API_BASE_URL}/worker/classificator/all`);
+            const rolesMap = response.data.map(role => ({value: role.id, label: role.role}))
+            const sortedRoles = rolesMap.sort((a, b) => a.label.localeCompare(b.label))
+            setRoles(sortedRoles);
+        } catch (error) {
+            console.error('Error fetching roles:', error);
+        }
+    };
+
 
     const handleAccordionToggle = (eventKey) => {
         if (!eventKey) return;
@@ -186,6 +198,8 @@ function OneClient() {
                             clientId={clientId}
                             navigate={navigate}
                             setRefresh={setRefresh}
+                            reFetchRoles={fetchRoles}
+                            setRoles={setRoles}
                         />
                         <Accordion
                             activeKey={activeAccordionKeys}
@@ -201,6 +215,8 @@ function OneClient() {
                                         clientId={clientId}
                                         setRefresh={setRefresh}
                                         refresh={refresh}
+                                        reFetchRoles={fetchRoles}
+                                        roles={roles}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>

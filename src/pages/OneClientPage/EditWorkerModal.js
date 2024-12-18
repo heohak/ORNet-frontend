@@ -6,7 +6,6 @@ import Select from 'react-select';
 
 function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, clientId }) {
     const [editingWorker, setEditingWorker] = useState(worker || {});
-    const [availableRoles, setAvailableRoles] = useState([]);
     const [selectedRoles, setSelectedRoles] = useState([]);
     const [locations, setLocations] = useState([]);
     const [selectedLocation, setSelectedLocation] = useState(null);
@@ -21,20 +20,10 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, cl
     }, [worker, roles, locations]);
 
     useEffect(() => {
-        fetchRoles();
         fetchLocations();
-    }, []);
+    }, [clientId]);
 
-    const fetchRoles = async () => {
-        try {
-            const response = await axios.get(`${config.API_BASE_URL}/worker/classificator/all`);
-            const fetchedRoles = response.data.map(role => ({ value: role.id, label: role.role }));
-            setAvailableRoles(fetchedRoles);
-            setSelectedRoles(worker.roleIds.map(roleId => fetchedRoles.find(role => role.value === roleId)));
-        } catch (error) {
-            console.error('Error fetching roles:', error);
-        }
-    };
+
 
     const fetchLocations = async () => {
         try {
@@ -138,7 +127,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, cl
                                 <Form.Label>Roles</Form.Label>
                                 <Select
                                     isMulti
-                                    options={availableRoles}
+                                    options={roles}
                                     value={selectedRoles}
                                     onChange={setSelectedRoles}
                                     placeholder="Select roles"

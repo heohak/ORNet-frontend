@@ -10,12 +10,11 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import AddClientWorker from "./AddClientWorker";
 import WorkerCommentModal from "./WorkerCommentModal";
 
-function ClientWorker({workers, client, clientId, refresh, setRefresh}) {
+function ClientWorker({workers, client, clientId, refresh, setRefresh, reFetchRoles, roles}) {
     const [showAddWorkerModal, setShowAddWorkerModal] = useState(false);
     const [showEditWorkerModal, setShowEditWorkerModal] = useState(false);
     const [workerLocations, setWorkerLocations] = useState({});
     const [selectedWorker, setSelectedWorker] = useState(null);
-    const [roles, setRoles] = useState([]);
     const [selectedFilterRoleId, setSelectedFilterRoleId] = useState('');
     const [filteredWorkers, setFilteredWorkers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
@@ -26,7 +25,7 @@ function ClientWorker({workers, client, clientId, refresh, setRefresh}) {
     const [commentWorker, setCommentWorker] = useState(null);
 
     useEffect(() => {
-        fetchRoles();
+        reFetchRoles();
     }, []);
 
     useEffect(() => {
@@ -54,16 +53,6 @@ function ClientWorker({workers, client, clientId, refresh, setRefresh}) {
         }
     };
 
-    const fetchRoles = async () => {
-        try {
-            const response = await axios.get(`${config.API_BASE_URL}/worker/classificator/all`);
-            const rolesMap = response.data.map(role => ({value: role.id, label: role.role}))
-            const sortedRoles = rolesMap.sort((a, b) => a.label.localeCompare(b.label))
-            setRoles(sortedRoles);
-        } catch (error) {
-            console.error('Error fetching roles:', error);
-        }
-    };
 
     const filterWorkers = async () => {
         try {
@@ -115,7 +104,7 @@ function ClientWorker({workers, client, clientId, refresh, setRefresh}) {
     };
 
     const handleAddWorkerSuccess = async (newWorker) => {
-        await fetchRoles();
+        await reFetchRoles();
         try {
             await axios.put(`${config.API_BASE_URL}/worker/${newWorker.id}/${clientId}`);
             setFilteredWorkers((prevWorkers) => [...prevWorkers, newWorker]);
@@ -318,7 +307,7 @@ function ClientWorker({workers, client, clientId, refresh, setRefresh}) {
                 onClose={() => setShowAddWorkerModal(false)}
                 clientId={clientId}
                 onSuccess={handleAddWorkerSuccess}
-                reFetchRoles={fetchRoles}
+                reFetchRoles={reFetchRoles}
             />
             {selectedWorker && (
                 <EditWorkerModal
