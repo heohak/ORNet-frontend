@@ -6,6 +6,7 @@ import {Alert, Button, Form, Modal} from 'react-bootstrap';
 import Select from 'react-select';
 import config from "../../config/config";
 import '../../css/DarkenedModal.css';
+import axiosInstance from "../../config/axiosInstance";
 
 function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
     const [firstName, setFirstName] = useState('');
@@ -28,8 +29,8 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
         const fetchData = async () => {
             try {
                 const [locationsResponse, rolesResponse] = await Promise.all([
-                    axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`),
-                    axios.get(`${config.API_BASE_URL}/worker/classificator/all`)
+                    axiosInstance.get(`${config.API_BASE_URL}/client/locations/${clientId}`),
+                    axiosInstance.get(`${config.API_BASE_URL}/worker/classificator/all`)
                 ]);
                 const locMap = locationsResponse.data.map(loc => ({ value: loc.id, label: loc.name }))
                 const sortedLoc = locMap.sort((a, b) => a.label.localeCompare(b.label))
@@ -71,7 +72,7 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
         setPhoneNumber(trimmedPhoneNumber);
 
         try {
-            const response = await axios.post(`${config.API_BASE_URL}/worker/add`, {
+            const response = await axiosInstance.post(`${config.API_BASE_URL}/worker/add`, {
                 firstName,
                 lastName,
                 email,
@@ -84,7 +85,7 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
                 const workerId = response.data.token;
 
                 for (const role of selectedRoles) {
-                    await axios.put(`${config.API_BASE_URL}/worker/role/${workerId}/${role.value}`);
+                    await axiosInstance.put(`${config.API_BASE_URL}/worker/role/${workerId}/${role.value}`);
                 }
 
                 const newWorker = {
@@ -125,7 +126,7 @@ function AddClientWorker({ show, onClose, clientId, onSuccess, reFetchRoles }) {
         }
 
         try {
-            const response = await axios.post(`${config.API_BASE_URL}/worker/classificator/add`, {
+            const response = await axiosInstance.post(`${config.API_BASE_URL}/worker/classificator/add`, {
                 role,
             });
 

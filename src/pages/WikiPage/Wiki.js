@@ -7,6 +7,7 @@ import AddWikiModal from "./AddWikiModal";
 import WikiDetails from "./WikiDetails";
 import { FaEdit } from 'react-icons/fa';
 import EditWikiModal from "./EditWikiModal";
+import axiosInstance from "../../config/axiosInstance";
 
 function Wiki() {
     const [wikis, setWikis] = useState([]);
@@ -36,7 +37,7 @@ function Wiki() {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/wiki/search`, {
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/wiki/search`, {
                 params: { q: searchQuery },
             });
             const sortedWikis = response.data.sort((a, b) => a.problem.localeCompare(b.problem));

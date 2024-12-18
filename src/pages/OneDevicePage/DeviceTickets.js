@@ -6,6 +6,7 @@ import axios from 'axios';
 import {useLocation, useNavigate, useParams} from 'react-router-dom';
 import config from '../../config/config';
 import NewTicket from '../TicketsPage/SingleTicketModal/NewTicket';
+import axiosInstance from "../../config/axiosInstance";
 
 function DeviceTickets({ deviceId }) {
     const navigate = useNavigate();
@@ -39,9 +40,9 @@ function DeviceTickets({ deviceId }) {
         setLoading(true);
         try {
             const [ticketsRes, statusesRes, locationsRes] = await Promise.all([
-                axios.get(`${config.API_BASE_URL}/device/tickets/${deviceId}`),
-                axios.get(`${config.API_BASE_URL}/ticket/classificator/all`),
-                axios.get(`${config.API_BASE_URL}/location/all`)
+                axiosInstance.get(`${config.API_BASE_URL}/device/tickets/${deviceId}`),
+                axiosInstance.get(`${config.API_BASE_URL}/ticket/classificator/all`),
+                axiosInstance.get(`${config.API_BASE_URL}/location/all`)
             ]);
 
             const fetchedTickets = ticketsRes.data;
@@ -78,7 +79,7 @@ function DeviceTickets({ deviceId }) {
 
     const fetchTickets = async() => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/device/tickets/${deviceId}`)
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/device/tickets/${deviceId}`)
             setTickets(response.data);
         } catch (error) {
             console.error("Error fetching tickets", error);
@@ -87,7 +88,7 @@ function DeviceTickets({ deviceId }) {
 
     const loadTicketDataById = async (id) => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/${id}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/ticket/${id}`);
             setTicket(response.data);
             if (statuses.length === 0) await fetchData(); // Ensure statuses and maps are loaded
             setTicketModal(true);

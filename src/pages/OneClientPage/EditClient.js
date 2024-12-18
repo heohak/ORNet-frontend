@@ -14,6 +14,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import {format} from "date-fns";
 import '../../css/DarkenedModal.css';
 import ConfirmationModal from "./ConfirmationModal";
+import axiosInstance from "../../config/axiosInstance";
 
 function EditClient({ clientId, onClose, onSave, setRefresh }) {
     const [originalClientData, setOriginalClientData] = useState(null);
@@ -99,7 +100,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
 
     const fetchAllContacts = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/worker/not-used`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/worker/not-used`);
             const sortedContacts = response.data.sort((a, b) => {
                 const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
                 const nameB = `${b.firstName} ${b.lastName}`.toLowerCase();
@@ -113,7 +114,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
 
     const fetchAllSoftwares = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/software/not-used`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/software/not-used`);
             setAllSoftwares(response.data);
         } catch (error) {
             setError(error.message);
@@ -122,27 +123,27 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
 
     const fetchClientData = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/client/${clientId}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/client/${clientId}`);
             const client = response.data;
 
             // Fetch locations
             const locationResponses = await Promise.all(
-                client.locationIds.map(id => axios.get(`${config.API_BASE_URL}/location/${id}`))
+                client.locationIds.map(id => axiosInstance.get(`${config.API_BASE_URL}/location/${id}`))
             );
             const locations = locationResponses.map(res => res.data);
 
             // Fetch third-party ITs
             const thirdPartyResponses = await Promise.all(
-                client.thirdPartyIds.map(id => axios.get(`${config.API_BASE_URL}/third-party/${id}`))
+                client.thirdPartyIds.map(id => axiosInstance.get(`${config.API_BASE_URL}/third-party/${id}`))
             );
             const thirdPartyITs = thirdPartyResponses.map(res => res.data);
 
             // Fetch assigned softwares
-            const softwareResponse = await axios.get(`${config.API_BASE_URL}/software/client/${clientId}`);
+            const softwareResponse = await axiosInstance.get(`${config.API_BASE_URL}/software/client/${clientId}`);
             const softwares = softwareResponse.data;
 
             // Fetch contacts
-            const contactResponse = await axios.get(`${config.API_BASE_URL}/worker/${clientId}`);
+            const contactResponse = await axiosInstance.get(`${config.API_BASE_URL}/worker/${clientId}`);
             const contacts = contactResponse.data;
             contacts.sort((a, b) => {
                 const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
@@ -178,8 +179,8 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
     const loadCountryOptions = async (inputValue) => {
         try {
             const response = inputValue
-                ? await axios.get(`https://restcountries.com/v3.1/name/${inputValue}`)
-                : await axios.get('https://restcountries.com/v3.1/all');
+                ? await axiosInstance.get(`https://restcountries.com/v3.1/name/${inputValue}`)
+                : await axiosInstance.get('https://restcountries.com/v3.1/all');
 
             return response.data.map((country) => ({
                 value: country.cca3,
@@ -193,7 +194,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
 
     const fetchLocations = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/location/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/location/all`);
             setAllLocations(response.data);
         } catch (error) {
             setError(error.message);
@@ -202,7 +203,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
 
     const fetchAllThirdPartyITs = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/third-party/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/third-party/all`);
             setAllThirdPartyITs(response.data);
         } catch (error) {
             setError(error.message);
@@ -337,7 +338,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             const removedContacts = originalContactIds.filter(id => !localContactIds.includes(id));
 
             // Determine which softwares were added or removed
-            const originalSoftwareIds = (await axios.get(`${config.API_BASE_URL}/software/client/${clientId}`)).data.map(s => s.id);
+            const originalSoftwareIds = (await axiosInstance.get(`${config.API_BASE_URL}/software/client/${clientId}`)).data.map(s => s.id);
             const localSoftwareIds = localSoftwares.map(s => s.id);
 
             const addedSoftwares = localSoftwareIds.filter(id => !originalSoftwareIds.includes(id));
@@ -360,38 +361,38 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             // Persist changes:
             // 1. Contacts
             for (const contactId of addedContacts) {
-                await axios.put(`${config.API_BASE_URL}/worker/${contactId}/${clientId}`);
+                await axiosInstance.put(`${config.API_BASE_URL}/worker/${contactId}/${clientId}`);
             }
             for (const contactId of removedContacts) {
-                await axios.put(`${config.API_BASE_URL}/worker/remove/${contactId}`);
+                await axiosInstance.put(`${config.API_BASE_URL}/worker/remove/${contactId}`);
             }
 
             // 2. Technical Information (Software)
             for (const swId of addedSoftwares) {
-                await axios.put(`${config.API_BASE_URL}/software/add/client/${swId}/${clientId}`);
+                await axiosInstance.put(`${config.API_BASE_URL}/software/add/client/${swId}/${clientId}`);
             }
             for (const swId of removedSoftwares) {
-                await axios.put(`${config.API_BASE_URL}/software/remove/${swId}`);
+                await axiosInstance.put(`${config.API_BASE_URL}/software/remove/${swId}`);
             }
 
             // 3. Third-Party IT
             for (const itId of addedThirdPartyITs) {
                 // Assume some endpoint to link IT to client
-                await axios.put(`${config.API_BASE_URL}/third-party/add/${itId}/${clientId}`);
+                await axiosInstance.put(`${config.API_BASE_URL}/third-party/add/${itId}/${clientId}`);
             }
             for (const itId of removedThirdPartyITs) {
                 // Assume some endpoint to remove IT from client
-                await axios.put(`${config.API_BASE_URL}/third-party/remove/${itId}/${clientId}`);
+                await axiosInstance.put(`${config.API_BASE_URL}/third-party/remove/${itId}/${clientId}`);
             }
 
             // 4. Locations
             for (const locId of addedLocations) {
                 // Assume some endpoint to link location to client
-                await axios.put(`${config.API_BASE_URL}/location/addToClient/${locId}/${clientId}`);
+                await axiosInstance.put(`${config.API_BASE_URL}/location/addToClient/${locId}/${clientId}`);
             }
             for (const locId of removedLocations) {
                 // Assume some endpoint to remove location from client
-                await axios.put(`${config.API_BASE_URL}/location/removeFromClient/${locId}/${clientId}`);
+                await axiosInstance.put(`${config.API_BASE_URL}/location/removeFromClient/${locId}/${clientId}`);
             }
 
             const updatedClientData = {
@@ -404,9 +405,9 @@ function EditClient({ clientId, onClose, onSave, setRefresh }) {
             };
 
             // Update the client itself
-            await axios.put(`${config.API_BASE_URL}/client/update/${clientId}`, updatedClientData);
+            await axiosInstance.put(`${config.API_BASE_URL}/client/update/${clientId}`, updatedClientData);
 
-            const updatedClientResponse = await axios.get(`${config.API_BASE_URL}/client/${clientId}`);
+            const updatedClientResponse = await axiosInstance.get(`${config.API_BASE_URL}/client/${clientId}`);
             const updatedClient = updatedClientResponse.data;
 
             if (onSave) {

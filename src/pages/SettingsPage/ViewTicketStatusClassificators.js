@@ -12,6 +12,7 @@ import {
 } from 'react-bootstrap';
 import config from '../../config/config';
 import {FaArrowLeft, FaEdit} from 'react-icons/fa';
+import axiosInstance from "../../config/axiosInstance";
 
 function ViewTicketStatusClassificators() {
     const [classificators, setClassificators] = useState([]);
@@ -40,7 +41,7 @@ function ViewTicketStatusClassificators() {
     const fetchClassificators = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/ticket/classificator/all`);
             setClassificators(response.data);
             setError(null);
         } catch (error) {
@@ -53,7 +54,7 @@ function ViewTicketStatusClassificators() {
     const handleAddClassificator = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(`${config.API_BASE_URL}/ticket/classificator/add`, {
+            await axiosInstance.post(`${config.API_BASE_URL}/ticket/classificator/add`, {
                 status: newStatus,
                 color: newColor,
             });
@@ -76,7 +77,7 @@ function ViewTicketStatusClassificators() {
     const handleUpdateClassificator = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(
+            await axiosInstance.put(
                 `${config.API_BASE_URL}/ticket/classificator/update/${selectedClassificator.id}`,
                 { status: editStatus, color: editColor }
             );
@@ -99,7 +100,7 @@ function ViewTicketStatusClassificators() {
 
     const fetchRelatedTickets = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/search`, {
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/ticket/search`, {
                 params: { statusId: selectedClassificator.id },
             });
             setRelatedTickets(response.data);
@@ -110,7 +111,7 @@ function ViewTicketStatusClassificators() {
 
     const handleDeleteClassificator = async () => {
         try {
-            await axios.delete(`${config.API_BASE_URL}/ticket/classificator/${selectedClassificator.id}`);
+            await axiosInstance.delete(`${config.API_BASE_URL}/ticket/classificator/${selectedClassificator.id}`);
             setShowDeleteModal(false);
             setShowEditModal(false);
             setSelectedClassificator(null);

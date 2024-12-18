@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import config from '../../config/config';
+import axiosInstance from "../../config/axiosInstance";
 
 function EditLinkedDeviceModal({ show, onHide, linkedDevice, onUpdate }) {
     const [name, setName] = useState(linkedDevice?.name || '');
@@ -22,15 +23,15 @@ function EditLinkedDeviceModal({ show, onHide, linkedDevice, onUpdate }) {
 
     const fetchConnectedDevice = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/linked/device/device/${linkedDevice.id}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/device/${linkedDevice.id}`);
             setConnectedDevice(response.data);
 
             if (response.data.clientId) {
-                const customerResponse = await axios.get(`${config.API_BASE_URL}/client/${response.data.clientId}`);
+                const customerResponse = await axiosInstance.get(`${config.API_BASE_URL}/client/${response.data.clientId}`);
                 setCustomer(customerResponse.data);
             }
             if (response.data.locationId) {
-                const locationResponse = await axios.get(`${config.API_BASE_URL}/location/${response.data.locationId}`);
+                const locationResponse = await axiosInstance.get(`${config.API_BASE_URL}/location/${response.data.locationId}`);
                 setDeviceLocation(locationResponse.data);
             }
         } catch (error) {
@@ -41,7 +42,7 @@ function EditLinkedDeviceModal({ show, onHide, linkedDevice, onUpdate }) {
     const handleUpdateLinkedDevice = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(`${config.API_BASE_URL}/linked/device/update/${linkedDevice.id}`, {
+            await axiosInstance.put(`${config.API_BASE_URL}/linked/device/update/${linkedDevice.id}`, {
                 name,
                 manufacturer,
                 productCode,
@@ -56,7 +57,7 @@ function EditLinkedDeviceModal({ show, onHide, linkedDevice, onUpdate }) {
 
     const handleDeleteLinkedDevice = async () => {
         try {
-            await axios.delete(`${config.API_BASE_URL}/linked/device/${linkedDevice.id}`);
+            await axiosInstance.delete(`${config.API_BASE_URL}/linked/device/${linkedDevice.id}`);
             onUpdate();
             setShowDeleteConfirm(false);
             onHide();

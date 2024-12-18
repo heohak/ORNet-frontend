@@ -5,6 +5,7 @@ import config from '../../config/config';
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
+import axiosInstance from "../../config/axiosInstance";
 
 function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
     // Form state variables
@@ -104,13 +105,13 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                 }
             };
 
-            const response = await axios.post(`${config.API_BASE_URL}/software/add`, data);
+            const response = await axiosInstance.post(`${config.API_BASE_URL}/software/add`, data);
 
             if (response.data && response.data.token) {
                 const softwareId = response.data.token;
                 if (clientId) {
                     // Associate software with client
-                    await axios.put(`${config.API_BASE_URL}/software/add/client/${softwareId}/${clientId}`);
+                    await axiosInstance.put(`${config.API_BASE_URL}/software/add/client/${softwareId}/${clientId}`);
                 }
                 if (onAddTechnicalInfo) {
                     onAddTechnicalInfo(); // Notify parent component

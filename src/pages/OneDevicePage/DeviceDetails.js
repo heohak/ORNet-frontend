@@ -27,6 +27,7 @@ import '../../css/AllDevicesPage/Devices.css';
 import DeviceStatusManager from './DeviceStatusManager';
 import EditDevice from "./EditDevice";
 import {format} from "date-fns";
+import axiosInstance from "../../config/axiosInstance";
 
 function DeviceDetails({
                            device,
@@ -135,7 +136,7 @@ function DeviceDetails({
         try {
             if (newField.addToAll) {
                 // Add the new attribute to all devices
-                await axios.post(
+                await axiosInstance.post(
                     `${config.API_BASE_URL}/device/attributes/add-to-all`,
                     attribute
                 );
@@ -143,7 +144,7 @@ function DeviceDetails({
                 window.location.reload();
             } else {
                 // Add the new attribute to the current device
-                await axios.put(
+                await axiosInstance.put(
                     `${config.API_BASE_URL}/device/${device.id}/attributes`,
                     attribute
                 );
@@ -181,7 +182,7 @@ function DeviceDetails({
 
         try {
             // Delete the attribute from the device
-            await axios.delete(
+            await axiosInstance.delete(
                 `${config.API_BASE_URL}/device/${device.id}/${fieldToDelete}`
             );
 

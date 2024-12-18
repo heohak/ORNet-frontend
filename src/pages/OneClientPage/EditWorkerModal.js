@@ -3,6 +3,7 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../config/config";
 import Select from 'react-select';
+import axiosInstance from "../../config/axiosInstance";
 
 function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, clientId }) {
     const [editingWorker, setEditingWorker] = useState(worker || {});
@@ -27,7 +28,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, cl
 
     const fetchRoles = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/worker/classificator/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/worker/classificator/all`);
             const fetchedRoles = response.data.map(role => ({ value: role.id, label: role.role }));
             setAvailableRoles(fetchedRoles);
             setSelectedRoles(worker.roleIds.map(roleId => fetchedRoles.find(role => role.value === roleId)));
@@ -38,7 +39,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, cl
 
     const fetchLocations = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/client/locations/${clientId}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/client/locations/${clientId}`);
             const fetchedLocations = response.data.map(location => ({ value: location.id, label: location.name }));
             setLocations(fetchedLocations);
             setSelectedLocation(fetchedLocations.find(location => location.value === worker.locationId));
@@ -68,7 +69,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, cl
                 locationId: selectedLocation ? selectedLocation.value : null,
             };
 
-            await axios.put(`${config.API_BASE_URL}/worker/update/${editingWorker.id}`, updatedWorker);
+            await axiosInstance.put(`${config.API_BASE_URL}/worker/update/${editingWorker.id}`, updatedWorker);
             onUpdateSuccess();
             handleClose();
         } catch (error) {

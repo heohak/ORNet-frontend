@@ -14,6 +14,7 @@ import {FaArrowLeft, FaEdit} from 'react-icons/fa';
 import config from '../../config/config';
 import EditClientWorkerRoleModal from "./EditClientWorkerRoleModal";
 import { useNavigate } from 'react-router-dom';
+import axiosInstance from "../../config/axiosInstance";
 
 function ViewClientWorkerRoles() {
     const [roles, setRoles] = useState([]);
@@ -37,7 +38,7 @@ function ViewClientWorkerRoles() {
     const fetchRoles = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/worker/classificator/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/worker/classificator/all`);
             setRoles(response.data);
             setError(null);
         } catch (error) {
@@ -50,7 +51,7 @@ function ViewClientWorkerRoles() {
     const handleAddRole = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(`${config.API_BASE_URL}/worker/classificator/add`, {
+            await axiosInstance.post(`${config.API_BASE_URL}/worker/classificator/add`, {
                 role: roleName,
             });
             fetchRoles();

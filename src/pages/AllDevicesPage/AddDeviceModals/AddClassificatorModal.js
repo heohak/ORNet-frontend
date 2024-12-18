@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Form, Button, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../../config/config";
+import axiosInstance from "../../../config/axiosInstance";
 
 function AddClassificatorModal({ show, onHide, onClassificatorAdded }) {
     const [name, setName] = useState('');
@@ -21,7 +22,7 @@ function AddClassificatorModal({ show, onHide, onClassificatorAdded }) {
         }
 
         try {
-            const response = await axios.post(`${config.API_BASE_URL}/device/classificator/add`, {
+            const response = await axiosInstance.post(`${config.API_BASE_URL}/device/classificator/add`, {
                 name
             });
 

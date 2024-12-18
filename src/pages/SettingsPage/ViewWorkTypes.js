@@ -12,6 +12,7 @@ import {
 } from 'react-bootstrap';
 import config from '../../config/config';
 import {FaArrowLeft, FaEdit} from 'react-icons/fa';
+import axiosInstance from "../../config/axiosInstance";
 
 function ViewWorkTypes() {
     const [workTypes, setWorkTypes] = useState([]);
@@ -41,7 +42,7 @@ function ViewWorkTypes() {
     const fetchWorkTypes = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/work-type/classificator/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/work-type/classificator/all`);
             setWorkTypes(response.data);
             setError(null);
         } catch (error) {
@@ -54,7 +55,7 @@ function ViewWorkTypes() {
     const handleAddWorkType = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(`${config.API_BASE_URL}/work-type/classificator/add`, { workType: newWorkType });
+            await axiosInstance.post(`${config.API_BASE_URL}/work-type/classificator/add`, { workType: newWorkType });
             setShowAddModal(false);
             setNewWorkType('');
             setRefresh((prev) => !prev); // Refresh the list
@@ -72,7 +73,7 @@ function ViewWorkTypes() {
     const handleUpdateWorkType = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(
+            await axiosInstance.put(
                 `${config.API_BASE_URL}/work-type/classificator/update/${selectedWorkType.id}`,
                 { workType: editWorkTypeName }
             );
@@ -95,7 +96,7 @@ function ViewWorkTypes() {
 
     const fetchRelatedTickets = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/search`, {
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/ticket/search`, {
                 params: { workTypeId: selectedWorkType.id },
             });
             setRelatedTickets(response.data);
@@ -106,7 +107,7 @@ function ViewWorkTypes() {
 
     const handleDeleteWorkType = async () => {
         try {
-            await axios.delete(`${config.API_BASE_URL}/work-type/classificator/${selectedWorkType.id}`);
+            await axiosInstance.delete(`${config.API_BASE_URL}/work-type/classificator/${selectedWorkType.id}`);
             setShowDeleteModal(false);
             setShowEditModal(false);
             setSelectedWorkType(null);

@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faEdit } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import config from "../../../config/config";
+import axiosInstance from "../../../config/axiosInstance";
 
 const NewTicketDescription = ({ activity, reFetch }) => {
     const [isEditing, setIsEditing] = useState(false); // Edit mode state
@@ -11,7 +12,7 @@ const NewTicketDescription = ({ activity, reFetch }) => {
     // Function to handle saving the updated description
     const handleSaveDescription = async () => {
         try {
-            await axios.put(`${config.API_BASE_URL}/client-activity/update/${activity.id}`, {
+            await axiosInstance.put(`${config.API_BASE_URL}/client-activity/update/${activity.id}`, {
                 description: description,
             });
             reFetch();

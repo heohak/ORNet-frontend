@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import config from '../../config/config';
 import AddTechnicalInfoModal from '../OneClientPage/AddTechnicalInfoModal';
 import EditTechnicalInfoModal from "./EditTechnicalInfoModal";
+import axiosInstance from "../../config/axiosInstance";
 
 function ViewSoftware() {
     const [softwareList, setSoftwareList] = useState([]);
@@ -36,7 +37,7 @@ function ViewSoftware() {
     const fetchSoftwareList = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/software/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/software/all`);
             setSoftwareList(response.data);
             setError(null);
         } catch (error) {

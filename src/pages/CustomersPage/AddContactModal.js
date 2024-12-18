@@ -4,6 +4,7 @@ import Select from 'react-select';
 import axios from 'axios';
 import config from "../../config/config";
 import '../../css/DarkenedModal.css';
+import axiosInstance from "../../config/axiosInstance";
 
 function AddContactModal({ show, handleClose, onSave, locationOptions }) {
     const [firstName, setFirstName] = useState('');
@@ -27,7 +28,7 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
     useEffect(() => {
         const fetchRoles = async () => {
             try {
-                const rolesResponse = await axios.get(`${config.API_BASE_URL}/worker/classificator/all`);
+                const rolesResponse = await axiosInstance.get(`${config.API_BASE_URL}/worker/classificator/all`);
                 setRoles(rolesResponse.data.map(role => ({ value: role.id, label: role.role })));
             } catch (error) {
                 setError('Error fetching roles');
@@ -100,7 +101,7 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
         }
 
         try {
-            const response = await axios.post(`${config.API_BASE_URL}/worker/classificator/add`, {
+            const response = await axiosInstance.post(`${config.API_BASE_URL}/worker/classificator/add`, {
                 role,
             });
 

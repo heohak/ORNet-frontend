@@ -5,6 +5,7 @@ import '../../css/OneClientPage/OneClient.css';
 import AddLocationModal from "./AddLocationModal";
 import axios from "axios";
 import config from "../../config/config";
+import axiosInstance from "../../config/axiosInstance";
 
 function ClientLocations({ locations, setRefresh, clientId }) {
     const [selectedLocation, setSelectedLocation] = useState(null);
@@ -23,7 +24,7 @@ function ClientLocations({ locations, setRefresh, clientId }) {
 
     const addLocationToCustomer = async(location) => {
         try {
-            await axios.put(`${config.API_BASE_URL}/client/${clientId}/${location.id}`)
+            await axiosInstance.put(`${config.API_BASE_URL}/client/${clientId}/${location.id}`)
             setRefresh((prev) => !prev)
         } catch (error) {
             console.error("Error assigning location to customer", error);

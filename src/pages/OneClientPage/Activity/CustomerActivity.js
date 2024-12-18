@@ -5,6 +5,7 @@ import axios from "axios";
 import config from "../../../config/config";
 import AddActivityModal from "./AddActivityModal";
 import '../../../css/OneClientPage/OneClient.css';
+import axiosInstance from "../../../config/axiosInstance";
 
 const CustomerActivity = ({ activities, setActivities, clientId, clientName, locations, contacts, statuses, openStatusId}) => {
     const [selectedActivity, setSelectedActivity] = useState(null);
@@ -19,7 +20,7 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
 
     const filterActivities = async() => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/client-activity/search`, {
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/client-activity/search`, {
                 params: {
                     statusId: selectedStatusId,
                     clientId: clientId

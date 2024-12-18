@@ -14,7 +14,8 @@ import ToggleSwitch from "./ToggleSwitch";
 import TicketSectionButtons from "./TicketSectionButtons";
 import '../../../css/NewTicket.css';
 import { FaTrash } from "react-icons/fa";
-import TicketDeleteModal from "./TicketDeleteModal"; // Import trash icon
+import TicketDeleteModal from "./TicketDeleteModal";
+import axiosInstance from "../../../config/axiosInstance"; // Import trash icon
 
 const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, clientId }) => {
     const [ticket, setTicket] = useState(firstTicket);
@@ -41,7 +42,7 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
     const reFetchTicket = async() => {
         reFetch();
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/${ticket.id}`)
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/ticket/${ticket.id}`)
             setTicket(response.data);
         } catch (error) {
             console.error("Error fetching ticket", error)
@@ -50,7 +51,7 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
 
     const fetchLocationName = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/location/${ticket.locationId}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/location/${ticket.locationId}`);
             setLocationName(response.data.name);
         } catch (error) {
             console.error('Error fetching location', error);
@@ -110,7 +111,7 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
     };
 
     const handleDelete = async() => {
-        await axios.delete(`${config.API_BASE_URL}/ticket/delete/${ticket.id}`);
+        await axiosInstance.delete(`${config.API_BASE_URL}/ticket/delete/${ticket.id}`);
         reFetch();
         onClose();
     }

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../../config/config";
+import axiosInstance from "../../../config/axiosInstance";
 
 const AddContactModal = ({ show, handleClose, onAdd, locations, clientId }) => {
     const [firstName, setFirstName] = useState('');
@@ -16,7 +17,7 @@ const AddContactModal = ({ show, handleClose, onAdd, locations, clientId }) => {
 
 
         try {
-            const response = await axios.post(`${config.API_BASE_URL}/worker/add`, {
+            const response = await axiosInstance.post(`${config.API_BASE_URL}/worker/add`, {
                 clientId,
                 firstName,
                 lastName,

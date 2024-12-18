@@ -7,6 +7,7 @@ import '../../css/OneClientPage/OneClient.css';
 import config from '../../config/config';
 import NewTicket from '../TicketsPage/SingleTicketModal/NewTicket';
 import AddTicketModal from "../TicketsPage/AddTicketModal/AddTicketModal";
+import axiosInstance from "../../config/axiosInstance";
 
 function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
     const navigate = useNavigate();
@@ -38,7 +39,7 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
 
     const fetchTicketById = async (id) => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/${id}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/ticket/${id}`);
             setTicket(response.data);
         } catch (error) {
             console.error('Error fetching ticket by ID:', error);
@@ -47,7 +48,7 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
 
     const fetchTickets = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/client/${clientId}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/ticket/client/${clientId}`);
             setTickets(response.data);
         } catch (error) {
             console.error('Error fetching Customer Tickets:', error);
@@ -56,7 +57,7 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
 
     const fetchStatuses = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/classificator/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/ticket/classificator/all`);
             const fetchedStatuses = response.data;
             setStatuses(fetchedStatuses);
 
@@ -69,7 +70,7 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
 
     const fetchLocations = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/location/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/location/all`);
             const locationsData = response.data.reduce((acc, location) => {
                 acc[location.id] = location.name;
                 return acc;

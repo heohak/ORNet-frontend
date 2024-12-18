@@ -3,7 +3,8 @@ import React, { useEffect, useState, useRef } from "react";
 import FileList from "../../../modals/FileList";
 import axios from "axios";
 import config from "../../../config/config";
-import { FaPaperclip } from 'react-icons/fa';  // Import the paperclip icon
+import { FaPaperclip } from 'react-icons/fa';
+import axiosInstance from "../../../config/axiosInstance";  // Import the paperclip icon
 
 const ModalFiles = ({ activity, eventKey, activeKey, handleAccordionToggle }) => {
     const [files, setFiles] = useState([]);
@@ -15,7 +16,7 @@ const ModalFiles = ({ activity, eventKey, activeKey, handleAccordionToggle }) =>
 
     const fetchFiles = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/client-activity/files/${activity.id}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/client-activity/files/${activity.id}`);
             setFiles(response.data);
         } catch (error) {
             console.error(error.message);
@@ -31,7 +32,7 @@ const ModalFiles = ({ activity, eventKey, activeKey, handleAccordionToggle }) =>
                 formData.append("files", selectedFile);
 
                 // Send the file to the backend (assuming the endpoint is for file uploads)
-                await axios.put(`${config.API_BASE_URL}/client-activity/upload/${activity.id}`, formData, {
+                await axiosInstance.put(`${config.API_BASE_URL}/client-activity/upload/${activity.id}`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }

@@ -5,6 +5,7 @@ import config from '../../config/config';
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format, parseISO } from 'date-fns';
+import axiosInstance from "../../config/axiosInstance";
 
 function EditTechnicalInfoModal({ show, onHide, software, onUpdate }) {
     // Form state variables
@@ -79,12 +80,12 @@ function EditTechnicalInfoModal({ show, onHide, software, onUpdate }) {
 
     const fetchSoftwareWithClient = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/software/${software.id}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/software/${software.id}`);
             const clientId = response.data.clientId;
 
             if (clientId) {
                 // Fetch client details using clientId
-                const clientResponse = await axios.get(`${config.API_BASE_URL}/client/${clientId}`);
+                const clientResponse = await axiosInstance.get(`${config.API_BASE_URL}/client/${clientId}`);
                 setAssociatedClient(clientResponse.data); // Assuming API returns full client details
             } else {
                 // No associated client
@@ -174,7 +175,7 @@ function EditTechnicalInfoModal({ show, onHide, software, onUpdate }) {
                 }
             };
 
-            await axios.put(`${config.API_BASE_URL}/software/update/${software.id}`, data);
+            await axiosInstance.put(`${config.API_BASE_URL}/software/update/${software.id}`, data);
 
             if (onUpdate) {
                 onUpdate(); // Notify parent component
@@ -189,7 +190,7 @@ function EditTechnicalInfoModal({ show, onHide, software, onUpdate }) {
 
     const handleDeleteSoftware = async () => {
         try {
-            await axios.delete(`${config.API_BASE_URL}/software/${software.id}`);
+            await axiosInstance.delete(`${config.API_BASE_URL}/software/${software.id}`);
             if (onUpdate) {
                 onUpdate(); // Refresh the list in parent component
             }

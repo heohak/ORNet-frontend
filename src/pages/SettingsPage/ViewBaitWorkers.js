@@ -18,6 +18,7 @@ import {
     FaBriefcase,
     FaEdit, FaArrowLeft,
 } from 'react-icons/fa';
+import axiosInstance from "../../config/axiosInstance";
 
 function ViewBaitWorkers() {
     const [workers, setWorkers] = useState([]);
@@ -48,7 +49,7 @@ function ViewBaitWorkers() {
     useEffect(() => {
         const fetchWorkers = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/bait/worker/all`);
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/bait/worker/all`);
                 setWorkers(response.data);
             } catch (error) {
                 setError(error.message);
@@ -72,14 +73,14 @@ function ViewBaitWorkers() {
         setPhoneNumber(trimmedPhoneNumber);
 
         try {
-            await axios.post(`${config.API_BASE_URL}/bait/worker/add`, {
+            await axiosInstance.post(`${config.API_BASE_URL}/bait/worker/add`, {
                 firstName,
                 lastName,
                 email,
                 phoneNumber,
                 title,
             });
-            const response = await axios.get(`${config.API_BASE_URL}/bait/worker/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/bait/worker/all`);
             setWorkers(response.data);
             setShowAddModal(false);
             setFirstName('');
@@ -114,14 +115,14 @@ function ViewBaitWorkers() {
         setEditPhoneNumber(trimmedPhoneNumber);
 
         try {
-            await axios.put(`${config.API_BASE_URL}/bait/worker/update/${selectedWorker.id}`, {
+            await axiosInstance.put(`${config.API_BASE_URL}/bait/worker/update/${selectedWorker.id}`, {
                 firstName: editFirstName,
                 lastName: editLastName,
                 email: editEmail,
                 phoneNumber: editPhoneNumber,
                 title: editTitle,
             });
-            const response = await axios.get(`${config.API_BASE_URL}/bait/worker/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/bait/worker/all`);
             setWorkers(response.data);
             setShowEditModal(false);
             setSelectedWorker(null);
@@ -132,7 +133,7 @@ function ViewBaitWorkers() {
 
     const fetchRelatedTickets = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/ticket/search`, {
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/ticket/search`, {
                 params: { baitWorkerId: selectedWorker.id },
             });
             setRelatedTickets(response.data);
@@ -148,8 +149,8 @@ function ViewBaitWorkers() {
 
     const handleDeleteWorker = async () => {
         try {
-            await axios.delete(`${config.API_BASE_URL}/bait/worker/${selectedWorker.id}`);
-            const response = await axios.get(`${config.API_BASE_URL}/bait/worker/all`);
+            await axiosInstance.delete(`${config.API_BASE_URL}/bait/worker/${selectedWorker.id}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/bait/worker/all`);
             setWorkers(response.data);
             setShowDeleteModal(false);
             setShowEditModal(false);

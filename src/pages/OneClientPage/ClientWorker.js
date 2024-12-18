@@ -9,6 +9,7 @@ import {faEdit, faMapMarkerAlt} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import AddClientWorker from "./AddClientWorker";
 import WorkerCommentModal from "./WorkerCommentModal";
+import axiosInstance from "../../config/axiosInstance";
 
 function ClientWorker({workers, client, clientId, refresh, setRefresh}) {
     const [showAddWorkerModal, setShowAddWorkerModal] = useState(false);
@@ -40,7 +41,7 @@ function ClientWorker({workers, client, clientId, refresh, setRefresh}) {
     const fetchWorkerLocations = async () => {
         try {
             const locationPromises = filteredWorkers.map(worker =>
-                axios.get(`${config.API_BASE_URL}/worker/location/${worker.id}`)
+                axiosInstance.get(`${config.API_BASE_URL}/worker/location/${worker.id}`)
             );
             const locationResponses = await Promise.all(locationPromises);
             const locations = {};
@@ -56,7 +57,7 @@ function ClientWorker({workers, client, clientId, refresh, setRefresh}) {
 
     const fetchRoles = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/worker/classificator/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/worker/classificator/all`);
             const rolesMap = response.data.map(role => ({value: role.id, label: role.role}))
             const sortedRoles = rolesMap.sort((a, b) => a.label.localeCompare(b.label))
             setRoles(sortedRoles);
@@ -67,7 +68,7 @@ function ClientWorker({workers, client, clientId, refresh, setRefresh}) {
 
     const filterWorkers = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/worker/search`, {
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/worker/search`, {
                 params: {
                     q: searchQuery,
                     roleId: selectedFilterRoleId || null,
@@ -77,7 +78,7 @@ function ClientWorker({workers, client, clientId, refresh, setRefresh}) {
             });
 
             let workersWithRoles = await Promise.all(response.data.map(async worker => {
-                const rolesResponse = await axios.get(`${config.API_BASE_URL}/worker/role/${worker.id}`);
+                const rolesResponse = await axiosInstance.get(`${config.API_BASE_URL}/worker/role/${worker.id}`);
                 const sortedRoles = rolesResponse.data.sort((a, b) => a.role.localeCompare(b.role));
                 return {
                     ...worker,
@@ -117,10 +118,10 @@ function ClientWorker({workers, client, clientId, refresh, setRefresh}) {
     const handleAddWorkerSuccess = async (newWorker) => {
         await fetchRoles();
         try {
-            await axios.put(`${config.API_BASE_URL}/worker/${newWorker.id}/${clientId}`);
+            await axiosInstance.put(`${config.API_BASE_URL}/worker/${newWorker.id}/${clientId}`);
             setFilteredWorkers((prevWorkers) => [...prevWorkers, newWorker]);
 
-            const rolesResponse = await axios.get(`${config.API_BASE_URL}/worker/role/${newWorker.id}`);
+            const rolesResponse = await axiosInstance.get(`${config.API_BASE_URL}/worker/role/${newWorker.id}`);
             const updatedWorker = {...newWorker, roles: rolesResponse.data};
 
             setFilteredWorkers((prevWorkers) =>
@@ -135,7 +136,7 @@ function ClientWorker({workers, client, clientId, refresh, setRefresh}) {
 
     const toggleFavorite = async (workerId) => {
         try {
-            await axios.put(`${config.API_BASE_URL}/worker/favorite/${workerId}`);
+            await axiosInstance.put(`${config.API_BASE_URL}/worker/favorite/${workerId}`);
             setFilteredWorkers((prevWorkers) => {
                 const updatedWorkers = prevWorkers.map((worker) =>
                     worker.id === workerId ? { ...worker, favorite: !worker.favorite } : worker

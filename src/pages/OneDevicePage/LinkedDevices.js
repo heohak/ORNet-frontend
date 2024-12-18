@@ -5,6 +5,7 @@ import { Row, Col, Button, Alert, Modal, Form, Tabs, Tab } from 'react-bootstrap
 import axios from 'axios';
 import config from '../../config/config';
 import { FaTrash, FaCog, FaComments, FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
+import axiosInstance from "../../config/axiosInstance";
 
 function LinkedDevices({
                            linkedDevices,
@@ -160,8 +161,8 @@ function LinkedDevices({
             return;
         }
         try {
-            await axios.put(`${config.API_BASE_URL}/linked/device/link/${selectedLinkedDeviceId}/${deviceId}`);
-            const response = await axios.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
+            await axiosInstance.put(`${config.API_BASE_URL}/linked/device/link/${selectedLinkedDeviceId}/${deviceId}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
             setLinkedDevices(response.data);
             initializeFieldsConfig(response.data);
             setShowModal(false);
@@ -182,7 +183,7 @@ function LinkedDevices({
         setIsSubmitting(true);
 
         try {
-            const response = await axios.post(`${config.API_BASE_URL}/linked/device/add`, newLinkedDevice);
+            const response = await axiosInstance.post(`${config.API_BASE_URL}/linked/device/add`, newLinkedDevice);
             setNewLinkedDevice({
                 name: '',
                 manufacturer: '',
@@ -192,8 +193,8 @@ function LinkedDevices({
             });
             const newDeviceId = response.data.token;
 
-            await axios.put(`${config.API_BASE_URL}/linked/device/link/${newDeviceId}/${deviceId}`);
-            const updatedLinkedDevices = await axios.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
+            await axiosInstance.put(`${config.API_BASE_URL}/linked/device/link/${newDeviceId}/${deviceId}`);
+            const updatedLinkedDevices = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
             setLinkedDevices(updatedLinkedDevices.data);
             initializeFieldsConfig(updatedLinkedDevices.data);
             setShowAddNewDeviceForm(false);
@@ -263,8 +264,8 @@ function LinkedDevices({
 
         try {
             // Add the new attribute to the current device
-            await axios.put(`${config.API_BASE_URL}/linked/device/${currentDeviceId}/attributes`, attribute);
-            const updatedLinkedDevices = await axios.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
+            await axiosInstance.put(`${config.API_BASE_URL}/linked/device/${currentDeviceId}/attributes`, attribute);
+            const updatedLinkedDevices = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
             setLinkedDevices(updatedLinkedDevices.data);
             initializeFieldsConfig(updatedLinkedDevices.data);
 
@@ -308,9 +309,9 @@ function LinkedDevices({
 
         try {
             const encodedAttributeName = encodeURIComponent(fieldToDelete);
-            await axios.delete(`${config.API_BASE_URL}/linked/device/${currentDeviceId}/${encodedAttributeName}`);
+            await axiosInstance.delete(`${config.API_BASE_URL}/linked/device/${currentDeviceId}/${encodedAttributeName}`);
 
-            const updatedLinkedDevices = await axios.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
+            const updatedLinkedDevices = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
             setLinkedDevices(updatedLinkedDevices.data);
             initializeFieldsConfig(updatedLinkedDevices.data);
 
@@ -344,7 +345,7 @@ function LinkedDevices({
     const fetchComments = async (deviceId) => {
         try {
             const url = `${config.API_BASE_URL}/linked/device/comment/${deviceId}`;
-            const response = await axios.get(url);
+            const response = await axiosInstance.get(url);
             setComments(response.data);
         } catch (error) {
             console.error('Error fetching comments:', error);
@@ -364,7 +365,7 @@ function LinkedDevices({
 
         try {
             const url = `${config.API_BASE_URL}/linked/device/comment/${currentDeviceId}`;
-            await axios.put(url,
+            await axiosInstance.put(url,
                 newComment,
                 {
                     headers: {
@@ -386,9 +387,9 @@ function LinkedDevices({
         setIsSubmitting(true);
 
         try {
-            await axios.put(`${config.API_BASE_URL}/linked/device/remove/${currentDeviceId}`);
+            await axiosInstance.put(`${config.API_BASE_URL}/linked/device/remove/${currentDeviceId}`);
             // Re-fetch the linked devices
-            const updatedLinkedDevicesResponse = await axios.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
+            const updatedLinkedDevicesResponse = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
             setLinkedDevices(updatedLinkedDevicesResponse.data);
             initializeFieldsConfig(updatedLinkedDevicesResponse.data);
             if (refreshData) {

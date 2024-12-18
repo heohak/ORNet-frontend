@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import config from '../../config/config';
+import axiosInstance from "../../config/axiosInstance";
 
 function EditThirdPartyITModal({ show, onHide, thirdParty, onUpdate }) {
     const [name, setName] = useState(thirdParty.name || '');
@@ -20,7 +21,7 @@ function EditThirdPartyITModal({ show, onHide, thirdParty, onUpdate }) {
     // Fetch clients associated with the Third Party IT entity
     const fetchAssociatedClients = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/client/search`, {
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/client/search`, {
                 params: { thirdPartyId: thirdParty.id }
             });
             setAssociatedClients(response.data); // Assuming API returns list of associated clients
@@ -34,7 +35,7 @@ function EditThirdPartyITModal({ show, onHide, thirdParty, onUpdate }) {
         setError(null);
 
         try {
-            await axios.put(`${config.API_BASE_URL}/third-party/update/${thirdParty.id}`, {
+            await axiosInstance.put(`${config.API_BASE_URL}/third-party/update/${thirdParty.id}`, {
                 name,
                 email,
                 phone,
@@ -48,7 +49,7 @@ function EditThirdPartyITModal({ show, onHide, thirdParty, onUpdate }) {
 
     const handleDelete = async () => {
         try {
-            await axios.delete(`${config.API_BASE_URL}/third-party/${thirdParty.id}`);
+            await axiosInstance.delete(`${config.API_BASE_URL}/third-party/${thirdParty.id}`);
             onUpdate(); // Notify parent to update the list
             onHide(); // Close the modal
         } catch (error) {

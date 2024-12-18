@@ -11,6 +11,7 @@ import '../../css/OneDevicePage/OneDevice.css';
 import DeviceFileList from "./DeviceFileList";
 import DeviceTickets from "./DeviceTickets";
 import {FaArrowLeft} from "react-icons/fa";
+import axiosInstance from "../../config/axiosInstance";
 
 function OneDevice() {
     const {deviceId} = useParams();
@@ -34,10 +35,10 @@ function OneDevice() {
         const fetchData = async () => {
             try {
                 const [deviceRes, linkedDevicesRes, availableLinkedDevicesRes, maintenanceInfoRes] = await Promise.all([
-                    axios.get(`${config.API_BASE_URL}/device/${deviceId}`),
-                    axios.get(`${config.API_BASE_URL}/linked/device/${deviceId}`),
-                    axios.get(`${config.API_BASE_URL}/linked/device/not-used`),
-                    axios.get(`${config.API_BASE_URL}/device/maintenances/${deviceId}`)
+                    axiosInstance.get(`${config.API_BASE_URL}/device/${deviceId}`),
+                    axiosInstance.get(`${config.API_BASE_URL}/linked/device/${deviceId}`),
+                    axiosInstance.get(`${config.API_BASE_URL}/linked/device/not-used`),
+                    axiosInstance.get(`${config.API_BASE_URL}/device/maintenances/${deviceId}`)
                 ]);
 
                 const fetchedDevice = deviceRes.data;
@@ -48,9 +49,9 @@ function OneDevice() {
                 const locationId = fetchedDevice.locationId;
                 const classificatorId = fetchedDevice.classificatorId;
                 const [clientRes, locationRes, classificatorRes] = await Promise.all([
-                    axios.get(`${config.API_BASE_URL}/client/${clientId}`),
-                    axios.get(`${config.API_BASE_URL}/location/${locationId}`),
-                    axios.get(`${config.API_BASE_URL}/device/classificator/${classificatorId}`)
+                    axiosInstance.get(`${config.API_BASE_URL}/client/${clientId}`),
+                    axiosInstance.get(`${config.API_BASE_URL}/location/${locationId}`),
+                    axiosInstance.get(`${config.API_BASE_URL}/device/classificator/${classificatorId}`)
                 ]);
                 const enhancedDeviceData = {
                     ...fetchedDevice,

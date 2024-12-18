@@ -5,6 +5,7 @@ import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import config from "../../config/config";
 import '../../css/OneClientPage/OneClient.css';
+import axiosInstance from "../../config/axiosInstance";
 
 
 function ClientDevices({clientId, locations}) {
@@ -36,7 +37,7 @@ function ClientDevices({clientId, locations}) {
 
     const fetchClassificators = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/device/classificator/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/device/classificator/all`);
             const sortedClassificators = response.data.sort((a, b) => a.name.localeCompare(b.name))
             setClassificatorList(sortedClassificators);
             const classificatorMap = response.data.reduce((acc, classificator) => {
@@ -53,7 +54,7 @@ function ClientDevices({clientId, locations}) {
     const fetchDeviceSummary = async () => {
         setLoadingSummary(true);
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/device/client/summary/${clientId}`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/device/client/summary/${clientId}`);
             setDeviceSummary(response.data);
         } catch (error) {
             setErrorSummary(error.message);
@@ -64,7 +65,7 @@ function ClientDevices({clientId, locations}) {
 
     const fetchDevices = async () => {
         try {
-            const response = await axios.get(`${config.API_BASE_URL}/device/search`, {
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/device/search`, {
                 params: {
                     q: searchQuery,
                     classificatorId: selectedClassificatorId || null,

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { DropdownButton, InputGroup, Dropdown } from "react-bootstrap";
 import axios from "axios";
 import config from "../../../config/config";
+import axiosInstance from "../../../config/axiosInstance";
 
 const ModalStatus = ({ activity, statuses, reFetch }) => {
     const [statusName, setStatusName] = useState("");
@@ -19,7 +20,7 @@ const ModalStatus = ({ activity, statuses, reFetch }) => {
 
     const updateTicketStatus = async (status) => {
         try {
-            await axios.put(`${config.API_BASE_URL}/client-activity/update/${activity.id}`, {
+            await axiosInstance.put(`${config.API_BASE_URL}/client-activity/update/${activity.id}`, {
                 statusId: status.id
             });
 

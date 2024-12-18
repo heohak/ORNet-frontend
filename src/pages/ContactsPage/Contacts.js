@@ -8,7 +8,8 @@ import '../../css/Contacts.css';
 import {FaEnvelope, FaPhone, FaUserTie, FaComment} from "react-icons/fa";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBuilding, faMapMarkerAlt} from "@fortawesome/free-solid-svg-icons";
-import WorkerCommentModal from "../OneClientPage/WorkerCommentModal"; // Adjust the path if necessary
+import WorkerCommentModal from "../OneClientPage/WorkerCommentModal";
+import axiosInstance from "../../config/axiosInstance"; // Adjust the path if necessary
 
 function Contacts() {
     const [workers, setWorkers] = useState([]);
@@ -27,7 +28,7 @@ function Contacts() {
     useEffect(() => {
         const fetchWorkers = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/worker/search`);
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/worker/search`);
 
                 const sortedWorkers = response.data.sort((a, b) => (a.favorite === b.favorite) ? 0 : a.favorite ? -1 : 1);
                 setWorkers(sortedWorkers);
@@ -44,7 +45,7 @@ function Contacts() {
             try {
                 // Employer details
                 const employerPromises = workers.map(worker =>
-                    axios.get(`${config.API_BASE_URL}/worker/employer/${worker.id}`)
+                    axiosInstance.get(`${config.API_BASE_URL}/worker/employer/${worker.id}`)
                 );
                 const employerResponses = await Promise.all(employerPromises);
                 const employers = {};
@@ -56,7 +57,7 @@ function Contacts() {
 
                 // Location details
                 const locationPromises = workers.map(worker =>
-                    axios.get(`${config.API_BASE_URL}/worker/location/${worker.id}`)
+                    axiosInstance.get(`${config.API_BASE_URL}/worker/location/${worker.id}`)
                 );
                 const locationResponses = await Promise.all(locationPromises);
                 const locations = {};
@@ -68,7 +69,7 @@ function Contacts() {
 
                 // Roles
                 const rolePromises = workers.map(worker =>
-                    axios.get(`${config.API_BASE_URL}/worker/role/${worker.id}`)
+                    axiosInstance.get(`${config.API_BASE_URL}/worker/role/${worker.id}`)
                 );
                 const roleResponses = await Promise.all(rolePromises);
                 const roles = {};
