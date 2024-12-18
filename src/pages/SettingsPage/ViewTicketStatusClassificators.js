@@ -167,7 +167,7 @@ function ViewTicketStatusClassificators() {
                                 return (
                                     <Row
                                         key={classificator.id}
-                                        className="align-items-center"
+                                        className="align-items-center py-1"
                                         style={{ backgroundColor: rowBgColor }}
                                     >
                                         <Col md={9}>{classificator.status}</Col>
@@ -185,7 +185,7 @@ function ViewTicketStatusClassificators() {
                                         <Col md={2}>
                                             <Button
                                                 variant="link"
-                                                className="p-0"
+                                                className="d-flex p-0"
                                                 onClick={() => handleEdit(classificator)}
                                             >
                                                 <FaEdit />

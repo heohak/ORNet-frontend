@@ -159,14 +159,14 @@ function ViewDeviceClassificators() {
                                 return (
                                     <Row
                                         key={classificator.id}
-                                        className="align-items-center"
+                                        className="align-items-center py-1"
                                         style={{ backgroundColor: rowBgColor }}
                                     >
                                         <Col md={10}>{classificator.name}</Col>
                                         <Col md={2}>
                                             <Button
                                                 variant="link"
-                                                className="p-0"
+                                                className="d-flex p-0"
                                                 onClick={() => handleEdit(classificator)}
                                             >
                                                 <FaEdit />

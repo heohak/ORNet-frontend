@@ -101,7 +101,7 @@ function ViewSoftware() {
                                 return (
                                     <Row
                                         key={software.id}
-                                        className="align-items-center"
+                                        className="align-items-center py-1"
                                         style={{ backgroundColor: rowBgColor }}
                                     >
                                         <Col>{software.name}</Col>
@@ -109,7 +109,7 @@ function ViewSoftware() {
                                         <Col md="auto">
                                             <Button
                                                 variant="link"
-                                                className="p-0"
+                                                className="d-flex p-0"
                                                 onClick={() => handleEdit(software)}
                                             >
                                                 <FaEdit />

@@ -126,14 +126,14 @@ function ViewClientWorkerRoles() {
                                 return (
                                     <Row
                                         key={role.id}
-                                        className="align-items-center"
+                                        className="align-items-center py-1"
                                         style={{ backgroundColor: rowBgColor }}
                                     >
                                         <Col>{role.role}</Col>
                                         <Col md="auto">
                                             <Button
                                                 variant="link"
-                                                className="p-0"
+                                                className="d-flex p-0"
                                                 onClick={() => handleEdit(role)}
                                             >
                                                 <FaEdit />

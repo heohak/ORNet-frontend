@@ -228,7 +228,7 @@ function ViewLocations() {
                                 return (
                                     <Row
                                         key={location.id}
-                                        className="align-items-center"
+                                        className="align-items-center py-1"
                                         style={{ backgroundColor: rowBgColor }}
                                     >
                                         <Col md={3}>{location.name}</Col>
@@ -240,7 +240,7 @@ function ViewLocations() {
                                         <Col md={1}>
                                             <Button
                                                 variant="link"
-                                                className="p-0"
+                                                className="d-flex p-0"
                                                 onClick={() => handleEdit(location)}
                                             >
                                                 <FaEdit />

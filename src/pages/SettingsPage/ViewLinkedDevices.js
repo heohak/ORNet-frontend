@@ -130,7 +130,7 @@ function ViewLinkedDevices() {
                                 return (
                                     <Row
                                         key={device.id}
-                                        className="align-items-center"
+                                        className="align-items-center py-1"
                                         style={{ backgroundColor: rowBgColor }}
                                     >
                                         {defaultFields.map((field) => (
@@ -139,7 +139,7 @@ function ViewLinkedDevices() {
                                         <Col>
                                             <Button
                                                 variant="link"
-                                                className="p-0"
+                                                className="d-flex p-0"
                                                 onClick={() => handleEdit(device)}
                                             >
                                                 <FaEdit />
