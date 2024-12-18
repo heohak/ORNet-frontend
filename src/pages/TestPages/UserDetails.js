@@ -8,7 +8,7 @@ const UserDetails = () => {
     useEffect(() => {
         const fetchUserDetails = async () => {
             try {
-                const response = await axiosInstance.get("/user/details");
+                const response = await axiosInstance.get("/details");
                 setUserDetails(response.data); // Set the user details
             } catch (err) {
                 setError(err.response?.data || "An error occurred");
