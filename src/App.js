@@ -61,6 +61,14 @@ function App() {
 
                         {/* Protected Routes */}
                         <Route
+                            path="/"
+                            element={
+                                <ProtectedRoute>
+                                    <Customers />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
                             path="/admin/dashboard"
                             element={
                                 <ProtectedRoute>
