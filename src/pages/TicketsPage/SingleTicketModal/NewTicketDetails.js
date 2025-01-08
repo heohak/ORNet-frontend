@@ -214,7 +214,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                 <Accordion.Item eventKey={eventKey}>
                     <Form onSubmit={handleEditToggle}>
                         <Accordion.Header onClick={handleAccordionHeaderClick}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                        <div style={{alignItems: 'center', display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                             Details
                             <Button
                                 variant="link"
@@ -223,7 +223,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                 style={{ textDecoration: 'none', padding: 0 }} // Style button
                                 className="me-2 d-flex"
                             >
-                                {editMode ? <FaCheck /> : <FaEdit />}
+                                {editMode ? <FaCheck style={{ fontSize: '1.5rem' }} /> : <FaEdit style={{ fontSize: '1.5rem' }} />}
                             </Button>
                         </div>
                     </Accordion.Header>
