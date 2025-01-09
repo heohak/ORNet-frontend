@@ -1,5 +1,7 @@
+// src/components/ViewThirdPartyITs.js
+
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axiosInstance from "../../config/axiosInstance";
 import {
     Container,
     Row,
@@ -7,70 +9,48 @@ import {
     Card,
     Button,
     Spinner,
-    Alert,
-    Modal,
-    Form
+    Alert
 } from 'react-bootstrap';
 import config from '../../config/config';
-import {FaPhone, FaEnvelope, FaEdit, FaArrowLeft} from 'react-icons/fa';
+import { FaPhone, FaEnvelope, FaEdit, FaArrowLeft } from 'react-icons/fa';
 import EditThirdPartyITModal from "./EditThirdPartyITModal";
-import axiosInstance from "../../config/axiosInstance";
+import AddThirdPartyITModal from "../OneClientPage/AddThirdPartyITModal";
 
 function ViewThirdPartyITs() {
     const [thirdPartyITs, setThirdPartyITs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // State for the Add Modal
     const [showAddModal, setShowAddModal] = useState(false);
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
-    const [phoneNumberError, setPhoneNumberError] = useState('');
+
+    // State for the Edit Modal
     const [selectedThirdParty, setSelectedThirdParty] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
 
+    // Fetch Third-Party ITs on mount
     useEffect(() => {
-        const fetchThirdPartyITs = async () => {
-            try {
-                const response = await axiosInstance.get(`${config.API_BASE_URL}/third-party/all`);
-                setThirdPartyITs(response.data);
-            } catch (error) {
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchThirdPartyITs();
     }, []);
 
-    const handleAddThirdPartyIT = async (e) => {
-        e.preventDefault();
-        setError(null);
-        const trimmedPhoneNumber = phone.trim();
-        // Check if the phone number contains only digits
-        if (!/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
-            setPhoneNumberError('Phone number must contain only numbers and spaces, and may start with a +.');
-            return;
-        }
-        // Reset the error message if validation passes
-        setPhoneNumberError('');
-        setPhone(trimmedPhoneNumber);
-
+    // GET existing third-party ITs
+    const fetchThirdPartyITs = async () => {
+        setLoading(true);
         try {
-            await axiosInstance.post(`${config.API_BASE_URL}/third-party/add`, {
-                name,
-                email,
-                phone,
-            });
             const response = await axiosInstance.get(`${config.API_BASE_URL}/third-party/all`);
             setThirdPartyITs(response.data);
-            setShowAddModal(false);
-            setName('');
-            setEmail('');
-            setPhone('');
-        } catch (error) {
-            setError(error.message);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
         }
+    };
+
+    // Called after successfully adding a new third-party IT in `AddThirdPartyITModal`.
+    const handleNewThirdPartyIT = () => {
+        setShowAddModal(false);
+        // Re-fetch the updated list
+        fetchThirdPartyITs();
     };
 
     const handleEdit = (thirdParty) => {
@@ -83,34 +63,32 @@ function ViewThirdPartyITs() {
         setShowEditModal(false);
     };
 
+    // Called by EditThirdPartyITModal after a successful update or delete
     const handleUpdateThirdPartyList = () => {
-        // Fetch the updated list of third parties
-        const fetchThirdPartyITs = async () => {
-            try {
-                const response = await axiosInstance.get(`${config.API_BASE_URL}/third-party/all`);
-                setThirdPartyITs(response.data);
-            } catch (error) {
-                setError(error.message);
-            }
-        };
         fetchThirdPartyITs();
     };
 
     return (
         <Container className="mt-4">
+            {/* Back Button */}
             <Button
                 variant="link"
                 onClick={() => window.history.back()}
                 className="mb-4 p-0"
-                style={{ fontSize: '1.5rem', color: '#0d6efd' }} // Adjust styling as desired
+                style={{ fontSize: '1.5rem', color: '#0d6efd' }}
             >
                 <FaArrowLeft title="Go back" />
             </Button>
+
+            {/* Heading & "Add" Button */}
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h1>Third Party ITs</h1>
-                <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Third Party IT</Button>
+                <Button variant="primary" onClick={() => setShowAddModal(true)}>
+                    Add Third Party IT
+                </Button>
             </div>
 
+            {/* Loading & Error State */}
             {loading ? (
                 <Container className="text-center mt-5">
                     <Spinner animation="border" role="status">
@@ -126,6 +104,7 @@ function ViewThirdPartyITs() {
                 </Container>
             ) : (
                 <Row>
+                    {/* Display Third-Party ITs */}
                     {thirdPartyITs.map((thirdParty) => (
                         <Col md={4} key={thirdParty.id} className="mb-4">
                             <Card>
@@ -141,7 +120,8 @@ function ViewThirdPartyITs() {
                                         </Button>
                                     </div>
                                     <Card.Text>
-                                        <FaEnvelope /> {thirdParty.email}<br />
+                                        <FaEnvelope /> {thirdParty.email}
+                                        <br />
                                         <FaPhone /> {thirdParty.phone}
                                     </Card.Text>
                                 </Card.Body>
@@ -150,56 +130,15 @@ function ViewThirdPartyITs() {
                     ))}
                 </Row>
             )}
-            {/* Add Third Party IT Modal */}
-            <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Add Third Party IT</Modal.Title>
-                </Modal.Header>
-                <Form onSubmit={handleAddThirdPartyIT}>
-                    <Modal.Body>
-                        <Form.Group controlId="formName">
-                            <Form.Label>Name</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                placeholder="Enter name"
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formEmail" className="mt-3">
-                            <Form.Label>Email</Form.Label>
-                            <Form.Control
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="Enter email"
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formPhone" className="mt-3">
-                            <Form.Label>Phone</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
-                                placeholder="Enter phone number"
-                                required
-                                isInvalid={!!phoneNumberError} // Display error styling if there's an error
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                {phoneNumberError}
-                            </Form.Control.Feedback>
-                        </Form.Group>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="outline-info" onClick={() => setShowAddModal(false)}>Cancel</Button>
-                        <Button variant="primary" type='submit'>Add Third Party IT</Button>
-                    </Modal.Footer>
-                </Form>
-            </Modal>
 
-            {/* Edit Third Party IT Modal */}
+            {/* "Add Third-Party IT" Modal */}
+            <AddThirdPartyITModal
+                show={showAddModal}
+                onHide={() => setShowAddModal(false)}
+                onNewThirdPartyIT={handleNewThirdPartyIT} // Called after adding a new third-party
+            />
+
+            {/* "Edit Third-Party IT" Modal */}
             {selectedThirdParty && (
                 <EditThirdPartyITModal
                     show={showEditModal}
@@ -208,8 +147,6 @@ function ViewThirdPartyITs() {
                     onUpdate={handleUpdateThirdPartyList}
                 />
             )}
-
-
         </Container>
     );
 }

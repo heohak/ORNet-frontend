@@ -63,6 +63,7 @@ function AddThirdPartyITModal({ show, onHide, onNewThirdPartyIT }) {
                         <Form.Label>Third-Party Name</Form.Label>
                         <Form.Control
                             type="text"
+                            placeholder="Enter Name"
                             value={newThirdParty.name}
                             onChange={(e) => setNewThirdParty({ ...newThirdParty, name: e.target.value })}
                             required
@@ -72,6 +73,7 @@ function AddThirdPartyITModal({ show, onHide, onNewThirdPartyIT }) {
                         <Form.Label>Email</Form.Label>
                         <Form.Control
                             type="email"
+                            placeholder="Enter Email"
                             value={newThirdParty.email}
                             onChange={(e) => setNewThirdParty({ ...newThirdParty, email: e.target.value })}
                             required
@@ -81,6 +83,7 @@ function AddThirdPartyITModal({ show, onHide, onNewThirdPartyIT }) {
                         <Form.Label>Phone</Form.Label>
                         <Form.Control
                             type="text"
+                            placeholder="Enter Phone"
                             value={newThirdParty.phone}
                             onChange={(e) => setNewThirdParty({ ...newThirdParty, phone: e.target.value })}
                             required
@@ -92,7 +95,7 @@ function AddThirdPartyITModal({ show, onHide, onNewThirdPartyIT }) {
                     </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={onHide}>Cancel</Button>
+                    <Button variant="outline-info" onClick={onHide}>Cancel</Button>
                     <Button variant="primary" type="submit" disabled={isSubmitting}>
                         {isSubmitting ? 'Adding...' : 'Add Third-Party IT'}
                     </Button>
