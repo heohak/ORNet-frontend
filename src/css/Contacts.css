@@ -8,6 +8,11 @@
     box-shadow: 0 5px 5px #cbcbcb;
     margin-top: 60px;
 }
+/* When a model is opened without this the contact-search-menus shifts depending on the size of the
+browsers scrollbar */
+.modal-open .contact-search-menu {
+    overflow-y: scroll;
+}
 
 /* Centered content inside contact-search-menu */
 .contact-search-menu-items {
