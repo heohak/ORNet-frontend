@@ -4,7 +4,7 @@ import axios from 'axios';
 import config from "../../config/config";
 import axiosInstance from "../../config/axiosInstance";
 
-function WorkerSearchFilter({setWorkers}) {
+function WorkerSearchFilter({ setWorkers, setLoading}) {
     const [searchQuery, setSearchQuery] = useState("");
     const [roleId, setRoleId] = useState("");
     const [clientId, setClientId] = useState("");
@@ -85,6 +85,7 @@ function WorkerSearchFilter({setWorkers}) {
     }, [clientId, allLocations]);
 
     const handleSearchAndFilter = async () => {
+        setLoading(true); // Start loading
         try {
             const response = await axiosInstance.get(`${config.API_BASE_URL}/worker/search`, {
                 params: {
@@ -106,6 +107,8 @@ function WorkerSearchFilter({setWorkers}) {
             setWorkers(sortedWorkers);
         } catch (error) {
             setError(error.message);
+        } finally {
+            setLoading(false);
         }
     };
 
