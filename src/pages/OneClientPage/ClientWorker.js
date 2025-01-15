@@ -309,6 +309,7 @@ function ClientWorker({workers, client, clientId, refresh, setRefresh, reFetchRo
                 clientId={clientId}
                 onSuccess={handleAddWorkerSuccess}
                 reFetchRoles={reFetchRoles}
+                showLocationField={true}
             />
             {selectedWorker && (
                 <EditWorkerModal

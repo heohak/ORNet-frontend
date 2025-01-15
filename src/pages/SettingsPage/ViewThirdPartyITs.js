@@ -1,39 +1,58 @@
-// src/components/ViewThirdPartyITs.js
-
 import React, { useEffect, useState } from 'react';
+import { Container, Row, Col, Button, Spinner, Alert } from 'react-bootstrap';
 import axiosInstance from "../../config/axiosInstance";
-import {
-    Container,
-    Row,
-    Col,
-    Card,
-    Button,
-    Spinner,
-    Alert
-} from 'react-bootstrap';
 import config from '../../config/config';
-import { FaPhone, FaEnvelope, FaEdit, FaArrowLeft } from 'react-icons/fa';
-import EditThirdPartyITModal from "./EditThirdPartyITModal";
+
+// Icons
+import { FaArrowLeft } from 'react-icons/fa';
+
+// Subcomponents
 import AddThirdPartyITModal from "../OneClientPage/AddThirdPartyITModal";
+import ViewThirdPartyITModal from "../OneClientPage/ViewThirdPartyITModal";
+
+/*
+  If you want to add sorting logic, you can introduce a sortConfig state and handleSort function like so:
+
+  const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'ascending' });
+
+  const handleSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const renderSortArrow = (key) => {
+    if (sortConfig.key === key) {
+      return sortConfig.direction === 'ascending' ? '▲' : '▼';
+    }
+    return '↕';
+  };
+
+  Then you can sort the array before rendering:
+  const sortedThirdPartyITs = [...thirdPartyITs].sort((a, b) => {
+    ...
+  });
+*/
 
 function ViewThirdPartyITs() {
     const [thirdPartyITs, setThirdPartyITs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // State for the Add Modal
+    // "Add Third-Party IT" modal
     const [showAddModal, setShowAddModal] = useState(false);
 
-    // State for the Edit Modal
+    // "View Third-Party" modal
     const [selectedThirdParty, setSelectedThirdParty] = useState(null);
-    const [showEditModal, setShowEditModal] = useState(false);
+    const [showViewModal, setShowViewModal] = useState(false);
 
-    // Fetch Third-Party ITs on mount
+    // 1. Fetch Third-Party IT list on mount
     useEffect(() => {
         fetchThirdPartyITs();
     }, []);
 
-    // GET existing third-party ITs
     const fetchThirdPartyITs = async () => {
         setLoading(true);
         try {
@@ -46,30 +65,52 @@ function ViewThirdPartyITs() {
         }
     };
 
-    // Called after successfully adding a new third-party IT in `AddThirdPartyITModal`.
+    // 2. Refresh list after adding new ThirdPartyIT
     const handleNewThirdPartyIT = () => {
         setShowAddModal(false);
-        // Re-fetch the updated list
         fetchThirdPartyITs();
     };
 
-    const handleEdit = (thirdParty) => {
-        setSelectedThirdParty(thirdParty);
-        setShowEditModal(true);
+    // 3. If row is clicked, open "view" modal
+    const handleRowClick = (tp) => {
+        setSelectedThirdParty(tp);
+        setShowViewModal(true);
     };
 
-    const handleCloseEditModal = () => {
+    const handleCloseViewModal = () => {
         setSelectedThirdParty(null);
-        setShowEditModal(false);
+        setShowViewModal(false);
     };
 
-    // Called by EditThirdPartyITModal after a successful update or delete
-    const handleUpdateThirdPartyList = () => {
+    // 4. After updating (or removing) a third-party in the "view" modal, refresh
+    const handleUpdateList = () => {
         fetchThirdPartyITs();
     };
+
+    // 5. Render
+    if (loading) {
+        return (
+            <Container className="text-center mt-5">
+                <Spinner animation="border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </Spinner>
+            </Container>
+        );
+    }
+    if (error) {
+        return (
+            <Container className="mt-5">
+                <Alert variant="danger">
+                    <Alert.Heading>Error</Alert.Heading>
+                    <p>{error}</p>
+                </Alert>
+            </Container>
+        );
+    }
 
     return (
         <Container className="mt-4">
+
             {/* Back Button */}
             <Button
                 variant="link"
@@ -80,71 +121,78 @@ function ViewThirdPartyITs() {
                 <FaArrowLeft title="Go back" />
             </Button>
 
-            {/* Heading & "Add" Button */}
+            {/* Page Header */}
             <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1>Third Party ITs</h1>
+                <h1>Third-Party ITs</h1>
                 <Button variant="primary" onClick={() => setShowAddModal(true)}>
                     Add Third Party IT
                 </Button>
             </div>
 
-            {/* Loading & Error State */}
-            {loading ? (
-                <Container className="text-center mt-5">
-                    <Spinner animation="border" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                    </Spinner>
-                </Container>
-            ) : error ? (
-                <Container className="mt-5">
-                    <Alert variant="danger">
-                        <Alert.Heading>Error</Alert.Heading>
-                        <p>{error}</p>
-                    </Alert>
-                </Container>
+            {/* Optional: Sortable Table Headers
+         <Row className="row-margin-0 fw-bold">
+           <Col md={4} onClick={() => handleSort('name')}>
+             Name {renderSortArrow('name')}
+           </Col>
+           <Col md={4} onClick={() => handleSort('phone')}>
+             Phone {renderSortArrow('phone')}
+           </Col>
+           <Col md={4} onClick={() => handleSort('email')}>
+             Email {renderSortArrow('email')}
+           </Col>
+         </Row>
+         <hr />
+      */}
+
+            {/* We can skip sorting code here and just show in a row-based list */}
+            {thirdPartyITs.length === 0 ? (
+                <Alert variant="info">No Third-Party ITs found.</Alert>
             ) : (
-                <Row>
-                    {/* Display Third-Party ITs */}
-                    {thirdPartyITs.map((thirdParty) => (
-                        <Col md={4} key={thirdParty.id} className="mb-4">
-                            <Card>
-                                <Card.Body>
-                                    <div className="d-flex justify-content-between align-items-start">
-                                        <Card.Title>{thirdParty.name}</Card.Title>
-                                        <Button
-                                            variant="link"
-                                            className="p-0"
-                                            onClick={() => handleEdit(thirdParty)}
-                                        >
-                                            <FaEdit />
-                                        </Button>
-                                    </div>
-                                    <Card.Text>
-                                        <FaEnvelope /> {thirdParty.email}
-                                        <br />
-                                        <FaPhone /> {thirdParty.phone}
-                                    </Card.Text>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    ))}
-                </Row>
+                <>
+                    {/* Table-like headers (non-clickable) */}
+                    <Row className="fw-bold row-margin-0">
+                        <Col md={4}>Name</Col>
+                        <Col md={4}>Phone</Col>
+                        <Col md={4}>Email</Col>
+                    </Row>
+                    <hr />
+
+                    {thirdPartyITs.map((tp, index) => {
+                        const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                        return (
+                            <Row
+                                key={tp.id}
+                                className="align-items-center"
+                                style={{ margin: '0 0', cursor: 'pointer', backgroundColor: rowBgColor }}
+                                onClick={() => handleRowClick(tp)}
+                            >
+                                <Col className="py-2">
+                                    <Row className="align-items-center">
+                                        <Col md={4}>{tp.name}</Col>
+                                        <Col md={4}>{tp.phone || "N/A"}</Col>
+                                        <Col md={4}>{tp.email || "N/A"}</Col>
+                                    </Row>
+                                </Col>
+                            </Row>
+                        );
+                    })}
+                </>
             )}
 
-            {/* "Add Third-Party IT" Modal */}
+            {/* Add ThirdPartyIT Modal */}
             <AddThirdPartyITModal
                 show={showAddModal}
                 onHide={() => setShowAddModal(false)}
-                onNewThirdPartyIT={handleNewThirdPartyIT} // Called after adding a new third-party
+                onNewThirdPartyIT={handleNewThirdPartyIT}
             />
 
-            {/* "Edit Third-Party IT" Modal */}
+            {/* View ThirdPartyIT Modal */}
             {selectedThirdParty && (
-                <EditThirdPartyITModal
-                    show={showEditModal}
-                    onHide={handleCloseEditModal}
+                <ViewThirdPartyITModal
+                    show={showViewModal}
+                    onHide={handleCloseViewModal}
                     thirdParty={selectedThirdParty}
-                    onUpdate={handleUpdateThirdPartyList}
+                    onUpdate={handleUpdateList}
                 />
             )}
         </Container>
