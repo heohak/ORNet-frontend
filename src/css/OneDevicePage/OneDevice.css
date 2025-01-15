@@ -6,6 +6,12 @@
     padding: 10px 0;
 }
 
+/* When a model is opened without this the device-header-background shifts depending on the size of the
+browsers scrollbar */
+.modal-open .device-header-background {
+    overflow-y: scroll;
+}
+
 .device-name {
     display: flex;
     align-items: center;

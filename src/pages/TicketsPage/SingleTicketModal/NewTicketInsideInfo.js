@@ -33,6 +33,7 @@ const NewTicketInsideInfo = ({ ticket, reFetch }) => {
                 {isEditing ? (
                     <TextareaAutosize
                         value={insideInfo}
+                        minRows={2}
                         onChange={(e) => setInsideInfo(e.target.value)}
                         style={{ width: '100%' }}
                     />
@@ -54,6 +55,7 @@ const NewTicketInsideInfo = ({ ticket, reFetch }) => {
                         icon={faEdit}
                         onClick={() => setIsEditing(true)}
                         style={{
+                            fontSize: '1.5rem',
                             position: 'absolute',
                             top: '10px',
                             right: '10px',
@@ -67,6 +69,7 @@ const NewTicketInsideInfo = ({ ticket, reFetch }) => {
                         icon={faCheck}
                         onClick={handleSaveInsideInfo}
                         style={{
+                            fontSize: '1.5rem',
                             position: 'absolute',
                             top: '10px',
                             right: '10px',

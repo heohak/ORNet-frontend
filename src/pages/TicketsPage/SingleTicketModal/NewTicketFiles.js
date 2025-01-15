@@ -63,7 +63,7 @@ const NewTicketFiles = ({ ticket, eventKey, activeKey, handleAccordionToggle }) 
             <Accordion activeKey={activeKey}>
                 <Accordion.Item eventKey={eventKey}>
                     <Accordion.Header onClick={() => handleAccordionToggle(eventKey)}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                        <div style={{ alignItems: 'center', display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                             Files
                             <Button
                                 variant="link"
@@ -71,7 +71,7 @@ const NewTicketFiles = ({ ticket, eventKey, activeKey, handleAccordionToggle }) 
                                 style={{ textDecoration: "none", padding: 0}}
                                 className="me-2 d-flex"
                             >
-                                <FaPaperclip/>
+                                <FaPaperclip style={{ fontSize: '1.5rem' }}/>
                             </Button>
                         </div>
                         <input

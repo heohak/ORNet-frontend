@@ -79,6 +79,11 @@ h1 {
     padding: 10px 0;
 }
 
+.modal-open .client-header-background {
+    overflow-y: scroll;
+}
+
+
 .client-name {
     display: flex;
     align-items: center;

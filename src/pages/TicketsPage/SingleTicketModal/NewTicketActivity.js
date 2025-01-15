@@ -133,7 +133,7 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
             <div className="scrollable-activity">
                 <ListGroup variant="flush">
                     {activities.map((activity, index) => (
-                        <ListGroup.Item key={index} className="border-0 pb-3">
+                        <ListGroup.Item key={index} className="border-0 pb-3" style={{paddingRight: '10px'}}>
                             <div className="d-flex justify-content-between align-items-center">
                                 <div className="d-flex">
                                     <strong>{activity.author || "Author"}</strong>
@@ -144,14 +144,14 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
                                 <div>
                                     {editMode === index ? (
                                         <FaCheck
-                                            size={18}
-                                            style={{ cursor: "pointer" }}
+                                            size={25}
+                                            style={{ cursor: "pointer", opacity: "0.7" }}
                                             onClick={() => handleSaveActivity(index, activity.id)}
                                         />
                                     ) : (
                                         <FaEdit
-                                            size={18}
-                                            style={{ cursor: "pointer" }}
+                                            size={25}
+                                            style={{ cursor: "pointer", opacity: "0.7" }}
                                             onClick={() => handleEditClick(index, activity.activity)}
                                         />
                                     )}
@@ -184,7 +184,7 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
                     <div ref={activityEndRef} />
                 </ListGroup>
             </div>
-            <Card.Footer className="bg-white border-0">
+            <Card.Footer className="bg-white border-0" style={{paddingRight: "0"}}>
                 <Form onSubmit={handleAddActivity} className="d-flex">
                     <TextareaAutosize
                         minRows={3}
@@ -197,10 +197,11 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
                     <Button
                         variant="link"
                         type="submit"
-                        className="text-primary px-3 align-self-end"
+                        className="text-primary align-self-end"
+                        style={{padding: '0 10px 0 10px'}}
 
                     >
-                        <FaPaperPlane size={20} />
+                        <FaPaperPlane size={30} />
                     </Button>
                 </Form>
             </Card.Footer>

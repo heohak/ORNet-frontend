@@ -1,215 +1,200 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import {
-    Container,
-    Row,
-    Col,
-    Card,
-    Button,
-    Spinner,
-    Alert,
-    Modal,
-    Form
-} from 'react-bootstrap';
-import config from '../../config/config';
-import {FaPhone, FaEnvelope, FaEdit, FaArrowLeft} from 'react-icons/fa';
-import EditThirdPartyITModal from "./EditThirdPartyITModal";
+import { Container, Row, Col, Button, Spinner, Alert } from 'react-bootstrap';
 import axiosInstance from "../../config/axiosInstance";
+import config from '../../config/config';
+
+// Icons
+import { FaArrowLeft } from 'react-icons/fa';
+
+// Subcomponents
+import AddThirdPartyITModal from "../OneClientPage/AddThirdPartyITModal";
+import ViewThirdPartyITModal from "../OneClientPage/ViewThirdPartyITModal";
+
+/*
+  If you want to add sorting logic, you can introduce a sortConfig state and handleSort function like so:
+
+  const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'ascending' });
+
+  const handleSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const renderSortArrow = (key) => {
+    if (sortConfig.key === key) {
+      return sortConfig.direction === 'ascending' ? '▲' : '▼';
+    }
+    return '↕';
+  };
+
+  Then you can sort the array before rendering:
+  const sortedThirdPartyITs = [...thirdPartyITs].sort((a, b) => {
+    ...
+  });
+*/
 
 function ViewThirdPartyITs() {
     const [thirdPartyITs, setThirdPartyITs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // "Add Third-Party IT" modal
     const [showAddModal, setShowAddModal] = useState(false);
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
-    const [phoneNumberError, setPhoneNumberError] = useState('');
+
+    // "View Third-Party" modal
     const [selectedThirdParty, setSelectedThirdParty] = useState(null);
-    const [showEditModal, setShowEditModal] = useState(false);
+    const [showViewModal, setShowViewModal] = useState(false);
 
+    // 1. Fetch Third-Party IT list on mount
     useEffect(() => {
-        const fetchThirdPartyITs = async () => {
-            try {
-                const response = await axiosInstance.get(`${config.API_BASE_URL}/third-party/all`);
-                setThirdPartyITs(response.data);
-            } catch (error) {
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchThirdPartyITs();
     }, []);
 
-    const handleAddThirdPartyIT = async (e) => {
-        e.preventDefault();
-        setError(null);
-        const trimmedPhoneNumber = phone.trim();
-        // Check if the phone number contains only digits
-        if (!/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
-            setPhoneNumberError('Phone number must contain only numbers and spaces, and may start with a +.');
-            return;
-        }
-        // Reset the error message if validation passes
-        setPhoneNumberError('');
-        setPhone(trimmedPhoneNumber);
-
+    const fetchThirdPartyITs = async () => {
+        setLoading(true);
         try {
-            await axiosInstance.post(`${config.API_BASE_URL}/third-party/add`, {
-                name,
-                email,
-                phone,
-            });
             const response = await axiosInstance.get(`${config.API_BASE_URL}/third-party/all`);
             setThirdPartyITs(response.data);
-            setShowAddModal(false);
-            setName('');
-            setEmail('');
-            setPhone('');
-        } catch (error) {
-            setError(error.message);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handleEdit = (thirdParty) => {
-        setSelectedThirdParty(thirdParty);
-        setShowEditModal(true);
-    };
-
-    const handleCloseEditModal = () => {
-        setSelectedThirdParty(null);
-        setShowEditModal(false);
-    };
-
-    const handleUpdateThirdPartyList = () => {
-        // Fetch the updated list of third parties
-        const fetchThirdPartyITs = async () => {
-            try {
-                const response = await axiosInstance.get(`${config.API_BASE_URL}/third-party/all`);
-                setThirdPartyITs(response.data);
-            } catch (error) {
-                setError(error.message);
-            }
-        };
+    // 2. Refresh list after adding new ThirdPartyIT
+    const handleNewThirdPartyIT = () => {
+        setShowAddModal(false);
         fetchThirdPartyITs();
     };
 
+    // 3. If row is clicked, open "view" modal
+    const handleRowClick = (tp) => {
+        setSelectedThirdParty(tp);
+        setShowViewModal(true);
+    };
+
+    const handleCloseViewModal = () => {
+        setSelectedThirdParty(null);
+        setShowViewModal(false);
+    };
+
+    // 4. After updating (or removing) a third-party in the "view" modal, refresh
+    const handleUpdateList = () => {
+        fetchThirdPartyITs();
+    };
+
+    // 5. Render
+    if (loading) {
+        return (
+            <Container className="text-center mt-5">
+                <Spinner animation="border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </Spinner>
+            </Container>
+        );
+    }
+    if (error) {
+        return (
+            <Container className="mt-5">
+                <Alert variant="danger">
+                    <Alert.Heading>Error</Alert.Heading>
+                    <p>{error}</p>
+                </Alert>
+            </Container>
+        );
+    }
+
     return (
         <Container className="mt-4">
+
+            {/* Back Button */}
             <Button
                 variant="link"
                 onClick={() => window.history.back()}
                 className="mb-4 p-0"
-                style={{ fontSize: '1.5rem', color: '#0d6efd' }} // Adjust styling as desired
+                style={{ fontSize: '1.5rem', color: '#0d6efd' }}
             >
                 <FaArrowLeft title="Go back" />
             </Button>
+
+            {/* Page Header */}
             <div className="d-flex justify-content-between align-items-center mb-4">
-                <h1>Third Party ITs</h1>
-                <Button variant="primary" onClick={() => setShowAddModal(true)}>Add Third Party IT</Button>
+                <h1>Third-Party ITs</h1>
+                <Button variant="primary" onClick={() => setShowAddModal(true)}>
+                    Add Third Party IT
+                </Button>
             </div>
 
-            {loading ? (
-                <Container className="text-center mt-5">
-                    <Spinner animation="border" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                    </Spinner>
-                </Container>
-            ) : error ? (
-                <Container className="mt-5">
-                    <Alert variant="danger">
-                        <Alert.Heading>Error</Alert.Heading>
-                        <p>{error}</p>
-                    </Alert>
-                </Container>
-            ) : (
-                <Row>
-                    {thirdPartyITs.map((thirdParty) => (
-                        <Col md={4} key={thirdParty.id} className="mb-4">
-                            <Card>
-                                <Card.Body>
-                                    <div className="d-flex justify-content-between align-items-start">
-                                        <Card.Title>{thirdParty.name}</Card.Title>
-                                        <Button
-                                            variant="link"
-                                            className="p-0"
-                                            onClick={() => handleEdit(thirdParty)}
-                                        >
-                                            <FaEdit />
-                                        </Button>
-                                    </div>
-                                    <Card.Text>
-                                        <FaEnvelope /> {thirdParty.email}<br />
-                                        <FaPhone /> {thirdParty.phone}
-                                    </Card.Text>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    ))}
-                </Row>
-            )}
-            {/* Add Third Party IT Modal */}
-            <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Add Third Party IT</Modal.Title>
-                </Modal.Header>
-                <Form onSubmit={handleAddThirdPartyIT}>
-                    <Modal.Body>
-                        <Form.Group controlId="formName">
-                            <Form.Label>Name</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                placeholder="Enter name"
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formEmail" className="mt-3">
-                            <Form.Label>Email</Form.Label>
-                            <Form.Control
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="Enter email"
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formPhone" className="mt-3">
-                            <Form.Label>Phone</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
-                                placeholder="Enter phone number"
-                                required
-                                isInvalid={!!phoneNumberError} // Display error styling if there's an error
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                {phoneNumberError}
-                            </Form.Control.Feedback>
-                        </Form.Group>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="outline-info" onClick={() => setShowAddModal(false)}>Cancel</Button>
-                        <Button variant="primary" type='submit'>Add Third Party IT</Button>
-                    </Modal.Footer>
-                </Form>
-            </Modal>
+            {/* Optional: Sortable Table Headers
+         <Row className="row-margin-0 fw-bold">
+           <Col md={4} onClick={() => handleSort('name')}>
+             Name {renderSortArrow('name')}
+           </Col>
+           <Col md={4} onClick={() => handleSort('phone')}>
+             Phone {renderSortArrow('phone')}
+           </Col>
+           <Col md={4} onClick={() => handleSort('email')}>
+             Email {renderSortArrow('email')}
+           </Col>
+         </Row>
+         <hr />
+      */}
 
-            {/* Edit Third Party IT Modal */}
+            {/* We can skip sorting code here and just show in a row-based list */}
+            {thirdPartyITs.length === 0 ? (
+                <Alert variant="info">No Third-Party ITs found.</Alert>
+            ) : (
+                <>
+                    {/* Table-like headers (non-clickable) */}
+                    <Row className="fw-bold row-margin-0">
+                        <Col md={4}>Name</Col>
+                        <Col md={4}>Phone</Col>
+                        <Col md={4}>Email</Col>
+                    </Row>
+                    <hr />
+
+                    {thirdPartyITs.map((tp, index) => {
+                        const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                        return (
+                            <Row
+                                key={tp.id}
+                                className="align-items-center"
+                                style={{ margin: '0 0', cursor: 'pointer', backgroundColor: rowBgColor }}
+                                onClick={() => handleRowClick(tp)}
+                            >
+                                <Col className="py-2">
+                                    <Row className="align-items-center">
+                                        <Col md={4}>{tp.name}</Col>
+                                        <Col md={4}>{tp.phone || "N/A"}</Col>
+                                        <Col md={4}>{tp.email || "N/A"}</Col>
+                                    </Row>
+                                </Col>
+                            </Row>
+                        );
+                    })}
+                </>
+            )}
+
+            {/* Add ThirdPartyIT Modal */}
+            <AddThirdPartyITModal
+                show={showAddModal}
+                onHide={() => setShowAddModal(false)}
+                onNewThirdPartyIT={handleNewThirdPartyIT}
+            />
+
+            {/* View ThirdPartyIT Modal */}
             {selectedThirdParty && (
-                <EditThirdPartyITModal
-                    show={showEditModal}
-                    onHide={handleCloseEditModal}
+                <ViewThirdPartyITModal
+                    show={showViewModal}
+                    onHide={handleCloseViewModal}
                     thirdParty={selectedThirdParty}
-                    onUpdate={handleUpdateThirdPartyList}
+                    onUpdate={handleUpdateList}
                 />
             )}
-
-
         </Container>
     );
 }

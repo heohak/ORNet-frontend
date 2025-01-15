@@ -179,7 +179,8 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
                             </Col>
                             <Col className="col-md-auto"> {/* Aligns trash icon to the right */}
                                 <FaTrash
-                                    style={{ cursor: "pointer" }}
+                                    size={25}
+                                    style={{ cursor: "pointer"}}
                                     onClick={() => setShowDeleteModal(true)} // Add your delete function here
                                     title="Delete Ticket"
                                     className="text-danger" // Optional: add a color class

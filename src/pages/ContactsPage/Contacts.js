@@ -27,64 +27,69 @@ function Contacts() {
 
     useEffect(() => {
         const fetchWorkers = async () => {
+            setLoading(true); // Start loading
+
             try {
+                // Fetch workers data
                 const response = await axiosInstance.get(`${config.API_BASE_URL}/worker/search`);
 
-                const sortedWorkers = response.data.sort((a, b) => (a.favorite === b.favorite) ? 0 : a.favorite ? -1 : 1);
-                setWorkers(sortedWorkers);
+                // Sort workers
+                const sortedWorkers = response.data.sort((a, b) => {
+                    if (a.favorite === b.favorite) {
+                        return (a.firstName + " " + a.lastName).localeCompare(b.firstName + " " + b.lastName);
+                    }
+                    return a.favorite ? -1 : 1; // Favorites come first
+                });
 
-                await fetchAdditionalDetails(sortedWorkers);
+                // Fetch additional details for each worker (employers, locations, roles)
+                const [employerResponses, locationResponses, roleResponses] = await Promise.all([
+                    Promise.all(sortedWorkers.map(worker =>
+                        axiosInstance.get(`${config.API_BASE_URL}/worker/employer/${worker.id}`)
+                    )),
+                    Promise.all(sortedWorkers.map(worker =>
+                        axiosInstance.get(`${config.API_BASE_URL}/worker/location/${worker.id}`)
+                    )),
+                    Promise.all(sortedWorkers.map(worker =>
+                        axiosInstance.get(`${config.API_BASE_URL}/worker/role/${worker.id}`)
+                    ))
+                ]);
+
+                // Process and store the additional data
+                const employers = {};
+                const locations = {};
+                const roles = {};
+
+                employerResponses.forEach((response, index) => {
+                    const workerId = sortedWorkers[index].id;
+                    employers[workerId] = response.data.shortName;
+                });
+
+                locationResponses.forEach((response, index) => {
+                    const workerId = sortedWorkers[index].id;
+                    locations[workerId] = response.data.name || "N/A";
+                });
+
+                roleResponses.forEach((response, index) => {
+                    const workerId = sortedWorkers[index].id;
+                    roles[workerId] = response.data.map(role => role.role);
+                });
+
+                // Set the final state after all data is fetched and processed
+                setWorkers(sortedWorkers);
+                setWorkerEmployers(employers);
+                setWorkerLocations(locations);
+                setWorkerRoles(roles);
+
             } catch (error) {
                 setError(error.message);
             } finally {
-                setLoading(false);
-            }
-        };
-
-        const fetchAdditionalDetails = async (workers) => {
-            try {
-                // Employer details
-                const employerPromises = workers.map(worker =>
-                    axiosInstance.get(`${config.API_BASE_URL}/worker/employer/${worker.id}`)
-                );
-                const employerResponses = await Promise.all(employerPromises);
-                const employers = {};
-                employerResponses.forEach((response, index) => {
-                    const workerId = workers[index].id;
-                    employers[workerId] = response.data.shortName;
-                });
-                setWorkerEmployers(employers);
-
-                // Location details
-                const locationPromises = workers.map(worker =>
-                    axiosInstance.get(`${config.API_BASE_URL}/worker/location/${worker.id}`)
-                );
-                const locationResponses = await Promise.all(locationPromises);
-                const locations = {};
-                locationResponses.forEach((response, index) => {
-                    const workerId = workers[index].id;
-                    locations[workerId] = response.data.name || "N/A";
-                });
-                setWorkerLocations(locations);
-
-                // Roles
-                const rolePromises = workers.map(worker =>
-                    axiosInstance.get(`${config.API_BASE_URL}/worker/role/${worker.id}`)
-                );
-                const roleResponses = await Promise.all(rolePromises);
-                const roles = {};
-                roleResponses.forEach((response, index) => {
-                    const workerId = workers[index].id;
-                    roles[workerId] = response.data.map(role => role.role);
-                });
-                setWorkerRoles(roles);
-            } catch (error) {
-                console.error("Error fetching additional details:", error);
+                setLoading(false); // End loading
             }
         };
 
         fetchWorkers();
     }, []);
+
 
     const handleCopyEmails = () => {
         const emails = workers.map(worker => worker.email).filter(email => email).join(", ");
@@ -107,15 +112,6 @@ function Contacts() {
         // Keep the modal open, just updated the comment shown
     };
 
-    if (loading) {
-        return (
-            <Container className="text-center mt-5">
-                <Spinner animation="border" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                </Spinner>
-            </Container>
-        );
-    }
 
     if (error) {
         return (
@@ -140,9 +136,16 @@ function Contacts() {
                             </Button>
                         </div>
                     </div>
-                    <WorkerSearchFilter setWorkers={setWorkers} />
+                    <WorkerSearchFilter setWorkers={setWorkers} setLoading={setLoading} />
                 </div>
             </div>
+            {loading ? (
+                <Container className="text-center mt-5" style={{paddingTop: "150px"}}>
+                    <Spinner animation="border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </Spinner>
+                </Container>
+            ) : (
             <Container className="mt-5 contacts-container">
                 <Row>
                     {workers.length === 0 ? (
@@ -223,6 +226,7 @@ function Contacts() {
                     )}
                 </Row>
             </Container>
+            )}
 
             {commentWorker && (
                 <WorkerCommentModal

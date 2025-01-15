@@ -56,6 +56,7 @@ const NewTicketDescription = ({ticket}) => {
                         icon={faEdit}
                         onClick={() => setIsEditing(true)}
                         style={{
+                            fontSize: '1.5rem',
                             position: 'absolute',
                             top: '10px',
                             right: '10px',
@@ -69,6 +70,7 @@ const NewTicketDescription = ({ticket}) => {
                         icon={faCheck}
                         onClick={handleSaveDescription}
                         style={{
+                            fontSize: '1.5rem',
                             position: 'absolute',
                             top: '10px',
                             right: '10px',

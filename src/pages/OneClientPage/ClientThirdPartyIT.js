@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Alert, Button, Row, Col } from 'react-bootstrap';
-import axios from 'axios';
-import { FaEdit, FaEnvelope, FaPhone } from 'react-icons/fa';
+import { Row, Col, Button, Alert } from 'react-bootstrap';
+import axiosInstance from "../../config/axiosInstance";
 import config from "../../config/config";
+import { FaEdit } from 'react-icons/fa';
+
 import AddThirdPartyIT from "./AddThirdPartyIT";
 import EditThirdPartyITModal from "../SettingsPage/EditThirdPartyITModal";
-import '../../css/Customers.css';
-import axiosInstance from "../../config/axiosInstance";
+import ViewThirdPartyITModal from "./ViewThirdPartyITModal";
 
 function ClientThirdPartyIT({ clientId, refresh, setRefresh }) {
     const [thirdPartyITs, setThirdPartyITs] = useState([]);
@@ -14,10 +14,18 @@ function ClientThirdPartyIT({ clientId, refresh, setRefresh }) {
     const [error, setError] = useState(null);
     const [showAddModal, setShowAddModal] = useState(false);
 
-    // State for Edit Modal
+    // For editing
     const [selectedThirdParty, setSelectedThirdParty] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
 
+    // For viewing details
+    const [selectedForView, setSelectedForView] = useState(null);
+    const [showViewModal, setShowViewModal] = useState(false);
+
+    // Sorting config
+    const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'ascending' });
+
+    // Fetch Third-Party ITs for this client
     useEffect(() => {
         const fetchThirdPartyITs = async () => {
             try {
@@ -29,29 +37,59 @@ function ClientThirdPartyIT({ clientId, refresh, setRefresh }) {
                 setLoading(false);
             }
         };
-
         fetchThirdPartyITs();
     }, [clientId, refresh]);
 
+    // Sorting
+    const handleSort = (key) => {
+        let direction = 'ascending';
+        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+            direction = 'descending';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const renderSortArrow = (key) => {
+        if (sortConfig.key === key) {
+            return sortConfig.direction === 'ascending' ? '▲' : '▼';
+        }
+        return '↕';
+    };
+
+    const sortedThirdParties = [...thirdPartyITs].sort((a, b) => {
+        const valueA = a[sortConfig.key] ?? '';
+        const valueB = b[sortConfig.key] ?? '';
+        if (valueA < valueB) return sortConfig.direction === 'ascending' ? -1 : 1;
+        if (valueA > valueB) return sortConfig.direction === 'ascending' ? 1 : -1;
+        return 0;
+    });
+
+    // Edit
     const handleEdit = (thirdParty) => {
         setSelectedThirdParty(thirdParty);
         setShowEditModal(true);
     };
-
     const handleCloseEditModal = () => {
         setSelectedThirdParty(null);
         setShowEditModal(false);
     };
 
+    // Refresh after update
     const handleUpdateThirdPartyList = () => {
-        // Trigger a refresh to update the list
-        setRefresh((prev) => !prev);
+        setRefresh(prev => !prev);
     };
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
+    // View
+    const handleRowClick = (thirdParty) => {
+        setSelectedForView(thirdParty);
+        setShowViewModal(true);
+    };
+    const handleCloseViewModal = () => {
+        setSelectedForView(null);
+        setShowViewModal(false);
+    };
 
+    if (loading) return <div>Loading...</div>;
     if (error) {
         return (
             <Alert variant="danger">
@@ -65,7 +103,9 @@ function ClientThirdPartyIT({ clientId, refresh, setRefresh }) {
         <>
             <Row className="d-flex justify-content-between align-items-center mb-2">
                 <Col className="col-md-auto">
-                    <h2 className="mb-0" style={{ paddingBottom: "20px" }}>Third-Party ITs</h2>
+                    <h2 className="mb-0" style={{ paddingBottom: "20px" }}>
+                        Third-Party ITs
+                    </h2>
                 </Col>
                 <Col className="col-md-auto">
                     <Button variant="primary" onClick={() => setShowAddModal(true)}>
@@ -74,33 +114,54 @@ function ClientThirdPartyIT({ clientId, refresh, setRefresh }) {
                 </Col>
             </Row>
 
-            {thirdPartyITs.length > 0 ? (
-                <Row className="mt-1">
-                    {thirdPartyITs.map((thirdParty) => (
-                        <Col md={3} key={thirdParty.id} className="mb-4">
-                            <Card className="h-100 position-relative customer-page-card">
-                                <Card.Body className="all-page-cardBody">
-                                    <div className="position-absolute top-0 end-0 m-2">
+            {/* Sortable Table Headers */}
+            <Row className="row-margin-0 fw-bold">
+                <Col md={4} onClick={() => handleSort('name')}>
+                    Name {renderSortArrow('name')}
+                </Col>
+                <Col md={4} onClick={() => handleSort('phone')}>
+                    Phone {renderSortArrow('phone')}
+                </Col>
+                <Col md={4} onClick={() => handleSort('email')}>
+                    Email {renderSortArrow('email')}
+                </Col>
+            </Row>
+            <hr />
+
+            {sortedThirdParties.length > 0 ? (
+                sortedThirdParties.map((thirdParty, index) => {
+                    const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                    return (
+                        <Row
+                            key={thirdParty.id}
+                            className="align-items-center"
+                            style={{ margin: '0 0', cursor: 'pointer', backgroundColor: rowBgColor }}
+                            onClick={() => handleRowClick(thirdParty)}
+                        >
+                            <Col className="py-2">
+                                <Row className="align-items-center">
+                                    <Col md={4}>{thirdParty.name}</Col>
+                                    <Col md={4}>{thirdParty.phone || "N/A"}</Col>
+                                    <Col md={4}>{thirdParty.email || "N/A"}</Col>
+                                    <Col md={2}>
                                         <Button
                                             variant="link"
-                                            className="p-0"
-                                            onClick={() => handleEdit(thirdParty)}
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // prevent opening the View modal
+                                                handleEdit(thirdParty);
+                                            }}
                                         >
-                                            <FaEdit title="Edit Third Party IT" />
                                         </Button>
-                                    </div>
-                                    <Card.Title className="all-page-cardTitle">{thirdParty.name}</Card.Title>
-                                    <Card.Text className="all-page-cardText">
-                                        <FaPhone className="me-2" />{thirdParty.phone}<br />
-                                        <FaEnvelope className="me-2" />{thirdParty.email}
-                                    </Card.Text>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    ))}
-                </Row>
+                                    </Col>
+                                </Row>
+                            </Col>
+                        </Row>
+                    );
+                })
             ) : (
-                <Alert className="mt-3" variant="info">No third-party ITs available.</Alert>
+                <Alert className="mt-3" variant="info">
+                    No third-party ITs available.
+                </Alert>
             )}
 
             {/* Add Third Party IT Modal */}
@@ -120,6 +181,17 @@ function ClientThirdPartyIT({ clientId, refresh, setRefresh }) {
                     thirdParty={selectedThirdParty}
                     clientId={clientId}
                     onUpdate={handleUpdateThirdPartyList}
+                />
+            )}
+
+            {/* View Third-Party IT Modal */}
+            {selectedForView && (
+                <ViewThirdPartyITModal
+                    show={showViewModal}
+                    onHide={handleCloseViewModal}
+                    thirdParty={selectedForView}
+                    onUpdate={handleUpdateThirdPartyList}
+                    clientId={clientId}
                 />
             )}
         </>

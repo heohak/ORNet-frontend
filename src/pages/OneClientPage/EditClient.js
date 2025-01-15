@@ -834,6 +834,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh, reFetchRoles, setRo
                 clientId={clientId}
                 onSuccess={handleNewContact}
                 reFetchRoles={fetchRoles}
+                showLocationField={true}
             />
 
             <ConfirmationModal
