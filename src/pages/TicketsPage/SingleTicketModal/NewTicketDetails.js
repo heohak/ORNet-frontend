@@ -249,7 +249,6 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                             name="clientNumeration"
                                             value={editedTicket.clientNumeration}
                                             onChange={handleInputChange}
-                                            required
                                         />
                                     ) : editedTicket.clientNumeration}
                                 </Col>
