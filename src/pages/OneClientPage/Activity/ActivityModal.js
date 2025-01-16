@@ -63,12 +63,12 @@ const ActivityModal = ({ activity, handleClose, reFetch, clientName, locations, 
                                         </Col>
                                     </div>
                                 </Col>
-                                <Col className="col-md-auto"> {/* Aligns trash icon to the right */}
+                                <Col className="col-md-auto">
                                     <FaTrash
                                         style={{ cursor: "pointer", fontSize: "1.5rem" }}
-                                        onClick={() => setShowDeleteModal(true)} // Add your delete function here
+                                        onClick={() => setShowDeleteModal(true)}
                                         title="Delete Ticket"
-                                        className="text-danger" // Optional: add a color class
+                                        className="text-danger"
                                     />
                                 </Col>
                             </Row>
