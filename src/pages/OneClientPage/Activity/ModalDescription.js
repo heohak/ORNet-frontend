@@ -52,6 +52,7 @@ const NewTicketDescription = ({ activity, reFetch }) => {
                         icon={faEdit}
                         onClick={() => setIsEditing(true)}
                         style={{
+                            fontSize: '1.5rem',
                             cursor: "pointer",
                             opacity: 0.7,
                         }}
@@ -61,6 +62,7 @@ const NewTicketDescription = ({ activity, reFetch }) => {
                         icon={faSave}
                         onClick={handleSaveDescription}
                         style={{
+                            fontSize: '1.5rem',
                             cursor: "pointer",
                             opacity: 0.7,
                         }}

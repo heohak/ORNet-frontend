@@ -65,7 +65,7 @@ const ActivityModal = ({ activity, handleClose, reFetch, clientName, locations, 
                                 </Col>
                                 <Col className="col-md-auto"> {/* Aligns trash icon to the right */}
                                     <FaTrash
-                                        style={{ cursor: "pointer" }}
+                                        style={{ cursor: "pointer", fontSize: "1.5rem" }}
                                         onClick={() => setShowDeleteModal(true)} // Add your delete function here
                                         title="Delete Ticket"
                                         className="text-danger" // Optional: add a color class

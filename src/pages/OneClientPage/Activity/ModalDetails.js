@@ -160,7 +160,7 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
                                 style={{ textDecoration: 'none', padding: 0 }} // Style button
                                 className="me-2 d-flex"
                             >
-                                {editMode ? <FaSave /> : <FaEdit />}
+                                {editMode ? <FaSave style={{ fontSize: '1.5rem' }}/> : <FaEdit style={{ fontSize: '1.5rem' }}/>}
                             </Button>
                         </div>
                     </Accordion.Header>
