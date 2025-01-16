@@ -1,7 +1,7 @@
 import { Accordion, Col, Row, Button, Form } from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { FaEdit, FaCheck } from 'react-icons/fa';  // Import edit and check icons
+import { FaEdit, FaSave } from 'react-icons/fa';  // Import edit and check icons
 import config from "../../../config/config";
 import Select from "react-select";
 import {useLocation, useNavigate} from "react-router-dom";
@@ -223,7 +223,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                 style={{ textDecoration: 'none', padding: 0 }} // Style button
                                 className="me-2 d-flex"
                             >
-                                {editMode ? <FaCheck style={{ fontSize: '1.5rem' }} /> : <FaEdit style={{ fontSize: '1.5rem' }} />}
+                                {editMode ? <FaSave style={{ fontSize: '1.5rem' }} /> : <FaEdit style={{ fontSize: '1.5rem' }} />}
                             </Button>
                         </div>
                     </Accordion.Header>

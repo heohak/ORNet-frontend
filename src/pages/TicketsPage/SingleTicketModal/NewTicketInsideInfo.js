@@ -1,5 +1,5 @@
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCheck, faEdit} from "@fortawesome/free-solid-svg-icons";
+import {faSave, faEdit} from "@fortawesome/free-solid-svg-icons";
 import React, {useState} from "react";
 import axios from "axios";
 import config from "../../../config/config";
@@ -66,7 +66,7 @@ const NewTicketInsideInfo = ({ ticket, reFetch }) => {
                     />
                 ) : (
                     <FontAwesomeIcon
-                        icon={faCheck}
+                        icon={faSave}
                         onClick={handleSaveInsideInfo}
                         style={{
                             fontSize: '1.5rem',

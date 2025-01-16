@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCheck, faEdit} from "@fortawesome/free-solid-svg-icons";
+import {faSave, faEdit} from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import config from "../../../config/config";
 import axiosInstance from "../../../config/axiosInstance";
@@ -68,7 +68,7 @@ const NewTicketRootCause = ({ticket}) => {
                     />
                 ) : (
                     <FontAwesomeIcon
-                        icon={faCheck}
+                        icon={faSave}
                         onClick={handleSaveDescription}
                         style={{
                             fontSize: '1.5rem',

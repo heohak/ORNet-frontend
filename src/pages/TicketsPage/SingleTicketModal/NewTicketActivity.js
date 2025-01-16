@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Card, ListGroup, Form, InputGroup, Button, Modal } from "react-bootstrap";
-import { FaPaperPlane, FaEdit, FaCheck } from "react-icons/fa";
+import { FaPaperPlane, FaEdit, FaSave } from "react-icons/fa";
 import axios from "axios";
 import config from "../../../config/config";
 import '../../../css/NewTicket.css';
@@ -143,7 +143,7 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
                                 </div>
                                 <div>
                                     {editMode === index ? (
-                                        <FaCheck
+                                        <FaSave
                                             size={25}
                                             style={{ cursor: "pointer", opacity: "0.7" }}
                                             onClick={() => handleSaveActivity(index, activity.id)}
