@@ -52,6 +52,11 @@ const NewTicketStatusDropdown = ({ ticket, statuses, setIsClosed, reFetch, setSh
         }
     };
 
+    const handleClose = () => {
+        setShowRootCauseModal(false);
+        setShowModal(false);
+    }
+
     const updateTicketStatus = async (status) => {
         try {
             await axiosInstance.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`, {
@@ -85,7 +90,7 @@ const NewTicketStatusDropdown = ({ ticket, statuses, setIsClosed, reFetch, setSh
             </InputGroup>
 
             {/* Modal for entering root cause */}
-            <Modal show={showModal} onHide={() => setShowModal(false)}>
+            <Modal show={showModal} onHide={handleClose}>
                 <Modal.Header closeButton>
                     <Modal.Title>Root Cause Required</Modal.Title>
                 </Modal.Header>
@@ -102,7 +107,7 @@ const NewTicketStatusDropdown = ({ ticket, statuses, setIsClosed, reFetch, setSh
                     </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowModal(false)}>
+                    <Button variant="secondary" onClick={handleClose}>
                         Cancel
                     </Button>
                     <Button variant="primary" onClick={handleRootCauseSubmit}>

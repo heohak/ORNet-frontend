@@ -65,7 +65,7 @@ const ModalFiles = ({ activity, eventKey, activeKey, handleAccordionToggle }) =>
                                 style={{ textDecoration: "none", padding: 0}}
                                 className="me-2 d-flex"
                             >
-                                <FaPaperclip/>
+                                <FaPaperclip style={{ fontSize: '1.5rem' }}/>
                             </Button>
                         </div>
                         <input

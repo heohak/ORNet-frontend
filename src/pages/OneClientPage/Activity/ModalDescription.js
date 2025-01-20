@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck, faEdit } from "@fortawesome/free-solid-svg-icons";
+import { faSave, faEdit } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import config from "../../../config/config";
 import axiosInstance from "../../../config/axiosInstance";
@@ -52,15 +52,17 @@ const NewTicketDescription = ({ activity, reFetch }) => {
                         icon={faEdit}
                         onClick={() => setIsEditing(true)}
                         style={{
+                            fontSize: '1.5rem',
                             cursor: "pointer",
                             opacity: 0.7,
                         }}
                     />
                 ) : (
                     <FontAwesomeIcon
-                        icon={faCheck}
+                        icon={faSave}
                         onClick={handleSaveDescription}
                         style={{
+                            fontSize: '1.5rem',
                             cursor: "pointer",
                             opacity: 0.7,
                         }}

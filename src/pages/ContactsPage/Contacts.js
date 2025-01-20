@@ -93,10 +93,20 @@ function Contacts() {
 
     const handleCopyEmails = () => {
         const emails = workers.map(worker => worker.email).filter(email => email).join(", ");
-        navigator.clipboard.writeText(emails).then(() => {
+        const textarea = document.createElement("textarea");
+        textarea.value = emails;
+        textarea.style.position = "fixed"; // Prevent scrolling to bottom
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        try {
+            document.execCommand("copy");
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
-        });
+        } catch (err) {
+            console.error("Fallback copy failed", err);
+        }
+        document.body.removeChild(textarea);
     };
 
     const handleOpenCommentModal = (worker) => {
