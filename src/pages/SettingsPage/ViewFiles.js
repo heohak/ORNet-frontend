@@ -75,19 +75,26 @@ function ViewFiles() {
         }
     };
 
-    const handleFileOpen = async(fileId) => {
-        try{
+    const handleFileOpen = async (fileId) => {
+        try {
             const response = await axiosInstance.get(`/file/open/${fileId}`, {
-                responseType: 'blob',
+                responseType: "blob",
             });
 
-            //Create a temporary URL to open the file
-            const fileUrl = URL.createObjectURL(new Blob([response.data]));
-            window.open(fileUrl, '_blank', 'noopener,noreferrer');
-        } catch(error) {
-            console.error('Error opening the file:', error);
+            // Detect the file type from the response headers
+            const fileType = response.headers["content-type"] || "application/octet-stream";
+
+            // Create a Blob with the correct MIME type
+            const blob = new Blob([response.data], { type: fileType });
+
+            // Generate a URL and open it in a new tab
+            const fileURL = URL.createObjectURL(blob);
+            window.open(fileURL, "_blank", "noopener,noreferrer");
+        } catch (error) {
+            console.error("Error opening the file:", error);
         }
-    }
+    };
+
 
     const handleFileDownload = async(fileId, fileName) => {
         try {

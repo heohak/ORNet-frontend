@@ -42,6 +42,9 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
     };
 
     const fetchResponsibleName = async () => {
+        if (!ticket.baitWorkerId) {
+            return
+        }
         try {
             const response = await axiosInstance.get(`${config.API_BASE_URL}/bait/worker/${ticket.baitWorkerId}`);
             const fullName = response.data.firstName + " " + response.data.lastName;
