@@ -3,8 +3,8 @@ import { jwtDecode } from "jwt-decode";
 
 
 const axiosInstance = axios.create({
-    baseURL: "http://localhost:8080/api",
-    // baseURL: "http://192.168.1.49:8080/api",
+    // baseURL: "http://localhost:8080/api",
+    baseURL: "http://192.168.1.49:8080/api",
 });
 
 axiosInstance.interceptors.request.use((config) => {
