@@ -116,8 +116,8 @@ function DeviceDetails({
     };
 
     const handleAddField = async () => {
-        if (newField.key.trim() === '' || newField.value.trim() === '') {
-            setFieldError('Please enter both key and value for the new field.');
+        if (newField.key.trim() === '') {
+            setFieldError('Please enter key for the new field.');
             return;
         }
 
