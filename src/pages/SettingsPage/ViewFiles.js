@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import {saveAs} from 'file-saver';
 import {
     Container,
     Row,
@@ -75,6 +75,40 @@ function ViewFiles() {
         }
     };
 
+    const handleFileOpen = async(fileId) => {
+        try{
+            const response = await axiosInstance.get(`/file/open/${fileId}`, {
+                responseType: 'blob',
+            });
+
+            //Create a temporary URL to open the file
+            const fileUrl = URL.createObjectURL(new Blob([response.data]));
+            window.open(fileUrl, '_blank', 'noopener,noreferrer');
+        } catch(error) {
+            console.error('Error opening the file:', error);
+        }
+    }
+
+    const handleFileDownload = async(fileId, fileName) => {
+        try {
+            const response = await axiosInstance.get(`/file/download/${fileId}`, {
+                responseType: 'blob',
+            });
+
+            // Extract file name from headers or use provided filename
+            const contentDisposition = response.headers['content-disposition'];
+            const extractedFileName = contentDisposition ? contentDisposition.split('filename=')[1].replace(/"/g, '')
+                : fileName;
+
+            // Trigger the file download
+            const blob = new Blob([response.data]);
+            saveAs(blob, extractedFileName);
+
+        } catch (error) {
+            console.error('Error downloading the file:', error);
+        }
+    }
+
     return (
         <Container className="mt-4">
 
@@ -124,16 +158,14 @@ function ViewFiles() {
                             >
                                 <Col>
                                     <a
-                                        href={`${config.API_BASE_URL}/file/open/${file.id}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                        onClick={() => handleFileOpen(file.id)}
                                         style={{ textDecoration: 'none', color: 'inherit' }}
                                     >
                                         {file.fileName}
                                     </a>
                                 </Col>
                                 <Col md="auto">
-                                    <a href={`${config.API_BASE_URL}/file/download/${file.id}`}>
+                                    <a onClick={() => handleFileDownload(file.id, file.fileName)}>
                                         <Button variant="link" className="p-0">
                                             <FaDownload />
                                         </Button>
