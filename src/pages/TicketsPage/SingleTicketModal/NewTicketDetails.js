@@ -253,7 +253,8 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                             value={editedTicket.clientNumeration}
                                             onChange={handleInputChange}
                                         />
-                                    ) : editedTicket.clientNumeration}
+                                    ) : editedTicket.clientNumeration ||
+                                        <span style={{ fontStyle: 'italic', color: 'gray' }}>None</span>}
                                 </Col>
                             </Row>
 
