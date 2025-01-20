@@ -42,6 +42,9 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
     };
 
     const fetchResponsibleName = async () => {
+        if (!activity.baitWorkerId) {
+            return;
+        }
         try {
             const response = await axiosInstance.get(`${config.API_BASE_URL}/bait/worker/${activity.baitWorkerId}`);
             const fullName = response.data.firstName + " " + response.data.lastName;
