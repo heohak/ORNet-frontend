@@ -111,6 +111,7 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
                 show={showMaintenanceModal}
                 handleClose={() => setShowMaintenanceModal(false)}
                 maintenanceId={selectedMaintenanceId}
+                setRefresh={setRefresh}
             />
         </>
     );

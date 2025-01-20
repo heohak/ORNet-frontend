@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Row, Col, Accordion, Button, Spinner } from 'react-bootstrap';
+import {Modal, Row, Col, Accordion, Button, Spinner, Form} from 'react-bootstrap';
 import axios from 'axios';
 import config from '../../config/config';
 import { FaUpload } from 'react-icons/fa';
@@ -7,12 +7,19 @@ import FileList from '../../modals/FileList';
 import MaintenanceComment from './MaintenanceComment';
 import { format } from 'date-fns';
 import axiosInstance from "../../config/axiosInstance";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCheck, faEdit} from "@fortawesome/free-solid-svg-icons";
 
-function MaintenanceModal({ show, handleClose, maintenanceId, locationName }) {
+function MaintenanceModal({ show, handleClose, maintenanceId, locationName, setRefresh }) {
     const [maintenance, setMaintenance] = useState(null);
     const [files, setFiles] = useState([]);
     const [activeKey, setActiveKey] = useState('0');
     const fileInputRef = useRef(null);
+    const [isEditing, setIsEditing] = useState(false);  // Edit mode state
+    const [title, setTitle] = useState('');
+    const [maintenanceDate, setMaintenanceDate] = useState('');
+    const [comment, setComment] = useState('');
+
 
     useEffect(() => {
         if (maintenanceId && show) {
@@ -23,6 +30,18 @@ function MaintenanceModal({ show, handleClose, maintenanceId, locationName }) {
 
 
 
+    const handleSaveEditing = async () => {
+        try {
+            await axiosInstance.put(`${config.API_BASE_URL}/maintenance/update/${maintenance.id}`, {
+                comment: comment,
+                maintenanceName: title,
+            });
+            setIsEditing(false); // Exit edit mode after saving
+            setRefresh(prev => !prev);
+        } catch (error) {
+            console.error('Error saving the comment: ',error);
+        }
+    };
     const fetchMaintenanceDetails = async (id) => {
         try {
             const response = await axiosInstance.get(`${config.API_BASE_URL}/maintenance/${id}`);
@@ -33,8 +52,9 @@ function MaintenanceModal({ show, handleClose, maintenanceId, locationName }) {
             const maintenanceDate = maintenanceData.maintenanceDate
                 ? format(new Date(maintenanceData.maintenanceDate), 'dd.MM.yyyy')
                 : '';
-
-            maintenanceData.displayName = `${maintenanceName} - ${maintenanceDate}`;
+            setMaintenanceDate(maintenanceDate)
+            setTitle(maintenanceName)
+            setComment(maintenanceData.comment)
 
             setMaintenance(maintenanceData);
             fetchMaintenanceFiles(id);
@@ -104,15 +124,51 @@ function MaintenanceModal({ show, handleClose, maintenanceId, locationName }) {
                     {/* Display Maintenance Name and Date */}
                     <Row className="mb-3">
                         <Col>
-                            <h5>{maintenance.displayName}</h5>
+                            {isEditing ? (
+                                <Form.Control
+                                    as="textarea"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    rows={1}
+                                    style={{ width: '100%' }}
+                                />
+                            ) : (
+                            <h5>{title} - {maintenanceDate}</h5>
+                            )}
                             {locationName && <p>{locationName}</p>}
+                        </Col>
+                        <Col className="col-md-auto">
+                            {!isEditing ? (
+                                <FontAwesomeIcon
+                                    icon={faEdit}
+                                    onClick={() => setIsEditing(true)}
+                                    style={{
+                                        cursor: 'pointer',
+                                        opacity: 0.8,
+                                        transition: 'opacity 0.2s',
+                                    }}
+                                />
+                            ) : (
+                                <FontAwesomeIcon
+                                    icon={faCheck}
+                                    onClick={handleSaveEditing}
+                                    style={{
+                                        cursor: 'pointer',
+                                        opacity: 0.8,
+                                        transition: 'opacity 0.2s',
+                                    }}
+                                />
+                            )}
                         </Col>
                     </Row>
 
-                    {/* Existing Content */}
                     <Row>
-                        <Col md={8}>
-                            <MaintenanceComment maintenance={maintenance} />
+                    <Col md={8}>
+                            <MaintenanceComment
+                                comment={comment}
+                                setComment={setComment}
+                                isEditing={isEditing}
+                            />
                         </Col>
                         <Col md={4}>
                             {/* Files Accordion */}

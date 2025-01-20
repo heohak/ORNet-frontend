@@ -6,22 +6,7 @@ import config from "../../config/config";
 import { Form, Button } from "react-bootstrap";
 import axiosInstance from "../../config/axiosInstance";
 
-const MaintenanceComment = ({ maintenance }) => {
-    const [isEditing, setIsEditing] = useState(false);  // Edit mode state
-    const [comment, setComment] = useState(maintenance.comment);  // Local state for the comment
-    const [error, setError] = useState(null);
-
-    const handleSaveComment = async () => {
-        try {
-            await axiosInstance.put(`${config.API_BASE_URL}/maintenance/update/${maintenance.id}`, {
-                comment: comment,
-            });
-            setIsEditing(false); // Exit edit mode after saving
-        } catch (error) {
-            setError('Error saving the comment.');
-        }
-    };
-
+const MaintenanceComment = ({setComment, isEditing, comment }) => {
     return (
         <>
             <div
@@ -36,28 +21,6 @@ const MaintenanceComment = ({ maintenance }) => {
                 <div style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
                     <h5 className="mb-0">Comment</h5>
 
-                    {/* Edit/Save Icon */}
-                    {!isEditing ? (
-                        <FontAwesomeIcon
-                            icon={faEdit}
-                            onClick={() => setIsEditing(true)}
-                            style={{
-                                cursor: 'pointer',
-                                opacity: 0.8,
-                                transition: 'opacity 0.2s',
-                            }}
-                        />
-                    ) : (
-                        <FontAwesomeIcon
-                            icon={faCheck}
-                            onClick={handleSaveComment}
-                            style={{
-                                cursor: 'pointer',
-                                opacity: 0.8,
-                                transition: 'opacity 0.2s',
-                            }}
-                        />
-                    )}
                 </div>
 
                 {/* Content for comment */}
@@ -74,9 +37,6 @@ const MaintenanceComment = ({ maintenance }) => {
                         {comment || "No comment provided."}
                     </p>
                 )}
-
-                {/* Display error if saving fails */}
-                {error && <p className="text-danger">{error}</p>}
             </div>
         </>
     );
