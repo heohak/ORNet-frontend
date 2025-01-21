@@ -1,13 +1,15 @@
-import React, { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSave, faEdit } from "@fortawesome/free-solid-svg-icons";
-import axios from "axios";
+import React, {forwardRef, useImperativeHandle, useState} from "react";
+
 import config from "../../../config/config";
 import axiosInstance from "../../../config/axiosInstance";
 
-const NewTicketDescription = ({ activity, reFetch }) => {
-    const [isEditing, setIsEditing] = useState(false); // Edit mode state
+const ModalDescription = forwardRef(({ activity, reFetch, isEditing }, ref) => {
     const [description, setDescription] = useState(activity.description); // Local state for the description
+
+
+    useImperativeHandle(ref, () => ({
+        saveChanges: handleSaveDescription, // Expose this function to parent
+    }));
 
     // Function to handle saving the updated description
     const handleSaveDescription = async () => {
@@ -16,7 +18,6 @@ const NewTicketDescription = ({ activity, reFetch }) => {
                 description: description,
             });
             reFetch();
-            setIsEditing(false); // Exit edit mode after saving
         } catch (error) {
             console.error("Error updating the description", error);
         }
@@ -45,32 +46,8 @@ const NewTicketDescription = ({ activity, reFetch }) => {
                     </p>
                 )}
             </div>
-            <div style={{ marginLeft: "auto" }}>
-                {/* Icon */}
-                {!isEditing ? (
-                    <FontAwesomeIcon
-                        icon={faEdit}
-                        onClick={() => setIsEditing(true)}
-                        style={{
-                            fontSize: '1.5rem',
-                            cursor: "pointer",
-                            opacity: 0.7,
-                        }}
-                    />
-                ) : (
-                    <FontAwesomeIcon
-                        icon={faSave}
-                        onClick={handleSaveDescription}
-                        style={{
-                            fontSize: '1.5rem',
-                            cursor: "pointer",
-                            opacity: 0.7,
-                        }}
-                    />
-                )}
-            </div>
         </div>
     );
-};
+});
 
-export default NewTicketDescription;
+export default ModalDescription;

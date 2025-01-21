@@ -1,40 +1,87 @@
-import React, {useState} from "react";
-import {Col, Modal, Row} from "react-bootstrap";
+import React, {useRef, useState} from "react";
+import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 import ModalFiles from "./ModalFiles";
 import ModalDetails from "./ModalDetails";
 import ModalDescription from "./ModalDescription";
 import ModalStatus from "./ModalStatus";
-import ModalPaidButton from "./ModalPaidButton";
-import DeleteModal from "./DeleteModal";
-import {FaTrash} from "react-icons/fa";
+import {FaEdit, FaSave, FaTrash} from "react-icons/fa";
 import "../../../css/DarkenedModal.css";
-import config from "../../../config/config";
+import '../../../css/OneClientPage/AddActivityModal.css';
+import ReactDatePicker from "react-datepicker";
 import axiosInstance from "../../../config/axiosInstance";
+import config from "../../../config/config";
+import '../../../css/OneClientPage/CustomerActivity.css';
+import ActivityComments from "./ActivityComments";
 const ActivityModal = ({ activity, handleClose, reFetch, clientName, locations, statuses }) => {
     const [activeKey, setActiveKey] = useState('0');
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [deadline, setDeadline] = useState(activity.endDateTime)
+
+    const modalDetailsRef = useRef();
+    const modalDescriptionRef = useRef();
 
     const locationName = locations.find(location => location.id === activity.locationId)?.name || 'Location not found';
     const handleAccordionToggle = (key) => {
         setActiveKey(prevKey => prevKey === key ? null : key); // Toggle the accordion
     };
 
-    const handleDelete = async() => {
+    const formatDate = (dateString) => {
+        if (!dateString) {
+            return "N/A"
+        }
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-GB'); // This will format it to DD.MM.YYYY
+    };
+
+    const handleSaveDeadline = async() => {
         try {
-            await axiosInstance.delete(`${config.API_BASE_URL}/client-activity/delete/${activity.id}`)
-            reFetch();
-            setShowDeleteModal(false);
-            handleClose();
+            await axiosInstance.put(`${config.API_BASE_URL}/client-activity/update/${activity.id}`,{
+                endDateTime: deadline
+            })
         } catch (error) {
-            console.error('Error deleting activity', error);
+            console.error("Error saving deadline: ", error)
         }
     }
+
+    const handleSaveChanges = async () => {
+
+        if (modalDetailsRef.current) {
+            await modalDetailsRef.current.saveChanges(); // Calls the child method
+        }
+        if (modalDescriptionRef.current) {
+            await modalDescriptionRef.current.saveChanges();
+        }
+        await handleSaveDeadline();
+        reFetch();
+
+    }
+
+
+    const handleEditToggle = (e) => {
+        e.stopPropagation();  // Prevent the accordion from collapsing
+        if (isEditing) {
+            // If in edit mode, save the changes to the server
+            handleSaveChanges();
+        }
+        setIsEditing(!isEditing);
+    };
+
+    const handleDateChange = (date) => {
+        setDeadline(date)
+    };
 
 
 
     return (
         <>
-            <Modal show onHide={handleClose} size="xl" dialogClassName={showDeleteModal ? "dimmed" : ""}>
+            <Modal
+                id="custom-modal"
+                show
+                onHide={handleClose}
+                className="custom-width-modal"
+                dialogClassName={showDeleteModal ? "dimmed" : "custom-modal"}
+            >
                 <Modal.Header closeButton>
                     <div className="w-100">
                         <p className="text-muted mb-0">{clientName}</p>
@@ -43,11 +90,17 @@ const ActivityModal = ({ activity, handleClose, reFetch, clientName, locations, 
                 </Modal.Header>
                 <Modal.Body style={{minHeight: "400px"}}>
                     <Row>
-                        <Col md={6}>
+                        <Col md={8}>
                             <h1 className="mb-4">{activity.title}</h1>
-                            <ModalDescription activity={activity} reFetch={reFetch}/>
+                            <ModalDescription
+                                ref={modalDescriptionRef}
+                                isEditing={isEditing}
+                                activity={activity}
+                                reFetch={reFetch}
+                            />
+                            <ActivityComments activity={activity} reFetch={reFetch}/>
                         </Col>
-                        <Col md={6}>
+                        <Col md={4}>
                             <Row className="mb-2 justify-content-between">
                                 <Col className="col-md-auto">
                                     <div className="d-flex align-items-center">
@@ -59,25 +112,48 @@ const ActivityModal = ({ activity, handleClose, reFetch, clientName, locations, 
                                             />
                                         </Col>
                                         <Col className="col-md-auto px-2">
-                                            <ModalPaidButton activity={activity} reFetch={reFetch} />
+                                            {/*<ModalPaidButton activity={activity} reFetch={reFetch} />*/}
+                                            {isEditing ? (
+                                                <div>
+                                                    <ReactDatePicker
+                                                        selected={deadline}
+                                                        onChange={handleDateChange}
+                                                        dateFormat="dd/MM/yyyy"
+                                                        className="form-control dark-placeholder" // Add a custom class
+                                                        placeholderText="Select a date"
+                                                        isClearable
+                                                        required
+                                                    />
+
+                                                </div>
+                                            ) : <p className="mb-0">Deadline: {formatDate(deadline)}</p>
+                                            }
                                         </Col>
+
                                     </div>
                                 </Col>
-                                <Col className="col-md-auto">
-                                    <FaTrash
-                                        style={{ cursor: "pointer", fontSize: "1.5rem" }}
-                                        onClick={() => setShowDeleteModal(true)}
-                                        title="Delete Ticket"
-                                        className="text-danger"
-                                    />
+                                <Col className="col-md-auto align-content-center" style={{paddingLeft: 0}}>
+                                    <Button
+                                        variant="link"
+                                        onClick={handleEditToggle}  // Stop event propagation here
+                                        style={{ textDecoration: 'none', padding: 0 }} // Style button
+                                        className="me-2 d-flex"
+                                    >
+                                        {isEditing ? <FaSave style={{ fontSize: '1.5rem' }}/> : <FaEdit style={{ fontSize: '1.5rem' }}/>}
+                                    </Button>
                                 </Col>
                             </Row>
                             <ModalDetails
+                                ref={modalDetailsRef}
                                 activity={activity}
                                 activeKey={activeKey}
                                 handleAccordionToggle={handleAccordionToggle}
                                 eventKey="0"
                                 reFetch={reFetch}
+                                setShowDeleteModal={setShowDeleteModal}
+                                showDeleteModal={showDeleteModal}
+                                closeActivity={handleClose}
+                                isEditing={isEditing}
                             />
                             <ModalFiles
                                 activity={activity}
@@ -90,11 +166,6 @@ const ActivityModal = ({ activity, handleClose, reFetch, clientName, locations, 
                 </Modal.Body>
                 <Modal.Footer>
                 </Modal.Footer>
-                <DeleteModal
-                    show={showDeleteModal}
-                    handleClose={() => setShowDeleteModal(false)}
-                    handleDelete={handleDelete}
-                />
             </Modal>
         </>
     );
