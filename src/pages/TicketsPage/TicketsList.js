@@ -132,10 +132,10 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
                 <Col md={2} onClick={() => handleSort('location')}>
                     Location {renderSortArrow('location')}
                 </Col>
-                <Col md={3} onClick={() => handleSort('title')}>
+                <Col md={2} onClick={() => handleSort('title')}>
                     Title {renderSortArrow('title')}
                 </Col>
-                <Col className="text-center" md={1}>Status</Col>
+                <Col className="text-center" md={2}>Status</Col>
                 <Col className="text-center" md={1}>Priority</Col>
             </Row>
 
@@ -162,8 +162,8 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
                         <Col md={1}>{ticket.baitNumeration}</Col>
                         <Col md={3}>{ticket.clientName}</Col>
                         <Col md={2}>{getLocationName(ticket.locationId)}</Col> {/* Look up location */}
-                        <Col md={3}>{ticket.title}</Col>
-                        <Col className="d-flex justify-content-center" md={1}>
+                        <Col md={2}>{ticket.title}</Col>
+                        <Col className="d-flex justify-content-center" md={2}>
                             <Button
                                 style={{ backgroundColor: statusColor, borderColor: statusColor }}
                                 disabled
