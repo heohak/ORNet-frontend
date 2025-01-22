@@ -6,6 +6,7 @@ import config from "../../../config/config";
 import Select from "react-select";
 import {useLocation, useNavigate} from "react-router-dom";
 import axiosInstance from "../../../config/axiosInstance";
+import {DateUtils} from "../../../utils/DateUtils";
 
 const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, reFetch }) => {
     const location = useLocation();
@@ -393,7 +394,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                     <strong>Created</strong>
                                 </Col>
                                 <Col>
-                                    {formatDateString(ticket.startDateTime)}
+                                    {DateUtils.formatDate(ticket.startDateTime)}
                                 </Col>
                             </Row>
 
@@ -402,7 +403,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                     <strong>Updated</strong>
                                 </Col>
                                 <Col>
-                                    {formatDateString(ticket.updateDateTime)}
+                                    {DateUtils.formatDate(ticket.updateDateTime)}
                                 </Col>
                             </Row>
                         </div>

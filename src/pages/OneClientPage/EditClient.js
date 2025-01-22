@@ -770,7 +770,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh, reFetchRoles, setRo
                                 <ReactDatePicker
                                     selected={clientData.lastMaintenance}
                                     onChange={(date) => setClientData({ ...clientData, lastMaintenance: date })}
-                                    dateFormat="dd/MM/yyyy"
+                                    dateFormat="dd.MM.yyyy"
                                     className="form-control dark-placeholder"
                                     placeholderText="Select Last Maintenance Date"
                                     maxDate={new Date()}
@@ -785,7 +785,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh, reFetchRoles, setRo
                                 <ReactDatePicker
                                     selected={clientData.nextMaintenance}
                                     onChange={(date) => setClientData({ ...clientData, nextMaintenance: date })}
-                                    dateFormat="dd/MM/yyyy"
+                                    dateFormat="dd.MM.yyyy"
                                     className="form-control dark-placeholder"
                                     placeholderText="Select Next Maintenance Date"
                                     minDate={clientData.lastMaintenance || new Date()}

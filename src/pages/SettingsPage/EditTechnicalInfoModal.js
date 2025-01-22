@@ -267,7 +267,7 @@ function EditTechnicalInfoModal({ show, onHide, software, onUpdate }) {
                                     <ReactDatePicker
                                         selected={his.updateDate}
                                         onChange={(date) => setHis({ ...his, updateDate: date })}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         className="form-control dark-placeholder"
                                         placeholderText="Update Date"
                                         maxDate={new Date()}
@@ -301,7 +301,7 @@ function EditTechnicalInfoModal({ show, onHide, software, onUpdate }) {
                                     <ReactDatePicker
                                         selected={pacs.updateDate}
                                         onChange={(date) => setPacs({ ...pacs, updateDate: date })}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         className="form-control dark-placeholder"
                                         placeholderText="Update Date"
                                         maxDate={new Date()}
@@ -335,7 +335,7 @@ function EditTechnicalInfoModal({ show, onHide, software, onUpdate }) {
                                     <ReactDatePicker
                                         selected={dicom.updateDate}
                                         onChange={(date) => setDicom({ ...dicom, updateDate: date })}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         className="form-control dark-placeholder"
                                         placeholderText="Update Date"
                                         maxDate={new Date()}
@@ -369,7 +369,7 @@ function EditTechnicalInfoModal({ show, onHide, software, onUpdate }) {
                                     <ReactDatePicker
                                         selected={hl7.updateDate}
                                         onChange={(date) => setHl7({ ...hl7, updateDate: date })}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         className="form-control dark-placeholder"
                                         placeholderText="Update Date"
                                         maxDate={new Date()}
@@ -403,7 +403,7 @@ function EditTechnicalInfoModal({ show, onHide, software, onUpdate }) {
                                     <ReactDatePicker
                                         selected={lis.updateDate}
                                         onChange={(date) => setLis({ ...lis, updateDate: date })}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         className="form-control dark-placeholder"
                                         placeholderText="Update Date"
                                         maxDate={new Date()}
@@ -437,7 +437,7 @@ function EditTechnicalInfoModal({ show, onHide, software, onUpdate }) {
                                     <ReactDatePicker
                                         selected={returnImagesToLIS.updateDate}
                                         onChange={(date) => setReturnImagesToLIS({ ...returnImagesToLIS, updateDate: date })}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         className="form-control dark-placeholder"
                                         placeholderText="Update Date"
                                         maxDate={new Date()}
@@ -463,7 +463,7 @@ function EditTechnicalInfoModal({ show, onHide, software, onUpdate }) {
                                     <ReactDatePicker
                                         selected={orNetAPI.updateDate}
                                         onChange={(date) => setOrNetAPI({ ...orNetAPI, updateDate: date })}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         className="form-control dark-placeholder"
                                         placeholderText="Update Date"
                                         maxDate={new Date()}
@@ -479,7 +479,7 @@ function EditTechnicalInfoModal({ show, onHide, software, onUpdate }) {
                             <ReactDatePicker
                                 selected={txtIntegrationDate}
                                 onChange={(date) => setTxtIntegrationDate(date)}
-                                dateFormat="dd/MM/yyyy"
+                                dateFormat="dd.MM.yyyy"
                                 className="form-control dark-placeholder"
                                 placeholderText="Integration Date"
                                 maxDate={new Date()}
@@ -511,7 +511,7 @@ function EditTechnicalInfoModal({ show, onHide, software, onUpdate }) {
                                     <ReactDatePicker
                                         selected={customerAPI.updateDate}
                                         onChange={(date) => setCustomerAPI({ ...customerAPI, updateDate: date })}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         className="form-control dark-placeholder"
                                         placeholderText="Update Date"
                                         maxDate={new Date()}
@@ -537,7 +537,7 @@ function EditTechnicalInfoModal({ show, onHide, software, onUpdate }) {
                                     <ReactDatePicker
                                         selected={orNetAPIClient.updateDate}
                                         onChange={(date) => setOrNetAPIClient({ ...orNetAPIClient, updateDate: date })}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         className="form-control dark-placeholder"
                                         placeholderText="Update Date"
                                         maxDate={new Date()}
@@ -563,7 +563,7 @@ function EditTechnicalInfoModal({ show, onHide, software, onUpdate }) {
                                     <ReactDatePicker
                                         selected={consultationModule.updateDate}
                                         onChange={(date) => setConsultationModule({ ...consultationModule, updateDate: date })}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         className="form-control dark-placeholder"
                                         placeholderText="Update Date"
                                         maxDate={new Date()}
@@ -589,7 +589,7 @@ function EditTechnicalInfoModal({ show, onHide, software, onUpdate }) {
                                     <ReactDatePicker
                                         selected={aiModule.updateDate}
                                         onChange={(date) => setAiModule({ ...aiModule, updateDate: date })}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         className="form-control dark-placeholder"
                                         placeholderText="Update Date"
                                         maxDate={new Date()}

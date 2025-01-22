@@ -394,7 +394,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                                     <ReactDatePicker
                                         selected={versionUpdateDate}
                                         onChange={(date) => setVersionUpdateDate(date)}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         className="form-control dark-placeholder"
                                         placeholderText="Select Update Date"
                                         maxDate={new Date()}
@@ -421,7 +421,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                             <ReactDatePicker
                                 selected={introducedDate}
                                 onChange={(date) => setIntroducedDate(date)}
-                                dateFormat="dd/MM/yyyy"
+                                dateFormat="dd.MM.yyyy"
                                 className="form-control dark-placeholder"
                                 placeholderText="Select Introduced Date"
                                 maxDate={new Date()}

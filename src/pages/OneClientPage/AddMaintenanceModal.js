@@ -141,7 +141,7 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, deviceId
                         <ReactDatePicker
                             selected={maintenanceDate}
                             onChange={(date) => setMaintenanceDate(date)}
-                            dateFormat="dd/MM/yyyy"
+                            dateFormat="dd.MM.yyyy"
                             className="form-control dark-placeholder"
                             placeholderText="Select a date"
                             isClearable

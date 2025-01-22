@@ -3,6 +3,8 @@ import { Row, Col, Spinner, Alert, Button } from 'react-bootstrap';
 import axios from 'axios';
 import config from '../../config/config';
 import axiosInstance from "../../config/axiosInstance";
+import '../../css/Ticketslist.css';
+import {DateUtils} from "../../utils/DateUtils";
 
 const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
     const [locations, setLocations] = useState([]);
@@ -10,11 +12,6 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
     const [locationsError, setLocationsError] = useState(null);
     const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'descending' });
 
-    // Function to format the date to DD.MM.YYYY
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-GB'); // DD.MM.YYYY
-    };
 
     // Fetch all locations when the component mounts
     useEffect(() => {
@@ -158,7 +155,7 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
                         style={{ backgroundColor: rowBgColor, cursor: 'pointer' }} // Apply background color
                         onClick={() => onNavigate(ticket)}
                     >
-                        <Col md={1}>{formatDate(ticket.startDateTime)}</Col>
+                        <Col md={1}>{DateUtils.formatDate(ticket.startDateTime)}</Col>
                         <Col md={1}>{ticket.baitNumeration}</Col>
                         <Col md={3}>{ticket.clientName}</Col>
                         <Col md={2}>{getLocationName(ticket.locationId)}</Col> {/* Look up location */}

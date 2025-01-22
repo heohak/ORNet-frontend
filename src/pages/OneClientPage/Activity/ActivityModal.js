@@ -12,6 +12,7 @@ import axiosInstance from "../../../config/axiosInstance";
 import config from "../../../config/config";
 import '../../../css/OneClientPage/CustomerActivity.css';
 import ActivityComments from "./ActivityComments";
+import {DateUtils} from "../../../utils/DateUtils";
 const ActivityModal = ({ activity, handleClose, reFetch, clientName, locations, statuses }) => {
     const [activeKey, setActiveKey] = useState('0');
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -127,7 +128,7 @@ const ActivityModal = ({ activity, handleClose, reFetch, clientName, locations, 
                                                     <ReactDatePicker
                                                         selected={deadline}
                                                         onChange={handleDateChange}
-                                                        dateFormat="dd/MM/yyyy"
+                                                        dateFormat="dd.MM.yyyy"
                                                         className="form-control dark-placeholder" // Add a custom class
                                                         placeholderText="Select a date"
                                                         isClearable
@@ -135,7 +136,7 @@ const ActivityModal = ({ activity, handleClose, reFetch, clientName, locations, 
                                                     />
 
                                                 </div>
-                                            ) : <p className="fw-bold mb-0 fs-5">Deadline: {formatDate(deadline)}</p>
+                                            ) : <p className="fw-bold mb-0 fs-5">Deadline: {DateUtils.formatDate(deadline)}</p>
                                             }
                                         </Col>
 

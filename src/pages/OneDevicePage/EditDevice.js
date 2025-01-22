@@ -332,7 +332,7 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
                                     <ReactDatePicker
                                         selected={deviceData.versionUpdateDate}
                                         onChange={(date) => setDeviceData({ ...deviceData, versionUpdateDate: date })}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         className="form-control dark-placeholder"
                                         placeholderText="Select Version Update Date"
                                         maxDate={new Date()}
@@ -347,7 +347,7 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
                                     <ReactDatePicker
                                         selected={deviceData.introducedDate}
                                         onChange={(date) => setDeviceData({ ...deviceData, introducedDate: date })}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         className="form-control dark-placeholder"
                                         placeholderText="Select Introduced Date"
                                         maxDate={new Date()}

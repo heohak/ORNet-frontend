@@ -134,7 +134,7 @@ function DeviceStatusManager({ deviceId, introducedDate, writtenOffDate, setRefr
                             <ReactDatePicker
                                 selected={currentWrittenOffDate}
                                 onChange={(date) => setCurrentWrittenOffDate(date)}
-                                dateFormat="dd/MM/yyyy"
+                                dateFormat="dd.MM.yyyy"
                                 className="form-control dark-placeholder"
                                 placeholderText="Select a date"
                                 isClearable={currentWrittenOffDate !== ''}

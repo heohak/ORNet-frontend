@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { Row, Col, Button, Alert } from 'react-bootstrap';
 import MaintenanceModal from "../OneClientPage/MaintenanceModal";
 import AddMaintenanceModal from "../OneClientPage/AddMaintenanceModal";
-import '../../css/OneDevicePage/OneDevice.css'; // Adjust the path as needed
+import '../../css/OneDevicePage/OneDevice.css';
+import {DateUtils} from "../../utils/DateUtils"; // Adjust the path as needed
 
 function MaintenanceInfo({ maintenanceInfo, deviceId, setRefresh }) {
     const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
@@ -11,11 +12,6 @@ function MaintenanceInfo({ maintenanceInfo, deviceId, setRefresh }) {
     const [selectedMaintenanceId, setSelectedMaintenanceId] = useState(null);
     const [sortConfig, setSortConfig] = useState({ key: 'maintenanceName', direction: 'ascending' });
 
-    const estoniaDateFormat = new Intl.DateTimeFormat('et-EE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
 
     const handleSort = (key) => {
         let direction = 'ascending';
@@ -86,7 +82,7 @@ function MaintenanceInfo({ maintenanceInfo, deviceId, setRefresh }) {
                             <Col md={6}>{maintenance.maintenanceName}</Col>
                             <Col md={6}>
                                 {maintenance.maintenanceDate
-                                    ? estoniaDateFormat.format(new Date(maintenance.maintenanceDate))
+                                    ? DateUtils.formatDate(maintenance.maintenanceDate)
                                     : ''}
                             </Col>
                         </Row>
