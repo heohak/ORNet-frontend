@@ -177,22 +177,6 @@ const ModalDetails = forwardRef(({
                         <div>
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
-                                    <strong>Customer No.</strong>
-                                </Col>
-                                <Col>
-                                    {isEditing ? (
-                                        <Form.Control
-                                            type="text"
-                                            name="clientNumeration"
-                                            value={editedActivity.clientNumeration}
-                                            onChange={handleInputChange}
-                                        />
-                                    ) : editedActivity.clientNumeration}
-                                </Col>
-                            </Row>
-
-                            <Row className="mb-2">
-                                <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Assignee</strong>
                                 </Col>
                                 <Col>
@@ -270,40 +254,6 @@ const ModalDetails = forwardRef(({
                                             />
                                         </Form.Group>
                                     ): selectedWorkTypes.map(workType => workType.label).join(', ')}
-                                </Col>
-                            </Row>
-
-                            <Row className="mb-2">
-                                <Col xs="auto" style={{ minWidth: '165px' }}>
-                                    <strong>Devices</strong>
-                                </Col>
-                                <Col style={{minWidth: '250px'}}>
-                                    {isEditing ? (
-                                        <Form.Group className="mb-3">
-                                            <Select
-                                                isMulti
-                                                options={availableDevices}
-                                                value={selectedDevices}
-                                                onChange={setSelectedDevices}
-                                                placeholder="Select Devices"
-                                            />
-                                        </Form.Group>
-                                    ) : (
-                                        selectedDevices.length > 0 ? (
-                                            selectedDevices.map((device, index) => (
-                                                <React.Fragment key={device.value}>
-                                                      <span
-                                                          onClick={() => navigate(`/device/${device.value}`)}
-                                                          style={{ color: 'blue', cursor: 'pointer' }} // Styling for clickable text
-                                                      >
-                                                        {device.label}
-                                                      </span>
-                                                    {index < selectedDevices.length - 1 && ', '}
-                                                </React.Fragment>
-                                            ))) : (
-                                            <span style={{ fontStyle: 'italic', color: 'gray' }}>No Devices</span>
-                                        ))
-                                    }
                                 </Col>
                             </Row>
 

@@ -20,6 +20,7 @@ const ActivityModal = ({ activity, handleClose, reFetch, clientName, locations, 
 
     const modalDetailsRef = useRef();
     const modalDescriptionRef = useRef();
+    const modalCommentsRef = useRef();
 
     const locationName = locations.find(location => location.id === activity.locationId)?.name || 'Location not found';
     const handleAccordionToggle = (key) => {
@@ -51,6 +52,9 @@ const ActivityModal = ({ activity, handleClose, reFetch, clientName, locations, 
         }
         if (modalDescriptionRef.current) {
             await modalDescriptionRef.current.saveChanges();
+        }
+        if (modalDescriptionRef.current) {
+            await modalCommentsRef.current.saveChanges();
         }
         await handleSaveDeadline();
         reFetch();
@@ -98,7 +102,12 @@ const ActivityModal = ({ activity, handleClose, reFetch, clientName, locations, 
                                 activity={activity}
                                 reFetch={reFetch}
                             />
-                            <ActivityComments activity={activity} reFetch={reFetch}/>
+                            <ActivityComments
+                                activity={activity}
+                                reFetch={reFetch}
+                                isEditing={isEditing}
+                                ref={modalCommentsRef}
+                            />
                         </Col>
                         <Col md={4}>
                             <Row className="mb-2 justify-content-between">
@@ -126,7 +135,7 @@ const ActivityModal = ({ activity, handleClose, reFetch, clientName, locations, 
                                                     />
 
                                                 </div>
-                                            ) : <p className="mb-0">Deadline: {formatDate(deadline)}</p>
+                                            ) : <p className="fw-bold mb-0 fs-5">Deadline: {formatDate(deadline)}</p>
                                             }
                                         </Col>
 
