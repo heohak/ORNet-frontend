@@ -49,9 +49,10 @@ function ClientLocations({ locations, setRefresh, clientId }) {
                 <div>
                     {/* Table header */}
                     <Row className="row-margin-0 fw-bold mt-2">
-                        <Col md={4}>Name</Col>
-                        <Col md={5}>Address</Col>
+                        <Col md={3}>Name</Col>
+                        <Col md={3}>Address</Col>
                         <Col md={3}>Phone</Col>
+                        <Col md={3}>Email</Col>
                     </Row>
                     <hr />
 
@@ -67,11 +68,12 @@ function ClientLocations({ locations, setRefresh, clientId }) {
                             >
                                 <Col className="py-2" style={{ backgroundColor: rowBgColor}}>
                                     <Row className="align-items-center">
-                                        <Col md={4}>{location.name}</Col>
-                                        <Col md={5}>
+                                        <Col md={3}>{location.name}</Col>
+                                        <Col md={3}>
                                             {location.streetAddress}, {location.city}, {location.country}, {location.postalCode}
                                         </Col>
                                         <Col md={3}>{location.phone}</Col>
+                                        <Col md={3}>{location.email}</Col>
                                     </Row>
                                 </Col>
 

@@ -216,8 +216,9 @@ function ViewLocations() {
                             {/* Table header */}
                             <Row className="fw-bold mt-2">
                                 <Col md={3}>Name</Col>
-                                <Col md={5}>Address</Col>
+                                <Col md={3}>Address</Col>
                                 <Col md={3}>Phone</Col>
+                                <Col md={2}>Email</Col>
                                 <Col md={1}>Actions</Col>
                             </Row>
                             <hr />
@@ -232,11 +233,12 @@ function ViewLocations() {
                                         style={{ backgroundColor: rowBgColor }}
                                     >
                                         <Col md={3}>{location.name}</Col>
-                                        <Col md={5}>
+                                        <Col md={3}>
                                             {location.streetAddress}, {location.city},{' '}
                                             {location.country}, {location.postalCode}
                                         </Col>
                                         <Col md={3}>{location.phone}</Col>
+                                        <Col md={2}>{location.email}</Col>
                                         <Col md={1}>
                                             <Button
                                                 variant="link"
