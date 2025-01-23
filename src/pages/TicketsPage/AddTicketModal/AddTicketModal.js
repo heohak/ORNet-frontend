@@ -308,22 +308,28 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
                         <Col md={4}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Customer</Form.Label>
-                                <Form.Control
-                                    as="select"
-                                    value={clientId || formData.clientId}
-                                    onChange={handleChange}
-                                    id="clientId"
-                                    required
-                                    disabled={clientId}
-                                >
-                                    {clients.length > 0 && <option value="">Select Customer</option>}
-                                    {clients.map(client => (
-                                        <option key={client.id} value={client.id}>
-                                            {client.fullName}
-                                        </option>
-                                    ))}
-                                </Form.Control>
+                                <Select
+                                    options={[...clients].sort((a, b) => a.fullName.localeCompare(b.fullName))}
+
+                                    getOptionLabel={client => client.fullName}
+                                    getOptionValue={client => client.id.toString()}
+                                    value={clients.find(client => client.id === Number(formData.clientId)) || null}
+                                    onChange={selectedClient => {
+                                        if (selectedClient) {
+                                            setFormData(prevData => ({
+                                                ...prevData,
+                                                clientId: selectedClient.id.toString(),
+                                            }));
+                                        } else {
+                                            setFormData(prevData => ({ ...prevData, clientId: "" }));
+                                        }
+                                    }}
+                                    isDisabled={!!clientId}
+                                    isSearchable={true}
+                                    placeholder={clientId ? "Customer locked to selected" : "Select Customer"}
+                                />
                             </Form.Group>
+
                         </Col>
                         <Col md={4}>
                             <Form.Group className="mb-3">
