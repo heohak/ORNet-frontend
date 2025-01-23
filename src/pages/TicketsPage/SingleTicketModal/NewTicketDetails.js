@@ -35,12 +35,23 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
     const fetchDevices = async () => {
         try {
             const response = await axiosInstance.get(`${config.API_BASE_URL}/device/client/${ticket.clientId}`);
-            setAvailableDevices(response.data.filter(device => device.locationId === ticket.locationId));
-            setSelectedDevices(ticket.deviceIds.map(deviceId => response.data.find(device => device.id === deviceId)));
+            const devicesWithCrn = response.data.map((device) => ({
+                ...device,
+                crn: `${device.workstationNo || ''}${device.cameraNo || ''}${device.otherNo || ''}`, // Combine numbers
+            }));
+            setAvailableDevices(
+                devicesWithCrn.filter((device) => device.locationId === ticket.locationId)
+            );
+            setSelectedDevices(
+                ticket.deviceIds.map((deviceId) =>
+                    devicesWithCrn.find((device) => device.id === deviceId)
+                )
+            );
         } catch (error) {
             console.error("Error fetching customer devices", error);
         }
     };
+
 
     const fetchResponsibleName = async () => {
         if (!ticket.baitWorkerId) {
@@ -185,7 +196,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                 }}
             >
                 <div style={{ fontWeight: 'bold' }}>{data.deviceName}</div>
-                <div style={{ fontSize: '0.85em', color: '#666' }}>SN: {data.serialNumber}</div>
+                <div style={{ fontSize: '0.85em', color: '#666' }}>CRN: {data.workstationNo}/{data.cameraNo}/{data.otherNo}</div>
             </div>
         );
     }
@@ -363,11 +374,20 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                                 value={selectedDevices}
                                                 onChange={setSelectedDevices}
                                                 placeholder="Select Devices"
-                                                getOptionLabel={(option) => option.deviceName} // This is optional, just to provide clarity
-                                                getOptionValue={(option) => option.id} // Ensures unique value
-                                                components={{ Option: deviceOption}}
+                                                getOptionLabel={(option) => option.deviceName} // Display the device name
+                                                getOptionValue={(option) => option.id} // Unique value for devices
+                                                components={{ Option: deviceOption }}
+                                                filterOption={(option, inputValue) => {
+                                                    if (!inputValue) {
+                                                        return true; // Show all options if input is empty
+                                                    }
+                                                    const searchValue = inputValue.replace(/\D/g, ''); // Remove non-digit characters
+                                                    return option.data.crn.startsWith(searchValue); // Match crn prefix
+                                                }}
                                             />
                                         </Form.Group>
+
+
                                     ) : (
                                         selectedDevices.length > 0 ? (
                                             selectedDevices.map((device, index) => (
@@ -388,7 +408,15 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                     }
                                 </Col>
                             </Row>
+                            <Row className="mb-2">
+                                <Col xs="auto" style={{ minWidth: '165px' }}>
+                                    <strong>Customer Reg No.</strong>
+                                </Col>
+                                <Col>
+                                    {ticket.customerRegisterNos}
+                                </Col>
 
+                            </Row>
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Created</strong>
