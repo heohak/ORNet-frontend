@@ -42,10 +42,11 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
     };
 
     const submitActivity = async () => {
+        const trimmedActivity = newActivity.trim();
         try {
             await axiosInstance.put(
                 `${config.API_BASE_URL}/ticket/activity/${ticket.id}`,
-                newActivity, // Send as a plain string
+                trimmedActivity, // Send as a plain string
                 {
                     params: {
                         hours: modalHours,
@@ -85,9 +86,10 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
     };
 
     const handleSaveActivity = async (index, activityId) => {
+        const trimmedActivity = editedActivity.trim();
         try {
             await axiosInstance.put(`${config.API_BASE_URL}/activity/update/${activityId}`, {
-                activity: editedActivity,
+                activity: trimmedActivity,
             });
             setEditMode(null); // Exit edit mode
             fetchActivities(); // Re-fetch activities to reflect the change
