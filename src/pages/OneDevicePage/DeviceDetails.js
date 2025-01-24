@@ -69,6 +69,9 @@ function DeviceDetails({
         { key: 'secondIPAddress', label: 'Second IP Address', isAttribute: false },
         { key: 'subnetMask', label: 'Subnet Mask', isAttribute: false },
         // Add more default fields as needed
+        { key: 'workstationNo', label: 'Workstation No', isAttribute: false },
+        { key: 'cameraNo', label: 'Camera No', isAttribute: false },
+        { key: 'otherNo', label: 'Other No', isAttribute: false },
     ];
 
     // Initialize fields configuration
@@ -222,13 +225,13 @@ function DeviceDetails({
         );
 
         const leftColumnFields = fieldsConfig.filter((field) =>
-            ['version', 'versionUpdateDate', 'softwareKey', 'introducedDate'].includes(
+            ['version', 'versionUpdateDate', 'softwareKey','workstationNo', 'introducedDate'].includes(
                 field.key
             )
         );
 
         const rightColumnFields = fieldsConfig.filter((field) =>
-            ['firstIPAddress', 'secondIPAddress', 'subnetMask'].includes(field.key)
+            ['firstIPAddress', 'secondIPAddress', 'subnetMask', 'cameraNo', 'otherNo'].includes(field.key)
         );
 
         // Custom attributes (new fields)

@@ -41,6 +41,13 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
     const today = new Date().toISOString().split('T')[0];
     const [predefinedDeviceNames, setPredefinedDeviceNames] = useState([]);
 
+    // New states
+    const [workstationNo, setWorkstationNo] = useState('');
+    const [cameraNo, setCameraNo] = useState('');
+    const [otherNo, setOtherNo] = useState('');
+    const [showCameraOtherFields, setShowCameraOtherFields] = useState(false);
+
+
     useEffect(() => {
         fetchData();
         fetchPredefinedDeviceNames();
@@ -108,6 +115,9 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                 subnetMask,
                 softwareKey,
                 introducedDate: formattedIntroducedDate,
+                workstationNo,
+                cameraNo,
+                otherNo
             });
 
             const deviceId = deviceResponse.data.token;
@@ -303,7 +313,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                             </Col>
                         </Row>
 
-                        {/* Software Key and Version Update Date */}
+                        {/* Software Key & Workstation No */}
                         <Row className="mb-3">
                             <Col md={6}>
                                 <Form.Group>
@@ -318,6 +328,21 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                             </Col>
                             <Col md={6}>
                                 <Form.Group>
+                                    <Form.Label>Workstation No</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Enter Workstation Number"
+                                        value={workstationNo}
+                                        onChange={(e) => setWorkstationNo(e.target.value)}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+
+                        {/* Version Update Date & Introduced Date */}
+                        <Row className="mb-3">
+                            <Col md={6}>
+                                <Form.Group>
                                     <Form.Label>Version Update Date</Form.Label>
                                     <ReactDatePicker
                                         selected={versionUpdateDate}
@@ -330,22 +355,22 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                                     />
                                 </Form.Group>
                             </Col>
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Introduced Date</Form.Label>
+                                    <ReactDatePicker
+                                        selected={introducedDate}
+                                        onChange={(date) => setIntroducedDate(date)}
+                                        dateFormat="dd/MM/yyyy"
+                                        className="form-control dark-placeholder"
+                                        placeholderText="Select a date"
+                                        maxDate={new Date()}
+                                        isClearable
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
                         </Row>
-
-                        {/* Introduced Date */}
-                        <Form.Group className="mb-3">
-                            <Form.Label>Introduced Date</Form.Label>
-                            <ReactDatePicker
-                                selected={introducedDate}
-                                onChange={(date) => setIntroducedDate(date)}
-                                dateFormat="dd/MM/yyyy"
-                                className="form-control dark-placeholder"
-                                placeholderText="Select a date"
-                                maxDate={new Date()}
-                                isClearable
-                                required
-                            />
-                        </Form.Group>
 
                         {/* Assign IP Addresses Checkbox */}
                         <Form.Group className="mb-3">
@@ -356,6 +381,16 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                                 onChange={() => setShowIPFields(!showIPFields)}
                             />
                         </Form.Group>
+
+                        <Form.Group className="mb-3">
+                            <Form.Check
+                                type="checkbox"
+                                label="Add Camera No & Other No"
+                                checked={showCameraOtherFields}
+                                onChange={() => setShowCameraOtherFields(!showCameraOtherFields)}
+                            />
+                        </Form.Group>
+
 
                         {/* IP Address Fields */}
                         {showIPFields && (
@@ -395,6 +430,34 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                                 </Col>
                             </Row>
                         )}
+
+                        {showCameraOtherFields && (
+                            <Row className="mb-3">
+                                <Col md={6}>
+                                    <Form.Group>
+                                        <Form.Label>Camera No</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Enter Camera Number"
+                                            value={cameraNo}
+                                            onChange={(e) => setCameraNo(e.target.value)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group>
+                                        <Form.Label>Other No</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Enter Other Number"
+                                            value={otherNo}
+                                            onChange={(e) => setOtherNo(e.target.value)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                        )}
+
 
                         <Modal.Footer>
                             <Button variant="outline-info" onClick={onClose}>

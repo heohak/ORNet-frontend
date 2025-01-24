@@ -39,6 +39,11 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [predefinedDeviceNames, setPredefinedDeviceNames] = useState([]);
 
+    const [workstationNo, setWorkstationNo] = useState('');
+    const [cameraNo, setCameraNo] = useState('');
+    const [otherNo, setOtherNo] = useState('');
+    const [showCameraOther, setShowCameraOther] = useState(false);
+
 
 
     const resetForm = () => {
@@ -160,6 +165,9 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                 subnetMask,
                 softwareKey,
                 introducedDate: formattedIntroducedDate,
+                workstationNo,
+                cameraNo,
+                otherNo,
             });
 
             const deviceId = deviceResponse.data.token; // Assuming the response contains the new device's ID
@@ -375,9 +383,8 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                             </Col>
                         </Row>
 
-                        {/* Version, Version Update Date, Software Key */}
                         <Row className="mb-3">
-                            <Col md={4}>
+                            <Col md={6}>
                                 <Form.Group>
                                     <Form.Label>Version</Form.Label>
                                     <Form.Control
@@ -388,7 +395,35 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col md={4}>
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Software Key</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Enter Software Key"
+                                        value={softwareKey}
+                                        onChange={(e) => setSoftwareKey(e.target.value)}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+
+                        <Row className="mb-3">
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Workstation No</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Enter Workstation Number"
+                                        value={workstationNo}
+                                        onChange={(e) => setWorkstationNo(e.target.value)}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+
+                        <Row className="mb-3">
+                            <Col md={6}>
                                 <Form.Group>
                                     <Form.Label>Version Update Date</Form.Label>
                                     <ReactDatePicker
@@ -402,33 +437,22 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col md={4}>
+                            <Col md={6}>
                                 <Form.Group>
-                                    <Form.Label>Software Key</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Enter Software Key"
-                                        value={softwareKey}
-                                        onChange={(e) => setSoftwareKey(e.target.value)}
+                                    <Form.Label>Introduced Date</Form.Label>
+                                    <ReactDatePicker
+                                        selected={introducedDate}
+                                        onChange={(date) => setIntroducedDate(date)}
+                                        dateFormat="dd.MM.yyyy"
+                                        className="form-control dark-placeholder"
+                                        placeholderText="Select Introduced Date"
+                                        maxDate={new Date()}
+                                        isClearable
+                                        required
                                     />
                                 </Form.Group>
                             </Col>
                         </Row>
-
-                        {/* Introduced Date */}
-                        <Form.Group className="mb-3">
-                            <Form.Label>Introduced Date</Form.Label>
-                            <ReactDatePicker
-                                selected={introducedDate}
-                                onChange={(date) => setIntroducedDate(date)}
-                                dateFormat="dd.MM.yyyy"
-                                className="form-control dark-placeholder"
-                                placeholderText="Select Introduced Date"
-                                maxDate={new Date()}
-                                isClearable
-                                required
-                            />
-                        </Form.Group>
 
                         {/* IP Address Fields */}
                         <Form.Group className="mb-3">
@@ -439,6 +463,16 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                                 onChange={() => setShowIPFields(!showIPFields)}
                             />
                         </Form.Group>
+
+                        <Form.Group className="mb-3">
+                            <Form.Check
+                                type="checkbox"
+                                label="Add Camera/Other No"
+                                checked={showCameraOther}
+                                onChange={() => setShowCameraOther(!showCameraOther)}
+                            />
+                        </Form.Group>
+
                         {showIPFields && (
                             <Row className="mb-3">
                                 <Col md={4}>
@@ -471,6 +505,33 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                                             placeholder="Enter Subnet Mask"
                                             value={subnetMask}
                                             onChange={(e) => setSubnetMask(e.target.value)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                        )}
+
+                        {showCameraOther && (
+                            <Row className="mb-3">
+                                <Col md={6}>
+                                    <Form.Group>
+                                        <Form.Label>Camera No</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Enter Camera Number"
+                                            value={cameraNo}
+                                            onChange={(e) => setCameraNo(e.target.value)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group>
+                                        <Form.Label>Other No</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Enter Other Number"
+                                            value={otherNo}
+                                            onChange={(e) => setOtherNo(e.target.value)}
                                         />
                                     </Form.Group>
                                 </Col>
