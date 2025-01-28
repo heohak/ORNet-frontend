@@ -372,7 +372,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
                             <Form.Group className="mb-3">
                                 <div className="d-flex mb-2">
                                     <Form.Label className="align-items-centre mb-0">Contact</Form.Label>
-                                    {formData.clientId && (
+                                    {formData.clientId && formData.locationId && (
                                         <Button
                                             variant="link"
                                             onClick={() => setShowContactModal(true)}
@@ -564,6 +564,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
                 onAdd={handleContactAdded}
                 clientId={formData.clientId}
                 locations={locations}
+                selectedLocation={formData.locationId}
             />
         </Modal>
     );
