@@ -638,7 +638,7 @@ function LinkedDevices({
             )}
 
             {/* Link Device Modal */}
-            <Modal show={showModal} onHide={() => setShowModal(false)}>
+            <Modal backdrop="static" show={showModal} onHide={() => setShowModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Link a Device</Modal.Title>
                 </Modal.Header>
@@ -804,7 +804,7 @@ function LinkedDevices({
             </Modal>
 
             {/* Device Details Modal */}
-            <Modal show={showDeviceModal} onHide={() => setShowDeviceModal(false)} size="lg">
+            <Modal backdrop="static" show={showDeviceModal} onHide={() => setShowDeviceModal(false)} size="lg">
                 <Modal.Header closeButton>
                     <Modal.Title>Linked Device Details</Modal.Title>
                 </Modal.Header>
@@ -1033,7 +1033,7 @@ function LinkedDevices({
             </Modal>
 
             {/* Delete Confirmation Modal */}
-            <Modal show={showDeleteConfirmModal} onHide={() => setShowDeleteConfirmModal(false)} centered>
+            <Modal backdrop="static" show={showDeleteConfirmModal} onHide={() => setShowDeleteConfirmModal(false)} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Deletion</Modal.Title>
                 </Modal.Header>
@@ -1057,6 +1057,7 @@ function LinkedDevices({
             </Modal>
 
             <Modal
+                backdrop="static"
                 show={showDeleteLinkedDeviceModal}
                 onHide={() => setShowDeleteLinkedDeviceModal(false)}
                 centered
@@ -1083,6 +1084,7 @@ function LinkedDevices({
 
             {/* Unlink Confirmation Modal */}
             <Modal
+                backdrop="static"
                 show={showUnlinkConfirmModal}
                 onHide={() => setShowUnlinkConfirmModal(false)}
                 centered
