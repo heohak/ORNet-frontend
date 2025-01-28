@@ -391,6 +391,7 @@ function DeviceDetails({
 
             {/* Add/Delete Fields Modal */}
             <Modal
+                backdrop="static"
                 show={showDeviceFieldModal}
                 onHide={() => setShowDeviceFieldModal(false)}
                 size="lg"
@@ -497,6 +498,7 @@ function DeviceDetails({
 
             {/* Delete Confirmation Modal */}
             <Modal
+                backdrop="static"
                 show={showDeleteConfirmModal}
                 onHide={() => setShowDeleteConfirmModal(false)}
                 centered

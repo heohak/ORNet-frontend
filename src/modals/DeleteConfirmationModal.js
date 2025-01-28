@@ -3,7 +3,7 @@ import { Modal, Button } from 'react-bootstrap';
 
 function DeleteConfirmationModal({ show, handleClose, handleDelete }) {
     return (
-        <Modal show={show} onHide={handleClose}>
+        <Modal backdrop="static" show={show} onHide={handleClose}>
             <Modal.Header closeButton>
                 <Modal.Title>Confirm Deletion</Modal.Title>
             </Modal.Header>

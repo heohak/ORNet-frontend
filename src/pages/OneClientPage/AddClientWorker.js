@@ -262,7 +262,7 @@ function AddClientWorker({
     //---------------------------------------------------------------------------
     return (
         <>
-            <Modal show={show} onHide={handleClose}>
+            <Modal show={show} onHide={handleClose} backdrop="static">
                 <Form onSubmit={handleSubmit}>
                     <Modal.Header closeButton>
                         <Modal.Title>{modalTitle || "Add Contact"}</Modal.Title>
@@ -374,7 +374,7 @@ function AddClientWorker({
             </Modal>
 
             {/* Submodal for "Add New Role" */}
-            <Modal show={showRoleModal} onHide={handleCloseRoleModal}>
+            <Modal show={showRoleModal} backdrop="static" onHide={handleCloseRoleModal}>
                 <Form onSubmit={handleAddRole}>
                     <Modal.Header closeButton>
                         <Modal.Title>Add New Role</Modal.Title>

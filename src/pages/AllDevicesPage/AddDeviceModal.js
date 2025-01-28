@@ -213,6 +213,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                 show={show}
                 onHide={onHide}
                 size="lg"
+                backdrop="static"
                 dialogClassName={showAddClassificatorModal || showLocationModal ? 'dimmed' : ''}
             >
                 <Modal.Header closeButton>

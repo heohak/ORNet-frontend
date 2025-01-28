@@ -296,6 +296,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
             onHide={onClose}
             size="xl"
             className="mt-4"
+            backdrop="static"
             dialogClassName={showLocationModal || showContactModal || showWorkTypeModal ? 'dimmed' : ''}
         >
             <Modal.Header closeButton>

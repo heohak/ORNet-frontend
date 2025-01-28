@@ -60,7 +60,7 @@ function CommentsModal({ show, handleClose, deviceId, isLinkedDevice = false }) 
     };
 
     return (
-        <Modal show={show} onHide={handleClose}>
+        <Modal backdrop="static" show={show} onHide={handleClose}>
             <Modal.Header closeButton>
                 <Modal.Title>Comments</Modal.Title>
             </Modal.Header>

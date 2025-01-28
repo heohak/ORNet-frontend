@@ -154,7 +154,7 @@ function ViewLinkedDevices() {
             )}
 
             {/* Add Linked Device Modal */}
-            <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
+            <Modal backdrop="static" show={showAddModal} onHide={() => setShowAddModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add Linked Device</Modal.Title>
                 </Modal.Header>

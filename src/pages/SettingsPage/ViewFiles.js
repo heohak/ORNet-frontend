@@ -184,7 +184,7 @@ function ViewFiles() {
                 </>
             )}
             {/* Upload Files Modal */}
-            <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
+            <Modal backdrop="static" show={showAddModal} onHide={() => setShowAddModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Upload Files</Modal.Title>
                 </Modal.Header>

@@ -200,7 +200,7 @@ function ViewTicketStatusClassificators() {
             )}
 
             {/* Add Classificator Modal */}
-            <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
+            <Modal backdrop="static" show={showAddModal} onHide={() => setShowAddModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add Ticket Status</Modal.Title>
                 </Modal.Header>
@@ -239,7 +239,7 @@ function ViewTicketStatusClassificators() {
             </Modal>
 
             {/* Edit Classificator Modal */}
-            <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+            <Modal backdrop="static" show={showEditModal} onHide={() => setShowEditModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Ticket Status</Modal.Title>
                 </Modal.Header>
@@ -281,7 +281,7 @@ function ViewTicketStatusClassificators() {
             </Modal>
 
             {/* Delete Confirmation Modal */}
-            <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
+            <Modal backdrop="static" show={showDeleteModal} onHide={handleCloseDeleteModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Status Deletion</Modal.Title>
                 </Modal.Header>

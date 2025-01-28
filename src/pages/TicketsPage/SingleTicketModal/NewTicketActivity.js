@@ -194,6 +194,7 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
             </Card.Footer>
 
             <Modal
+                backdrop="static"
                 show={showModal}
                 onHide={() => {
                     setShowModal(false)

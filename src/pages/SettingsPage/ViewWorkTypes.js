@@ -183,7 +183,7 @@ function ViewWorkTypes() {
             )}
 
             {/* Add Work Type Modal */}
-            <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
+            <Modal backdrop="static" show={showAddModal} onHide={() => setShowAddModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add Work Type</Modal.Title>
                 </Modal.Header>
@@ -212,7 +212,7 @@ function ViewWorkTypes() {
             </Modal>
 
             {/* Edit Work Type Modal */}
-            <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+            <Modal backdrop="static" show={showEditModal} onHide={() => setShowEditModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Work Type</Modal.Title>
                 </Modal.Header>
@@ -244,7 +244,7 @@ function ViewWorkTypes() {
             </Modal>
 
             {/* Delete Confirmation Modal */}
-            <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
+            <Modal backdrop="static" show={showDeleteModal} onHide={handleCloseDeleteModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Work Type Deletion</Modal.Title>
                 </Modal.Header>

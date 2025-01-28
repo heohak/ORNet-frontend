@@ -170,7 +170,7 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
 
     return (
         <>
-            <Modal show={show} onHide={handleClose} size="lg">
+            <Modal backdrop="static" show={show} onHide={handleClose} size="lg">
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Device</Modal.Title>
                 </Modal.Header>

@@ -35,7 +35,7 @@ function SummaryModal({ show, handleClose, devices }) {
     };
 
     return (
-        <Modal show={show} onHide={handleClose}>
+        <Modal backdrop="static" show={show} onHide={handleClose}>
             <Modal.Header closeButton>
                 <Modal.Title>Device Summary</Modal.Title>
             </Modal.Header>

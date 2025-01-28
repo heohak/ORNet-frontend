@@ -111,7 +111,7 @@ const AddContactModal = ({ show, handleClose, onAdd, locations, clientId, select
 
     return (
         <>
-            <Modal show={show} onHide={handleClose}>
+            <Modal backdrop="static" show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add New Contact</Modal.Title>
                 </Modal.Header>
@@ -211,7 +211,7 @@ const AddContactModal = ({ show, handleClose, onAdd, locations, clientId, select
                 </Form>
             </Modal>
             {/* Modal for adding a new role */}
-            <Modal show={showRoleModal} onHide={() => setShowRoleModal(false)}>
+            <Modal backdrop="static" show={showRoleModal} onHide={() => setShowRoleModal(false)}>
                 <Form onSubmit={handleAddRole}>
                     <Modal.Header closeButton>
                         <Modal.Title>Add New Role</Modal.Title>

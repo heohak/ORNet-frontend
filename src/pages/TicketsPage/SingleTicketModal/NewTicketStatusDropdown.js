@@ -90,7 +90,7 @@ const NewTicketStatusDropdown = ({ ticket, statuses, setIsClosed, reFetch, setSh
             </InputGroup>
 
             {/* Modal for entering root cause */}
-            <Modal show={showModal} onHide={handleClose}>
+            <Modal show={showModal} onHide={handleClose} backdrop="static">
                 <Modal.Header closeButton>
                     <Modal.Title>Root Cause Required</Modal.Title>
                 </Modal.Header>

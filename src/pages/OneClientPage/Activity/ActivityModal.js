@@ -83,6 +83,7 @@ const ActivityModal = ({ activity, handleClose, reFetch, clientName, locations, 
             <Modal
                 id="custom-modal"
                 show
+                backdrop="static"
                 onHide={handleClose}
                 className="custom-width-modal"
                 dialogClassName={showDeleteModal ? "dimmed" : "custom-modal"}

@@ -174,6 +174,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
             <Modal
                 show={true}
                 onHide={onClose}
+                backdrop="static"
                 size="lg"
                 dialogClassName={showClassificatorModal ? 'dimmed' : ''}
             >
@@ -472,7 +473,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
             </Modal>
 
             {/* Add Type Modal */}
-            <Modal show={showClassificatorModal} onHide={() => setShowClassificatorModal(false)}>
+            <Modal show={showClassificatorModal} backdrop="static" onHide={() => setShowClassificatorModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add Device Type</Modal.Title>
                 </Modal.Header>

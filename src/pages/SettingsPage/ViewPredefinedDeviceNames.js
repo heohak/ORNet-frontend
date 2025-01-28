@@ -137,7 +137,7 @@ function ViewPredefinedDeviceNames() {
             )}
 
             {/* Add Device Name Modal */}
-            <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
+            <Modal backdrop="static" show={showAddModal} onHide={() => setShowAddModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add Predefined Device Name</Modal.Title>
                 </Modal.Header>
@@ -166,7 +166,7 @@ function ViewPredefinedDeviceNames() {
             </Modal>
 
             {/* Delete Confirmation Modal */}
-            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+            <Modal backdrop="static" show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Deletion</Modal.Title>
                 </Modal.Header>

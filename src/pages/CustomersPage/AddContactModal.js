@@ -127,6 +127,7 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
             <Modal
                 show={show}
                 onHide={handleClose}
+                backdrop="static"
                 dialogClassName={showRoleModal ? 'dimmed' : ''}
             >
                 <Form onSubmit={handleSubmit}>
@@ -234,7 +235,7 @@ function AddContactModal({ show, handleClose, onSave, locationOptions }) {
             </Modal>
 
             {/* Modal for adding a new role */}
-            <Modal show={showRoleModal} onHide={() => setShowRoleModal(false)}>
+            <Modal backdrop="static" show={showRoleModal} onHide={() => setShowRoleModal(false)}>
                 <Form onSubmit={handleAddRole}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add New Role</Modal.Title>

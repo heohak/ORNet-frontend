@@ -126,6 +126,7 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
         <Modal
             id="custom-modal"
             show
+            backdrop="static"
             onHide={onClose}
             className="custom-width-modal"
             dialogClassName={showDeleteModal || showRootCauseModal || showAddActivityModal ? "dimmed custom-modal" : "custom-modal"}
