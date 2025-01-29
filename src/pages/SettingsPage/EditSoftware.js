@@ -371,7 +371,7 @@ function EditSoftware() {
             </Form>
 
             {/* Delete Confirmation Modal */}
-            <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
+            <Modal backdrop="static" show={showDeleteModal} onHide={handleCloseDeleteModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Technical Information Deletion</Modal.Title>
                 </Modal.Header>

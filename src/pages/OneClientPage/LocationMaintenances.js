@@ -43,6 +43,7 @@ function LocationMaintenances({ show, handleClose, location, setRefresh }) {
                 show={show}
                 onHide={handleClose}
                 size="lg"
+                backdrop="static"
                 dialogClassName={showAddMaintenanceModal ? 'dimmed' : ''}
             >
                 <Modal.Header closeButton>

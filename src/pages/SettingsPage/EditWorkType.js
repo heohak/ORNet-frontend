@@ -104,7 +104,7 @@ function EditWorkTypeModal({ show, onHide, workType, onUpdate }) {
             </Modal>
 
             {/* Delete Confirmation Modal */}
-            <Modal show={showDeleteConfirmationModal} onHide={handleCloseDeleteModal}>
+            <Modal backdrop="static" show={showDeleteConfirmationModal} onHide={handleCloseDeleteModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Work Type Deletion</Modal.Title>
                 </Modal.Header>

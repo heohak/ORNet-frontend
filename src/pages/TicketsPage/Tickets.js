@@ -13,7 +13,7 @@ function Tickets() {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [filter, setFilter] = useState(null);
+    const [filter, setFilter] = useState("all");
     const [crisis, setCrisis] = useState(false);
     const [paid, setPaid] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -21,7 +21,6 @@ function Tickets() {
     const [statuses, setStatuses] = useState([]);
     const [workTypes, setWorkTypes] = useState([]); // New state for work types
     const [selectedWorkType, setSelectedWorkType] = useState(''); // New state for selected work type
-    const [openStatus, setOpenStatus] = useState(null);
     const [closedStatusId, setClosedStatusId] = useState(0);
     const [closedStatus, setClosedStatus] = useState(null);
     const [ticket, setTicket] = useState(null); // selected ticket
@@ -62,15 +61,10 @@ function Tickets() {
 
     // Find and set open and closed statuses once statuses are fetched
     useEffect(() => {
-        const findOpenAndClosedStatuses = () => {
+        const findClosedStatus = () => {
             // Ensure statuses are available before proceeding
             if (statuses.length > 0) {
-                const open = statuses.find(status => status.status === 'Open');
                 const closed = statuses.find(status => status.status === 'Closed');
-                if (open) {
-                    setOpenStatus(open);
-                    setFilter(open.id); // Set the filter to open status ID
-                }
                 if (closed) {
                     setClosedStatus(closed);
                     setClosedStatusId(closed.id);
@@ -78,7 +72,7 @@ function Tickets() {
             }
         };
 
-        findOpenAndClosedStatuses();
+        findClosedStatus();
     }, [statuses]); // This effect runs when 'statuses' is updated
 
     // Debounce the search query input
@@ -222,6 +216,7 @@ function Tickets() {
                 reFetch={fetchTickets}
                 setTicket={setTicket}
                 onNavigate={handleNavigate}
+                statuses={statuses}
             />
         </Container>
     );

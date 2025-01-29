@@ -213,6 +213,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                 show={show}
                 onHide={onHide}
                 size="lg"
+                backdrop="static"
                 dialogClassName={showAddClassificatorModal || showLocationModal ? 'dimmed' : ''}
             >
                 <Modal.Header closeButton>
@@ -264,6 +265,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                                         options={predefinedDeviceNames}
                                         placeholder="Select or type device name"
                                         value={deviceName ? { value: deviceName, label: deviceName } : null}
+                                        required
                                     />
                                 </Form.Group>
                             </Col>

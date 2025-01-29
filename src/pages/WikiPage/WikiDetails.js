@@ -5,7 +5,7 @@ function WikiDetails({ show, onClose, reFetch, wiki }) {
     const [error] = useState(null); // No delete or edit logic here now, so no error changes
 
     return (
-        <Modal show={show} onHide={onClose} size="lg">
+        <Modal backdrop="static" show={show} onHide={onClose} size="lg">
             <Modal.Header closeButton />
             <Modal.Body>
                 {error && <Alert variant="danger">{error}</Alert>}

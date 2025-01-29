@@ -293,7 +293,7 @@ function ViewLocations() {
             />
 
             {/* Edit Location Modal */}
-            <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+            <Modal backdrop="static" show={showEditModal} onHide={() => setShowEditModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Location</Modal.Title>
                 </Modal.Header>
@@ -400,7 +400,7 @@ function ViewLocations() {
             </Modal>
 
             {/* Delete Confirmation Modal */}
-            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+            <Modal backdrop="static" show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Location Deletion</Modal.Title>
                 </Modal.Header>
@@ -461,6 +461,7 @@ function ViewLocations() {
             </Modal>
 
             <Modal
+                backdrop="static"
                 show={showForceDeleteModal}
                 onHide={() => setShowForceDeleteModal(false)}
                 centered

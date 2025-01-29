@@ -121,6 +121,7 @@ function DeviceStatusManager({ deviceId, introducedDate, writtenOffDate, setRefr
 
             {/* Written Off Modal */}
             <Modal
+                backdrop="static"
                 show={showWrittenOffModal}
                 onHide={() => setShowWrittenOffModal(false)}
             >
@@ -170,6 +171,7 @@ function DeviceStatusManager({ deviceId, introducedDate, writtenOffDate, setRefr
 
             {/* Reactivate Modal */}
             <Modal
+                backdrop="static"
                 show={showReactivateModal}
                 onHide={() => setShowReactivateModal(false)}
             >

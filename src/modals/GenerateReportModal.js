@@ -140,7 +140,7 @@ function GenerateReportModal({ show, handleClose }) {
     };
 
     return (
-        <Modal show={show} onHide={handleModalClose}>
+        <Modal backdrop="static" show={show} onHide={handleModalClose}>
             <Modal.Header closeButton>
                 <Modal.Title>Generate Customer Report</Modal.Title>
             </Modal.Header>

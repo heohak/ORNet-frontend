@@ -48,7 +48,7 @@ function FileUploadModal({ show, handleClose, uploadEndpoint, onUploadSuccess })
     };
 
     return (
-        <Modal show={show} onHide={handleClose}>
+        <Modal backdrop="static" show={show} onHide={handleClose}>
             <Modal.Header closeButton>
                 <Modal.Title>Upload Files</Modal.Title>
             </Modal.Header>

@@ -23,6 +23,10 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
 
     // Load ticket and statuses if ticketId is present
     useEffect(() => {
+        fetchStatuses()
+    }, [])
+
+    useEffect(() => {
         const loadTicketData = async () => {
             if (ticketId) {
                 setLoading(true);
@@ -185,6 +189,7 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
                 handleClose={() => setShowAddTicketModal(false)}
                 reFetch={fetchTickets}
                 clientId={clientId}
+                statuses={statuses}
             />
         </>
     );

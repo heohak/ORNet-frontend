@@ -4,7 +4,7 @@ import React from "react";
 function EditTicketStatusAndWorkTypeModal({ show, handleClose, ticketList }) {
     return (
         <>
-            <Modal show={show} onHide={handleClose}>
+            <Modal backdrop="static" show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
                     <Modal.Title>
                         Cannot delete classificator, because it is still connected with the following tickets:

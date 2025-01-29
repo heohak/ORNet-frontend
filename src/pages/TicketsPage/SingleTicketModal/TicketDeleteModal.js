@@ -3,7 +3,7 @@ import {Modal, Button, Alert} from "react-bootstrap";
 
 const TicketDeleteModal = ({ show, handleClose, handleDelete, error }) => {
     return (
-        <Modal show={show} onHide={handleClose} centered>
+        <Modal backdrop="static" show={show} onHide={handleClose} centered>
             <Modal.Header closeButton>
                 <Modal.Title>Confirm Deletion</Modal.Title>
             </Modal.Header>

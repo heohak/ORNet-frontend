@@ -245,9 +245,9 @@ function DeviceDetails({
                 <Row className="mb-3 align-items-center">
                     <Col>
                         <h4>
-                            <strong>{localDevice.deviceName}</strong> -{' '}
-                            {localDevice.clientName || 'N/A'} / {localDevice.locationName || 'N/A'} /{' '}
-                            {localDevice.department || 'N/A'} / {localDevice.room || 'N/A'}
+                            {[localDevice.clientName, localDevice.locationName, localDevice.department, localDevice.room]
+                                .filter(Boolean) // Removes empty (falsy) values
+                                .join(' / ')}
                         </h4>
                     </Col>
                     {/* Action Buttons at Top Right Corner */}
@@ -391,6 +391,7 @@ function DeviceDetails({
 
             {/* Add/Delete Fields Modal */}
             <Modal
+                backdrop="static"
                 show={showDeviceFieldModal}
                 onHide={() => setShowDeviceFieldModal(false)}
                 size="lg"
@@ -497,6 +498,7 @@ function DeviceDetails({
 
             {/* Delete Confirmation Modal */}
             <Modal
+                backdrop="static"
                 show={showDeleteConfirmModal}
                 onHide={() => setShowDeleteConfirmModal(false)}
                 centered

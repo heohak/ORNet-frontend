@@ -181,7 +181,7 @@ function ViewDeviceClassificators() {
             )}
 
             {/* Add Device Type Modal */}
-            <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
+            <Modal backdrop="static" show={showAddModal} onHide={() => setShowAddModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add Device Type</Modal.Title>
                 </Modal.Header>
@@ -210,7 +210,7 @@ function ViewDeviceClassificators() {
             </Modal>
 
             {/* Edit Device Type Modal */}
-            <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+            <Modal backdrop="static" show={showEditModal} onHide={() => setShowEditModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Device Type</Modal.Title>
                 </Modal.Header>
@@ -242,7 +242,7 @@ function ViewDeviceClassificators() {
             </Modal>
 
             {/* Delete Confirmation Modal */}
-            <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
+            <Modal backdrop="static" show={showDeleteModal} onHide={handleCloseDeleteModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Type Deletion</Modal.Title>
                 </Modal.Header>

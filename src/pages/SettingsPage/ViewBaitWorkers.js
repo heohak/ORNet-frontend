@@ -234,7 +234,7 @@ function ViewBaitWorkers() {
 
 
             {/* Add Worker Modal */}
-            <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
+            <Modal backdrop="static" show={showAddModal} onHide={() => setShowAddModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add Worker</Modal.Title>
                 </Modal.Header>
@@ -307,7 +307,7 @@ function ViewBaitWorkers() {
             </Modal>
 
             {/* Edit Worker Modal */}
-            <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+            <Modal backdrop="static" show={showEditModal} onHide={() => setShowEditModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Worker</Modal.Title>
                 </Modal.Header>
@@ -383,7 +383,7 @@ function ViewBaitWorkers() {
             </Modal>
 
             {/* Delete Confirmation Modal */}
-            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+            <Modal backdrop="static" show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Bait Worker Deletion</Modal.Title>
                 </Modal.Header>

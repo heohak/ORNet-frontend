@@ -142,7 +142,7 @@ function AddThirdPartyITModal({ show, onHide, onNewThirdPartyIT, clientId }) {
 
     return (
         <>
-            <Modal show={show} onHide={onHide}>
+            <Modal backdrop="static" show={show} onHide={onHide}>
                 <Form onSubmit={handleAddThirdParty}>
                     <Modal.Header closeButton>
                         <Modal.Title>Add New Third-Party IT</Modal.Title>
