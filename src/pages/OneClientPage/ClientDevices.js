@@ -138,17 +138,20 @@ function ClientDevices({clientId, locations}) {
             </Row>
         </Form>
             <Row className="row-margin-0 fw-bold mt-2">
-                <Col md={3}>
-                    Name
-                </Col>
                 <Col md={2}>
                     Type
                 </Col>
                 <Col md={3}>
+                    Name
+                </Col>
+                <Col md={2}>
                     Location
                 </Col>
-                <Col md={4}>
+                <Col md={3}>
                     Serial Number
+                </Col>
+                <Col md={2}>
+                    Version
                 </Col>
             </Row>
             <hr />
@@ -164,10 +167,11 @@ function ClientDevices({clientId, locations}) {
                             >
                                 <Col className="py-2" style={{backgroundColor: rowBgColor}}>
                                     <Row className="align-items-center">
-                                        <Col md={3}>{device.deviceName}</Col>
                                         <Col md={2}>{classificators[device.classificatorId] || 'Unknown Type'}</Col>
-                                        <Col md={3}>{locations[device.locationId] || 'Unknown'}</Col>
-                                        <Col md={4}>{device.serialNumber}</Col>
+                                        <Col md={3}>{device.deviceName}</Col>
+                                        <Col md={2}>{locations[device.locationId] || 'Unknown'}</Col>
+                                        <Col md={3}>{device.serialNumber}</Col>
+                                        <Col md={2}>{device.version}</Col>
                                     </Row>
 
                                 </Col>
