@@ -1,12 +1,23 @@
+// LinkedDevices.js
+
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Button, Alert, Modal, Form, Tabs, Tab } from 'react-bootstrap';
-import { FaTrash, FaCog, FaComments, FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
+import {
+    Row,
+    Col,
+    Button,
+    Alert,
+    Modal,
+    Form,
+} from 'react-bootstrap';
+import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import axiosInstance from '../../config/axiosInstance';
 import config from '../../config/config';
-import { DateUtils } from '../../utils/DateUtils';
 import ReactDatePicker from 'react-datepicker';
 import { format } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
+
+// IMPORT your new DeviceDetailsModal
+import DeviceDetailsModal from './DeviceDetailsModal';
 
 function LinkedDevices({
                            linkedDevices,
@@ -15,10 +26,11 @@ function LinkedDevices({
                            setLinkedDevices,
                            showModal,
                            setShowModal,
-                           refreshData
+                           refreshData,
+    clientId
                        }) {
     // =======================
-    // State for linking/adding
+    // States for linking / adding new device
     // =======================
     const [selectedLinkedDeviceId, setSelectedLinkedDeviceId] = useState('');
     const [showAddNewDeviceForm, setShowAddNewDeviceForm] = useState(false);
@@ -31,57 +43,50 @@ function LinkedDevices({
         introducedDate: null,
         locationId: '',
     });
-
     const [submitIndex, setSubmitIndex] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [fieldError, setFieldError] = useState(null);
 
     // =======================
-    // For the main table row
+    // Sorting / table display
     // =======================
     const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'ascending' });
-
-    // We show some fields in the row, others not
     const defaultFields = [
         { key: 'name', label: 'Name', showInRow: true },
         { key: 'manufacturer', label: 'Manufacturer', showInRow: true },
         { key: 'productCode', label: 'Product Code', showInRow: true },
         { key: 'serialNumber', label: 'Serial Number', showInRow: true },
 
-        // New fields that won't appear in the row, but do appear in Manage Fields & Details
+        // Additional fields that won't appear in the row
         { key: 'locationId', label: 'Location', showInRow: false },
         { key: 'introducedDate', label: 'Introduced Date', showInRow: false },
         { key: 'description', label: 'Description', showInRow: false },
     ];
 
     // =======================
-    // For the device details modal
+    // Device Details Modal States
     // =======================
     const [showDeviceModal, setShowDeviceModal] = useState(false);
     const [currentDeviceId, setCurrentDeviceId] = useState(null);
     const [activeTab, setActiveTab] = useState('details');
+
+    // For fields config
     const [fieldsConfig, setFieldsConfig] = useState({});
     const [newField, setNewField] = useState({ key: '', value: '' });
     const [fieldToDelete, setFieldToDelete] = useState(null);
     const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
 
-    // =======================
     // Comments
-    // =======================
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
 
-    // =======================
     // Unlink
-    // =======================
     const [showUnlinkConfirmModal, setShowUnlinkConfirmModal] = useState(false);
 
-    // =======================
-    // Locations for the dropdown
-    // =======================
+    // For location dropdown
     const [locations, setLocations] = useState([]);
 
-    // Right alongside your other states:
+    // For editing top-level fields in “Edit” tab
     const [editName, setEditName] = useState('');
     const [editManufacturer, setEditManufacturer] = useState('');
     const [editProductCode, setEditProductCode] = useState('');
@@ -92,62 +97,72 @@ function LinkedDevices({
     const [editError, setEditError] = useState(null);
     const [showDeleteLinkedDeviceModal, setShowDeleteLinkedDeviceModal] = useState(false);
 
-
-
+    // =======================
+    // Effects
+    // =======================
     useEffect(() => {
         fetchLocations();
     }, []);
 
-    const fetchLocations = async () => {
-        try {
-            const response = await axiosInstance.get(`${config.API_BASE_URL}/location/all`);
-            setLocations(response.data);
-        } catch (err) {
-            console.error('Error fetching locations:', err);
-        }
-    };
-
-    // If we have linked devices, initialize their field config
+    // For demonstration, pretend we initialize fields config whenever linkedDevices changes
     useEffect(() => {
         if (linkedDevices.length > 0) {
             initializeFieldsConfig(linkedDevices);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [linkedDevices]);
 
+    // =======================
+    // Fetch locations
+    // =======================
+    // This function used to call /location/all
+// Now it calls /location/locations/{clientId}
+    const fetchLocations = async () => {
+        if (!clientId) return;  // Only fetch if clientId is known
+
+        try {
+            const response = await axiosInstance.get(
+                `${config.API_BASE_URL}/client/locations/${clientId}`
+            );
+            setLocations(response.data);
+        } catch (err) {
+            console.error('Error fetching client-specific locations:', err);
+        }
+    };
+
+
+    // =======================
+    // Initialize fields config
+    // =======================
     const initializeFieldsConfig = (devices) => {
         const initialFieldsConfig = {};
         devices.forEach((device) => {
             const deviceSpecificKey = `linkedDeviceVisibleFields_${device.id}`;
             const storedVisibleFields = localStorage.getItem(deviceSpecificKey);
 
-            // Start with all defaultFields (including your new ones)
             let fieldsConfigForDevice = defaultFields.map((field) => ({
                 ...field,
                 visible: true,
                 isAttribute: false,
             }));
 
-            // If we stored which fields are visible in localStorage, apply that
             if (storedVisibleFields) {
                 try {
-                    const parsedVisible = JSON.parse(storedVisibleFields);
-                    fieldsConfigForDevice = fieldsConfigForDevice.map((field) => ({
-                        ...field,
-                        visible: parsedVisible.includes(field.key),
+                    const parsed = JSON.parse(storedVisibleFields);
+                    fieldsConfigForDevice = fieldsConfigForDevice.map((f) => ({
+                        ...f,
+                        visible: parsed.includes(f.key),
                     }));
                 } catch (error) {
                     console.error(`Error parsing visibleFields for device ${device.id}:`, error);
                 }
             }
 
-            // Also add any dynamic attribute fields from device.attributes
             if (device.attributes) {
                 Object.keys(device.attributes).forEach((attrKey) => {
                     if (!fieldsConfigForDevice.some((f) => f.key === attrKey)) {
                         fieldsConfigForDevice.push({
                             key: attrKey,
-                            label: formatLabel(attrKey),
+                            label: attrKey,
                             visible: true,
                             isAttribute: true,
                         });
@@ -157,27 +172,11 @@ function LinkedDevices({
 
             initialFieldsConfig[device.id] = fieldsConfigForDevice;
         });
-
         setFieldsConfig(initialFieldsConfig);
     };
 
-    const formatLabel = (label) => {
-        const abbreviations = ['IP', 'API', 'ID'];
-        return label
-            .replace(/([A-Z])/g, ' $1')
-            .replace(/^./, (str) => str.toUpperCase())
-            .split(' ')
-            .map((word) => {
-                if (abbreviations.includes(word.toUpperCase())) {
-                    return word.toUpperCase();
-                }
-                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-            })
-            .join(' ');
-    };
-
     // =======================
-    // Sort & Render Row
+    // Sorting
     // =======================
     const handleSort = (key) => {
         let direction = 'ascending';
@@ -203,11 +202,9 @@ function LinkedDevices({
     });
 
     // =======================
-    // Table row click -> details
+    // Table row -> open details
     // =======================
     const handleLinkedDeviceClick = (devId) => {
-
-        // Inside handleLinkedDeviceClick
         const device = linkedDevices.find((d) => d.id === devId);
         if (device) {
             setEditName(device.name || '');
@@ -220,28 +217,22 @@ function LinkedDevices({
             setEditLocationId(device.locationId || '');
             setEditError(null);
         }
-
         setCurrentDeviceId(devId);
         setShowDeviceModal(true);
         setActiveTab('details');
         fetchComments(devId);
     };
 
+    // For deleting the entire linked device from “Edit”
     const handleDeleteLinkedDevice = async () => {
         try {
-            await axiosInstance.delete(
-                `${config.API_BASE_URL}/linked/device/${currentDeviceId}`
-            );
-            const updatedRes = await axiosInstance.get(
-                `${config.API_BASE_URL}/linked/device/${deviceId}`
-            );
+            await axiosInstance.delete(`${config.API_BASE_URL}/linked/device/${currentDeviceId}`);
+            const updatedRes = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
             setLinkedDevices(updatedRes.data);
             initializeFieldsConfig(updatedRes.data);
             setShowDeleteLinkedDeviceModal(false);
             setShowDeviceModal(false);
-            if (refreshData) {
-                refreshData();
-            }
+            if (refreshData) refreshData();
         } catch (error) {
             console.error('Error deleting linked device:', error);
             setEditError('Error deleting linked device');
@@ -249,18 +240,17 @@ function LinkedDevices({
     };
 
     // =======================
-    // Linking existing / Creating new device
+    // Link Device & Add New
     // =======================
     const handleSubmit = (e) => {
         e.preventDefault();
         if (submitIndex === 0) {
-            handleAddNewLinkedDevice(e);
+            handleAddNewLinkedDevice();
         } else {
             handleLinkDevice(e);
         }
     };
 
-    // Link existing
     const handleLinkDevice = async (e) => {
         e.preventDefault();
         if (isSubmitting) return;
@@ -289,18 +279,15 @@ function LinkedDevices({
         }
     };
 
-    // Create new + link
     const handleAddNewLinkedDevice = async () => {
         if (isSubmitting) return;
         setIsSubmitting(true);
 
         try {
-            // Convert introducedDate if set
             let introducedDateFormatted = null;
             if (newLinkedDevice.introducedDate) {
                 introducedDateFormatted = format(newLinkedDevice.introducedDate, 'yyyy-MM-dd');
             }
-
             const payload = {
                 name: newLinkedDevice.name,
                 manufacturer: newLinkedDevice.manufacturer,
@@ -313,26 +300,20 @@ function LinkedDevices({
                     : null,
             };
 
-            // 1) Create the device
             const response = await axiosInstance.post(
                 `${config.API_BASE_URL}/linked/device/add`,
                 payload
             );
 
-            // 2) Link it
             const newDeviceId = response.data.token;
             await axiosInstance.put(
                 `${config.API_BASE_URL}/linked/device/link/${newDeviceId}/${deviceId}`
             );
 
-            // 3) Re-fetch updated devices
-            const updatedLinkedDevices = await axiosInstance.get(
-                `${config.API_BASE_URL}/linked/device/${deviceId}`
-            );
-            setLinkedDevices(updatedLinkedDevices.data);
-            initializeFieldsConfig(updatedLinkedDevices.data);
+            const updated = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
+            setLinkedDevices(updated.data);
+            initializeFieldsConfig(updated.data);
 
-            // 4) Reset form
             setNewLinkedDevice({
                 name: '',
                 manufacturer: '',
@@ -353,92 +334,47 @@ function LinkedDevices({
     };
 
     // =======================
-    // Manage Fields / Details
+    // Manage Fields / Add Field / Delete Field
     // =======================
-
-    // main function to display in the Details tab
-    const renderFieldsForModal = (devId) => {
-        const deviceFieldsConfig = fieldsConfig[devId] || [];
-        const device = linkedDevices.find((d) => d.id === devId);
-        if (!device) return null;
-
-        return deviceFieldsConfig.map((field) => {
-            // Skip if toggled off
-            if (!field.visible) return null;
-
-            // The raw data
-            let value = field.isAttribute
-                ? device.attributes?.[field.key]
-                : device[field.key];
-
-            if (value == null) return null;
-
-            // Transform introducedDate
-            if (field.key === 'introducedDate') {
-                // e.g. "yyyy-MM-dd" from backend
-                // Format to dd/MM/yyyy
-                value = format(new Date(value), 'dd/MM/yyyy');
-            }
-
-            // Transform locationId -> location name
-            if (field.key === 'locationId') {
-                const foundLoc = locations.find((loc) => loc.id === value);
-                value = foundLoc ? foundLoc.name : `Location ID: ${value}`;
-            }
-
-            return (
-                <div key={field.key} className="mb-2">
-                    <strong>{field.label}:</strong> {value}
-                </div>
-            );
-        });
-    };
-
-    // toggling field visibility
     const handleFieldToggle = (devId, key) => {
         setFieldsConfig((prev) => {
             const updated = { ...prev };
             const devFields = updated[devId] || [];
-
             updated[devId] = devFields.map((f) =>
                 f.key === key ? { ...f, visible: !f.visible } : f
             );
-
-            // Persist to localStorage
-            const visibleFieldsArray = updated[devId]
+            const visibleList = updated[devId]
                 .filter((f) => f.visible)
                 .map((f) => f.key);
-            const deviceSpecificKey = `linkedDeviceVisibleFields_${devId}`;
-            localStorage.setItem(deviceSpecificKey, JSON.stringify(visibleFieldsArray));
-
+            localStorage.setItem(`linkedDeviceVisibleFields_${devId}`, JSON.stringify(visibleList));
             return updated;
         });
     };
 
-    // Add new custom field to attributes
     const handleAddField = async () => {
         if (!newField.key.trim() || !newField.value.trim()) {
             setFieldError('Please enter both key and value for the new field.');
             return;
         }
         const devFields = fieldsConfig[currentDeviceId] || [];
-        if (devFields.some((f) => f.key.toLowerCase() === newField.key.toLowerCase())) {
+        if (
+            devFields.some(
+                (f) => f.key.toLowerCase() === newField.key.toLowerCase()
+            )
+        ) {
             setFieldError('Field key already exists. Use a unique key.');
             return;
         }
 
         const attribute = { [newField.key]: newField.value };
         try {
-            // PUT to /linked/device/{currentDeviceId}/attributes
             await axiosInstance.put(
                 `${config.API_BASE_URL}/linked/device/${currentDeviceId}/attributes`,
                 attribute
             );
-            // Refresh
             const updated = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
             setLinkedDevices(updated.data);
             initializeFieldsConfig(updated.data);
-
             setFieldError(null);
             setNewField({ key: '', value: '' });
         } catch (error) {
@@ -447,7 +383,6 @@ function LinkedDevices({
         }
     };
 
-    // Deleting an attribute field
     const handleDeleteField = async () => {
         if (!fieldToDelete) return;
         try {
@@ -455,12 +390,9 @@ function LinkedDevices({
             await axiosInstance.delete(
                 `${config.API_BASE_URL}/linked/device/${currentDeviceId}/${encoded}`
             );
-
-            // Refresh
             const updated = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
             setLinkedDevices(updated.data);
             initializeFieldsConfig(updated.data);
-
             setShowDeleteConfirmModal(false);
             setFieldToDelete(null);
         } catch (error) {
@@ -471,45 +403,10 @@ function LinkedDevices({
         }
     };
 
-    // New function to send the PUT request
-    const handleUpdateLinkedDevice = async (e) => {
-        e.preventDefault();
-        try {
-            let introducedDateIso = null;
-            if (editIntroducedDate) {
-                introducedDateIso = format(editIntroducedDate, 'yyyy-MM-dd');
-            }
-            const payload = {
-                name: editName,
-                manufacturer: editManufacturer,
-                productCode: editProductCode,
-                serialNumber: editSerialNumber,
-                description: editDescription,
-                introducedDate: introducedDateIso,
-                locationId: editLocationId ? parseInt(editLocationId, 10) : null,
-            };
-
-            await axiosInstance.put(
-                `${config.API_BASE_URL}/linked/device/update/${currentDeviceId}`,
-                payload
-            );
-
-            const updatedRes = await axiosInstance.get(
-                `${config.API_BASE_URL}/linked/device/${deviceId}`
-            );
-            setLinkedDevices(updatedRes.data);
-            initializeFieldsConfig(updatedRes.data);
-            setActiveTab('details');
-        } catch (error) {
-            console.error('Error updating linked device:', error);
-            setEditError('Error updating linked device');
-        }
-    };
-
-
     // =======================
     // Comments
     // =======================
+
     const fetchComments = async (devId) => {
         try {
             const url = `${config.API_BASE_URL}/linked/device/comment/${devId}`;
@@ -550,20 +447,14 @@ function LinkedDevices({
     const handleUnlinkDevice = async () => {
         if (isSubmitting) return;
         setIsSubmitting(true);
-
         try {
             await axiosInstance.put(
                 `${config.API_BASE_URL}/linked/device/remove/${currentDeviceId}`
             );
-            const updatedRes = await axiosInstance.get(
-                `${config.API_BASE_URL}/linked/device/${deviceId}`
-            );
+            const updatedRes = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
             setLinkedDevices(updatedRes.data);
             initializeFieldsConfig(updatedRes.data);
-
-            if (refreshData) {
-                refreshData();
-            }
+            if (refreshData) refreshData();
             setShowUnlinkConfirmModal(false);
             setShowDeviceModal(false);
         } catch (error) {
@@ -575,11 +466,46 @@ function LinkedDevices({
     };
 
     // =======================
-    // Render
+    // Updating the device (Edit Tab)
+    // =======================
+    const handleUpdateLinkedDevice = async (e) => {
+        e.preventDefault();
+        try {
+            let introducedDateIso = null;
+            if (editIntroducedDate) {
+                introducedDateIso = format(editIntroducedDate, 'yyyy-MM-dd');
+            }
+            const payload = {
+                name: editName,
+                manufacturer: editManufacturer,
+                productCode: editProductCode,
+                serialNumber: editSerialNumber,
+                description: editDescription,
+                introducedDate: introducedDateIso,
+                locationId: editLocationId ? parseInt(editLocationId, 10) : null,
+            };
+
+            await axiosInstance.put(
+                `${config.API_BASE_URL}/linked/device/update/${currentDeviceId}`,
+                payload
+            );
+
+            const updatedRes = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/${deviceId}`);
+            setLinkedDevices(updatedRes.data);
+            initializeFieldsConfig(updatedRes.data);
+            setActiveTab('details');
+        } catch (error) {
+            console.error('Error updating linked device:', error);
+            setEditError('Error updating linked device');
+        }
+    };
+
+    // =======================
+    // RENDER
     // =======================
     return (
         <>
-            {/* Heading + Link Device button */}
+            {/* Heading + "Link Device" button */}
             <Row className="d-flex justify-content-between align-items-center mb-2">
                 <Col className="col-md-auto">
                     <h2 className="mb-0" style={{ paddingBottom: '20px' }}>
@@ -610,7 +536,7 @@ function LinkedDevices({
             </Row>
             <hr />
 
-            {/* Linked Devices List Rows */}
+            {/* Linked Devices Rows */}
             {sortedLinkedDevices.length > 0 ? (
                 sortedLinkedDevices.map((device, index) => {
                     const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
@@ -637,7 +563,7 @@ function LinkedDevices({
                 </Alert>
             )}
 
-            {/* Link Device Modal */}
+            {/* "Link Device" Modal (Existing or New) */}
             <Modal show={showModal} onHide={() => setShowModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Link a Device</Modal.Title>
@@ -645,7 +571,7 @@ function LinkedDevices({
                 <Form onSubmit={handleSubmit}>
                     <Modal.Body>
                         {fieldError && (
-                            <Alert variant="danger" onClose={() => setFieldError(null)} dismissible>
+                            <Alert variant="danger" dismissible onClose={() => setFieldError(null)}>
                                 {fieldError}
                             </Alert>
                         )}
@@ -653,10 +579,7 @@ function LinkedDevices({
                             <>
                                 <Form.Group controlId="selectDevice" className="mb-3">
                                     <Form.Label>Select Device to Link</Form.Label>
-                                    <Button
-                                        variant="link"
-                                        onClick={() => setShowAddNewDeviceForm(true)}
-                                    >
+                                    <Button variant="link" onClick={() => setShowAddNewDeviceForm(true)}>
                                         Add new linked device
                                     </Button>
                                     <Form.Control
@@ -727,16 +650,16 @@ function LinkedDevices({
 
                                 <Form.Group controlId="newDeviceIntroducedDate" className="mb-3">
                                     <Form.Label>Introduced Date</Form.Label>
+                                    <div>
                                     <ReactDatePicker
                                         selected={newLinkedDevice.introducedDate}
-                                        onChange={(date) =>
-                                            setNewLinkedDevice({ ...newLinkedDevice, introducedDate: date })
-                                        }
+                                        onChange={(date) => setNewLinkedDevice({ ...newLinkedDevice, introducedDate: date })}
                                         dateFormat="dd/MM/yyyy"
                                         className="form-control"
                                         placeholderText="Select introduced date"
                                         isClearable
                                     />
+                                    </div>
                                 </Form.Group>
 
                                 <Form.Group controlId="newDeviceLocationId" className="mb-3">
@@ -803,308 +726,57 @@ function LinkedDevices({
                 </Form>
             </Modal>
 
-            {/* Device Details Modal */}
-            <Modal show={showDeviceModal} onHide={() => setShowDeviceModal(false)} size="lg">
-                <Modal.Header closeButton>
-                    <Modal.Title>Linked Device Details</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-3">
-                        <Tab eventKey="details" title="Details">
-                            {currentDeviceId && renderFieldsForModal(currentDeviceId)}
-                        </Tab>
-
-                        <Tab eventKey="manageFields" title="Manage Fields">
-                            <Form className="mt-3">
-                                {currentDeviceId &&
-                                    fieldsConfig[currentDeviceId] &&
-                                    fieldsConfig[currentDeviceId].map((field) => (
-                                        <Form.Check
-                                            key={field.key}
-                                            type="checkbox"
-                                            label={field.label}
-                                            checked={field.visible}
-                                            onChange={() => handleFieldToggle(currentDeviceId, field.key)}
-                                        />
-                                    ))}
-                            </Form>
-                        </Tab>
-
-                        <Tab eventKey="addField" title="Add Field">
-                            <Form className="mt-3">
-                                {fieldError && (
-                                    <Alert variant="danger" dismissible onClose={() => setFieldError(null)}>
-                                        {fieldError}
-                                    </Alert>
-                                )}
-                                <Form.Group controlId="newFieldKey" className="mb-3">
-                                    <Form.Label>Field Key</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={newField.key}
-                                        onChange={(e) => setNewField({ ...newField, key: e.target.value })}
-                                        placeholder="Enter unique field key"
-                                    />
-                                </Form.Group>
-                                <Form.Group controlId="newFieldValue" className="mb-3">
-                                    <Form.Label>Field Value</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={newField.value}
-                                        onChange={(e) => setNewField({ ...newField, value: e.target.value })}
-                                        placeholder="Enter field value"
-                                    />
-                                </Form.Group>
-                                <Button variant="success" onClick={handleAddField}>
-                                    Add Field
-                                </Button>
-                            </Form>
-                        </Tab>
-
-                        <Tab eventKey="customAttributes" title="Delete Fields">
-                            <Form className="mt-3">
-                                {currentDeviceId &&
-                                    fieldsConfig[currentDeviceId] &&
-                                    fieldsConfig[currentDeviceId]
-                                        .filter((field) => field.isAttribute)
-                                        .map((field) => (
-                                            <div key={field.key} className="d-flex align-items-center mb-2">
-                                                <Form.Check
-                                                    type="checkbox"
-                                                    label={field.label}
-                                                    checked={field.visible}
-                                                    onChange={() => handleFieldToggle(currentDeviceId, field.key)}
-                                                    className="flex-grow-1"
-                                                />
-                                                <Button
-                                                    variant="link"
-                                                    size="sm"
-                                                    className="p-0 text-danger ms-2"
-                                                    onClick={() => {
-                                                        setFieldToDelete(field.key);
-                                                        setShowDeleteConfirmModal(true);
-                                                    }}
-                                                    title="Delete Attribute"
-                                                >
-                                                    <FaTrash />
-                                                </Button>
-                                            </div>
-                                        ))}
-                            </Form>
-                        </Tab>
-
-                        <Tab eventKey="comments" title="Comments">
-                            <Form onSubmit={handleAddComment}>
-                                <Form.Group controlId="newComment">
-                                    <Form.Label>New Comment</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={newComment}
-                                        onChange={(e) => setNewComment(e.target.value)}
-                                        placeholder="Enter your comment"
-                                        required
-                                    />
-                                </Form.Group>
-                                <Button variant="primary" disabled={isSubmitting} type="submit" className="mt-3">
-                                    {isSubmitting ? 'Adding...' : 'Add Comment'}
-                                </Button>
-                            </Form>
-                            <hr />
-                            <h5>Existing Comments</h5>
-                            {comments.length > 0 ? (
-                                comments.map((comment, index) => (
-                                    <div key={index} className="mb-2">
-                                        <strong>{DateUtils.formatDate(comment.timestamp)}</strong>: {comment.comment}
-                                    </div>
-                                ))
-                            ) : (
-                                <p>No comments available.</p>
-                            )}
-                        </Tab>
-
-                        <Tab eventKey="unlink" title="Unlink Device">
-                            <Button variant="danger" onClick={() => setShowUnlinkConfirmModal(true)}>
-                                Unlink Device
-                            </Button>
-                        </Tab>
-
-                        <Tab eventKey="edit" title="Edit">
-                            {editError && (
-                                <Alert variant="danger" onClose={() => setEditError(null)} dismissible>
-                                    {editError}
-                                </Alert>
-                            )}
-                            <Form onSubmit={handleUpdateLinkedDevice}>
-                                <Form.Group controlId="editName" className="mb-3">
-                                    <Form.Label>Name</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={editName}
-                                        onChange={(e) => setEditName(e.target.value)}
-                                        required
-                                    />
-                                </Form.Group>
-
-                                <Form.Group controlId="editManufacturer" className="mb-3">
-                                    <Form.Label>Manufacturer</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={editManufacturer}
-                                        onChange={(e) => setEditManufacturer(e.target.value)}
-                                        required
-                                    />
-                                </Form.Group>
-
-                                <Form.Group controlId="editProductCode" className="mb-3">
-                                    <Form.Label>Product Code</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={editProductCode}
-                                        onChange={(e) => setEditProductCode(e.target.value)}
-                                        required
-                                    />
-                                </Form.Group>
-
-                                <Form.Group controlId="editSerialNumber" className="mb-3">
-                                    <Form.Label>Serial Number</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={editSerialNumber}
-                                        onChange={(e) => setEditSerialNumber(e.target.value)}
-                                        required
-                                    />
-                                </Form.Group>
-
-                                <Form.Group controlId="editDescription" className="mb-3">
-                                    <Form.Label>Description</Form.Label>
-                                    <Form.Control
-                                        as="textarea"
-                                        rows={2}
-                                        value={editDescription}
-                                        onChange={(e) => setEditDescription(e.target.value)}
-                                    />
-                                </Form.Group>
-
-                                <Form.Group controlId="editIntroducedDate" className="mb-3">
-                                    <Form.Label>Introduced Date</Form.Label>
-                                    <ReactDatePicker
-                                        selected={editIntroducedDate}
-                                        onChange={(date) => setEditIntroducedDate(date)}
-                                        dateFormat="dd/MM/yyyy"
-                                        className="form-control"
-                                        isClearable
-                                    />
-                                </Form.Group>
-
-                                <Form.Group controlId="editLocationId" className="mb-3">
-                                    <Form.Label>Location</Form.Label>
-                                    <Form.Control
-                                        as="select"
-                                        value={editLocationId}
-                                        onChange={(e) => setEditLocationId(e.target.value)}
-                                    >
-                                        <option value="">Select Location</option>
-                                        {locations.map((loc) => (
-                                            <option key={loc.id} value={loc.id}>
-                                                {loc.name}
-                                            </option>
-                                        ))}
-                                    </Form.Control>
-                                </Form.Group>
-
-                                <div className="d-flex justify-content-between mt-4">
-                                    <Button variant="danger" onClick={() => setShowDeleteLinkedDeviceModal(true)}>
-                                        Delete Linked Device
-                                    </Button>
-                                    <Button variant="primary" type="submit">
-                                        Save Changes
-                                    </Button>
-                                </div>
-                            </Form>
-                        </Tab>
-
-                    </Tabs>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="outline-info" onClick={() => setShowDeviceModal(false)}>
-                        Close
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-
-            {/* Delete Confirmation Modal */}
-            <Modal show={showDeleteConfirmModal} onHide={() => setShowDeleteConfirmModal(false)} centered>
-                <Modal.Header closeButton>
-                    <Modal.Title>Confirm Deletion</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    Are you sure you want to delete the attribute "<strong>{fieldToDelete}</strong>"?
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button
-                        variant="secondary"
-                        onClick={() => {
-                            setShowDeleteConfirmModal(false);
-                            setFieldToDelete(null);
-                        }}
-                    >
-                        Cancel
-                    </Button>
-                    <Button variant="danger" onClick={handleDeleteField}>
-                        Delete
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-
-            <Modal
-                show={showDeleteLinkedDeviceModal}
-                onHide={() => setShowDeleteLinkedDeviceModal(false)}
-                centered
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>Confirm Delete</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    Are you sure you want to <strong>delete</strong> this linked device entirely?
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button
-                        variant="outline-info"
-                        onClick={() => setShowDeleteLinkedDeviceModal(false)}
-                    >
-                        Cancel
-                    </Button>
-                    <Button variant="danger" onClick={handleDeleteLinkedDevice}>
-                        Delete Linked Device
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-
-
-            {/* Unlink Confirmation Modal */}
-            <Modal
-                show={showUnlinkConfirmModal}
-                onHide={() => setShowUnlinkConfirmModal(false)}
-                centered
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>Confirm Unlink</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    Are you sure you want to unlink this device?
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button
-                        variant="outline-info"
-                        onClick={() => setShowUnlinkConfirmModal(false)}
-                    >
-                        Cancel
-                    </Button>
-                    <Button variant="danger" onClick={handleUnlinkDevice}>
-                        Unlink
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+            {/* =========================
+          Device Details Modal
+          (Extracted into separate component)
+       ========================= */}
+            <DeviceDetailsModal
+                show={showDeviceModal}
+                onHide={() => setShowDeviceModal(false)}
+                deviceId={currentDeviceId}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                linkedDevices={linkedDevices}
+                fieldsConfig={fieldsConfig}
+                locations={locations}
+                handleFieldToggle={handleFieldToggle}
+                handleDeleteField={handleDeleteField}
+                fieldToDelete={fieldToDelete}
+                showDeleteConfirmModal={showDeleteConfirmModal}
+                setShowDeleteConfirmModal={setShowDeleteConfirmModal}
+                setFieldToDelete={setFieldToDelete}
+                fieldError={fieldError}
+                newField={newField}
+                setNewField={setNewField}
+                handleAddField={handleAddField}
+                comments={comments}
+                newComment={newComment}
+                setNewComment={setNewComment}
+                isSubmitting={isSubmitting}
+                handleAddComment={handleAddComment}
+                showUnlinkConfirmModal={showUnlinkConfirmModal}
+                setShowUnlinkConfirmModal={setShowUnlinkConfirmModal}
+                handleUnlinkDevice={handleUnlinkDevice}
+                editName={editName}
+                setEditName={setEditName}
+                editManufacturer={editManufacturer}
+                setEditManufacturer={setEditManufacturer}
+                editProductCode={editProductCode}
+                setEditProductCode={setEditProductCode}
+                editSerialNumber={editSerialNumber}
+                setEditSerialNumber={setEditSerialNumber}
+                editDescription={editDescription}
+                setEditDescription={setEditDescription}
+                editIntroducedDate={editIntroducedDate}
+                setEditIntroducedDate={setEditIntroducedDate}
+                editLocationId={editLocationId}
+                setEditLocationId={setEditLocationId}
+                editError={editError}
+                handleUpdateLinkedDevice={handleUpdateLinkedDevice}
+                showDeleteLinkedDeviceModal={showDeleteLinkedDeviceModal}
+                setShowDeleteLinkedDeviceModal={setShowDeleteLinkedDeviceModal}
+                handleDeleteLinkedDevice={handleDeleteLinkedDevice}
+            />
         </>
     );
 }

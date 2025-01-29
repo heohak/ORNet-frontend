@@ -194,6 +194,7 @@ function OneDevice() {
                                         deviceId={deviceId}
                                         setLinkedDevices={setLinkedDevices}
                                         refreshData={handleRefresh}
+                                        clientId={device?.clientId}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
