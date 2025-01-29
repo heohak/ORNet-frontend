@@ -87,6 +87,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
                     axiosInstance.get(`${config.API_BASE_URL}/client/all`),
                     axiosInstance.get(`${config.API_BASE_URL}/work-type/classificator/all`),
                 ]);
+
                 setBaitWorkers(sortList(baitWorkerRes.data, "BaitWorker"));
                 setWorkTypes(sortList(workTypeRes.data.map(workType => ({value: workType.id, label: workType.workType})), "WorkType"));
                 setClients(clientRes.data.sort((a, b) => a.shortName.localeCompare(b.shortName)));
@@ -141,7 +142,6 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
         }
         setFormData( prevData => ({...prevData, [id]: newValue}));
     };
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
