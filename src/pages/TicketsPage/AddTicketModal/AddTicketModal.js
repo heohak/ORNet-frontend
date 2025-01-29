@@ -12,7 +12,7 @@ import axiosInstance from "../../../config/axiosInstance";
 
 
 
-const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clientId}) => {
+const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clientId, statuses}) => {
 
     const [formData, setFormData] = useState({
         title: '',
@@ -24,6 +24,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
         locationId: '',
         baitNumeration: '',
         clientNumeration: '',
+        statusId: '',
     });
 
     const [clients, setClients] = useState([]);
@@ -32,7 +33,6 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
     const [availableContacts, setAvailableContacts] = useState([]);
     const [selectedContacts, setSelectedContacts] = useState([]);
     const [baitWorkers, setBaitWorkers] = useState([]);
-    const [openStatusId, setOpenStatusId] = useState(null);
     const [workTypes, setWorkTypes] = useState([]);
     const [devices, setDevices] = useState([]);
     const [availableDevices, setAvailableDevices] = useState([]);
@@ -82,20 +82,11 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [statusRes, baitWorkerRes, clientRes, workTypeRes] = await Promise.all([
-                    axiosInstance.get(`${config.API_BASE_URL}/ticket/classificator/all`),
+                const [baitWorkerRes, clientRes, workTypeRes] = await Promise.all([
                     axiosInstance.get(`${config.API_BASE_URL}/bait/worker/all`),
                     axiosInstance.get(`${config.API_BASE_URL}/client/all`),
                     axiosInstance.get(`${config.API_BASE_URL}/work-type/classificator/all`),
                 ]);
-                const statuses = statusRes.data;
-                if (statuses.length > 0) {
-                    // Filter for open status
-                    const open = statuses.find(status => status.status === 'Open');
-                    if (open) {
-                        setOpenStatusId(open.id);
-                    }
-                }
                 setBaitWorkers(sortList(baitWorkerRes.data, "BaitWorker"));
                 setWorkTypes(sortList(workTypeRes.data.map(workType => ({value: workType.id, label: workType.workType})), "WorkType"));
                 setClients(clientRes.data.sort((a, b) => a.shortName.localeCompare(b.shortName)));
@@ -151,12 +142,6 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
         setFormData( prevData => ({...prevData, [id]: newValue}));
     };
 
-    const handleDeviceChange = (selectedOptions) => {
-        // Since this is a multi-select, `selectedOptions` will be an array of selected objects
-        setSelectedDevices(selectedOptions || []); // Fallback to an empty array if no options are selected
-        console.log('Selected Devices:', selectedOptions); // Debugging
-    };
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -166,7 +151,6 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
         try {
             let newTicket = {
                 ...formData,
-                statusId: openStatusId,
                 clientId: formData.clientId,
                 workTypeIds: selectedWorkTypes.map(option => option.value),
                 deviceIds: selectedDevices.map(device => device.id),
@@ -477,6 +461,23 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
                                     placeholder="Select work types"
                                     required
                                 />
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label>Status</Form.Label>
+                                <Form.Control
+                                    as="select"
+                                    value={formData.statusId}
+                                    onChange={handleChange}
+                                    id="statusId"
+                                    required
+                                >
+                                    <option value="">Select Status</option>
+                                    {statuses.map(status => (
+                                        <option key={status.id} value={status.id}>
+                                            {status.status}
+                                        </option>
+                                    ))}
+                                </Form.Control>
                             </Form.Group>
                         </Col>
                     </Row>
