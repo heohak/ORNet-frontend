@@ -81,7 +81,7 @@ function EditClientWorkerRoleModal({ show, onHide, role, onUpdate }) {
 
     return (
         <>
-            <Modal show={show} onHide={onHide}>
+            <Modal backdrop="static" show={show} onHide={onHide}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Customer Contact Role</Modal.Title>
                 </Modal.Header>

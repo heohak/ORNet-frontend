@@ -48,7 +48,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, cl
         const trimmedPhoneNumber = editingWorker.phoneNumber.trim();
 
         // Check if the phone number contains only digits and allowed characters
-        if (!/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
+        if (trimmedPhoneNumber && !/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
             setPhoneNumberError('Phone number must contain only numbers and spaces, and may start with a +.');
             return false;
         }
@@ -90,6 +90,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, cl
     return (
         <>
             <Modal
+                backdrop="static"
                 show={show}
                 onHide={handleCloseModal}
                 dialogClassName={showDeleteConfirm ? "dimmed" : ""}
@@ -186,7 +187,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, cl
             </Modal>
 
             {/* Confirmation Modal for Deletion */}
-            <Modal show={showDeleteConfirm} onHide={() => setShowDeleteConfirm(false)}>
+            <Modal backdrop="static" show={showDeleteConfirm} onHide={() => setShowDeleteConfirm(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Deletion</Modal.Title>
                 </Modal.Header>

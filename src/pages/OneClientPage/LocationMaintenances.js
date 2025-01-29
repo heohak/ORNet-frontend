@@ -7,6 +7,7 @@ import AddMaintenanceModal from "./AddMaintenanceModal";
 import '../../css/Customers.css';
 import '../../css/DarkenedModal.css';
 import axiosInstance from "../../config/axiosInstance";
+import {DateUtils} from "../../utils/DateUtils";
 
 function LocationMaintenances({ show, handleClose, location, setRefresh }) {
     const [maintenances, setMaintenances] = useState([]);
@@ -14,11 +15,6 @@ function LocationMaintenances({ show, handleClose, location, setRefresh }) {
     const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
     const [selectedMaintenanceId, setSelectedMaintenanceId] = useState(null);
 
-    const estoniaDateFormat = new Intl.DateTimeFormat('et-EE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
 
     useEffect(() => {
         if (location && show) {
@@ -47,6 +43,7 @@ function LocationMaintenances({ show, handleClose, location, setRefresh }) {
                 show={show}
                 onHide={handleClose}
                 size="lg"
+                backdrop="static"
                 dialogClassName={showAddMaintenanceModal ? 'dimmed' : ''}
             >
                 <Modal.Header closeButton>
@@ -83,7 +80,7 @@ function LocationMaintenances({ show, handleClose, location, setRefresh }) {
                                     onClick={() => handleMaintenanceClick(maintenance.id)}
                                 >
                                     <Col md={6}>{maintenance.maintenanceName}</Col>
-                                    <Col md={6}>{estoniaDateFormat.format(new Date(maintenance.maintenanceDate))}</Col>
+                                    <Col md={6}>{DateUtils.formatDate(maintenance.maintenanceDate)}</Col>
                                 </Row>
                             );
                         })

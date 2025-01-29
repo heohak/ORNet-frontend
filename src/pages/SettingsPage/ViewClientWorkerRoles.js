@@ -148,7 +148,7 @@ function ViewClientWorkerRoles() {
             )}
 
             {/* Add Role Modal */}
-            <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
+            <Modal backdrop="static" show={showAddModal} onHide={() => setShowAddModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add Role</Modal.Title>
                 </Modal.Header>

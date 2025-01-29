@@ -4,18 +4,21 @@ import {faSave, faEdit} from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import config from "../../../config/config";
 import axiosInstance from "../../../config/axiosInstance";
+import {Col, Row} from "react-bootstrap";
 
 
 const NewTicketDescription = ({ticket}) => {
 
     const [isEditing, setIsEditing] = useState(false);  // Edit mode state
     const [description, setDescription] = useState(ticket.description);  // Local state for the description
+    const [internalComment, setInternalComment] = useState(ticket.insideInfo)
 
     // Function to handle saving the updated description
-    const handleSaveDescription = async () => {
+    const handleSave = async () => {
         try {
             await axiosInstance.put(`${config.API_BASE_URL}/ticket/update/whole/${ticket.id}`, {
-                description: description
+                description: description,
+                insideInfo: internalComment
             });
             setIsEditing(false); // Exit edit mode after saving
         } catch (error) {
@@ -30,25 +33,50 @@ const NewTicketDescription = ({ticket}) => {
             <div
                 style={{ position: 'relative', padding: '10px'}}
             >
-                <h4>Description</h4>
-                {isEditing ? (
-                    <textarea
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        rows={4}
-                        style={{ width: '100%' }}
-                    />
-                ) : (
-                    <p>
-                        {description &&
-                        description.split("\n").map((line, index) => (
-                            <React.Fragment key={index}>
-                                {line}
-                                <br />
-                            </React.Fragment>
-                        ))}
-                    </p>
-                )}
+                <Row>
+                    <Col md={6}>
+                        <h4>Description</h4>
+                        {isEditing ? (
+                            <textarea
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                rows={4}
+                                style={{ width: '100%' }}
+                            />
+                        ) : (
+                            <p>
+                                {description &&
+                                    description.split("\n").map((line, index) => (
+                                        <React.Fragment key={index}>
+                                            {line}
+                                            <br />
+                                        </React.Fragment>
+                                    ))}
+                            </p>
+                        )}
+                    </Col>
+                    <Col md={6}>
+                        <h4>Internal Comment</h4>
+                        {isEditing ? (
+                            <textarea
+                                value={internalComment}
+                                onChange={(e) => setInternalComment(e.target.value)}
+                                rows={4}
+                                style={{ width: '100%' }}
+                            />
+                        ) : (
+                            <p>
+                                {internalComment &&
+                                    internalComment.split("\n").map((line, index) => (
+                                        <React.Fragment key={index}>
+                                            {line}
+                                            <br />
+                                        </React.Fragment>
+                                    ))}
+                            </p>
+                        )}
+                    </Col>
+                </Row>
 
                 {/* Icon */}
                 {!isEditing ? (
@@ -68,7 +96,7 @@ const NewTicketDescription = ({ticket}) => {
                 ) : (
                     <FontAwesomeIcon
                         icon={faSave}
-                        onClick={handleSaveDescription}
+                        onClick={handleSave}
                         style={{
                             fontSize: '1.5rem',
                             position: 'absolute',

@@ -126,6 +126,7 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
         <Modal
             id="custom-modal"
             show
+            backdrop="static"
             onHide={onClose}
             className="custom-width-modal"
             dialogClassName={showDeleteModal || showRootCauseModal || showAddActivityModal ? "dimmed custom-modal" : "custom-modal"}
@@ -148,16 +149,12 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
                                 ticket={ticket}
                             />
                         )}
-                        <TicketSectionButtons activeSection={activeSection} onSectionChange={setActiveSection}/>
-                        {activeSection === 'activity' &&
-                            <NewTicketActivity
-                                ticket={ticket}
-                                reFetch={reFetchTicket}
-                                setShowAddActivityModal={setShowAddActivityModal}
-                            />
-                        }
-                        {activeSection === 'info' && <NewTicketInsideInfo ticket={ticket} reFetch={reFetchTicket} />}
-                        {/*{activeSection === 'response' && <NewTicketResponse ticket={ticket} />}*/}
+                        <hr/>
+                        <NewTicketActivity
+                            ticket={ticket}
+                            reFetch={reFetchTicket}
+                            setShowAddActivityModal={setShowAddActivityModal}
+                        />
                     </Col>
                     <Col md={4}>
                         <Row className="mb-2 justify-content-between">

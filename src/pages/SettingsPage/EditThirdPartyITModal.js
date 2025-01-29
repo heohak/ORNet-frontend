@@ -69,7 +69,7 @@ function EditThirdPartyITModal({ show, onHide, thirdParty, onUpdate }) {
 
     return (
         <>
-            <Modal show={show} onHide={onHide}>
+            <Modal backdrop="static" show={show} onHide={onHide}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Third Party IT</Modal.Title>
                 </Modal.Header>
@@ -121,7 +121,7 @@ function EditThirdPartyITModal({ show, onHide, thirdParty, onUpdate }) {
             </Modal>
 
             {/* Delete Confirmation Modal */}
-            <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
+            <Modal backdrop="static" show={showDeleteModal} onHide={handleCloseDeleteModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Third Party IT Deletion</Modal.Title>
                 </Modal.Header>

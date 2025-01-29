@@ -138,7 +138,7 @@ function OneDevice() {
                             <FaArrowLeft title="Go back" />
                         </Button>
                         <h1 className="device-title">
-                            {device ? `${device.deviceName} Details` : 'Device Details'}
+                            {device ? `${device.deviceName} s/n ${device.serialNumber}` : 'Device Details'}
                         </h1>
                         {/* Placeholder for possible future header items */}
                         <div></div>
@@ -194,6 +194,7 @@ function OneDevice() {
                                         deviceId={deviceId}
                                         setLinkedDevices={setLinkedDevices}
                                         refreshData={handleRefresh}
+                                        clientId={device?.clientId}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>

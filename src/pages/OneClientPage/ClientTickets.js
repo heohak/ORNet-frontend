@@ -8,6 +8,7 @@ import config from '../../config/config';
 import NewTicket from '../TicketsPage/SingleTicketModal/NewTicket';
 import AddTicketModal from "../TicketsPage/AddTicketModal/AddTicketModal";
 import axiosInstance from "../../config/axiosInstance";
+import {DateUtils} from "../../utils/DateUtils";
 
 function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
     const navigate = useNavigate();
@@ -21,6 +22,10 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
     const [showAddTicketModal, setShowAddTicketModal] = useState(false);
 
     // Load ticket and statuses if ticketId is present
+    useEffect(() => {
+        fetchStatuses()
+    }, [])
+
     useEffect(() => {
         const loadTicketData = async () => {
             if (ticketId) {
@@ -95,11 +100,6 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
         setTicketModal(false);
     };
 
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-GB');
-    };
-
     return (
         <>
             <Row className="row-margin-0 d-flex justify-content-between align-items-center mb-2">
@@ -140,7 +140,7 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
                                     <Row className="align-items-center">
                                         <Col md={2}>{ticket.baitNumeration || 'N/A'}</Col>
                                         <Col md={3}>{ticket.title}</Col>
-                                        <Col md={2}>{formatDate(ticket.startDateTime)}</Col>
+                                        <Col md={2}>{DateUtils.formatDate(ticket.startDateTime)}</Col>
                                         <Col md={2}>{locations[ticket.locationId] || 'Unknown Location'}</Col>
                                         <Col className="d-flex justify-content-center" md={2}>
                                             <Button
@@ -189,6 +189,7 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets }) {
                 handleClose={() => setShowAddTicketModal(false)}
                 reFetch={fetchTickets}
                 clientId={clientId}
+                statuses={statuses}
             />
         </>
     );

@@ -1,7 +1,20 @@
-.react-datepicker-wrapper {
-    width: 100%;
-}
+
 .dark-placeholder::placeholder {
     color: #151414; /* Darker placeholder color */
     opacity: 1;  /* Ensure consistent visibility across browsers */
+}
+.dark-placeholder {
+    max-width: 100%; /* Ensure it doesn't exceed the parent's width */
+    width: 100%; /* Fill the available space */
+}
+
+@media (max-width: 1200px) {
+    .dark-placeholder {
+        font-size: 14px; /* Adjust font size for smaller screens */
+    }
+
+    .react-datepicker {
+        width: auto; /* Adjust the width of the datepicker */
+        max-width: 100%;
+    }
 }

@@ -121,6 +121,7 @@ function DeviceStatusManager({ deviceId, introducedDate, writtenOffDate, setRefr
 
             {/* Written Off Modal */}
             <Modal
+                backdrop="static"
                 show={showWrittenOffModal}
                 onHide={() => setShowWrittenOffModal(false)}
             >
@@ -134,7 +135,7 @@ function DeviceStatusManager({ deviceId, introducedDate, writtenOffDate, setRefr
                             <ReactDatePicker
                                 selected={currentWrittenOffDate}
                                 onChange={(date) => setCurrentWrittenOffDate(date)}
-                                dateFormat="dd/MM/yyyy"
+                                dateFormat="dd.MM.yyyy"
                                 className="form-control dark-placeholder"
                                 placeholderText="Select a date"
                                 isClearable={currentWrittenOffDate !== ''}
@@ -170,6 +171,7 @@ function DeviceStatusManager({ deviceId, introducedDate, writtenOffDate, setRefr
 
             {/* Reactivate Modal */}
             <Modal
+                backdrop="static"
                 show={showReactivateModal}
                 onHide={() => setShowReactivateModal(false)}
             >

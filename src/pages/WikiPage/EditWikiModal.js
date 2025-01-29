@@ -42,7 +42,7 @@ function EditWikiModal({ show, onHide, wiki, reFetch }) {
 
     return (
         <>
-            <Modal show={show} onHide={onHide}>
+            <Modal backdrop="static" show={show} onHide={onHide}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Wiki</Modal.Title>
                 </Modal.Header>

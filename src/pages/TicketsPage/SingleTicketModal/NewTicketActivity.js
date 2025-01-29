@@ -6,6 +6,7 @@ import config from "../../../config/config";
 import '../../../css/NewTicket.css';
 import TextareaAutosize from 'react-textarea-autosize';
 import axiosInstance from "../../../config/axiosInstance";
+import {DateUtils} from "../../../utils/DateUtils";
 
 const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
     const [newActivity, setNewActivity] = useState("");
@@ -41,10 +42,11 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
     };
 
     const submitActivity = async () => {
+        const trimmedActivity = newActivity.trim();
         try {
             await axiosInstance.put(
                 `${config.API_BASE_URL}/ticket/activity/${ticket.id}`,
-                newActivity, // Send as a plain string
+                trimmedActivity, // Send as a plain string
                 {
                     params: {
                         hours: modalHours,
@@ -84,9 +86,10 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
     };
 
     const handleSaveActivity = async (index, activityId) => {
+        const trimmedActivity = editedActivity.trim();
         try {
             await axiosInstance.put(`${config.API_BASE_URL}/activity/update/${activityId}`, {
-                activity: editedActivity,
+                activity: trimmedActivity,
             });
             setEditMode(null); // Exit edit mode
             fetchActivities(); // Re-fetch activities to reflect the change
@@ -111,22 +114,6 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
         }
     };
 
-    const formatDateString = (dateString) => {
-        const date = new Date(dateString);
-
-        // Get parts of the date
-        const options = {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            hour12: false
-        };
-
-        // Format date into a readable string
-        return date.toLocaleString('en-US', options);
-    };
 
     return (
         <Card className="border-0 mt-2">
@@ -138,7 +125,7 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
                                 <div className="d-flex">
                                     <strong>{activity.author || "Author"}</strong>
                                     <p className="text-muted ms-2 mb-0">
-                                        {formatDateString(activity.timestamp)}
+                                        {DateUtils.formatDate(activity.timestamp)}
                                     </p>
                                 </div>
                                 <div>
@@ -207,6 +194,7 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
             </Card.Footer>
 
             <Modal
+                backdrop="static"
                 show={showModal}
                 onHide={() => {
                     setShowModal(false)

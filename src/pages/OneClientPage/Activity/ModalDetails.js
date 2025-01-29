@@ -1,18 +1,29 @@
 import { Accordion, Col, Row, Button, Form } from "react-bootstrap";
-import React, { useEffect, useState } from "react";
+import React, {forwardRef, useEffect, useImperativeHandle, useState} from "react";
 import axios from "axios";
-import { FaEdit, FaSave } from 'react-icons/fa';  // Import edit and check icons
+import {FaEdit, FaSave, FaTrash} from 'react-icons/fa';  // Import edit and check icons
 import config from "../../../config/config";
 import Select from "react-select";
 import {useNavigate} from "react-router-dom";
 import axiosInstance from "../../../config/axiosInstance";
+import DeleteModal from "./DeleteModal";
 
-const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, reFetch }) => {
+const ModalDetails = forwardRef(({
+                          activity,
+                          activeKey,
+                          eventKey,
+                          handleAccordionToggle,
+                          reFetch,
+                          setShowDeleteModal,
+                          showDeleteModal,
+                          isEditing,
+                          closeActivity,
+
+                      }, ref) => {
     const [responsibleName, setResponsibleName] = useState('');
     const [availableWorkTypes, setAvailableWorkTypes] = useState([]);
     const [selectedWorkTypes, setSelectedWorkTypes] = useState([]);
     const [baitWorkers, setBaitWorkers] = useState([]);  // Holds all workers fetched from the backend
-    const [editMode, setEditMode] = useState(false);  // Track edit mode
     const [editedActivity, setEditedActivity] = useState(activity);  // Copy of ticket for editing
     const [selectedContacts, setSelectedContacts] = useState([]);  // Selected contacts
     const [availableContacts, setAvailableContacts] = useState([]);
@@ -29,6 +40,17 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
         fetchDevices();
     }, []);
 
+
+    const handleDelete = async() => {
+        try {
+            await axiosInstance.delete(`${config.API_BASE_URL}/client-activity/delete/${activity.id}`)
+            reFetch();
+            setShowDeleteModal(false);
+            closeActivity();
+        } catch (error) {
+            console.error('Error deleting activity', error);
+        }
+    }
 
     const fetchDevices = async () => {
         try {
@@ -85,16 +107,6 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
         }
     }
 
-    // Toggle edit mode
-    const handleEditToggle = (e) => {
-        e.stopPropagation();  // Prevent the accordion from collapsing
-        if (editMode) {
-            // If in edit mode, save the changes to the server
-            handleSaveChanges();
-        }
-        setEditMode(!editMode);
-    };
-
     // Handle input changes for the edited ticket
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -107,6 +119,12 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
 
         setEditedActivity({ ...editedActivity, [name]: newValue });
     };
+
+
+
+    useImperativeHandle(ref, () => ({
+        saveChanges: handleSaveChanges, // Expose this function to parent
+    }));
 
     // Save updated information to the backend
     const handleSaveChanges = async () => {
@@ -125,8 +143,6 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
 
 
             setEditedActivity({ ...editedActivity, crisis: editedActivity.crisis});
-
-            setEditMode(false);
             reFetch();
         } catch (error) {
             console.error('Error saving ticket details:', error);
@@ -155,42 +171,16 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
             <Accordion activeKey={activeKey}>
                 <Accordion.Item eventKey={eventKey}>
                     <Accordion.Header onClick={() => handleAccordionToggle(eventKey)}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                            Details
-                            <Button
-                                variant="link"
-                                onClick={handleEditToggle}  // Stop event propagation here
-                                style={{ textDecoration: 'none', padding: 0 }} // Style button
-                                className="me-2 d-flex"
-                            >
-                                {editMode ? <FaSave style={{ fontSize: '1.5rem' }}/> : <FaEdit style={{ fontSize: '1.5rem' }}/>}
-                            </Button>
-                        </div>
+                        Details
                     </Accordion.Header>
                     <Accordion.Body>
                         <div>
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
-                                    <strong>Customer No.</strong>
-                                </Col>
-                                <Col>
-                                    {editMode ? (
-                                        <Form.Control
-                                            type="text"
-                                            name="clientNumeration"
-                                            value={editedActivity.clientNumeration}
-                                            onChange={handleInputChange}
-                                        />
-                                    ) : editedActivity.clientNumeration}
-                                </Col>
-                            </Row>
-
-                            <Row className="mb-2">
-                                <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Assignee</strong>
                                 </Col>
                                 <Col>
-                                    {editMode ? (
+                                    {isEditing ? (
                                         <Form.Select
                                             name="baitWorkerId"
                                             value={editedActivity.baitWorkerId}
@@ -211,7 +201,7 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
                                     <strong>Priority</strong>
                                 </Col>
                                 <Col>
-                                    {editMode ? (
+                                    {isEditing ? (
                                         <Form.Select
                                             name="crisis"
                                             value={editedActivity.crisis ? 1 : 0}
@@ -229,7 +219,7 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
                                     <strong>Contacts</strong>
                                 </Col>
                                 <Col style={{minWidth: '250px'}}>
-                                    {editMode ? (
+                                    {isEditing ? (
                                         <Form.Group className="mb-3">
                                             <Select
                                                 isMulti
@@ -253,7 +243,7 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
                                     <strong>Work Types</strong>
                                 </Col>
                                 <Col style={{minWidth: '250px'}}>
-                                    {editMode ? (
+                                    {isEditing ? (
                                         <Form.Group className="mb-3">
                                             <Select
                                                 isMulti
@@ -269,43 +259,9 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
 
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
-                                    <strong>Devices</strong>
-                                </Col>
-                                <Col style={{minWidth: '250px'}}>
-                                    {editMode ? (
-                                        <Form.Group className="mb-3">
-                                            <Select
-                                                isMulti
-                                                options={availableDevices}
-                                                value={selectedDevices}
-                                                onChange={setSelectedDevices}
-                                                placeholder="Select Devices"
-                                            />
-                                        </Form.Group>
-                                    ) : (
-                                        selectedDevices.length > 0 ? (
-                                            selectedDevices.map((device, index) => (
-                                                <React.Fragment key={device.value}>
-                                                      <span
-                                                          onClick={() => navigate(`/device/${device.value}`)}
-                                                          style={{ color: 'blue', cursor: 'pointer' }} // Styling for clickable text
-                                                      >
-                                                        {device.label}
-                                                      </span>
-                                                    {index < selectedDevices.length - 1 && ', '}
-                                                </React.Fragment>
-                                            ))) : (
-                                            <span style={{ fontStyle: 'italic', color: 'gray' }}>No Devices</span>
-                                        ))
-                                    }
-                                </Col>
-                            </Row>
-
-                            <Row className="mb-2">
-                                <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Created</strong>
                                 </Col>
-                                <Col>
+                                <Col style={{minWidth: '250px'}}>
                                     {formatDateString(activity.startDateTime)}
                                 </Col>
                             </Row>
@@ -314,17 +270,31 @@ const ModalDetails = ({ activity, activeKey, eventKey, handleAccordionToggle, re
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Updated</strong>
                                 </Col>
-                                <Col>
+                                <Col style={{minWidth: '250px'}}>
                                     {formatDateString(activity.updateDateTime)}
                                 </Col>
                             </Row>
-
+                            <Row className="mb-2 justify-content-end">
+                                <Col className="col-md-auto">
+                                    <FaTrash
+                                        style={{ cursor: "pointer", fontSize: "1.5rem" }}
+                                        onClick={() => setShowDeleteModal(true)}
+                                        title="Delete Ticket"
+                                        className="text-danger"
+                                    />
+                                </Col>
+                            </Row>
                         </div>
                     </Accordion.Body>
                 </Accordion.Item>
             </Accordion>
+            <DeleteModal
+                show={showDeleteModal}
+                handleClose={() => setShowDeleteModal(false)}
+                handleDelete={handleDelete}
+            />
         </>
     );
-};
+});
 
 export default ModalDetails;

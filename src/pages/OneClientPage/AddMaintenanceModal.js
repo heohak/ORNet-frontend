@@ -114,7 +114,7 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, deviceId
     };
 
     return (
-        <Modal show={show} onHide={handleClose}>
+        <Modal backdrop="static" show={show} onHide={handleClose}>
             <Modal.Header closeButton>
                 <Modal.Title>Add New Maintenance</Modal.Title>
             </Modal.Header>
@@ -141,7 +141,7 @@ function AddMaintenanceModal({ show, handleClose, clientId, locationId, deviceId
                         <ReactDatePicker
                             selected={maintenanceDate}
                             onChange={(date) => setMaintenanceDate(date)}
-                            dateFormat="dd/MM/yyyy"
+                            dateFormat="dd.MM.yyyy"
                             className="form-control dark-placeholder"
                             placeholderText="Select a date"
                             isClearable

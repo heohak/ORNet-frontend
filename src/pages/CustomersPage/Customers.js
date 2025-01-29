@@ -21,6 +21,7 @@ import noImg from '../../assets/no-img.jpg';
 import personIcon from '../../assets/thumbnail_person icon.png';
 import {useNavigate} from "react-router-dom";
 import axiosInstance from "../../config/axiosInstance";
+import {DateUtils} from "../../utils/DateUtils";
 
 function Customers() {
     const [customers, setCustomers] = useState([]);
@@ -109,14 +110,6 @@ function Customers() {
             }
         }));
         setCountryFlags(flags); // Update state once all fetches are done
-    };
-
-    const formatDate = (dateString) => {
-        if (!dateString) {
-            return "N/A"
-        }
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-GB'); // This will format it to DD.MM.YYYY
     };
 
     const getDeadlineColor = (endDateTime) => {
@@ -456,7 +449,7 @@ function Customers() {
                                                         marginRight: '8px',
                                                     }}
                                                 />
-                                                {formatDate(activityDates[customer.id]?.updateDateTime) || "N/A"}
+                                                {DateUtils.formatDate(activityDates[customer.id]?.updateDateTime) || "N/A"}
                                             </div>
                                         </Col>
                                     </Row>

@@ -54,6 +54,7 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
     return (
         <>
             <Modal
+                backdrop="static"
                 show={show}
                 onHide={handleClose}
                 dialogClassName={showAddNewSoftwareModal ? 'dimmed' : ''}
@@ -95,6 +96,7 @@ function AddClientSoftware({ clientId, show, handleClose, setRefresh, client }) 
 
             {/* Use AddTechnicalInfoModal */}
             <AddTechnicalInfoModal
+                backdrop="static"
                 show={showAddNewSoftwareModal}
                 onHide={() => setShowAddNewSoftwareModal(false)}
                 onAddTechnicalInfo={() => {

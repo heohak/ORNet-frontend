@@ -3,6 +3,7 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import axios from 'axios';
 import config from '../config/config';
 import axiosInstance from "../config/axiosInstance";
+import {DateUtils} from "../utils/DateUtils";
 
 function CommentsModal({ show, handleClose, deviceId, isLinkedDevice = false }) {
     const [comments, setComments] = useState([]);
@@ -59,7 +60,7 @@ function CommentsModal({ show, handleClose, deviceId, isLinkedDevice = false }) 
     };
 
     return (
-        <Modal show={show} onHide={handleClose}>
+        <Modal backdrop="static" show={show} onHide={handleClose}>
             <Modal.Header closeButton>
                 <Modal.Title>Comments</Modal.Title>
             </Modal.Header>
@@ -83,7 +84,7 @@ function CommentsModal({ show, handleClose, deviceId, isLinkedDevice = false }) 
                 {comments.length > 0 ? (
                     comments.map((comment, index) => (
                         <div key={index} className="mb-2">
-                            <strong>{new Date(comment.timestamp).toLocaleString()}</strong>: {comment.comment}
+                            <strong>{DateUtils.formatDate(comment.timestamp)}</strong>: {comment.comment}
                         </div>
                     ))
                 ) : (

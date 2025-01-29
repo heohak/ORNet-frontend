@@ -225,6 +225,7 @@ function NewAddCustomer({ show, onClose }) {
         <Modal
             show={show}
             onHide={onClose}
+            backdrop="static"
             size="xl"
             dialogClassName={showAddContactModal || showLocationModal || showThirdPartyModal ? "dimmed" : ""}
         >
@@ -421,7 +422,7 @@ function NewAddCustomer({ show, onClose }) {
             />
 
             {/* Modal for adding a new third-party IT */}
-            <Modal show={showThirdPartyModal} onHide={() => setShowThirdPartyModal(false)}>
+            <Modal backdrop="static" show={showThirdPartyModal} onHide={() => setShowThirdPartyModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add New Third-Party IT</Modal.Title>
                 </Modal.Header>

@@ -123,6 +123,11 @@ function App() {
                             }
                         />
                         <Route
+                            path="/linkeddevices"
+                            element={<ViewLinkedDevices />
+                        }
+                        />
+                        <Route
                             path="/device/:deviceId"
                             element={
                                 <ProtectedRoute>

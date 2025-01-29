@@ -6,6 +6,7 @@ import EditClient from "./EditClient";
 import axios from "axios";
 import config from "../../config/config";
 import axiosInstance from "../../config/axiosInstance";
+import {DateUtils} from "../../utils/DateUtils";
 
 // Define the default visibility of each field
 
@@ -103,14 +104,14 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles 
                                         <Col className="col-md-auto">
                                             <div>
                                                 <div className="maintenance-text">
-                                                    Next: {client.nextMaintenance ? estoniaDateFormat.format(new Date(client.nextMaintenance)) : 'N/A'}
+                                                    Next: {client.nextMaintenance ? DateUtils.formatDate(client.nextMaintenance) : 'N/A'}
                                                 </div>
                                             </div>
                                         </Col>
                                         <Col className="col-md-auto">
                                             <div>
                                                 <div className="maintenance-text">
-                                                    Last: {client.lastMaintenance ? estoniaDateFormat.format(new Date(client.lastMaintenance)) : 'N/A'}
+                                                    Last: {client.lastMaintenance ? DateUtils.formatDate(client.lastMaintenance) : 'N/A'}
                                                 </div>
                                             </div>
                                         </Col>

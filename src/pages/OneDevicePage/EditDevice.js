@@ -29,6 +29,9 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
         subnetMask: '',
         softwareKey: '',
         introducedDate: null,
+        workstationNo: '',
+        cameraNo: '',
+        otherNo: '',
         attributes: {} // Initialize attributes here
     });
     const [clients, setClients] = useState([]);
@@ -36,6 +39,7 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
     const [classificators, setClassificators] = useState([]);
     const [error, setError] = useState(null);
     const [predefinedDeviceNames, setPredefinedDeviceNames] = useState([]);
+
 
     useEffect(() => {
         const fetchDeviceData = async () => {
@@ -49,6 +53,9 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
                     ...data,
                     versionUpdateDate,
                     introducedDate,
+                    workstationNo: data.workstationNo || '',
+                    cameraNo: data.cameraNo || '',
+                    otherNo: data.otherNo || '',
                 });
             } catch (error) {
                 setError(error.message);
@@ -73,6 +80,7 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
         fetchDropdownData();
         fetchPredefinedDeviceNames();
     }, [deviceId]);
+
 
     useEffect(() => {
         const fetchLocations = async () => {
@@ -137,6 +145,9 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
                 ...deviceData,
                 versionUpdateDate: deviceData.versionUpdateDate ? format(deviceData.versionUpdateDate, 'yyyy-MM-dd') : null,
                 introducedDate: deviceData.introducedDate ? format(deviceData.introducedDate, 'yyyy-MM-dd') : null,
+                    workstationNo: deviceData.workstationNo,
+                    cameraNo: deviceData.cameraNo,
+                   otherNo: deviceData.otherNo,
             };
 
             await axiosInstance.put(`${config.API_BASE_URL}/device/update/${deviceId}`, updatedDeviceData);
@@ -159,7 +170,7 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
 
     return (
         <>
-            <Modal show={show} onHide={handleClose} size="lg">
+            <Modal backdrop="static" show={show} onHide={handleClose} size="lg">
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Device</Modal.Title>
                 </Modal.Header>
@@ -324,6 +335,8 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
                             </Col>
                         </Row>
 
+
+
                         {/* Version Update Date and Introduced Date */}
                         <Row className="mb-3">
                             <Col md={6}>
@@ -332,7 +345,7 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
                                     <ReactDatePicker
                                         selected={deviceData.versionUpdateDate}
                                         onChange={(date) => setDeviceData({ ...deviceData, versionUpdateDate: date })}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         className="form-control dark-placeholder"
                                         placeholderText="Select Version Update Date"
                                         maxDate={new Date()}
@@ -347,7 +360,7 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
                                     <ReactDatePicker
                                         selected={deviceData.introducedDate}
                                         onChange={(date) => setDeviceData({ ...deviceData, introducedDate: date })}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         className="form-control dark-placeholder"
                                         placeholderText="Select Introduced Date"
                                         maxDate={new Date()}
@@ -395,6 +408,45 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
                                 </Form.Group>
                             </Col>
                         </Row>
+
+
+                         {/* Workstation No, Camera No, Other No */}
+                         <Row className="mb-3">
+                           <Col md={4}>
+                             <Form.Group>
+                               <Form.Label>Workstation No</Form.Label>
+                               <Form.Control
+                                 type="text"
+                                 name="workstationNo"
+                                 value={deviceData.workstationNo}
+                                 onChange={handleInputChange}
+                               />
+                             </Form.Group>
+                           </Col>
+                           <Col md={4}>
+                           <Form.Group>
+                               <Form.Label>Camera No</Form.Label>
+                               <Form.Control
+                                 type="text"
+                                 name="cameraNo"
+                                 value={deviceData.cameraNo}
+                                 onChange={handleInputChange}
+                               />
+                             </Form.Group>
+                           </Col>
+                          <Col md={4}>
+                             <Form.Group>
+                               <Form.Label>Other No</Form.Label>
+                               <Form.Control
+                                 type="text"
+                                 name="otherNo"
+                                 value={deviceData.otherNo}
+                                 onChange={handleInputChange}
+                               />
+                             </Form.Group>
+                           </Col>
+                         </Row>
+
 
                         {/* Dynamic Fields for Attributes */}
                         {Object.keys(deviceData.attributes || {}).map((attrKey) => (

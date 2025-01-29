@@ -4,6 +4,7 @@ import MaintenanceModal from "./MaintenanceModal";
 import AddMaintenanceModal from "./AddMaintenanceModal";
 import '../../css/Customers.css';
 import '../../css/OneClientPage/OneClient.css';
+import {DateUtils} from "../../utils/DateUtils";
 
 
 function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
@@ -12,11 +13,6 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
     const [selectedMaintenanceId, setSelectedMaintenanceId] = useState(null);
     const [sortConfig, setSortConfig] = useState({ key: 'maintenanceName', direction: 'ascending' });
 
-    const estoniaDateFormat = new Intl.DateTimeFormat('et-EE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
 
     const handleSort = (key) => {
         let direction = 'ascending';
@@ -87,7 +83,7 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
                             <Col className="py-2" style={{ backgroundColor: rowBgColor}}>
                                 <Row className="align-items-center">
                                     <Col md={6}>{maintenance.maintenanceName}</Col>
-                                    <Col md={6}>{estoniaDateFormat.format(new Date(maintenance.maintenanceDate))}</Col>
+                                    <Col md={6}>{DateUtils.formatDate(maintenance.maintenanceDate)}</Col>
                                 </Row>
                             </Col>
                         </Row>

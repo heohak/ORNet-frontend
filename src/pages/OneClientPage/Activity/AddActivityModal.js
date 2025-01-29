@@ -173,7 +173,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
 
 
     return (
-        <Modal show={show} onHide={handleClose} size="xl" centered>
+        <Modal backdrop="static" show={show} onHide={handleClose} size="xl" centered>
             <Modal.Header closeButton>
                 <div>
                     <Modal.Title>Add a New Activity</Modal.Title>

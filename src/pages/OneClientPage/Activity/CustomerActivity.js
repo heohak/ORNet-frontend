@@ -6,6 +6,7 @@ import config from "../../../config/config";
 import AddActivityModal from "./AddActivityModal";
 import '../../../css/OneClientPage/OneClient.css';
 import axiosInstance from "../../../config/axiosInstance";
+import {DateUtils} from "../../../utils/DateUtils";
 
 const CustomerActivity = ({ activities, setActivities, clientId, clientName, locations, contacts, statuses, openStatusId}) => {
     const [selectedActivity, setSelectedActivity] = useState(null);
@@ -65,16 +66,6 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
         setShowActivityModal(false);
         setSelectedActivity(null);
     };
-
-    const formatDate = (dateString) => {
-        if (!dateString) {
-            return "N/A"
-        }
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-GB'); // This will format it to DD.MM.YYYY
-    };
-
-
 
 
     return (
@@ -143,7 +134,7 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
                                     <Row className="align-items-center">
                                         <Col md={3}>{activity.title}</Col>
                                         <Col md={3}>{contactNames}</Col>
-                                        <Col md={3}>{formatDate(activity.endDateTime)}</Col>
+                                        <Col md={3}>{DateUtils.formatDate(activity.endDateTime)}</Col>
                                         <Col className="d-flex align-content-center justify-content-center" md={1}>
                                     <span
                                         style={{

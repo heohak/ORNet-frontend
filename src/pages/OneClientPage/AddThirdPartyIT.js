@@ -105,7 +105,7 @@ function AddThirdPartyIT({
     };
 
     return (
-        <Modal show={show} onHide={onClose}>
+        <Modal backdrop="static" show={show} onHide={onClose}>
             <Modal.Header closeButton>
                 <Modal.Title>Add Third-Party IT</Modal.Title>
             </Modal.Header>

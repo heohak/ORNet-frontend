@@ -22,7 +22,7 @@ const AddWorkTypeModal = ({ show, handleClose, onAdd }) => {
     };
 
     return (
-        <Modal show={show} onHide={handleClose}>
+        <Modal show={show} backdrop="static" onHide={handleClose}>
             <Modal.Header closeButton>
                 <Modal.Title>Add New Work Type</Modal.Title>
             </Modal.Header>

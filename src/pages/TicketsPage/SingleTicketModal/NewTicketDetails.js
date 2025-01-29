@@ -6,6 +6,8 @@ import config from "../../../config/config";
 import Select from "react-select";
 import {useLocation, useNavigate} from "react-router-dom";
 import axiosInstance from "../../../config/axiosInstance";
+import {DateUtils} from "../../../utils/DateUtils";
+import AsyncSelect from "react-select/async";
 
 const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, reFetch }) => {
     const location = useLocation();
@@ -26,18 +28,53 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
         fetchResponsibleName();
         fetchWorkTypes();
         fetchContacts();
-        fetchBaitWorkers();  // Fetch all workers for the dropdown
+        fetchBaitWorkers();
         fetchDevices();
     }, []);
 
 
     const fetchDevices = async () => {
         try {
-            const response = await axiosInstance.get(`${config.API_BASE_URL}/device/client/${ticket.clientId}`);
-            setAvailableDevices(response.data.filter(device => device.locationId === ticket.locationId));
-            setSelectedDevices(ticket.deviceIds.map(deviceId => response.data.find(device => device.id === deviceId)));
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/device/client/${ticket.clientId}`)
+            const devices = response.data.map((device) => ({
+                ...device,
+                crn: `${device.workstationNo || ''}${device.cameraNo || ''}${device.otherNo || ''}`,
+                label: `${device.deviceName}`,
+                value: device.id,
+            }));
+            setSelectedDevices(
+                ticket.deviceIds.map((deviceId) =>
+                    devices.find((device) => device.id === deviceId)
+                )
+            );
         } catch (error) {
             console.error("Error fetching customer devices", error);
+        }
+    };
+    // Function to fetch options dynamically from the endpoint
+    const loadDeviceOptions = async (inputValue) => {
+        try {
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/device/search`, {
+                params: {
+                    customerRegisterNos: inputValue,
+                    clientId: ticket.clientId,
+                },
+            });
+
+            // Combine CRNs and exclude already selected devices
+            const devicesWithCrn = response.data.map((device) => ({
+                ...device,
+                crn: `${device.workstationNo || ''}${device.cameraNo || ''}${device.otherNo || ''}`,
+                label: `${device.deviceName}`,
+                value: device.id,
+            }));
+
+            return devicesWithCrn.filter(
+                (device) => !selectedDevices.some((selected) => selected.id === device.id)
+            );
+        } catch (error) {
+            console.error("Error fetching devices:", error);
+            return [];
         }
     };
 
@@ -152,22 +189,6 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
         }
     };
 
-    const formatDateString = (dateString) => {
-        const date = new Date(dateString);
-
-        // Get parts of the date
-        const options = {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            hour12: false
-        };
-
-        // Format date into a readable string
-        return date.toLocaleString('en-US', options);
-    }
 
     const deviceOption = ({ innerProps, innerRef, data, isFocused }) => {
         if (!data || !data.deviceName) {
@@ -184,7 +205,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                 }}
             >
                 <div style={{ fontWeight: 'bold' }}>{data.deviceName}</div>
-                <div style={{ fontSize: '0.85em', color: '#666' }}>SN: {data.serialNumber}</div>
+                <div style={{ fontSize: '0.85em', color: '#666' }}>CRN: {data.workstationNo}{data.cameraNo}{data.otherNo}</div>
             </div>
         );
     }
@@ -356,15 +377,15 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                 <Col style={{minWidth: '250px'}}>
                                     {editMode ? (
                                         <Form.Group className="mb-3">
-                                            <Select
+                                            <AsyncSelect
                                                 isMulti
-                                                options={availableDevices}
+                                                cacheOptions
+                                                defaultOptions
+                                                loadOptions={loadDeviceOptions}
                                                 value={selectedDevices}
                                                 onChange={setSelectedDevices}
-                                                placeholder="Select Devices"
-                                                getOptionLabel={(option) => option.deviceName} // This is optional, just to provide clarity
-                                                getOptionValue={(option) => option.id} // Ensures unique value
-                                                components={{ Option: deviceOption}}
+                                                placeholder="Search and select devices"
+                                                components={{ Option: deviceOption }}
                                             />
                                         </Form.Group>
                                     ) : (
@@ -387,13 +408,21 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                     }
                                 </Col>
                             </Row>
+                            <Row className="mb-2">
+                                <Col xs="auto" style={{ minWidth: '165px' }}>
+                                    <strong>Customer Reg No.</strong>
+                                </Col>
+                                <Col>
+                                    {ticket.customerRegisterNos}
+                                </Col>
 
+                            </Row>
                             <Row className="mb-2">
                                 <Col xs="auto" style={{ minWidth: '165px' }}>
                                     <strong>Created</strong>
                                 </Col>
                                 <Col>
-                                    {formatDateString(ticket.startDateTime)}
+                                    {DateUtils.formatDate(ticket.startDateTime)}
                                 </Col>
                             </Row>
 
@@ -402,7 +431,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                                     <strong>Updated</strong>
                                 </Col>
                                 <Col>
-                                    {formatDateString(ticket.updateDateTime)}
+                                    {DateUtils.formatDate(ticket.updateDateTime)}
                                 </Col>
                             </Row>
                         </div>

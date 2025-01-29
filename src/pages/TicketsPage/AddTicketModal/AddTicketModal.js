@@ -12,7 +12,7 @@ import axiosInstance from "../../../config/axiosInstance";
 
 
 
-const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clientId}) => {
+const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clientId, statuses}) => {
 
     const [formData, setFormData] = useState({
         title: '',
@@ -24,6 +24,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
         locationId: '',
         baitNumeration: '',
         clientNumeration: '',
+        statusId: '',
     });
 
     const [clients, setClients] = useState([]);
@@ -32,7 +33,6 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
     const [availableContacts, setAvailableContacts] = useState([]);
     const [selectedContacts, setSelectedContacts] = useState([]);
     const [baitWorkers, setBaitWorkers] = useState([]);
-    const [openStatusId, setOpenStatusId] = useState(null);
     const [workTypes, setWorkTypes] = useState([]);
     const [devices, setDevices] = useState([]);
     const [availableDevices, setAvailableDevices] = useState([]);
@@ -82,20 +82,12 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [statusRes, baitWorkerRes, clientRes, workTypeRes] = await Promise.all([
-                    axiosInstance.get(`${config.API_BASE_URL}/ticket/classificator/all`),
+                const [baitWorkerRes, clientRes, workTypeRes] = await Promise.all([
                     axiosInstance.get(`${config.API_BASE_URL}/bait/worker/all`),
                     axiosInstance.get(`${config.API_BASE_URL}/client/all`),
                     axiosInstance.get(`${config.API_BASE_URL}/work-type/classificator/all`),
                 ]);
-                const statuses = statusRes.data;
-                if (statuses.length > 0) {
-                    // Filter for open status
-                    const open = statuses.find(status => status.status === 'Open');
-                    if (open) {
-                        setOpenStatusId(open.id);
-                    }
-                }
+
                 setBaitWorkers(sortList(baitWorkerRes.data, "BaitWorker"));
                 setWorkTypes(sortList(workTypeRes.data.map(workType => ({value: workType.id, label: workType.workType})), "WorkType"));
                 setClients(clientRes.data.sort((a, b) => a.shortName.localeCompare(b.shortName)));
@@ -151,13 +143,6 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
         setFormData( prevData => ({...prevData, [id]: newValue}));
     };
 
-    const handleDeviceChange = (selectedOptions) => {
-        // Since this is a multi-select, `selectedOptions` will be an array of selected objects
-        setSelectedDevices(selectedOptions || []); // Fallback to an empty array if no options are selected
-        console.log('Selected Devices:', selectedOptions); // Debugging
-    };
-
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isSubmitting) return; // Prevent multiple submissions
@@ -166,7 +151,6 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
         try {
             let newTicket = {
                 ...formData,
-                statusId: openStatusId,
                 clientId: formData.clientId,
                 workTypeIds: selectedWorkTypes.map(option => option.value),
                 deviceIds: selectedDevices.map(device => device.id),
@@ -296,6 +280,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
             onHide={onClose}
             size="xl"
             className="mt-4"
+            backdrop="static"
             dialogClassName={showLocationModal || showContactModal || showWorkTypeModal ? 'dimmed' : ''}
         >
             <Modal.Header closeButton>
@@ -308,22 +293,28 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
                         <Col md={4}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Customer</Form.Label>
-                                <Form.Control
-                                    as="select"
-                                    value={clientId || formData.clientId}
-                                    onChange={handleChange}
-                                    id="clientId"
-                                    required
-                                    disabled={clientId}
-                                >
-                                    {clients.length > 0 && <option value="">Select Customer</option>}
-                                    {clients.map(client => (
-                                        <option key={client.id} value={client.id}>
-                                            {client.fullName}
-                                        </option>
-                                    ))}
-                                </Form.Control>
+                                <Select
+                                    options={[...clients].sort((a, b) => a.fullName.localeCompare(b.fullName))}
+
+                                    getOptionLabel={client => client.fullName}
+                                    getOptionValue={client => client.id.toString()}
+                                    value={clients.find(client => client.id === Number(formData.clientId)) || null}
+                                    onChange={selectedClient => {
+                                        if (selectedClient) {
+                                            setFormData(prevData => ({
+                                                ...prevData,
+                                                clientId: selectedClient.id.toString(),
+                                            }));
+                                        } else {
+                                            setFormData(prevData => ({ ...prevData, clientId: "" }));
+                                        }
+                                    }}
+                                    isDisabled={!!clientId}
+                                    isSearchable={true}
+                                    placeholder={clientId ? "Customer locked to selected" : "Select Customer"}
+                                />
                             </Form.Group>
+
                         </Col>
                         <Col md={4}>
                             <Form.Group className="mb-3">
@@ -366,7 +357,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
                             <Form.Group className="mb-3">
                                 <div className="d-flex mb-2">
                                     <Form.Label className="align-items-centre mb-0">Contact</Form.Label>
-                                    {formData.clientId && (
+                                    {formData.clientId && formData.locationId && (
                                         <Button
                                             variant="link"
                                             onClick={() => setShowContactModal(true)}
@@ -471,6 +462,23 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
                                     required
                                 />
                             </Form.Group>
+                            <Form.Group>
+                                <Form.Label>Status</Form.Label>
+                                <Form.Control
+                                    as="select"
+                                    value={formData.statusId}
+                                    onChange={handleChange}
+                                    id="statusId"
+                                    required
+                                >
+                                    <option value="">Select Status</option>
+                                    {statuses.map(status => (
+                                        <option key={status.id} value={status.id}>
+                                            {status.status}
+                                        </option>
+                                    ))}
+                                </Form.Control>
+                            </Form.Group>
                         </Col>
                     </Row>
 
@@ -558,6 +566,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
                 onAdd={handleContactAdded}
                 clientId={formData.clientId}
                 locations={locations}
+                selectedLocation={formData.locationId}
             />
         </Modal>
     );

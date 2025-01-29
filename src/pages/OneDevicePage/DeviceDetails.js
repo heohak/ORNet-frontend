@@ -69,6 +69,9 @@ function DeviceDetails({
         { key: 'secondIPAddress', label: 'Second IP Address', isAttribute: false },
         { key: 'subnetMask', label: 'Subnet Mask', isAttribute: false },
         // Add more default fields as needed
+        { key: 'workstationNo', label: 'Workstation No', isAttribute: false },
+        { key: 'cameraNo', label: 'Camera No', isAttribute: false },
+        { key: 'otherNo', label: 'Other No', isAttribute: false },
     ];
 
     // Initialize fields configuration
@@ -222,13 +225,13 @@ function DeviceDetails({
         );
 
         const leftColumnFields = fieldsConfig.filter((field) =>
-            ['version', 'versionUpdateDate', 'softwareKey', 'introducedDate'].includes(
+            ['version', 'versionUpdateDate', 'softwareKey','workstationNo', 'introducedDate'].includes(
                 field.key
             )
         );
 
         const rightColumnFields = fieldsConfig.filter((field) =>
-            ['firstIPAddress', 'secondIPAddress', 'subnetMask'].includes(field.key)
+            ['firstIPAddress', 'secondIPAddress', 'subnetMask', 'cameraNo', 'otherNo'].includes(field.key)
         );
 
         // Custom attributes (new fields)
@@ -242,9 +245,9 @@ function DeviceDetails({
                 <Row className="mb-3 align-items-center">
                     <Col>
                         <h4>
-                            <strong>{localDevice.deviceName}</strong> -{' '}
-                            {localDevice.clientName || 'N/A'} / {localDevice.locationName || 'N/A'} /{' '}
-                            {localDevice.department || 'N/A'} / {localDevice.room || 'N/A'}
+                            {[localDevice.clientName, localDevice.locationName, localDevice.department, localDevice.room]
+                                .filter(Boolean) // Removes empty (falsy) values
+                                .join(' / ')}
                         </h4>
                     </Col>
                     {/* Action Buttons at Top Right Corner */}
@@ -388,6 +391,7 @@ function DeviceDetails({
 
             {/* Add/Delete Fields Modal */}
             <Modal
+                backdrop="static"
                 show={showDeviceFieldModal}
                 onHide={() => setShowDeviceFieldModal(false)}
                 size="lg"
@@ -494,6 +498,7 @@ function DeviceDetails({
 
             {/* Delete Confirmation Modal */}
             <Modal
+                backdrop="static"
                 show={showDeleteConfirmModal}
                 onHide={() => setShowDeleteConfirmModal(false)}
                 centered

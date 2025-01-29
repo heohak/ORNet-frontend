@@ -76,7 +76,7 @@ function EditLinkedDeviceModal({ show, onHide, linkedDevice, onUpdate }) {
 
     return (
         <>
-            <Modal show={show} onHide={onHide}>
+            <Modal backdrop="static" show={show} onHide={onHide}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Linked Device</Modal.Title>
                 </Modal.Header>
@@ -144,7 +144,7 @@ function EditLinkedDeviceModal({ show, onHide, linkedDevice, onUpdate }) {
             </Modal>
 
             {/* Delete Confirmation Modal */}
-            <Modal show={showDeleteConfirm} onHide={hideDeleteModal}>
+            <Modal backdrop="static" show={showDeleteConfirm} onHide={hideDeleteModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Deletion of {linkedDevice.name} ({linkedDevice.serialNumber})</Modal.Title>
                 </Modal.Header>

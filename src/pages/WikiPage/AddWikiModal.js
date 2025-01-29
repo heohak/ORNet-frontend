@@ -31,7 +31,7 @@ function AddWikiModal({ show, onClose, reFetch }) {
 
 
     return (
-        <Modal show={show} onHide={onClose}>
+        <Modal backdrop="static" show={show} onHide={onClose}>
             <Form onSubmit={handleAdd}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add Wiki</Modal.Title>

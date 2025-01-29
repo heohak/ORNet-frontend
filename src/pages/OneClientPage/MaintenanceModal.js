@@ -115,7 +115,7 @@ function MaintenanceModal({ show, handleClose, maintenanceId, locationName, setR
     }
 
     return (
-        <Modal show={show} onHide={handleClose} size="xl">
+        <Modal show={show} backdrop="static" onHide={handleClose} size="xl">
             <Modal.Header closeButton>
                 <Modal.Title>Maintenance Details</Modal.Title>
             </Modal.Header>

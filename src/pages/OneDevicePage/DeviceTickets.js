@@ -7,6 +7,7 @@ import {useLocation, useNavigate, useParams} from 'react-router-dom';
 import config from '../../config/config';
 import NewTicket from '../TicketsPage/SingleTicketModal/NewTicket';
 import axiosInstance from "../../config/axiosInstance";
+import {DateUtils} from "../../utils/DateUtils";
 
 function DeviceTickets({ deviceId }) {
     const navigate = useNavigate();
@@ -162,7 +163,7 @@ function DeviceTickets({ deviceId }) {
                                     <Row className="align-items-center">
                                         <Col md={2}>{ticket.baitNumeration || 'N/A'}</Col>
                                         <Col md={3}>{ticket.title}</Col>
-                                        <Col md={2}>{formatDate(ticket.startDateTime)}</Col>
+                                        <Col md={2}>{DateUtils.formatDate(ticket.startDateTime)}</Col>
                                         <Col md={2}>{locations[ticket.locationId] || 'Unknown Location'}</Col>
                                         <Col className="d-flex justify-content-center" md={2}>
                                             <Button

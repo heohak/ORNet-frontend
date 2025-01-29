@@ -40,6 +40,9 @@ function ViewLocations() {
     const [relatedClients, setRelatedClients] = useState([]);
     const [relatedWorkers, setRelatedWorkers] = useState([]);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    // State for second confirmation modal
+    const [showForceDeleteModal, setShowForceDeleteModal] = useState(false);
+
 
     // Debounce the search query
     useEffect(() => {
@@ -165,6 +168,32 @@ function ViewLocations() {
         }
     };
 
+    async function handleForceDeleteLocation() {
+        try {
+            // Call your new endpoint
+            await axiosInstance.delete(
+                `${config.API_BASE_URL}/admin/location/force/${selectedLocation.id}`
+            );
+
+            // Refresh list
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/location/search`, {
+                params: { q: debouncedQuery.length >= 3 ? debouncedQuery : '' },
+            });
+            setLocations(response.data);
+
+            // Close modals
+            setShowForceDeleteModal(false);
+            setShowDeleteModal(false);
+            setShowEditModal(false);
+            setSelectedLocation(null);
+        } catch (error) {
+            setError('Error force deleting location');
+            // Close only the Force Delete modal
+            setShowForceDeleteModal(false);
+        }
+    }
+
+
     return (
         <Container className="mt-4">
 
@@ -216,8 +245,9 @@ function ViewLocations() {
                             {/* Table header */}
                             <Row className="fw-bold mt-2">
                                 <Col md={3}>Name</Col>
-                                <Col md={5}>Address</Col>
+                                <Col md={3}>Address</Col>
                                 <Col md={3}>Phone</Col>
+                                <Col md={2}>Email</Col>
                                 <Col md={1}>Actions</Col>
                             </Row>
                             <hr />
@@ -232,11 +262,12 @@ function ViewLocations() {
                                         style={{ backgroundColor: rowBgColor }}
                                     >
                                         <Col md={3}>{location.name}</Col>
-                                        <Col md={5}>
+                                        <Col md={3}>
                                             {location.streetAddress}, {location.city},{' '}
                                             {location.country}, {location.postalCode}
                                         </Col>
                                         <Col md={3}>{location.phone}</Col>
+                                        <Col md={2}>{location.email}</Col>
                                         <Col md={1}>
                                             <Button
                                                 variant="link"
@@ -262,7 +293,7 @@ function ViewLocations() {
             />
 
             {/* Edit Location Modal */}
-            <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+            <Modal backdrop="static" show={showEditModal} onHide={() => setShowEditModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Location</Modal.Title>
                 </Modal.Header>
@@ -369,7 +400,7 @@ function ViewLocations() {
             </Modal>
 
             {/* Delete Confirmation Modal */}
-            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+            <Modal backdrop="static" show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Location Deletion</Modal.Title>
                 </Modal.Header>
@@ -406,13 +437,52 @@ function ViewLocations() {
                     >
                         Close
                     </Button>
-                    {relatedClients.length === 0 && relatedWorkers.length === 0 && (
+
+                    {relatedClients.length === 0 && relatedWorkers.length === 0 ? (
+                        // Normal delete if no references
                         <Button variant="danger" onClick={handleDeleteLocation}>
                             Delete Location
                         </Button>
+                    ) : (
+                        // If references exist, show Force Delete button
+                        <Button
+                            variant="danger"
+                            onClick={() => {
+                                // Ask for extra confirmation
+                                setShowDeleteModal(false);
+                                setShowForceDeleteModal(true);
+                            }}
+                        >
+                            Force Delete
+                        </Button>
                     )}
                 </Modal.Footer>
+
             </Modal>
+
+            <Modal
+                backdrop="static"
+                show={showForceDeleteModal}
+                onHide={() => setShowForceDeleteModal(false)}
+                centered
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Force Delete Location</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>Are you absolutely sure you want to force delete this location?</p>
+                    <p>This action cannot be undone.</p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="outline-info" onClick={() => setShowForceDeleteModal(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={handleForceDeleteLocation}>
+                        Yes, Force Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
         </Container>
     );
 }
