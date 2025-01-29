@@ -265,6 +265,7 @@ function AddDeviceModal({ show, onHide, setRefresh }) {
                                         options={predefinedDeviceNames}
                                         placeholder="Select or type device name"
                                         value={deviceName ? { value: deviceName, label: deviceName } : null}
+                                        required
                                     />
                                 </Form.Group>
                             </Col>
