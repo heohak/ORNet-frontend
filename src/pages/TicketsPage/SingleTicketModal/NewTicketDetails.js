@@ -64,7 +64,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
             // Combine CRNs and exclude already selected devices
             const devicesWithCrn = response.data.map((device) => ({
                 ...device,
-                crn: `${[device.workstationNo, device.cameraNo, device.otherNo].filter(Boolean).join('/')}`,
+                crn: `${device.workstationNo || ''}${device.cameraNo || ''}${device.otherNo || ''}`,
                 label: `${device.deviceName}`,
                 value: device.id,
             }));
@@ -205,7 +205,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                 }}
             >
                 <div style={{ fontWeight: 'bold' }}>{data.deviceName}</div>
-                <div style={{ fontSize: '0.85em', color: '#666' }}>CRN: {data.workstationNo}{data.cameraNo}{data.otherNo}</div>
+                <div style={{ fontSize: '0.85em', color: '#666' }}>CRN: {[data.workstationNo, data.cameraNo, data.otherNo].filter(Boolean).join('/')}</div>
             </div>
         );
     }
