@@ -160,7 +160,10 @@ function ViewLinkedDevices({}) {
             { key: 'name', label: 'Name', showInRow: true },
             { key: 'manufacturer', label: 'Manufacturer', showInRow: true },
             { key: 'productCode', label: 'Product Code', showInRow: true },
+            { key: 'description', label: 'Description', showInRow: false },
             { key: 'serialNumber', label: 'Serial Number', showInRow: true },
+            { key: 'locationId', label: 'Location', showInRow: false },
+            { key: 'introducedDate', label: 'Introduced Date', showInRow: false },
         ];
 
         const initialFieldsConfig = {};
@@ -498,7 +501,7 @@ function ViewLinkedDevices({}) {
                     </Row>
 
                     {/* Sortable Table Headers */}
-                    <Row style={{ fontWeight: 'bold' }} className="text-center">
+                    <Row className="fw-bold">
                         <Col md={3} onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
                             Name {renderSortIcon('name')}
                         </Col>
@@ -531,7 +534,7 @@ function ViewLinkedDevices({}) {
                             return (
                                 <Row
                                     key={device.id}
-                                    className="align-items-center text-center py-2"
+                                    className="align-items-center py-2"
                                     style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
                                     onClick={() => handleLinkedDeviceClick(device.id)}
                                 >
