@@ -9,7 +9,7 @@ import {
     Modal,
     Form,
     Spinner,
-    Container,
+    Container, // Import Container
 } from 'react-bootstrap';
 import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import axiosInstance from '../../config/axiosInstance';
@@ -19,7 +19,7 @@ import { format } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
 
 // Import your DeviceDetailsModal
-import DeviceDetailsModal from '../OneDevicePage/DeviceDetailsModal';
+import DeviceDetailsModal from '../OneDevicePage/DeviceDetailsModal'; // Keep your original import path
 
 function ViewLinkedDevices({}) {
     // =======================
@@ -48,7 +48,7 @@ function ViewLinkedDevices({}) {
     const [currentDeviceId, setCurrentDeviceId] = useState(null);
     const [activeTab, setActiveTab] = useState('details');
 
-    // Fields configuration (used by DeviceDetailsModal)
+    // Fields configuration
     const [fieldsConfig, setFieldsConfig] = useState({});
 
     // Comments
@@ -71,6 +71,10 @@ function ViewLinkedDevices({}) {
     const [editLocationId, setEditLocationId] = useState('');
     const [editError, setEditError] = useState(null);
     const [showDeleteLinkedDeviceModal, setShowDeleteLinkedDeviceModal] = useState(false);
+    const [isTemplate, setIsTemplate] = useState(false);
+    const [isSubmittingLinkedDevice, setIsSubmittingLinkedDevice] = useState(false);
+    const [templates, setTemplates] = useState([]);
+    const [selectedTemplate, setSelectedTemplate] = useState(null);
 
     // =======================
     // Effects
@@ -78,6 +82,7 @@ function ViewLinkedDevices({}) {
     useEffect(() => {
         fetchLinkedDevices();
         fetchAllLocations();
+        fetchTemplates();
     }, []);
 
     useEffect(() => {
@@ -85,6 +90,38 @@ function ViewLinkedDevices({}) {
             initializeFieldsConfig(linkedDevices);
         }
     }, [linkedDevices]);
+
+
+
+    // =======================
+    // Fetch Linked Devices Templates
+    // =======================
+    const fetchTemplates = async () => {
+        try {
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/search`,{
+                params: {
+                    template: true
+                }
+            });
+            setTemplates(response.data);
+        } catch (error) {
+            console.error("Error fetching templates:", error);
+        }
+    };
+
+    const handleTemplateSelect = (templateId) => {
+        console.log(templateId)
+        const template = templates.find(t => t.id === Number(templateId));
+        console.log(template)
+        if (template) {
+            setSelectedTemplate(template);
+            setName(template.name);
+            setManufacturer(template.manufacturer);
+            setProductCode(template.productCode);
+            setDescription(template.description);
+        }
+    };
+
 
     // =======================
     // Fetch Linked Devices
@@ -119,15 +156,14 @@ function ViewLinkedDevices({}) {
     // Initialize Fields Config
     // =======================
     const initializeFieldsConfig = (devices) => {
-        // Updated defaultFields now include description, introducedDate, and locationId.
         const defaultFields = [
             { key: 'name', label: 'Name', showInRow: true },
             { key: 'manufacturer', label: 'Manufacturer', showInRow: true },
             { key: 'productCode', label: 'Product Code', showInRow: true },
-            { key: 'serialNumber', label: 'Serial Number', showInRow: true },
             { key: 'description', label: 'Description', showInRow: false },
-            { key: 'introducedDate', label: 'Introduced Date', showInRow: false },
+            { key: 'serialNumber', label: 'Serial Number', showInRow: true },
             { key: 'locationId', label: 'Location', showInRow: false },
+            { key: 'introducedDate', label: 'Introduced Date', showInRow: false },
         ];
 
         const initialFieldsConfig = {};
@@ -198,10 +234,10 @@ function ViewLinkedDevices({}) {
     });
 
     // =======================
-    // Table Row Click -> Open Details Modal
+    // Table Row Click -> Open Details
     // =======================
     const handleLinkedDeviceClick = (devId) => {
-        const device = linkedDevices.find((d) => d.id === devId);
+        const device = linkedDevices.find(d => d.id === devId);
         if (device) {
             // Initialize edit states with current device values
             setEditName(device.name || '');
@@ -219,9 +255,6 @@ function ViewLinkedDevices({}) {
         fetchComments(devId);
     };
 
-    // =======================
-    // Update Linked Device (Edit Tab)
-    // =======================
     const handleUpdateLinkedDevice = async (e) => {
         e.preventDefault();
         try {
@@ -298,12 +331,13 @@ function ViewLinkedDevices({}) {
         try {
             const url = `${config.API_BASE_URL}/linked/device/comment/${currentDeviceId}`;
             await axiosInstance.put(url, newComment, {
-                headers: { 'Content-Type': 'text/plain' },
+                headers: { 'Content-Type': 'text/plain' }
             });
             setComments([{ comment: newComment, timestamp: new Date() }, ...comments]);
             setNewComment('');
         } catch (error) {
             console.error('Error adding comment:', error);
+            // Optionally set an error state here
         } finally {
             setIsSubmittingComment(false);
         }
@@ -312,6 +346,18 @@ function ViewLinkedDevices({}) {
     // =======================
     // Manage Fields / Add Field / Delete Field
     // =======================
+    const handleFieldToggleLocal = (devId, key) => {
+        handleFieldToggle(devId, key);
+    };
+
+    const handleDeleteFieldLocal = () => {
+        handleDeleteField();
+    };
+
+    const handleAddFieldLocal = () => {
+        handleAddField();
+    };
+
     const handleFieldToggle = (devId, key) => {
         setFieldsConfig((prev) => {
             const updated = { ...prev };
@@ -383,25 +429,39 @@ function ViewLinkedDevices({}) {
     // Add New Linked Device
     // =======================
     const handleAddLinkedDeviceSubmit = async (e) => {
+        if (isSubmittingLinkedDevice) return;
+        setIsSubmittingLinkedDevice(true);
         e.preventDefault();
         try {
             let introducedDateFormatted = null;
             if (introducedDate) {
                 introducedDateFormatted = format(introducedDate, 'yyyy-MM-dd');
             }
-
-            const devicePayload = {
-                name,
-                manufacturer,
-                productCode,
-                serialNumber,
-                description,
-                introducedDate: introducedDateFormatted,
-                locationId: locationId ? parseInt(locationId, 10) : null,
-            };
+            let devicePayload
+            if (isTemplate) {
+                devicePayload = {
+                    name,
+                    manufacturer,
+                    productCode,
+                    description,
+                    template: isTemplate
+                }
+            } else {
+                devicePayload = {
+                    name,
+                    manufacturer,
+                    productCode,
+                    serialNumber,
+                    description,
+                    introducedDate: introducedDateFormatted,
+                    locationId: locationId ? parseInt(locationId, 10) : null,
+                    template: isTemplate
+                }
+            }
 
             await axiosInstance.post(`${config.API_BASE_URL}/linked/device/add`, devicePayload);
             fetchLinkedDevices();
+            fetchTemplates();
             setShowAddModal(false);
 
             // Clear fields
@@ -412,9 +472,12 @@ function ViewLinkedDevices({}) {
             setDescription('');
             setIntroducedDate(null);
             setLocationId('');
+            setIsTemplate(false);
         } catch (err) {
             console.error('Error adding linked device:', err);
             setError('Error adding linked device');
+        } finally {
+            setIsSubmittingLinkedDevice(false);
         }
     };
 
@@ -422,7 +485,7 @@ function ViewLinkedDevices({}) {
     // Render
     // =======================
     return (
-        <Container className="mt-4">
+        <Container className="mt-4"> {/* Wrap content in Container */}
             <Row>
                 <Col>
                     {/* Heading + "Add New Linked Device" button */}
@@ -438,7 +501,7 @@ function ViewLinkedDevices({}) {
                     </Row>
 
                     {/* Sortable Table Headers */}
-                    <Row style={{ fontWeight: 'bold' }} className="text-center">
+                    <Row className="fw-bold">
                         <Col md={3} onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
                             Name {renderSortIcon('name')}
                         </Col>
@@ -471,7 +534,7 @@ function ViewLinkedDevices({}) {
                             return (
                                 <Row
                                     key={device.id}
-                                    className="align-items-center text-center py-2"
+                                    className="align-items-center py-2"
                                     style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
                                     onClick={() => handleLinkedDeviceClick(device.id)}
                                 >
@@ -487,7 +550,7 @@ function ViewLinkedDevices({}) {
                     {/* Add Linked Device Modal */}
                     <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
                         <Modal.Header closeButton>
-                            <Modal.Title>Add New Linked Device</Modal.Title>
+                            <Modal.Title>{isTemplate ? "Add New Template" : "Add New Linked Device"}</Modal.Title>
                         </Modal.Header>
                         <Form onSubmit={handleAddLinkedDeviceSubmit}>
                             <Modal.Body>
@@ -496,6 +559,32 @@ function ViewLinkedDevices({}) {
                                         {error}
                                     </Alert>
                                 )}
+
+                                {/* Toggle Switch */}
+                                <Form.Group controlId="formIsTemplate" className="mb-3">
+                                    <Form.Check
+                                        type="switch"
+                                        label="Is Template"
+                                        checked={isTemplate}
+                                        onChange={() => setIsTemplate(!isTemplate)}
+                                    />
+                                </Form.Group>
+                                {!isTemplate && (
+                                    <>
+                                <Form.Group controlId="formTemplateSelect" className="mb-3">
+                                    <Form.Label>Select Template</Form.Label>
+                                    <Form.Control as="select" onChange={(e) => handleTemplateSelect(e.target.value)}>
+                                        <option value="">Select a template...</option>
+                                        {templates.map((template) => (
+                                            <option key={template.id} value={template.id}>
+                                                {template.name}
+                                            </option>
+                                        ))}
+                                    </Form.Control>
+                                </Form.Group>
+                                    </>
+                                )}
+                                {/* Name Field */}
                                 <Form.Group controlId="formName" className="mb-3">
                                     <Form.Label>Name</Form.Label>
                                     <Form.Control
@@ -507,6 +596,7 @@ function ViewLinkedDevices({}) {
                                     />
                                 </Form.Group>
 
+                                {/* Manufacturer Field */}
                                 <Form.Group controlId="formManufacturer" className="mb-3">
                                     <Form.Label>Manufacturer</Form.Label>
                                     <Form.Control
@@ -518,6 +608,7 @@ function ViewLinkedDevices({}) {
                                     />
                                 </Form.Group>
 
+                                {/* Product Code Field */}
                                 <Form.Group controlId="formProductCode" className="mb-3">
                                     <Form.Label>Product Code</Form.Label>
                                     <Form.Control
@@ -529,45 +620,7 @@ function ViewLinkedDevices({}) {
                                     />
                                 </Form.Group>
 
-                                <Form.Group controlId="formSerialNumber" className="mb-3">
-                                    <Form.Label>Serial Number</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={serialNumber}
-                                        onChange={(e) => setSerialNumber(e.target.value)}
-                                        placeholder="Enter serial number"
-                                        required
-                                    />
-                                </Form.Group>
-
-                                <Form.Group controlId="formLocation" className="mb-3">
-                                    <Form.Label>Location</Form.Label>
-                                    <Form.Control
-                                        as="select"
-                                        value={locationId}
-                                        onChange={(e) => setLocationId(e.target.value)}
-                                    >
-                                        <option value="">Select Location</option>
-                                        {locations.map((loc) => (
-                                            <option key={loc.id} value={loc.id}>
-                                                {loc.name}
-                                            </option>
-                                        ))}
-                                    </Form.Control>
-                                </Form.Group>
-
-                                <Form.Group controlId="formIntroducedDate" className="mb-3">
-                                    <Form.Label>Introduced Date</Form.Label>
-                                    <ReactDatePicker
-                                        selected={introducedDate}
-                                        onChange={(date) => setIntroducedDate(date)}
-                                        dateFormat="dd/MM/yyyy"
-                                        className="form-control"
-                                        placeholderText="Select introduced date"
-                                        isClearable
-                                    />
-                                </Form.Group>
-
+                                {/* Description Field */}
                                 <Form.Group controlId="formDescription" className="mb-3">
                                     <Form.Label>Description</Form.Label>
                                     <Form.Control
@@ -578,17 +631,62 @@ function ViewLinkedDevices({}) {
                                         placeholder="Enter description"
                                     />
                                 </Form.Group>
+
+                                {/* Fields Disabled When isTemplate is True */}
+                                {!isTemplate && (
+                                    <>
+                                        <Form.Group controlId="formSerialNumber" className="mb-3">
+                                            <Form.Label>Serial Number</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={serialNumber}
+                                                onChange={(e) => setSerialNumber(e.target.value)}
+                                                placeholder="Enter serial number"
+                                                required
+                                            />
+                                        </Form.Group>
+
+                                        <Form.Group controlId="formLocation" className="mb-3">
+                                            <Form.Label>Location</Form.Label>
+                                            <Form.Control
+                                                as="select"
+                                                value={locationId}
+                                                onChange={(e) => setLocationId(e.target.value)}
+                                            >
+                                                <option value="">Select Location</option>
+                                                {locations.map((loc) => (
+                                                    <option key={loc.id} value={loc.id}>
+                                                        {loc.name}
+                                                    </option>
+                                                ))}
+                                            </Form.Control>
+                                        </Form.Group>
+
+                                        <Form.Group controlId="formIntroducedDate" className="mb-3">
+                                            <Form.Label>Introduced Date</Form.Label>
+                                            <ReactDatePicker
+                                                selected={introducedDate}
+                                                onChange={(date) => setIntroducedDate(date)}
+                                                dateFormat="dd/MM/yyyy"
+                                                className="form-control"
+                                                placeholderText="Select introduced date"
+                                                isClearable
+                                            />
+                                        </Form.Group>
+                                    </>
+                                )}
                             </Modal.Body>
                             <Modal.Footer>
                                 <Button variant="outline-info" onClick={() => setShowAddModal(false)}>
                                     Cancel
                                 </Button>
-                                <Button variant="primary" type="submit">
-                                    Add Linked Device
+                                <Button variant="primary" type="submit" disabled={isSubmittingLinkedDevice}>
+                                    {isSubmittingLinkedDevice ? "Adding..." : isTemplate ? "Add Template" : "Add Linked Device"}
                                 </Button>
                             </Modal.Footer>
                         </Form>
                     </Modal>
+
 
                     {/* DeviceDetailsModal */}
                     {currentDeviceId && (
@@ -601,8 +699,8 @@ function ViewLinkedDevices({}) {
                             linkedDevices={linkedDevices}
                             fieldsConfig={fieldsConfig}
                             locations={locations}
-                            handleFieldToggle={handleFieldToggle}
-                            handleDeleteField={handleDeleteField}
+                            handleFieldToggle={handleFieldToggleLocal}
+                            handleDeleteField={handleDeleteFieldLocal}
                             fieldToDelete={fieldToDelete}
                             showDeleteConfirmModal={showDeleteConfirmModal}
                             setShowDeleteConfirmModal={setShowDeleteConfirmModal}
@@ -610,13 +708,13 @@ function ViewLinkedDevices({}) {
                             fieldError={fieldError}
                             newField={newField}
                             setNewField={setNewField}
-                            handleAddField={handleAddField}
+                            handleAddField={handleAddFieldLocal}
                             comments={comments}
                             newComment={newComment}
                             setNewComment={setNewComment}
                             isSubmitting={isSubmittingComment}
                             handleAddComment={handleAddComment}
-                            isLinkedDevicePage={true} // Context flag to hide link/unlink options
+                            isLinkedDevicePage={true} // Indicate the context to hide link/unlink
 
                             editName={editName}
                             setEditName={setEditName}
@@ -642,7 +740,8 @@ function ViewLinkedDevices({}) {
                 </Col>
             </Row>
         </Container>
-    );
+
+        );
 }
 
 export default ViewLinkedDevices;
