@@ -33,7 +33,7 @@ function LinkedDevices({
     // States for linking / adding new device
     // =======================
     const [selectedLinkedDeviceId, setSelectedLinkedDeviceId] = useState('');
-    const [showAddNewDeviceForm, setShowAddNewDeviceForm] = useState(false);
+    const [showAddNewDeviceForm, setShowAddNewDeviceForm] = useState(true);
     const [newLinkedDevice, setNewLinkedDevice] = useState({
         name: '',
         manufacturer: '',
@@ -96,12 +96,14 @@ function LinkedDevices({
     const [editLocationId, setEditLocationId] = useState('');
     const [editError, setEditError] = useState(null);
     const [showDeleteLinkedDeviceModal, setShowDeleteLinkedDeviceModal] = useState(false);
+    const [templates, setTemplates] = useState([]);
 
     // =======================
     // Effects
     // =======================
     useEffect(() => {
         fetchLocations();
+        fetchTemplates();
     }, []);
 
     // For demonstration, pretend we initialize fields config whenever linkedDevices changes
@@ -126,6 +128,23 @@ function LinkedDevices({
             setLocations(response.data);
         } catch (err) {
             console.error('Error fetching client-specific locations:', err);
+        }
+    };
+
+
+    // =======================
+    // Fetch Linked Devices Templates
+    // =======================
+    const fetchTemplates = async () => {
+        try {
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/search`,{
+                params: {
+                    template: true
+                }
+            });
+            setTemplates(response.data);
+        } catch (error) {
+            console.error("Error fetching templates:", error);
         }
     };
 
@@ -250,6 +269,23 @@ function LinkedDevices({
             handleLinkDevice(e);
         }
     };
+
+
+    const handleTemplateSelect = (templateId) => {
+        if (!templateId) return; // If no template is selected, do nothing
+
+        const template = templates.find(t => t.id === Number(templateId)); // Ensure correct ID type
+        if (template) {
+            setNewLinkedDevice({
+                ...newLinkedDevice, // Preserve other fields
+                name: template.name,
+                manufacturer: template.manufacturer,
+                productCode: template.productCode,
+                description: template.description,
+            });
+        }
+    };
+
 
     const handleLinkDevice = async (e) => {
         e.preventDefault();
@@ -579,9 +615,6 @@ function LinkedDevices({
                             <>
                                 <Form.Group controlId="selectDevice" className="mb-3">
                                     <Form.Label>Select Device to Link</Form.Label>
-                                    <Button variant="link" onClick={() => setShowAddNewDeviceForm(true)}>
-                                        Add new linked device
-                                    </Button>
                                     <Form.Control
                                         as="select"
                                         value={selectedLinkedDeviceId}
@@ -595,10 +628,27 @@ function LinkedDevices({
                                         ))}
                                     </Form.Control>
                                 </Form.Group>
+                                <Button variant="link" style={{padding: 0}} onClick={() => setShowAddNewDeviceForm(true)}>
+                                    Back to creating new Linked Device
+                                </Button>
                             </>
                         )}
                         {showAddNewDeviceForm && (
                             <>
+                                <Form.Group controlId="formTemplateSelect" className="mb-3">
+                                    <Form.Label>Select Template</Form.Label>
+                                    <Form.Control
+                                        as="select"
+                                        onChange={(e) => handleTemplateSelect(e.target.value)}
+                                    >
+                                        <option value="">Select a template...</option>
+                                        {templates.map((template) => (
+                                            <option key={template.id} value={template.id}>
+                                                {template.name}
+                                            </option>
+                                        ))}
+                                    </Form.Control>
+                                </Form.Group>
                                 <Form.Group controlId="newDeviceName" className="mb-3">
                                     <Form.Label>Name</Form.Label>
                                     <Form.Control
@@ -694,7 +744,7 @@ function LinkedDevices({
                                 </Form.Group>
 
                                 <Button variant="link" onClick={() => setShowAddNewDeviceForm(false)}>
-                                    Back to select existing device
+                                    Select existing device
                                 </Button>
                             </>
                         )}

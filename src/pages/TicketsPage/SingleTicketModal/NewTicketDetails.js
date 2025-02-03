@@ -205,7 +205,7 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                 }}
             >
                 <div style={{ fontWeight: 'bold' }}>{data.deviceName}</div>
-                <div style={{ fontSize: '0.85em', color: '#666' }}>CRN: {data.workstationNo}{data.cameraNo}{data.otherNo}</div>
+                <div style={{ fontSize: '0.85em', color: '#666' }}>CRN: {[data.workstationNo, data.cameraNo, data.otherNo].filter(Boolean).join('/')}</div>
             </div>
         );
     }
