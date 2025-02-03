@@ -9,7 +9,7 @@ import {
     Modal,
     Form,
     Spinner,
-    Container, // Import Container
+    Container,
 } from 'react-bootstrap';
 import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import axiosInstance from '../../config/axiosInstance';
@@ -19,7 +19,7 @@ import { format } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
 
 // Import your DeviceDetailsModal
-import DeviceDetailsModal from '../OneDevicePage/DeviceDetailsModal'; // Keep your original import path
+import DeviceDetailsModal from '../OneDevicePage/DeviceDetailsModal';
 
 function ViewLinkedDevices({}) {
     // =======================
@@ -48,7 +48,7 @@ function ViewLinkedDevices({}) {
     const [currentDeviceId, setCurrentDeviceId] = useState(null);
     const [activeTab, setActiveTab] = useState('details');
 
-    // Fields configuration
+    // Fields configuration (used by DeviceDetailsModal)
     const [fieldsConfig, setFieldsConfig] = useState({});
 
     // Comments
@@ -119,11 +119,15 @@ function ViewLinkedDevices({}) {
     // Initialize Fields Config
     // =======================
     const initializeFieldsConfig = (devices) => {
+        // Updated defaultFields now include description, introducedDate, and locationId.
         const defaultFields = [
             { key: 'name', label: 'Name', showInRow: true },
             { key: 'manufacturer', label: 'Manufacturer', showInRow: true },
             { key: 'productCode', label: 'Product Code', showInRow: true },
             { key: 'serialNumber', label: 'Serial Number', showInRow: true },
+            { key: 'description', label: 'Description', showInRow: false },
+            { key: 'introducedDate', label: 'Introduced Date', showInRow: false },
+            { key: 'locationId', label: 'Location', showInRow: false },
         ];
 
         const initialFieldsConfig = {};
@@ -194,10 +198,10 @@ function ViewLinkedDevices({}) {
     });
 
     // =======================
-    // Table Row Click -> Open Details
+    // Table Row Click -> Open Details Modal
     // =======================
     const handleLinkedDeviceClick = (devId) => {
-        const device = linkedDevices.find(d => d.id === devId);
+        const device = linkedDevices.find((d) => d.id === devId);
         if (device) {
             // Initialize edit states with current device values
             setEditName(device.name || '');
@@ -215,6 +219,9 @@ function ViewLinkedDevices({}) {
         fetchComments(devId);
     };
 
+    // =======================
+    // Update Linked Device (Edit Tab)
+    // =======================
     const handleUpdateLinkedDevice = async (e) => {
         e.preventDefault();
         try {
@@ -291,13 +298,12 @@ function ViewLinkedDevices({}) {
         try {
             const url = `${config.API_BASE_URL}/linked/device/comment/${currentDeviceId}`;
             await axiosInstance.put(url, newComment, {
-                headers: { 'Content-Type': 'text/plain' }
+                headers: { 'Content-Type': 'text/plain' },
             });
             setComments([{ comment: newComment, timestamp: new Date() }, ...comments]);
             setNewComment('');
         } catch (error) {
             console.error('Error adding comment:', error);
-            // Optionally set an error state here
         } finally {
             setIsSubmittingComment(false);
         }
@@ -306,18 +312,6 @@ function ViewLinkedDevices({}) {
     // =======================
     // Manage Fields / Add Field / Delete Field
     // =======================
-    const handleFieldToggleLocal = (devId, key) => {
-        handleFieldToggle(devId, key);
-    };
-
-    const handleDeleteFieldLocal = () => {
-        handleDeleteField();
-    };
-
-    const handleAddFieldLocal = () => {
-        handleAddField();
-    };
-
     const handleFieldToggle = (devId, key) => {
         setFieldsConfig((prev) => {
             const updated = { ...prev };
@@ -428,7 +422,7 @@ function ViewLinkedDevices({}) {
     // Render
     // =======================
     return (
-        <Container className="mt-4"> {/* Wrap content in Container */}
+        <Container className="mt-4">
             <Row>
                 <Col>
                     {/* Heading + "Add New Linked Device" button */}
@@ -607,8 +601,8 @@ function ViewLinkedDevices({}) {
                             linkedDevices={linkedDevices}
                             fieldsConfig={fieldsConfig}
                             locations={locations}
-                            handleFieldToggle={handleFieldToggleLocal}
-                            handleDeleteField={handleDeleteFieldLocal}
+                            handleFieldToggle={handleFieldToggle}
+                            handleDeleteField={handleDeleteField}
                             fieldToDelete={fieldToDelete}
                             showDeleteConfirmModal={showDeleteConfirmModal}
                             setShowDeleteConfirmModal={setShowDeleteConfirmModal}
@@ -616,13 +610,13 @@ function ViewLinkedDevices({}) {
                             fieldError={fieldError}
                             newField={newField}
                             setNewField={setNewField}
-                            handleAddField={handleAddFieldLocal}
+                            handleAddField={handleAddField}
                             comments={comments}
                             newComment={newComment}
                             setNewComment={setNewComment}
                             isSubmitting={isSubmittingComment}
                             handleAddComment={handleAddComment}
-                            isLinkedDevicePage={true} // Indicate the context to hide link/unlink
+                            isLinkedDevicePage={true} // Context flag to hide link/unlink options
 
                             editName={editName}
                             setEditName={setEditName}
@@ -645,14 +639,10 @@ function ViewLinkedDevices({}) {
                             handleDeleteLinkedDevice={handleDeleteLinkedDevice}
                         />
                     )}
-
-                    {/* Delete Linked Device Confirmation Modal */}
-                    {/* Since this functionality is excluded in "All Linked Devices", ensure it's handled within DeviceDetailsModal */}
                 </Col>
             </Row>
         </Container>
-
-        );
+    );
 }
 
 export default ViewLinkedDevices;
