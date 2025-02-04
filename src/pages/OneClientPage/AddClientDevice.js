@@ -348,7 +348,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                                     <ReactDatePicker
                                         selected={versionUpdateDate}
                                         onChange={(date) => setVersionUpdateDate(date)}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         className="form-control dark-placeholder"
                                         placeholderText="Select a date"
                                         maxDate={new Date()}
@@ -362,7 +362,7 @@ function AddClientDevice({ clientId, onClose, setRefresh }) {
                                     <ReactDatePicker
                                         selected={introducedDate}
                                         onChange={(date) => setIntroducedDate(date)}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         className="form-control dark-placeholder"
                                         placeholderText="Select a date"
                                         maxDate={new Date()}

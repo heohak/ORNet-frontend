@@ -171,6 +171,26 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
         setSelectedWorkTypes([]); // Reset selected work types
     }
 
+    const deviceOption = ({ innerProps, innerRef, data, isFocused }) => {
+        if (!data || !data.deviceName) {
+            return null;
+        }
+        return(
+            <div
+                ref={innerRef}
+                {...innerProps}
+                style={{
+                    padding: '8px',
+                    backgroundColor: isFocused ? '#DEEBFF' : 'white', // Add hover color change here
+                    cursor: 'pointer',
+                }}
+            >
+                <div style={{ fontWeight: 'bold' }}>{data.deviceName}</div>
+                <div style={{ fontSize: '0.85em', color: '#666' }}>SN: {data.serialNumber}</div>
+            </div>
+        );
+    }
+
 
     return (
         <Modal backdrop="static" show={show} onHide={handleClose} size="xl" centered>
@@ -191,7 +211,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                                     <ReactDatePicker
                                         selected={formData.endDateTime}
                                         onChange={handleDateChange}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         className="form-control dark-placeholder" // Add a custom class
                                         placeholderText="Select a date"
                                         isClearable
@@ -274,6 +294,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                                     )}
                                     onChange={handleDeviceChange}
                                     placeholder="Select devices"
+                                    components={{ Option: deviceOption}}
                                 />
                             </Form.Group>
 

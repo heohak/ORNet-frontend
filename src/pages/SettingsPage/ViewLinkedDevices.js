@@ -667,7 +667,7 @@ function ViewLinkedDevices({}) {
                                             <ReactDatePicker
                                                 selected={introducedDate}
                                                 onChange={(date) => setIntroducedDate(date)}
-                                                dateFormat="dd/MM/yyyy"
+                                                dateFormat="dd.MM.yyyy"
                                                 className="form-control"
                                                 placeholderText="Select introduced date"
                                                 isClearable
