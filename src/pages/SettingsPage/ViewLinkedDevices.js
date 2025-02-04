@@ -76,6 +76,7 @@ function ViewLinkedDevices({}) {
     const [isSubmittingLinkedDevice, setIsSubmittingLinkedDevice] = useState(false);
     const [templates, setTemplates] = useState([]);
     const [selectedTemplate, setSelectedTemplate] = useState(null);
+    const [mainDevices, setMainDevices] = useState([]);
 
     // =======================
     // Effects
@@ -91,6 +92,19 @@ function ViewLinkedDevices({}) {
             initializeFieldsConfig(linkedDevices);
         }
     }, [linkedDevices]);
+
+    useEffect(() => {
+        const fetchMainDevices = async () => {
+            try {
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/device/all`);
+                setMainDevices(response.data); // Assume each device has { id, name, ... }
+            } catch (error) {
+                console.error("Error fetching main devices:", error);
+            }
+        };
+
+        fetchMainDevices();
+    }, []);
 
 
 
@@ -165,6 +179,7 @@ function ViewLinkedDevices({}) {
             { key: 'serialNumber', label: 'Serial Number', showInRow: true },
             { key: 'locationId', label: 'Location', showInRow: false },
             { key: 'introducedDate', label: 'Introduced Date', showInRow: false },
+            { key: 'deviceId', label: 'Device Linked To', showInRow: false },
         ];
 
         const initialFieldsConfig = {};
@@ -742,6 +757,7 @@ function ViewLinkedDevices({}) {
                             showDeleteLinkedDeviceModal={showDeleteLinkedDeviceModal}
                             setShowDeleteLinkedDeviceModal={setShowDeleteLinkedDeviceModal}
                             handleDeleteLinkedDevice={handleDeleteLinkedDevice}
+                            mainDevices={mainDevices}
                         />
                     )}
                 </Col>
