@@ -20,6 +20,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 // Import your DeviceDetailsModal
 import DeviceDetailsModal from '../OneDevicePage/DeviceDetailsModal';
+import LinkedDeviceSearchFilter from "../AllLinkedDevicePage/LinkedDeviceSearchFilter";
 
 function ViewLinkedDevices({}) {
     // =======================
@@ -485,13 +486,13 @@ function ViewLinkedDevices({}) {
     // Render
     // =======================
     return (
-        <Container className="mt-4"> {/* Wrap content in Container */}
+        <Container className="mt-5">
             <Row>
                 <Col>
                     {/* Heading + "Add New Linked Device" button */}
                     <Row className="d-flex justify-content-between align-items-center mb-2">
                         <Col>
-                            <h2 className="mb-0">Linked Devices</h2>
+                            <h1 className="mb-0">Linked Devices</h1>
                         </Col>
                         <Col className="text-end">
                             <Button variant="primary" onClick={() => setShowAddModal(true)}>
@@ -499,6 +500,12 @@ function ViewLinkedDevices({}) {
                             </Button>
                         </Col>
                     </Row>
+                    <Row className='mt-4'>
+
+                        <LinkedDeviceSearchFilter setLinkedDevices={setLinkedDevices} />
+
+                    </Row>
+
 
                     {/* Sortable Table Headers */}
                     <Row className="fw-bold">
