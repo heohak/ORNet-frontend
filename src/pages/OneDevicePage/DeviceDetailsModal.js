@@ -35,6 +35,8 @@ function DeviceDetailsModal({
                                 setShowUnlinkConfirmModal,
                                 handleUnlinkDevice,
 
+                                isLinkedDevicePage,
+
                                 // Edit states
                                 editName,
                                 setEditName,
@@ -222,12 +224,13 @@ function DeviceDetailsModal({
                                 <p>No comments available.</p>
                             )}
                         </Tab>
-
+                        {!isLinkedDevicePage && (
                         <Tab eventKey="unlink" title="Unlink Device">
                             <Button variant="danger" onClick={() => setShowUnlinkConfirmModal(true)}>
                                 Unlink Device
                             </Button>
                         </Tab>
+                            )}
 
                         <Tab eventKey="edit" title="Edit">
                             {editError && (
