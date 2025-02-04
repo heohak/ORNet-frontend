@@ -58,7 +58,11 @@ function OneClient() {
                 ]);
 
                 setClient(clientRes.data);
-                setWorkers(workerRes.data);
+                setWorkers(
+                    workerRes.data.sort((a, b) =>
+                        (a.firstName + " " + a.lastName).localeCompare(b.firstName + " " + b.lastName)
+                    )
+                );
                 setSoftwareList(softwareRes.data.sort((a, b) => a.name.localeCompare(b.name)));
                 setTickets(ticketsRes.data);
                 setMaintenances(maintenanceRes.data);
