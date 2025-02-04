@@ -9,6 +9,7 @@ import AddLocationModal from "./AddLocationModal";
 import AddContactModal from "./AddContactModal";
 import '../../../css/DarkenedModal.css';
 import axiosInstance from "../../../config/axiosInstance";
+import AsyncSelect from "react-select/async";
 
 
 
@@ -44,6 +45,8 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
     const [showContactModal, setShowContactModal] = useState(false);
     const [submitType, setSubmitType] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [defaultDeviceOptions, setDefaultDeviceOptions] = useState([]);
+
 
     const sortList = (list, type) => {
         if (type === "Contact" || type === "BaitWorker") {
@@ -101,12 +104,11 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
     }, []);
 
     useEffect(() => {
-        const fetchLocationsAndContactsAndDevices = async () => {
+        const fetchLocationsAndContacts = async () => {
             if (formData.clientId) {
                 try {
                     const locationRes = await axiosInstance.get(`${config.API_BASE_URL}/client/locations/${formData.clientId}`);
                     const contactRes = await axiosInstance.get(`${config.API_BASE_URL}/worker/${formData.clientId}`);
-                    const deviceRes = await axiosInstance.get (`${config.API_BASE_URL}/device/client/${formData.clientId}`)
 
                     const contactsWithRoles = await Promise.all(
                         contactRes.data.map(async contact => {
@@ -117,14 +119,13 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
 
                     setLocations(locationRes.data.sort((a, b) => a.name.localeCompare(b.name)));
                     setContacts(contactsWithRoles);
-                    setDevices(deviceRes.data);
                 } catch (error) {
                     console.error('Error fetching locations or contacts:', error);
                 }
             }
         };
 
-        fetchLocationsAndContactsAndDevices();
+        fetchLocationsAndContacts();
     }, [formData.clientId]);
 
     const handleChange = (e) => {
@@ -247,6 +248,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
             >
                 <div style={{ fontWeight: 'bold' }}>{data.deviceName}</div>
                 <div style={{ fontSize: '0.85em', color: '#666' }}>SN: {data.serialNumber}</div>
+                <div style={{ fontSize: '0.85em', color: '#666' }}>CRN: {[data.workstationNo, data.cameraNo, data.otherNo].filter(Boolean).join('/')}</div>
             </div>
     );
     }
@@ -271,6 +273,66 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
             )}
         </div>
     );
+
+    // Function to fetch options dynamically from the endpoint
+    const loadDeviceOptions = async (inputValue) => {
+        try {
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/device/search`, {
+                params: {
+                    q: inputValue,
+                    locationId: formData.locationId,
+                    clientId: formData.clientId,
+                },
+            });
+
+            // Combine CRNs and exclude already selected devices
+            const devicesWithCrn = response.data.map((device) => ({
+                ...device,
+                crn: `${device.workstationNo || ''}${device.cameraNo || ''}${device.otherNo || ''}`,
+                label: `${device.deviceName}`,
+                value: device.id,
+            }));
+
+            return devicesWithCrn.filter(
+                (device) => !selectedDevices.some((selected) => selected.id === device.id)
+            );
+        } catch (error) {
+            console.error("Error fetching devices:", error);
+            return [];
+        }
+    };
+
+    useEffect(() => {
+        const fetchDefaultDeviceOptions = async () => {
+            if (formData.clientId && formData.locationId) {
+                try {
+                    const response = await axiosInstance.get(`${config.API_BASE_URL}/device/search`, {
+                        params: {
+                            q: '',
+                            locationId: formData.locationId,
+                            clientId: formData.clientId,
+                        },
+                    });
+
+                    const devicesWithCrn = response.data.map((device) => ({
+                        ...device,
+                        crn: `${device.workstationNo || ''}${device.cameraNo || ''}${device.otherNo || ''}`,
+                        label: `${device.deviceName}`,
+                        value: device.id,
+                    }));
+
+                    setDefaultDeviceOptions(devicesWithCrn);
+                } catch (error) {
+                    console.error("Error fetching devices:", error);
+                    setDefaultDeviceOptions([]);
+                }
+            } else {
+                setDefaultDeviceOptions([]);
+            }
+        };
+
+        fetchDefaultDeviceOptions();
+    }, [formData.clientId, formData.locationId]);
 
 
 
@@ -404,23 +466,17 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
                         </Col>
                         <Col md={5}>
                             <Form.Group className="mb-3">
-                                <Form.Label>Device</Form.Label>
-                                <Select
+                                <Form.Label>Devices</Form.Label>
+                                <AsyncSelect
                                     isMulti
-                                    options={availableDevices}
+                                    cacheOptions
+                                    defaultOptions={defaultDeviceOptions}
+                                    loadOptions={loadDeviceOptions}
                                     value={selectedDevices}
-                                    onChange={setSelectedDevices} // Use the new handler
-                                    placeholder={
-                                        !formData.clientId
-                                            ? "Pick a customer before picking devices"
-                                            : !formData.locationId
-                                                ? "Pick a location before picking devices"
-                                                : "Select devices"
-                                    }
+                                    onChange={setSelectedDevices}
+                                    placeholder="Search and select devices"
+                                    components={{ Option: deviceOption }}
                                     isDisabled={!formData.clientId || !formData.locationId}
-                                    getOptionLabel={(option) => option.deviceName} // This is optional, just to provide clarity
-                                    getOptionValue={(option) => option.id} // Ensures unique value
-                                    components={{ Option: deviceOption}}
                                 />
                             </Form.Group>
 
