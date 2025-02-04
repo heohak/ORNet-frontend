@@ -80,7 +80,7 @@ function OneClient() {
                 setStatusMap(mappedStatuses);
 
                 // Set locations and location map
-                setLocations(locationsRes.data);
+                setLocations(locationsRes.data.sort((a, b) => a.name.localeCompare(b.name)));
                 const locationMap = locationsRes.data.reduce((acc, loc) => {
                     acc[loc.id] = loc.name;
                     return acc;
