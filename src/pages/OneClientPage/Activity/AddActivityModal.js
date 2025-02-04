@@ -191,7 +191,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                                     <ReactDatePicker
                                         selected={formData.endDateTime}
                                         onChange={handleDateChange}
-                                        dateFormat="dd/MM/yyyy"
+                                        dateFormat="dd.MM.yyyy"
                                         className="form-control dark-placeholder" // Add a custom class
                                         placeholderText="Select a date"
                                         isClearable
