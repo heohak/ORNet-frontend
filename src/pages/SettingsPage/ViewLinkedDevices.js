@@ -9,7 +9,7 @@ import {
     Modal,
     Form,
     Spinner,
-    Container, // Import Container
+    Container,
 } from 'react-bootstrap';
 import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import axiosInstance from '../../config/axiosInstance';
@@ -19,7 +19,7 @@ import { format } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
 
 // Import your DeviceDetailsModal
-import DeviceDetailsModal from '../OneDevicePage/DeviceDetailsModal'; // Keep your original import path
+import DeviceDetailsModal from '../OneDevicePage/DeviceDetailsModal';
 
 function ViewLinkedDevices({}) {
     // =======================
@@ -714,7 +714,7 @@ function ViewLinkedDevices({}) {
                             setNewComment={setNewComment}
                             isSubmitting={isSubmittingComment}
                             handleAddComment={handleAddComment}
-                            isLinkedDevicePage={true} // Indicate the context to hide link/unlink
+                            isLinkedDevicePage={true}
 
                             editName={editName}
                             setEditName={setEditName}

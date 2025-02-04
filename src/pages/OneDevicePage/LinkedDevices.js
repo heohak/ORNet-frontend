@@ -826,6 +826,7 @@ function LinkedDevices({
                 showDeleteLinkedDeviceModal={showDeleteLinkedDeviceModal}
                 setShowDeleteLinkedDeviceModal={setShowDeleteLinkedDeviceModal}
                 handleDeleteLinkedDevice={handleDeleteLinkedDevice}
+                isLinkedDevicePage={false}
             />
         </>
     );
