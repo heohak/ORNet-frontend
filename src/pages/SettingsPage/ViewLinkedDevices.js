@@ -9,7 +9,7 @@ import {
     Modal,
     Form,
     Spinner,
-    Container, // Import Container
+    Container,
 } from 'react-bootstrap';
 import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import axiosInstance from '../../config/axiosInstance';
@@ -19,7 +19,8 @@ import { format } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
 
 // Import your DeviceDetailsModal
-import DeviceDetailsModal from '../OneDevicePage/DeviceDetailsModal'; // Keep your original import path
+import DeviceDetailsModal from '../OneDevicePage/DeviceDetailsModal';
+import LinkedDeviceSearchFilter from "../AllLinkedDevicePage/LinkedDeviceSearchFilter";
 
 function ViewLinkedDevices({}) {
     // =======================
@@ -75,6 +76,7 @@ function ViewLinkedDevices({}) {
     const [isSubmittingLinkedDevice, setIsSubmittingLinkedDevice] = useState(false);
     const [templates, setTemplates] = useState([]);
     const [selectedTemplate, setSelectedTemplate] = useState(null);
+    const [mainDevices, setMainDevices] = useState([]);
 
     // =======================
     // Effects
@@ -90,6 +92,19 @@ function ViewLinkedDevices({}) {
             initializeFieldsConfig(linkedDevices);
         }
     }, [linkedDevices]);
+
+    useEffect(() => {
+        const fetchMainDevices = async () => {
+            try {
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/device/all`);
+                setMainDevices(response.data); // Assume each device has { id, name, ... }
+            } catch (error) {
+                console.error("Error fetching main devices:", error);
+            }
+        };
+
+        fetchMainDevices();
+    }, []);
 
 
 
@@ -164,6 +179,7 @@ function ViewLinkedDevices({}) {
             { key: 'serialNumber', label: 'Serial Number', showInRow: true },
             { key: 'locationId', label: 'Location', showInRow: false },
             { key: 'introducedDate', label: 'Introduced Date', showInRow: false },
+            { key: 'deviceId', label: 'Device Linked To', showInRow: false },
         ];
 
         const initialFieldsConfig = {};
@@ -485,13 +501,13 @@ function ViewLinkedDevices({}) {
     // Render
     // =======================
     return (
-        <Container className="mt-4"> {/* Wrap content in Container */}
+        <Container className="mt-5">
             <Row>
                 <Col>
                     {/* Heading + "Add New Linked Device" button */}
                     <Row className="d-flex justify-content-between align-items-center mb-2">
                         <Col>
-                            <h2 className="mb-0">Linked Devices</h2>
+                            <h1 className="mb-0">Linked Devices</h1>
                         </Col>
                         <Col className="text-end">
                             <Button variant="primary" onClick={() => setShowAddModal(true)}>
@@ -499,6 +515,12 @@ function ViewLinkedDevices({}) {
                             </Button>
                         </Col>
                     </Row>
+                    <Row className='mt-4'>
+
+                        <LinkedDeviceSearchFilter setLinkedDevices={setLinkedDevices} />
+
+                    </Row>
+
 
                     {/* Sortable Table Headers */}
                     <Row className="fw-bold">
@@ -667,7 +689,7 @@ function ViewLinkedDevices({}) {
                                             <ReactDatePicker
                                                 selected={introducedDate}
                                                 onChange={(date) => setIntroducedDate(date)}
-                                                dateFormat="dd/MM/yyyy"
+                                                dateFormat="dd.MM.yyyy"
                                                 className="form-control"
                                                 placeholderText="Select introduced date"
                                                 isClearable
@@ -714,7 +736,7 @@ function ViewLinkedDevices({}) {
                             setNewComment={setNewComment}
                             isSubmitting={isSubmittingComment}
                             handleAddComment={handleAddComment}
-                            isLinkedDevicePage={true} // Indicate the context to hide link/unlink
+                            isLinkedDevicePage={true}
 
                             editName={editName}
                             setEditName={setEditName}
@@ -735,6 +757,7 @@ function ViewLinkedDevices({}) {
                             showDeleteLinkedDeviceModal={showDeleteLinkedDeviceModal}
                             setShowDeleteLinkedDeviceModal={setShowDeleteLinkedDeviceModal}
                             handleDeleteLinkedDevice={handleDeleteLinkedDevice}
+                            mainDevices={mainDevices}
                         />
                     )}
                 </Col>

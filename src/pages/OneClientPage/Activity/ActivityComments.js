@@ -3,6 +3,7 @@ import { Card, ListGroup, Form, Button } from "react-bootstrap";
 import TextareaAutosize from "react-textarea-autosize";
 import { FaPaperPlane } from "react-icons/fa";
 import axiosInstance from "../../../config/axiosInstance";
+import {DateUtils} from "../../../utils/DateUtils";
 
 const ActivityComments = forwardRef(({ activity, reFetch, isEditing }, ref) => {
     const [comments, setComments] = useState([]);
@@ -84,17 +85,6 @@ const ActivityComments = forwardRef(({ activity, reFetch, isEditing }, ref) => {
         }
     };
 
-    const formatDateString = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-        });
-    };
 
     return (
         <Card className="border-0 mt-2">
@@ -103,7 +93,7 @@ const ActivityComments = forwardRef(({ activity, reFetch, isEditing }, ref) => {
                     {comments.map((activity, index) => (
                         <ListGroup.Item key={index} className="border-0 pb-3">
                             <p className="text-muted mb-1" style={{ fontSize: "0.85rem" }}>
-                                {formatDateString(activity.timestamp)}
+                                {DateUtils.formatDate(activity.timestamp)}
                             </p>
                             {isEditing ? (
                                 <TextareaAutosize

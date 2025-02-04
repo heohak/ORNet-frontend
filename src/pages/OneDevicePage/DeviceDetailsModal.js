@@ -6,6 +6,7 @@ import { FaTrash } from 'react-icons/fa';
 import { format } from 'date-fns';
 import ReactDatePicker from 'react-datepicker';
 import { DateUtils } from '../../utils/DateUtils';
+import {Link} from "react-router-dom";
 
 function DeviceDetailsModal({
                                 show,
@@ -35,6 +36,8 @@ function DeviceDetailsModal({
                                 setShowUnlinkConfirmModal,
                                 handleUnlinkDevice,
 
+                                isLinkedDevicePage,
+
                                 // Edit states
                                 editName,
                                 setEditName,
@@ -54,7 +57,9 @@ function DeviceDetailsModal({
                                 handleUpdateLinkedDevice,
                                 showDeleteLinkedDeviceModal,
                                 setShowDeleteLinkedDeviceModal,
-                                handleDeleteLinkedDevice
+                                handleDeleteLinkedDevice,
+
+                                mainDevices
                             }) {
     // find the device for “Details” tab
     const device = linkedDevices.find((d) => d.id === deviceId);
@@ -72,6 +77,25 @@ function DeviceDetailsModal({
                 : device[field.key];
 
             if (value == null) return null;
+
+            // Special handling for the field that holds the main device id
+            if (field.key.toLowerCase() === 'deviceid') {
+                // Look up the main device by id from the mainDevices prop
+                const mainDevice = mainDevices.find(md => md.id === value);
+                const mainName = mainDevice ? mainDevice.deviceName : value;
+                const serial = device.serialNumber ? `, ${device.serialNumber}` : '';
+
+                // If the main device was found, make the name clickable
+                if (mainDevice) {
+                    value = (
+                        <span>
+            <Link to={`/device/${mainDevice.id}`} state={{ fromPath: '/linkeddevices' }}>{mainName}</Link>{serial}
+          </span>
+                    );
+                } else {
+                    value = `${mainName}${serial}`;
+                }
+            }
 
             // Format introducedDate
             if (field.key === 'introducedDate') {
@@ -222,12 +246,13 @@ function DeviceDetailsModal({
                                 <p>No comments available.</p>
                             )}
                         </Tab>
-
+                        {!isLinkedDevicePage && (
                         <Tab eventKey="unlink" title="Unlink Device">
                             <Button variant="danger" onClick={() => setShowUnlinkConfirmModal(true)}>
                                 Unlink Device
                             </Button>
                         </Tab>
+                            )}
 
                         <Tab eventKey="edit" title="Edit">
                             {editError && (

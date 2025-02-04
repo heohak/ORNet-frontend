@@ -7,6 +7,7 @@ import Select from "react-select";
 import {useNavigate} from "react-router-dom";
 import axiosInstance from "../../../config/axiosInstance";
 import DeleteModal from "./DeleteModal";
+import {DateUtils} from "../../../utils/DateUtils";
 
 const ModalDetails = forwardRef(({
                           activity,
@@ -262,7 +263,7 @@ const ModalDetails = forwardRef(({
                                     <strong>Created</strong>
                                 </Col>
                                 <Col style={{minWidth: '250px'}}>
-                                    {formatDateString(activity.startDateTime)}
+                                    {DateUtils.formatDate(activity.startDateTime)}
                                 </Col>
                             </Row>
 
@@ -271,7 +272,7 @@ const ModalDetails = forwardRef(({
                                     <strong>Updated</strong>
                                 </Col>
                                 <Col style={{minWidth: '250px'}}>
-                                    {formatDateString(activity.updateDateTime)}
+                                    {DateUtils.formatDate(activity.updateDateTime)}
                                 </Col>
                             </Row>
                             <Row className="mb-2 justify-content-end">

@@ -58,7 +58,11 @@ function OneClient() {
                 ]);
 
                 setClient(clientRes.data);
-                setWorkers(workerRes.data);
+                setWorkers(
+                    workerRes.data.sort((a, b) =>
+                        (a.firstName + " " + a.lastName).localeCompare(b.firstName + " " + b.lastName)
+                    )
+                );
                 setSoftwareList(softwareRes.data.sort((a, b) => a.name.localeCompare(b.name)));
                 setTickets(ticketsRes.data);
                 setMaintenances(maintenanceRes.data);
@@ -76,7 +80,7 @@ function OneClient() {
                 setStatusMap(mappedStatuses);
 
                 // Set locations and location map
-                setLocations(locationsRes.data);
+                setLocations(locationsRes.data.sort((a, b) => a.name.localeCompare(b.name)));
                 const locationMap = locationsRes.data.reduce((acc, loc) => {
                     acc[loc.id] = loc.name;
                     return acc;

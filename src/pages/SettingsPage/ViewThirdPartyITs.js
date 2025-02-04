@@ -10,31 +10,6 @@ import { FaArrowLeft } from 'react-icons/fa';
 import AddThirdPartyITModal from "../OneClientPage/AddThirdPartyITModal";
 import ViewThirdPartyITModal from "../OneClientPage/ViewThirdPartyITModal";
 
-/*
-  If you want to add sorting logic, you can introduce a sortConfig state and handleSort function like so:
-
-  const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'ascending' });
-
-  const handleSort = (key) => {
-    let direction = 'ascending';
-    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
-      direction = 'descending';
-    }
-    setSortConfig({ key, direction });
-  };
-
-  const renderSortArrow = (key) => {
-    if (sortConfig.key === key) {
-      return sortConfig.direction === 'ascending' ? '▲' : '▼';
-    }
-    return '↕';
-  };
-
-  Then you can sort the array before rendering:
-  const sortedThirdPartyITs = [...thirdPartyITs].sort((a, b) => {
-    ...
-  });
-*/
 
 function ViewThirdPartyITs() {
     const [thirdPartyITs, setThirdPartyITs] = useState([]);
