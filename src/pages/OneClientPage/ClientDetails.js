@@ -108,13 +108,6 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles 
                                                 </div>
                                             </div>
                                         </Col>
-                                        <Col className="col-md-auto">
-                                            <div>
-                                                <div className="maintenance-text">
-                                                    Last: {client.lastMaintenance ? DateUtils.formatDate(client.lastMaintenance) : 'N/A'}
-                                                </div>
-                                            </div>
-                                        </Col>
                                     </Row>
                                 </Col>
                             </Row>
