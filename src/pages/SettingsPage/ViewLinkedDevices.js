@@ -22,7 +22,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import DeviceDetailsModal from '../OneDevicePage/DeviceDetailsModal';
 import LinkedDeviceSearchFilter from "../AllLinkedDevicePage/LinkedDeviceSearchFilter";
 
-function ViewLinkedDevices({}) {
+function ViewLinkedDevices() {
     // =======================
     // States
     // =======================
@@ -75,7 +75,6 @@ function ViewLinkedDevices({}) {
     const [isTemplate, setIsTemplate] = useState(false);
     const [isSubmittingLinkedDevice, setIsSubmittingLinkedDevice] = useState(false);
     const [templates, setTemplates] = useState([]);
-    const [selectedTemplate, setSelectedTemplate] = useState(null);
     const [mainDevices, setMainDevices] = useState([]);
 
     // =======================
@@ -129,7 +128,6 @@ function ViewLinkedDevices({}) {
         const template = templates.find(t => t.id === Number(templateId));
         console.log(template)
         if (template) {
-            setSelectedTemplate(template);
             setName(template.name);
             setManufacturer(template.manufacturer);
             setProductCode(template.productCode);

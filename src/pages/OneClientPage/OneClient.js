@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {useParams, useNavigate, useLocation} from 'react-router-dom';
-import axios from 'axios';
 import {Container, Spinner, Alert, Accordion, Button} from 'react-bootstrap';
 import config from "../../config/config";
 import ClientDetails from "./ClientDetails";
@@ -205,6 +204,7 @@ function OneClient() {
                             setRefresh={setRefresh}
                             reFetchRoles={fetchRoles}
                             setRoles={setRoles}
+                            maintenances={maintenances}
                         />
                         <Accordion
                             activeKey={activeAccordionKeys}
