@@ -126,7 +126,7 @@ function ViewFiles() {
         setLoading(true);
         try {
             // Send delete request to the server
-            const response = await axiosInstance.get(`/admin/file/${selectedFileId}`);
+            const response = await axiosInstance.delete(`/admin/file/${selectedFileId}`);
 
             if (response.status === 200) {
                 // Successfully deleted file
