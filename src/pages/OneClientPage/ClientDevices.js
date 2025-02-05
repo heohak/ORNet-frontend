@@ -33,12 +33,11 @@ function ClientDevices({ clientId, locations }) {
         if (devices.length > 0) {
             getDevicesLastDate();
         }
-    }, [devices]);
+    }, [devices.length]);
 
     useEffect(() => {
         fetchDevices();
         fetchClassificators();
-        getDevicesLastDate();
     }, [clientId, refresh, selectedClassificatorId, searchQuery, writtenOff]);
 
     const getDevicesLastDate = async () => {
