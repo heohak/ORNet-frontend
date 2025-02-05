@@ -2,7 +2,7 @@
 export class DateUtils {
     static formatDate(dateString) {
         if (!dateString) {
-            return "N/A";
+            return "None";
         }
         const date = new Date(dateString);
         const options = {

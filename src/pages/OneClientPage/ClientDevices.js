@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Badge, Button, Card, Col, Form, ListGroup, Modal, Row, Spinner } from 'react-bootstrap';
+import { Alert, Button, Col, Form, ListGroup, Row, Spinner } from 'react-bootstrap';
 import AddClientDevice from './AddClientDevice';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import config from "../../config/config";
 import '../../css/OneClientPage/OneClient.css';
 import axiosInstance from "../../config/axiosInstance";
+import {DateUtils} from "../../utils/DateUtils";
 
 function ClientDevices({ clientId, locations }) {
     const [showAddDeviceModal, setShowAddDeviceModal] = useState(false);
@@ -20,6 +20,7 @@ function ClientDevices({ clientId, locations }) {
     const [devices, setDevices] = useState([]);
     const [refresh, setRefresh] = useState(false);
     const [sortConfig, setSortConfig] = useState({ key: 'type', direction: 'descending' });
+    const [lastDate, setLastDate] = useState(null);
 
     const navigate = useNavigate();
 
@@ -29,9 +30,54 @@ function ClientDevices({ clientId, locations }) {
     }, []);
 
     useEffect(() => {
+        if (devices.length > 0) {
+            getDevicesLastDate();
+        }
+    }, [devices]);
+
+    useEffect(() => {
         fetchDevices();
         fetchClassificators();
+        getDevicesLastDate();
     }, [clientId, refresh, selectedClassificatorId, searchQuery, writtenOff]);
+
+    const getDevicesLastDate = async () => {
+        if (!devices || devices.length === 0) return;
+
+        const updatedDevices = await Promise.all(
+            devices.map(async (device) => {
+                try {
+                    const response = await axiosInstance.get(`${config.API_BASE_URL}/device/tickets/${device.id}`);
+                    const tickets = response.data;
+
+                    // Get the most recent ticket date
+                    const ticketDates = tickets
+                        .map(ticket => new Date(ticket.createdDateTime))
+                        .filter(date => !isNaN(date)); // Remove invalid dates
+
+                    const latestTicketDate = ticketDates.length > 0 ? new Date(Math.max(...ticketDates)) : null;
+
+                    // Convert device.versionUpdateDate to Date object
+                    const versionUpdateDate = device.versionUpdateDate ? new Date(device.versionUpdateDate) : null;
+
+                    // Find the latest date between tickets and version update
+                    const latestDate = [latestTicketDate, versionUpdateDate]
+                        .filter(date => date instanceof Date && !isNaN(date)) // Ensure only valid dates
+                        .sort((a, b) => b - a)[0] || 'No Data'; // Default to 'No Data' if no valid date
+
+                    return { ...device, lastDate: latestDate };
+                } catch (error) {
+                    console.error(`Error fetching tickets for device ${device.id}:`, error);
+                    return { ...device, lastDate: 'No Data' };
+                }
+            })
+        );
+
+        setDevices(updatedDevices);
+    };
+
+
+
 
     const renderSortArrow = (key) => {
         if (sortConfig.key === key) {
@@ -92,14 +138,36 @@ function ClientDevices({ clientId, locations }) {
         const sortedItems = [...items];
 
         sortedItems.sort((a, b) => {
+            if (key === 'date') {
+                const parseDate = (dateStr) => {
+                    if (!dateStr || dateStr === 'No Data') return null;
+                    // Here, assume the formatted date is parseable by Date.
+                    const parsed = new Date(dateStr);
+                    return isNaN(parsed) ? null : parsed;
+                };
+
+                const dateA = parseDate(a.lastDate);
+                const dateB = parseDate(b.lastDate);
+
+                // If both dates are null, consider them equal.
+                if (!dateA && !dateB) return 0;
+                if (!dateA) return direction === 'ascending' ? -1 : 1;
+                if (!dateB) return direction === 'ascending' ? 1 : -1;
+
+                return direction === 'ascending'
+                    ? dateA - dateB
+                    : dateB - dateA;
+            }
+
             const valueA = a[key] ?? ''; // Default to empty string if undefined/null
             const valueB = b[key] ?? '';
 
             // Check if both values are numbers
             const isNumeric = !isNaN(valueA) && !isNaN(valueB);
-
             if (isNumeric) {
-                return direction === 'ascending' ? Number(valueA) - Number(valueB) : Number(valueB) - Number(valueA);
+                return direction === 'ascending'
+                    ? Number(valueA) - Number(valueB)
+                    : Number(valueB) - Number(valueA);
             }
 
             // Default to string comparison
@@ -110,6 +178,7 @@ function ClientDevices({ clientId, locations }) {
 
         return sortedItems;
     };
+
 
 
     const handleSort = (key) => {
@@ -183,11 +252,14 @@ function ClientDevices({ clientId, locations }) {
                 <Col md={2} onClick={() => handleSort('locationId')}>
                     Location {renderSortArrow('locationId')}
                 </Col>
-                <Col md={3} onClick={() => handleSort('serialNumber')}>
+                <Col md={2} onClick={() => handleSort('serialNumber')}>
                     Serial Number {renderSortArrow('serialNumber')}
                 </Col>
-                <Col md={2} onClick={() => handleSort('version')}>
+                <Col md={1} onClick={() => handleSort('version')}>
                     Version {renderSortArrow('version')}
+                </Col>
+                <Col md={2} onClick={() => handleSort('date')}>
+                    Last Date? {renderSortArrow('date')}
                 </Col>
             </Row>
             <hr />
@@ -206,8 +278,9 @@ function ClientDevices({ clientId, locations }) {
                                     <Col md={2}>{classificators[device.classificatorId] || 'Unknown Type'}</Col>
                                     <Col md={3}>{device.deviceName}</Col>
                                     <Col md={2}>{locations[device.locationId] || 'Unknown'}</Col>
-                                    <Col md={3}>{device.serialNumber}</Col>
-                                    <Col md={2}>{device.version}</Col>
+                                    <Col md={2}>{device.serialNumber}</Col>
+                                    <Col md={1}>{device.version}</Col>
+                                    <Col md={2}>{DateUtils.formatDate(device.lastDate)}</Col>
                                 </Row>
                             </Col>
                         </Row>
