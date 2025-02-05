@@ -137,7 +137,7 @@ h1 {
     border-radius: 1rem;
     background-color: #489eff;
     text-align: center;
-    height: 7vh;
+    height: 5vh;
     padding: 0 15px 0 15px;
     align-content: center;
 }
@@ -145,12 +145,12 @@ h1 {
     border-radius: 1rem;
     background-color: #e3fcff;
     text-align: center;
-    height: 7vh;
+    height: 5vh;
     align-content: center;
 }
 
 .maintenance-text {
-    font-size: 24px;
+    font-size: 16px;
     font-weight: 600;
 }
 
