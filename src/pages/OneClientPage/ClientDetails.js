@@ -6,6 +6,8 @@ import EditClient from "./EditClient";
 import config from "../../config/config";
 import axiosInstance from "../../config/axiosInstance";
 import {DateUtils} from "../../utils/DateUtils";
+import { format } from 'date-fns';
+
 
 // Define the default visibility of each field
 
@@ -15,6 +17,7 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles,
     const [error, setError] = useState(null);
     const [showEditClient, setShowEditClient] = useState(false);
     const [nextMaintenanceDate, setNextMaintenanceDate] = useState(null);
+    const [lastTrainingDate, setLastTrainingDate] = useState(null);
 
     useEffect(() => {
         fetchClientData();
@@ -37,6 +40,20 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles,
 
         setNextMaintenanceDate(getNextMaintenanceDate());
     }, [maintenances]);
+
+    useEffect(() => {
+        const fetchLastTrainingDate = async () => {
+            try {
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/training/last/${clientId}`);
+                setLastTrainingDate(response.data);
+            } catch (err) {
+                console.error('Error fetching last training date:', err);
+            }
+        };
+        if (clientId) {
+            fetchLastTrainingDate();
+        }
+    }, [clientId]);
 
 
     const fetchClientData = async () => {
@@ -125,6 +142,27 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles,
                         </Col>
                         <Col className="col-md-auto align-content-center">
                             <div className="maintenance-text">{renderTypes()}</div>
+                        </Col>
+                    </Row>
+                    {/* Last Training Date Row: uses same classnames as Next Maintenance */}
+                    <Row className="justify-content-between mb-3">
+                        <Col className="col-md-auto">
+                            <Row>
+                                <Col className="col-md-auto">
+                                    <div className="maintenance-box">
+                                        <div className="maintenance-text">Training</div>
+                                    </div>
+                                </Col>
+                                <Col className="col-md-auto">
+                                    <Row className="maintenance-date-box">
+                                        <Col className="col-md-auto">
+                                            <div className="maintenance-text">
+                                                Last: {lastTrainingDate ? DateUtils.formatDate(new Date(lastTrainingDate)) : 'None'}
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                </Col>
+                            </Row>
                         </Col>
                     </Row>
                 </>
