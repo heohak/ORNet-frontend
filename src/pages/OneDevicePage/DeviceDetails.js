@@ -376,13 +376,6 @@ function DeviceDetails({
                 <Card className="mb-4">
                     <Card.Body>
                         {renderFields()}
-
-                        <DeviceStatusManager
-                            deviceId={localDevice.id}
-                            introducedDate={localDevice.introducedDate}
-                            writtenOffDate={localDevice.writtenOffDate}
-                            setRefresh={setRefresh}
-                        />
                     </Card.Body>
                 </Card>
             ) : (
@@ -493,6 +486,9 @@ function DeviceDetails({
                         setRefresh((prev) => !prev); // Refresh device details after editing
                     }}
                     setRefresh={setRefresh}
+
+                    introducedDate={localDevice.introducedDate}
+                    writtenOffDate={localDevice.writtenOffDate}
                 />
             )}
 

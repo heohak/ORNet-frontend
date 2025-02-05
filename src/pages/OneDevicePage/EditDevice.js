@@ -9,9 +9,10 @@ import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import CreatableSelect from "react-select/creatable";
 import axiosInstance from "../../config/axiosInstance";
+import DeviceStatusManager from "./DeviceStatusManager";
 
 
-function EditDevice({ deviceId, onClose, setRefresh }) {
+function EditDevice({ deviceId, onClose, setRefresh, introducedDate, writtenOffDate }) {
     const [show, setShow] = useState(true);
     const [deviceData, setDeviceData] = useState({
         deviceName: '',
@@ -463,6 +464,13 @@ function EditDevice({ deviceId, onClose, setRefresh }) {
 
                         <Modal.Footer>
                             <Button variant="outline-info" onClick={handleClose}>Cancel</Button>
+                            {/* Render DeviceStatusManager next to Cancel */}
+                            <DeviceStatusManager
+                                deviceId={deviceId}
+                                introducedDate={introducedDate}
+                                writtenOffDate={writtenOffDate}
+                                setRefresh={setRefresh}
+                            />
                             <Button variant="primary" type="submit">Save Changes</Button>
                         </Modal.Footer>
                     </Form>
