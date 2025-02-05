@@ -142,6 +142,7 @@ function ViewFiles() {
             }
         } finally {
             setLoading(false);
+            setError(null);
         }
     };
 

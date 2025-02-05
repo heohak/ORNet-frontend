@@ -10,6 +10,7 @@ import ClientTickets from "./ClientTickets";
 import ClientThirdPartyIT from "./ClientThirdPartyIT";
 import ClientMaintenances from "./ClientMaintenances";
 import ClientLocations from "./ClientLocations";
+import ClientTrainings from "./ClientTrainings";
 import '../../css/Customers.css';
 import '../../css/OneClientPage/OneClient.css';
 import CustomerActivity from "./Activity/CustomerActivity";
@@ -36,6 +37,7 @@ function OneClient() {
     const [activeAccordionKeys, setActiveAccordionKeys] = useState([]);
     const [openStatusId, setOpenStatusId] = useState('');
     const [roles, setRoles] = useState([]);
+    const [trainings, setTrainings] = useState([]);
 
 
     const navigate = useNavigate();
@@ -45,7 +47,7 @@ function OneClient() {
 
             try {
                 const [clientRes, workerRes, softwareRes, ticketsRes, maintenanceRes, statusesRes,
-                    locationsRes, activityRes] = await Promise.all([
+                    locationsRes, activityRes, trainingsRes] = await Promise.all([
                     axiosInstance.get(`${config.API_BASE_URL}/client/${clientId}`),
                     axiosInstance.get(`${config.API_BASE_URL}/worker/${clientId}`),
                     axiosInstance.get(`${config.API_BASE_URL}/software/client/${clientId}`),
@@ -53,7 +55,8 @@ function OneClient() {
                     axiosInstance.get(`${config.API_BASE_URL}/client/maintenance/${clientId}`),
                     axiosInstance.get(`${config.API_BASE_URL}/ticket/classificator/all`),
                     axiosInstance.get(`${config.API_BASE_URL}/client/locations/${clientId}`),
-                    axiosInstance.get(`${config.API_BASE_URL}/client/activities/${clientId}`)
+                    axiosInstance.get(`${config.API_BASE_URL}/client/activities/${clientId}`),
+                    axiosInstance.get(`/training/client/${clientId}`)
                 ]);
 
                 setClient(clientRes.data);
@@ -67,6 +70,7 @@ function OneClient() {
                 setMaintenances(maintenanceRes.data);
                 setActivities(activityRes.data);
                 setStatuses(statusesRes.data);
+                setTrainings(trainingsRes.data);
 
                 setOpenStatusId(statusesRes.data.find(status => status.status === "Open").id)
 
@@ -290,8 +294,21 @@ function OneClient() {
                                 </Accordion.Body>
                             </Accordion.Item>
 
-                            <Accordion.Item eventKey="7" className="AccordionTechnicalInfo" ref={(el) => accordionRefs.current[7] = el}>
-                                <Accordion.Header onClick={() => handleAccordionToggle('7')}>Technical Information</Accordion.Header>
+                            <Accordion.Item eventKey="7" className="AccordionTrainings" ref={(el) => accordionRefs.current[7] = el}>
+                                <Accordion.Header onClick={() => handleAccordionToggle('7')}>Trainings</Accordion.Header>
+                                <Accordion.Body>
+                                    <ClientTrainings
+                                        trainings={trainings}
+                                        setTrainings={setTrainings}
+                                        locations={locations}
+                                        clientId={client.id}
+                                        clientName={client.fullName}
+                                    />
+                                </Accordion.Body>
+                            </Accordion.Item>
+
+                            <Accordion.Item eventKey="8" className="AccordionTechnicalInfo" ref={(el) => accordionRefs.current[8] = el}>
+                                <Accordion.Header onClick={() => handleAccordionToggle('8')}>Technical Information</Accordion.Header>
                                 <Accordion.Body className="custom-accordion-body">
                                     <SoftwareDetails
                                         softwareList={softwareList}
@@ -302,8 +319,8 @@ function OneClient() {
                                 </Accordion.Body>
                             </Accordion.Item>
 
-                            <Accordion.Item eventKey="8" className="AccordionThirdPartyITs" ref={(el) => accordionRefs.current[8] = el}>
-                                <Accordion.Header onClick={() => handleAccordionToggle('8')}>Third Party ITs</Accordion.Header>
+                            <Accordion.Item eventKey="9" className="AccordionThirdPartyITs" ref={(el) => accordionRefs.current[9] = el}>
+                                <Accordion.Header onClick={() => handleAccordionToggle('9')}>Third Party ITs</Accordion.Header>
                                 <Accordion.Body className="custom-accordion-body">
                                     <ClientThirdPartyIT
                                         clientId={clientId}

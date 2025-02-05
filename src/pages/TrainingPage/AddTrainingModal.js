@@ -5,12 +5,12 @@ import axiosInstance from '../../config/axiosInstance';
 import Select from 'react-select';
 import ReactDatePicker from "react-datepicker";
 
-const AddTrainingModal = ({ show, onHide, onSave }) => {
+const AddTrainingModal = ({ show, onHide, onSave, clientId }) => {
     const [training, setTraining] = useState({
         name: "",
         description: "",
         trainingDate: "",
-        clientId: "",
+        clientId: clientId || "",
         locationId: "",
         trainersIds: [],
         trainingType: ""
@@ -94,6 +94,7 @@ const AddTrainingModal = ({ show, onHide, onSave }) => {
                             required
                         />
                     </Form.Group>
+                    {!clientId && (
                     <Form.Group className="mb-3">
                         <Form.Label>Client</Form.Label>
                         <Form.Control as="select" value={training.clientId} onChange={(e) => setTraining({ ...training, clientId: e.target.value })} required >
@@ -103,6 +104,7 @@ const AddTrainingModal = ({ show, onHide, onSave }) => {
                             ))}
                         </Form.Control>
                     </Form.Group>
+                    )}
                     <Form.Group className="mb-3">
                         <Form.Label>Location</Form.Label>
                         <Form.Control as="select" value={training.locationId} onChange={(e) => setTraining({ ...training, locationId: e.target.value })} disabled={!training.clientId}>
