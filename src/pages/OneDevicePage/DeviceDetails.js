@@ -27,7 +27,7 @@ import axiosInstance from '../../config/axiosInstance';
 import ReactDatePicker from 'react-datepicker';
 import {faEdit} from "@fortawesome/free-solid-svg-icons/faEdit";
 
-function DeviceDetails({ device, navigate, setShowCommentsModal, setRefresh }) {
+function DeviceDetails({ device, navigate, setRefresh }) {
     // Basic state variables
     const [fieldsConfig, setFieldsConfig] = useState([]);
     const [showDeviceFieldModal, setShowDeviceFieldModal] = useState(false);
@@ -267,14 +267,6 @@ function DeviceDetails({ device, navigate, setShowCommentsModal, setRefresh }) {
                                 title="View History"
                             >
                                 <FontAwesomeIcon icon={faHistory} />
-                            </Button>
-                            <Button
-                                variant="link"
-                                className="text-primary"
-                                onClick={() => setShowCommentsModal(true)}
-                                title="View Comments"
-                            >
-                                <FontAwesomeIcon icon={faComments} />
                             </Button>
                         </div>
                     </Col>
