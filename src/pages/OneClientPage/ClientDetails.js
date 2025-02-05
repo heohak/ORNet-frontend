@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Modal, Form, Alert, Row, Col, Container } from 'react-bootstrap';
+import { Button, Alert, Row, Col, Container } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCog, faCheck, faEdit, faHistory } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faHistory } from '@fortawesome/free-solid-svg-icons';
 import EditClient from "./EditClient";
-import axios from "axios";
 import config from "../../config/config";
 import axiosInstance from "../../config/axiosInstance";
 import {DateUtils} from "../../utils/DateUtils";
@@ -11,14 +10,34 @@ import {DateUtils} from "../../utils/DateUtils";
 // Define the default visibility of each field
 
 
-function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles }) {
+function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles, maintenances }) {
     const [client, setClient] = useState(null);
     const [error, setError] = useState(null);
     const [showEditClient, setShowEditClient] = useState(false);
+    const [nextMaintenanceDate, setNextMaintenanceDate] = useState(null);
 
     useEffect(() => {
         fetchClientData();
     }, [clientId]);
+
+    useEffect(() => {
+        const getNextMaintenanceDate = () => {
+            if (!maintenances || maintenances.length === 0) return null;
+
+            const now = new Date();
+
+            const futureMaintenances = maintenances
+                .map(m => new Date(m.maintenanceDate))
+                .filter(date => date > now);
+
+            if (futureMaintenances.length === 0) return null;
+
+            return new Date(Math.min(...futureMaintenances));
+        };
+
+        setNextMaintenanceDate(getNextMaintenanceDate());
+    }, [maintenances]);
+
 
     const fetchClientData = async () => {
         try {
@@ -28,14 +47,6 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles 
             setError(error.message);
         }
     };
-
-
-    // Estonia date formatter
-    const estoniaDateFormat = new Intl.DateTimeFormat('et-EE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
 
 
     const handleNavigate = () => {
@@ -104,7 +115,7 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles 
                                         <Col className="col-md-auto">
                                             <div>
                                                 <div className="maintenance-text">
-                                                    Next: {client.nextMaintenance ? DateUtils.formatDate(client.nextMaintenance) : 'N/A'}
+                                                    Next: {client.nextMaintenance ? DateUtils.formatDate(nextMaintenanceDate) : 'None'}
                                                 </div>
                                             </div>
                                         </Col>
