@@ -606,11 +606,40 @@ function LinkedDevices({
                 </Modal.Header>
                 <Form onSubmit={handleSubmit}>
                     <Modal.Body>
+                        {/* TOP TOGGLE BUTTONS */}
+                        <Row className=" mb-2">
+                            <Col className="text-start">
+                                {showAddNewDeviceForm ? (
+                                    <Button
+                                        variant="link"
+                                        onClick={() => setShowAddNewDeviceForm(false)}
+                                        style={{ marginLeft: '-12px' }}
+                                    >
+                                        Select existing device
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        variant="link"
+                                        onClick={() => setShowAddNewDeviceForm(true)}
+                                        style={{ marginLeft: '-12px' }}
+                                    >
+                                        Back to creating new Linked Device
+                                    </Button>
+                                )}
+                            </Col>
+                        </Row>
+
                         {fieldError && (
-                            <Alert variant="danger" dismissible onClose={() => setFieldError(null)}>
+                            <Alert
+                                variant="danger"
+                                dismissible
+                                onClose={() => setFieldError(null)}
+                            >
                                 {fieldError}
                             </Alert>
                         )}
+
+                        {/* CONDITIONAL RENDERING BASED ON THE TOGGLE */}
                         {!showAddNewDeviceForm && (
                             <>
                                 <Form.Group controlId="selectDevice" className="mb-3">
@@ -628,11 +657,9 @@ function LinkedDevices({
                                         ))}
                                     </Form.Control>
                                 </Form.Group>
-                                <Button variant="link" style={{padding: 0}} onClick={() => setShowAddNewDeviceForm(true)}>
-                                    Back to creating new Linked Device
-                                </Button>
                             </>
                         )}
+
                         {showAddNewDeviceForm && (
                             <>
                                 <Form.Group controlId="formTemplateSelect" className="mb-3">
@@ -649,13 +676,17 @@ function LinkedDevices({
                                         ))}
                                     </Form.Control>
                                 </Form.Group>
+
                                 <Form.Group controlId="newDeviceName" className="mb-3">
                                     <Form.Label>Name</Form.Label>
                                     <Form.Control
                                         type="text"
                                         value={newLinkedDevice.name}
                                         onChange={(e) =>
-                                            setNewLinkedDevice({ ...newLinkedDevice, name: e.target.value })
+                                            setNewLinkedDevice({
+                                                ...newLinkedDevice,
+                                                name: e.target.value,
+                                            })
                                         }
                                         placeholder="Enter name"
                                         required
@@ -668,7 +699,10 @@ function LinkedDevices({
                                         type="text"
                                         value={newLinkedDevice.manufacturer}
                                         onChange={(e) =>
-                                            setNewLinkedDevice({ ...newLinkedDevice, manufacturer: e.target.value })
+                                            setNewLinkedDevice({
+                                                ...newLinkedDevice,
+                                                manufacturer: e.target.value,
+                                            })
                                         }
                                         placeholder="Enter manufacturer"
                                     />
@@ -680,7 +714,10 @@ function LinkedDevices({
                                         type="text"
                                         value={newLinkedDevice.productCode}
                                         onChange={(e) =>
-                                            setNewLinkedDevice({ ...newLinkedDevice, productCode: e.target.value })
+                                            setNewLinkedDevice({
+                                                ...newLinkedDevice,
+                                                productCode: e.target.value,
+                                            })
                                         }
                                         placeholder="Enter product code"
                                     />
@@ -692,7 +729,10 @@ function LinkedDevices({
                                         type="text"
                                         value={newLinkedDevice.serialNumber}
                                         onChange={(e) =>
-                                            setNewLinkedDevice({ ...newLinkedDevice, serialNumber: e.target.value })
+                                            setNewLinkedDevice({
+                                                ...newLinkedDevice,
+                                                serialNumber: e.target.value,
+                                            })
                                         }
                                         placeholder="Enter serial number"
                                     />
@@ -701,14 +741,19 @@ function LinkedDevices({
                                 <Form.Group controlId="newDeviceIntroducedDate" className="mb-3">
                                     <Form.Label>Introduced Date</Form.Label>
                                     <div>
-                                    <ReactDatePicker
-                                        selected={newLinkedDevice.introducedDate}
-                                        onChange={(date) => setNewLinkedDevice({ ...newLinkedDevice, introducedDate: date })}
-                                        dateFormat="dd/MM/yyyy"
-                                        className="form-control"
-                                        placeholderText="Select introduced date"
-                                        isClearable
-                                    />
+                                        <ReactDatePicker
+                                            selected={newLinkedDevice.introducedDate}
+                                            onChange={(date) =>
+                                                setNewLinkedDevice({
+                                                    ...newLinkedDevice,
+                                                    introducedDate: date,
+                                                })
+                                            }
+                                            dateFormat="dd/MM/yyyy"
+                                            className="form-control"
+                                            placeholderText="Select introduced date"
+                                            isClearable
+                                        />
                                     </div>
                                 </Form.Group>
 
@@ -718,7 +763,10 @@ function LinkedDevices({
                                         as="select"
                                         value={newLinkedDevice.locationId}
                                         onChange={(e) =>
-                                            setNewLinkedDevice({ ...newLinkedDevice, locationId: e.target.value })
+                                            setNewLinkedDevice({
+                                                ...newLinkedDevice,
+                                                locationId: e.target.value,
+                                            })
                                         }
                                     >
                                         <option value="">Select Location</option>
@@ -737,15 +785,14 @@ function LinkedDevices({
                                         rows={2}
                                         value={newLinkedDevice.description}
                                         onChange={(e) =>
-                                            setNewLinkedDevice({ ...newLinkedDevice, description: e.target.value })
+                                            setNewLinkedDevice({
+                                                ...newLinkedDevice,
+                                                description: e.target.value,
+                                            })
                                         }
                                         placeholder="Enter description"
                                     />
                                 </Form.Group>
-
-                                <Button variant="link" onClick={() => setShowAddNewDeviceForm(false)}>
-                                    Select existing device
-                                </Button>
                             </>
                         )}
                     </Modal.Body>
@@ -775,6 +822,7 @@ function LinkedDevices({
                     </Modal.Footer>
                 </Form>
             </Modal>
+
 
             {/* =========================
           Device Details Modal
