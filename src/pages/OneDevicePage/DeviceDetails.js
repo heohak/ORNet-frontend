@@ -24,7 +24,6 @@ import {
     faComments,
 } from '@fortawesome/free-solid-svg-icons';
 import '../../css/AllDevicesPage/Devices.css';
-import DeviceStatusManager from './DeviceStatusManager';
 import EditDevice from "./EditDevice";
 import {format} from "date-fns";
 import axiosInstance from "../../config/axiosInstance";
@@ -64,7 +63,7 @@ function DeviceDetails({
         { key: 'version', label: 'Version', isAttribute: false },
         { key: 'versionUpdateDate', label: 'Version Update Date', isAttribute: false },
         { key: 'softwareKey', label: 'Software Key', isAttribute: false },
-        { key: 'introducedDate', label: 'Introduced Date', isAttribute: false },
+        {key: 'licenseNumber', label: 'License Number', isAttribute: false},
         { key: 'firstIPAddress', label: 'First IP Address', isAttribute: false },
         { key: 'secondIPAddress', label: 'Second IP Address', isAttribute: false },
         { key: 'subnetMask', label: 'Subnet Mask', isAttribute: false },
@@ -72,6 +71,7 @@ function DeviceDetails({
         { key: 'workstationNo', label: 'Workstation No', isAttribute: false },
         { key: 'cameraNo', label: 'Camera No', isAttribute: false },
         { key: 'otherNo', label: 'Other No', isAttribute: false },
+        { key: 'introducedDate', label: 'Introduced Date', isAttribute: false },
     ];
 
     // Initialize fields configuration
@@ -225,13 +225,13 @@ function DeviceDetails({
         );
 
         const leftColumnFields = fieldsConfig.filter((field) =>
-            ['version', 'versionUpdateDate', 'softwareKey','workstationNo', 'introducedDate'].includes(
+            ['version', 'versionUpdateDate', 'softwareKey', 'licenseNumber', 'firstIPAddress', 'secondIPAddress', 'subnetMask', ].includes(
                 field.key
             )
         );
 
         const rightColumnFields = fieldsConfig.filter((field) =>
-            ['firstIPAddress', 'secondIPAddress', 'subnetMask', 'cameraNo', 'otherNo'].includes(field.key)
+            [ 'cameraNo', 'otherNo', 'workstationNo', 'introducedDate'].includes(field.key)
         );
 
         // Custom attributes (new fields)
