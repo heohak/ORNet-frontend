@@ -10,6 +10,7 @@ import CommentsModal from "../../modals/CommentsModal";
 import '../../css/OneDevicePage/OneDevice.css';
 import DeviceFileList from "./DeviceFileList";
 import DeviceTickets from "./DeviceTickets";
+import DeviceExtras from "./DeviceExtras";
 import {FaArrowLeft} from "react-icons/fa";
 import axiosInstance from "../../config/axiosInstance";
 
@@ -24,7 +25,6 @@ function OneDevice() {
     const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
     const [showMaintenanceFieldModal, setShowMaintenanceFieldModal] = useState(false);
     const [availableLinkedDevices, setAvailableLinkedDevices] = useState([]);
-    const [showCommentsModal, setShowCommentsModal] = useState(false);
     const [refresh, setRefresh] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
@@ -167,12 +167,19 @@ function OneDevice() {
                         <DeviceDetails
                             device={device}
                             navigate={navigate}
-                            setShowCommentsModal={setShowCommentsModal}
                             setRefresh={handleRefresh}
                             onUploadSuccess={handleRefresh}
                         />
                     </Col>
                 </Row>
+
+                {/* Files & Comments Section */}
+                <Row className="mt-4">
+                    <Col>
+                        <DeviceExtras deviceId={deviceId} />
+                    </Col>
+                </Row>
+
 
                 {/* Accordion Sections */}
                 <Row>
@@ -232,27 +239,11 @@ function OneDevice() {
                                 </Accordion.Body>
                             </Accordion.Item>
 
-                            {/* Device Files */}
-                            <Accordion.Item
-                                eventKey="3"
-                                className="AccordionDeviceFiles"
-                                ref={(el) => (accordionRefs.current[3] = el)}
-                            >
-                                <Accordion.Header>Device Files</Accordion.Header>
-                                <Accordion.Body>
-                                    <DeviceFileList deviceId={deviceId} />
-                                </Accordion.Body>
-                            </Accordion.Item>
+
                         </Accordion>
                     </Col>
                 </Row>
 
-                {/* Comments Modal */}
-                <CommentsModal
-                    show={showCommentsModal}
-                    handleClose={() => setShowCommentsModal(false)}
-                    deviceId={deviceId}
-                />
             </Container>
         </>
     );

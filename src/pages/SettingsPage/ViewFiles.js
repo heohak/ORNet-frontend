@@ -12,7 +12,7 @@ import {
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import config from '../../config/config';
-import {FaArrowLeft, FaDownload} from 'react-icons/fa';
+import {FaArrowLeft, FaDownload, FaTrash} from 'react-icons/fa';
 import axiosInstance from "../../config/axiosInstance";
 
 function ViewFiles() {
@@ -21,6 +21,10 @@ function ViewFiles() {
     const [files, setFiles] = useState([]);
     const [showAddModal, setShowAddModal] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState([]);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedFileId, setSelectedFileId] = useState(null);
+    const [selectedFileName, setSelectedFileName] = useState('');
+
 
     const navigate = useNavigate();
 
@@ -116,6 +120,32 @@ function ViewFiles() {
         }
     }
 
+    const confirmDelete = async (e) => {
+        e.preventDefault();
+        if (loading) return;
+        setLoading(true);
+        try {
+            // Send delete request to the server
+            const response = await axiosInstance.delete(`/admin/file/${selectedFileId}`);
+
+            if (response.status === 200) {
+                // Successfully deleted file
+                setShowDeleteModal(false);  // Close the modal
+            }
+            fetchFiles();
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                // Handle unauthorized error (401)
+                setError("You are not authorized to delete this file. Only admins can delete files.");
+            } else {
+                setError("An error occurred while trying to delete the file.");
+            }
+        } finally {
+            setLoading(false);
+            setError(null);
+        }
+    };
+
     return (
         <Container className="mt-4">
 
@@ -166,7 +196,7 @@ function ViewFiles() {
                                 <Col>
                                     <a
                                         onClick={() => handleFileOpen(file.id)}
-                                        style={{ textDecoration: 'none', color: 'inherit' }}
+                                        style={{cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}
                                     >
                                         {file.fileName}
                                     </a>
@@ -175,6 +205,15 @@ function ViewFiles() {
                                     <a onClick={() => handleFileDownload(file.id, file.fileName)}>
                                         <Button variant="link" className="p-0">
                                             <FaDownload />
+                                        </Button>
+                                    </a>
+                                    <a onClick={() => {
+                                        setSelectedFileId(file.id); // Set the file ID
+                                        setSelectedFileName(file.fileName); // Set the file name
+                                        setShowDeleteModal(true); // Show delete confirmation modal
+                                    }}>
+                                        <Button variant="link" className="ms-4 p-0">
+                                            <FaTrash className="text-danger" />
                                         </Button>
                                     </a>
                                 </Col>
@@ -212,6 +251,32 @@ function ViewFiles() {
                         </Button>
                         <Button variant="primary" type="submit" disabled={loading}>
                             {loading ? 'Uploading...' : 'Upload Files'}
+                        </Button>
+                    </Modal.Footer>
+                </Form>
+            </Modal>
+            {/* Delete confirmation Modal */}
+            <Modal backdrop="static" show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm File Delete</Modal.Title>
+                </Modal.Header>
+                <Form onSubmit={confirmDelete}>
+                    <Modal.Body>
+                        {error && (
+                            <Alert variant="danger">
+                                <Alert.Heading>Error</Alert.Heading>
+                                <p>{error}</p>
+                            </Alert>
+                        )}
+                        <p>Are you sure you want to delete this file {selectedFileName}?</p>
+                        <p className="fw-bold">This change is permanent!</p>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="outline-info" onClick={() => setShowDeleteModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="danger" type="submit" disabled={loading}>
+                            {loading ? 'Deleting...' : 'Delete File'}
                         </Button>
                     </Modal.Footer>
                 </Form>

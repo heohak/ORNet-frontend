@@ -42,6 +42,7 @@ import axios from "axios";
 import AdminDashboard from "./pages/TestPages/AdminDashboard";
 import UserProfile from "./pages/TestPages/UserProfile";
 import UserDetails from "./pages/TestPages/UserDetails";
+import Trainings from './pages/TrainingPage/Trainings';
 
 axios.defaults.withCredentials=true;
 
@@ -58,6 +59,7 @@ function App() {
                         <Route path="/user/details" element={<UserDetails />} />
 
                         {/* Protected Routes */}
+                        <Route path="/trainings" element={<ProtectedRoute><Trainings /></ProtectedRoute>} />
                         <Route
                             path="/"
                             element={
