@@ -65,13 +65,27 @@ const ClientTrainings = ({trainings, locations, clientId, setTrainings, clientNa
     };
 
     const sortedTrainings = [...trainings].sort((a, b) => {
-        const valueA = a[sortConfig.key];
-        const valueB = b[sortConfig.key];
+        let valueA = a[sortConfig.key];
+        let valueB = b[sortConfig.key];
+
+        // Ensure case-insensitive sorting and handle location name lookup
+        if (sortConfig.key === 'location') {
+            valueA = locationNames[a.locationId]?.toLowerCase() || '';
+            valueB = locationNames[b.locationId]?.toLowerCase() || '';
+        } else if (sortConfig.key === 'date') {
+            valueA = new Date(a.trainingDate);
+            valueB = new Date(b.trainingDate);
+        } else {
+            valueA = valueA?.toString().toLowerCase() || '';
+            valueB = valueB?.toString().toLowerCase() || '';
+        }
 
         if (valueA < valueB) return sortConfig.direction === 'ascending' ? -1 : 1;
         if (valueA > valueB) return sortConfig.direction === 'ascending' ? 1 : -1;
         return 0;
     });
+
+
 
     const renderSortArrow = (key) => {
         if (sortConfig.key === key) {
@@ -118,8 +132,8 @@ const ClientTrainings = ({trainings, locations, clientId, setTrainings, clientNa
                 <Col md={4} onClick={() => handleSort('name')}>
                     Training Name {renderSortArrow('name')}
                 </Col>
-                <Col md={3} onClick={() => handleSort('type')}>
-                    Type {renderSortArrow('type')}
+                <Col md={3} onClick={() => handleSort('trainingType')}>
+                    Type {renderSortArrow('trainingType')}
                 </Col>
                 <Col md={3} onClick={() => handleSort('location')}>
                     Location {renderSortArrow('location')}
