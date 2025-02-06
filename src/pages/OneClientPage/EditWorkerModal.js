@@ -135,7 +135,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, cl
                                     <Form.Control
                                         required
                                         type="text"
-                                        value={editingWorker.phoneNumber}
+                                        value={editingWorker.phoneNumber || ""}
                                         onChange={(e) => setEditingWorker({ ...editingWorker, phoneNumber: e.target.value })}
                                         isInvalid={!!phoneNumberError}
                                     />
