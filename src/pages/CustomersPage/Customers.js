@@ -346,13 +346,13 @@ function Customers() {
                             <Col md={4} onClick={() => handleSort('fullName')}>
                                 Full Name {renderSortArrow('fullName')}
                             </Col>
-                            <Col md={2}>
+                            <Col md={3}>
                                 Type
                             </Col>
                             <Col md={1}>
                                 Contact
                             </Col>
-                            <Col className="text-end" md={2}>
+                            <Col md={1}>
                                 Activity
                             </Col>
                         </Row>
@@ -397,7 +397,7 @@ function Customers() {
                                         </Col>
                                         <Col md={2}>{customer.shortName}</Col>
                                         <Col md={4}>{customer.fullName}</Col>
-                                        <Col md={2}>{customerTypeDisplay}</Col>
+                                        <Col md={3}>{customerTypeDisplay}</Col>
                                         <Col md={1}>
                                             <div
                                                 style={{
@@ -426,7 +426,7 @@ function Customers() {
                                             </div>
                                         </Col>
 
-                                        <Col className="text-end" md={2}>
+                                        <Col md={1}>
                                             <div
                                                 style={{
                                                     display: 'inline-flex',
