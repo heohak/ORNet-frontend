@@ -64,7 +64,7 @@ function ClientDevices({ clientId, locations }) {
                         .filter(date => date instanceof Date && !isNaN(date)) // Ensure only valid dates
                         .sort((a, b) => b - a)[0] || 'No Data'; // Default to 'No Data' if no valid date
 
-                    return { ...device, lastDate: latestDate };
+                    return { ...device, lastDate: latestDate};
                 } catch (error) {
                     console.error(`Error fetching tickets for device ${device.id}:`, error);
                     return { ...device, lastDate: 'No Data' };
