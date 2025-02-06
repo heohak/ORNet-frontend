@@ -157,11 +157,11 @@ function Devices() {
             {/* Table header and rows */}
 
                 <Row className="fw-bold">
-                    <Col md={3} onClick={() => handleSort('deviceName')}>
-                        Name {renderSortArrow('deviceName')}
-                    </Col>
-                    <Col md={2} onClick={() => handleSort('type')}>
+                    <Col md={3} onClick={() => handleSort('type')}>
                         Type {renderSortArrow('type')}
+                    </Col>
+                    <Col md={2} onClick={() => handleSort('deviceName')}>
+                        Name {renderSortArrow('deviceName')}
                     </Col>
                     <Col md={3} onClick={() => handleSort('clientName')}>
                         Customer {renderSortArrow('clientName')}
@@ -188,8 +188,8 @@ function Devices() {
                             style={{ backgroundColor: rowBgColor, cursor: 'pointer'}}
                             onClick={() => navigate(`/device/${device.id}`, {state: {fromPath: `/devices`}})}
                         >
-                            <Col md={3}>{device.deviceName}</Col>
-                            <Col md={2}>{classificators[device.classificatorId] || 'Unknown Type'}</Col>
+                            <Col md={3}>{classificators[device.classificatorId] || 'Unknown Type'}</Col>
+                            <Col md={2}>{device.deviceName}</Col>
                             <Col md={3}>{getClientName(device.clientId)}</Col>
                             <Col md={2}>{device.serialNumber}</Col>
                             <Col md={2}>{device.version || 'N/A'}</Col>
