@@ -92,7 +92,7 @@ function Contacts() {
 
 
     const handleCopyEmails = () => {
-        const emails = workers.map(worker => worker.email).filter(email => email).join(", ");
+        const emails = workers.map(worker => worker.email).filter(email => email).join("; ");
         const textarea = document.createElement("textarea");
         textarea.value = emails;
         textarea.style.position = "fixed"; // Prevent scrolling to bottom
