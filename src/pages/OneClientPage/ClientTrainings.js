@@ -35,8 +35,8 @@ const ClientTrainings = ({trainings, locations, clientId, setTrainings, clientNa
     const fetchTrainers = async() => {
         try {
             const response = await axiosInstance.get(`/bait/worker/all`)
-            const workers = response.data.reduce((acc, response) => {
-                acc[response.data.id] = response.data.firstName;
+            const workers = response.data.reduce((acc, worker) => {
+                acc[worker.id] = worker.firstName;
                 return acc;
             }, {});
             setTrainerNames(workers);
