@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import config from "../../config/config";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 import axiosInstance from "../../config/axiosInstance";
+import TextareaAutosize from 'react-textarea-autosize';
 
 function EditWikiModal({ show, onHide, wiki, reFetch }) {
     const [problem, setProblem] = useState(wiki?.problem || '');
@@ -11,6 +12,12 @@ function EditWikiModal({ show, onHide, wiki, reFetch }) {
     const [error, setError] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+    // Update state when wiki prop changes
+    useEffect(() => {
+        setProblem(wiki?.problem || '');
+        setSolution(wiki?.solution || '');
+    }, [wiki]);
 
     const handleSave = async (e) => {
         e.preventDefault();
@@ -42,7 +49,7 @@ function EditWikiModal({ show, onHide, wiki, reFetch }) {
 
     return (
         <>
-            <Modal backdrop="static" show={show} onHide={onHide}>
+            <Modal backdrop="static" show={show} onHide={onHide} size="lg">
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Wiki</Modal.Title>
                 </Modal.Header>
@@ -60,9 +67,14 @@ function EditWikiModal({ show, onHide, wiki, reFetch }) {
                         </Form.Group>
                         <Form.Group className="mb-3" controlId="solution">
                             <Form.Label>Solution</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                rows={5}
+                            <TextareaAutosize
+                                minRows={5}
+                                style={{
+                                    width: '100%',
+                                    padding: '.375rem .75rem',
+                                    border: '1px solid #ced4da',
+                                    borderRadius: '.25rem'
+                                }}
                                 value={solution}
                                 onChange={(e) => setSolution(e.target.value)}
                                 required
@@ -91,7 +103,7 @@ function EditWikiModal({ show, onHide, wiki, reFetch }) {
             <DeleteConfirmModal
                 show={showDeleteConfirm}
                 handleClose={() => setShowDeleteConfirm(false)}
-                handleDelete={handleDeleteConfirmed} // This calls the parent's delete logic
+                handleDelete={handleDeleteConfirmed}
             />
         </>
     );
