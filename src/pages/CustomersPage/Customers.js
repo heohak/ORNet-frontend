@@ -223,99 +223,95 @@ function Customers() {
             </Row>
 
             <Row className="mb-4 align-items-center justify-content-between">
-                {/* Left side: Search & Country on the same row, then checkboxes below */}
-                <Col md={6}>
-                    <Row className="mb-2">
-                        <Col>
-                            <InputGroup>
-                                <FormControl
-                                    placeholder="Search customers..."
-                                    value={searchQuery}
-                                    onChange={(e) => handleSearchChange(e.target.value)}
-                                />
-                                <DropdownButton
-                                    as={InputGroup.Append}
-                                    variant="outline-secondary"
-                                    title={selectedCountry || 'All Countries'}
-                                    id="input-group-dropdown-country"
-                                >
-                                    <Dropdown.Item onClick={() => handleCountryChange('')}>All Countries</Dropdown.Item>
-                                    {availableCountries.map((countryCode) => (
-                                        <Dropdown.Item key={countryCode} onClick={() => handleCountryChange(countryCode)}>
-                                            {countryCode}
-                                        </Dropdown.Item>
-                                    ))}
-                                </DropdownButton>
-                            </InputGroup>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            {/* Client Type Filter (Checkboxes) */}
-                            <Form>
-                                <div className="d-flex flex-wrap">
-                                    <Form.Check
-                                        type="checkbox"
-                                        label="Pathology"
-                                        value="pathology"
-                                        checked={selectedClientTypes.includes('pathology')}
-                                        onChange={handleClientTypeCheck}
-                                        className="me-3 mb-2"
-                                    />
-                                    <Form.Check
-                                        type="checkbox"
-                                        label="Surgery"
-                                        value="surgery"
-                                        checked={selectedClientTypes.includes('surgery')}
-                                        onChange={handleClientTypeCheck}
-                                        className="me-3 mb-2"
-                                    />
-                                    <Form.Check
-                                        type="checkbox"
-                                        label="Editor"
-                                        value="editor"
-                                        checked={selectedClientTypes.includes('editor')}
-                                        onChange={handleClientTypeCheck}
-                                        className="me-3 mb-2"
-                                    />
-                                    <Form.Check
-                                        type="checkbox"
-                                        label="Other"
-                                        value="other"
-                                        checked={selectedClientTypes.includes('other')}
-                                        onChange={handleClientTypeCheck}
-                                        className="me-3 mb-2"
-                                    />
-                                    <Form.Check
-                                        type="checkbox"
-                                        label="Prospect"
-                                        value="prospect"
-                                        checked={selectedClientTypes.includes('prospect')}
-                                        onChange={handleClientTypeCheck}
-                                        className="me-3 mb-2"
-                                    />
-                                    <Form.Check
-                                        type="checkbox"
-                                        label="Agreement"
-                                        value="agreement"
-                                        checked={selectedClientTypes.includes('agreement')}
-                                        onChange={handleClientTypeCheck}
-                                        className="me-3 mb-2"
-                                    />
-                                </div>
-                            </Form>
-                        </Col>
-                    </Row>
+                <Col>
+                    <InputGroup>
+                        <FormControl
+                            placeholder="Search customers..."
+                            value={searchQuery}
+                            onChange={(e) => handleSearchChange(e.target.value)}
+                        />
+                        <DropdownButton
+                            as={InputGroup.Append}
+                            variant="outline-secondary"
+                            title={selectedCountry || 'All Countries'}
+                            id="input-group-dropdown-country"
+                        >
+                            <Dropdown.Item onClick={() => handleCountryChange('')}>All Countries</Dropdown.Item>
+                            {availableCountries.map((countryCode) => (
+                                <Dropdown.Item key={countryCode} onClick={() => handleCountryChange(countryCode)}>
+                                    {countryCode}
+                                </Dropdown.Item>
+                            ))}
+                        </DropdownButton>
+                    </InputGroup>
                 </Col>
-
-                {/* Right side: Buttons */}
-                <Col className="text-end">
-                    <Button variant="primary" onClick={handleGenerateReport} className="me-2">
-                        Generate Report
-                    </Button>
-                    <Button variant="primary" onClick={handleNewAddCustomer}>
-                        Add Customer
-                    </Button>
+                <Col className="col-md-auto">
+                    {/* Right side: Buttons */}
+                    <Col className="text-end">
+                        <Button variant="primary" onClick={handleGenerateReport} className="me-2">
+                            Generate Report
+                        </Button>
+                        <Button variant="primary" onClick={handleNewAddCustomer}>
+                            Add Customer
+                        </Button>
+                    </Col>
+                </Col>
+            </Row>
+            <Row>
+                <Col>
+                    {/* Client Type Filter (Checkboxes) */}
+                    <Form>
+                        <div className="d-flex flex-wrap">
+                            <Form.Check
+                                type="checkbox"
+                                label="Pathology"
+                                value="pathology"
+                                checked={selectedClientTypes.includes('pathology')}
+                                onChange={handleClientTypeCheck}
+                                className="me-3 mb-2"
+                            />
+                            <Form.Check
+                                type="checkbox"
+                                label="Surgery"
+                                value="surgery"
+                                checked={selectedClientTypes.includes('surgery')}
+                                onChange={handleClientTypeCheck}
+                                className="me-3 mb-2"
+                            />
+                            <Form.Check
+                                type="checkbox"
+                                label="Editor"
+                                value="editor"
+                                checked={selectedClientTypes.includes('editor')}
+                                onChange={handleClientTypeCheck}
+                                className="me-3 mb-2"
+                            />
+                            <Form.Check
+                                type="checkbox"
+                                label="Other"
+                                value="other"
+                                checked={selectedClientTypes.includes('other')}
+                                onChange={handleClientTypeCheck}
+                                className="me-3 mb-2"
+                            />
+                            <Form.Check
+                                type="checkbox"
+                                label="Prospect"
+                                value="prospect"
+                                checked={selectedClientTypes.includes('prospect')}
+                                onChange={handleClientTypeCheck}
+                                className="me-3 mb-2"
+                            />
+                            <Form.Check
+                                type="checkbox"
+                                label="Agreement"
+                                value="agreement"
+                                checked={selectedClientTypes.includes('agreement')}
+                                onChange={handleClientTypeCheck}
+                                className="me-3 mb-2"
+                            />
+                        </div>
+                    </Form>
                 </Col>
             </Row>
 
