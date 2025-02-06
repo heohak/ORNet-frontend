@@ -20,6 +20,7 @@ function Devices() {
     const [clients, setClients] = useState([]);
     const [sortConfig, setSortConfig] = useState({ key: 'deviceName', direction: 'ascending' });
     const navigate = useNavigate();
+    const [locationNames, setLocationNames] = useState({});
 
     useEffect(() => {
         const fetchDevices = async () => {
@@ -61,6 +62,29 @@ function Devices() {
         fetchClients();
     }, [refresh]);
 
+    // When devices change, fetch missing location names.
+    useEffect(() => {
+        // Helper function to fetch location by id
+        const fetchLocationName = async (locationId) => {
+            try {
+                const response = await axiosInstance.get(`${config.API_BASE_URL}/location/${locationId}`);
+                return response.data.name;
+            } catch (error) {
+                console.error(`Error fetching location ${locationId}:`, error);
+                return 'Unknown Location';
+            }
+        };
+
+        devices.forEach((device) => {
+            const locationId = device.locationId;
+            if (locationId && !locationNames[locationId]) {
+                fetchLocationName(locationId).then((name) => {
+                    setLocationNames(prev => ({ ...prev, [locationId]: name }));
+                });
+            }
+        });
+    }, [devices, locationNames]);
+
     const handleSort = (key) => {
         let direction = 'ascending';
         if (sortConfig.key === key && sortConfig.direction === 'ascending') {
@@ -78,10 +102,10 @@ function Devices() {
                 // Sorting by type using classificators
                 valueA = classificators[a.classificatorId] || 'Unknown Type';
                 valueB = classificators[b.classificatorId] || 'Unknown Type';
-            } else if (key === 'clientName') {
+            } else if (key === 'location') {
                 // Sorting by client name using getClientName helper
-                valueA = getClientName(a.clientId);
-                valueB = getClientName(b.clientId);
+                valueA = locationNames[a.locationId] || '';
+                valueB = locationNames[b.locationId] || '';
             } else {
                 // Sorting by the specified key (e.g., deviceName or serialNumber)
                 valueA = a[key] || ''; // Ensure value is a string
@@ -96,11 +120,12 @@ function Devices() {
         return sortedDevices;
     };
 
-
-    const getClientName = (clientId) => {
-        const client = clients.find(client => client.id === clientId);
-        return client ? client.shortName : 'Unknown Customer';
+    // Replace getClientName with getLocationName helper
+    const getLocationName = (locationId) => {
+        return locationNames[locationId] || 'Loading...';
     };
+
+
 
     if (loading) {
         return (
@@ -163,8 +188,8 @@ function Devices() {
                     <Col md={2} onClick={() => handleSort('deviceName')}>
                         Name {renderSortArrow('deviceName')}
                     </Col>
-                    <Col md={3} onClick={() => handleSort('clientName')}>
-                        Customer {renderSortArrow('clientName')}
+                    <Col md={3} onClick={() => handleSort('location')}>
+                        Location {renderSortArrow('location')}
                     </Col>
                     <Col md={2} onClick={() => handleSort('serialNumber')}>
                         Serial Number {renderSortArrow('serialNumber')}
@@ -190,7 +215,7 @@ function Devices() {
                         >
                             <Col md={3}>{classificators[device.classificatorId] || 'Unknown Type'}</Col>
                             <Col md={2}>{device.deviceName}</Col>
-                            <Col md={3}>{getClientName(device.clientId)}</Col>
+                            <Col md={3}>{getLocationName(device.locationId)}</Col>
                             <Col md={2}>{device.serialNumber}</Col>
                             <Col md={2}>{device.version || 'N/A'}</Col>
                         </Row>
