@@ -19,9 +19,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
         baitWorkerId: '',
         locationId: '',
         baitNumeration: '',
-        clientNumeration: '',
         contactIds: [],
-        deviceIds: [],
         endDateTime: null,
     });
 
@@ -30,7 +28,6 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
     const [baitWorkers, setBaitWorkers] = useState([]);
     const [openStatusId, setOpenStatusId] = useState(null);
     const [workTypes, setWorkTypes] = useState([]);
-    const [devices, setDevices] = useState([]);
     const [selectedWorkTypes, setSelectedWorkTypes] = useState([]);
     const [error, setError] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -76,8 +73,6 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
         const fetchContactsAndDevices = async () => {
             if (formData.clientId) {
                 try {
-                    const deviceRes = await axiosInstance.get (`${config.API_BASE_URL}/device/client/${formData.clientId}`)
-
                     const contactsWithRoles = await Promise.all(
                         contacts.map(async contact => {
                             const rolesRes = await axiosInstance.get(`${config.API_BASE_URL}/worker/role/${contact.id}`);
@@ -86,7 +81,6 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                     );
 
                     setContacts(contactsWithRoles);
-                    setDevices(deviceRes.data);
                 } catch (error) {
                     console.error('Error fetching locations or contacts:', error);
                 }
@@ -113,13 +107,6 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
         }));
     };
 
-    const handleDeviceChange = (selectedOptions) => {
-        setFormData((prevData) => ({
-            ...prevData,
-            deviceIds: selectedOptions.map((device) => device.id),
-        }));
-    };
-
 
 
 
@@ -134,7 +121,6 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                 statusId: openStatusId,
                 workTypeIds: selectedWorkTypes.map(option => option.value),
                 contactIds: formData.contactIds,
-                deviceIds: formData.deviceIds,
                 crisis: formData.crisis === 1,
                 endDateTime: new Date(formData.endDateTime),
             };
@@ -163,34 +149,11 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
             baitWorkerId: '',
             locationId: '',
             baitNumeration: '',
-            clientNumeration: '',
             contactIds: [],
-            deviceIds: [],
             endDateTime: null,
-        }); // Reset form fields
-        setSelectedWorkTypes([]); // Reset selected work types
+        });
+        setSelectedWorkTypes([]);
     }
-
-    const deviceOption = ({ innerProps, innerRef, data, isFocused }) => {
-        if (!data || !data.deviceName) {
-            return null;
-        }
-        return(
-            <div
-                ref={innerRef}
-                {...innerProps}
-                style={{
-                    padding: '8px',
-                    backgroundColor: isFocused ? '#DEEBFF' : 'white', // Add hover color change here
-                    cursor: 'pointer',
-                }}
-            >
-                <div style={{ fontWeight: 'bold' }}>{data.deviceName}</div>
-                <div style={{ fontSize: '0.85em', color: '#666' }}>SN: {data.serialNumber}</div>
-            </div>
-        );
-    }
-
 
     return (
         <Modal backdrop="static" show={show} onHide={handleClose} size="xl" centered>
@@ -220,7 +183,6 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
 
                                 </div>
                             </Form.Group>
-
                         </Col>
                         <Col md={4}>
                             <Form.Group className="mb-3">
@@ -283,25 +245,23 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                         </Col>
                         <Col md={4}>
                             <Form.Group className="mb-3">
-                                <Form.Label>Devices</Form.Label>
+                                <div className="d-flex mb-2">
+                                    <Form.Label className="align-items-centre mb-0">Selected Work Types</Form.Label>
+                                </div>
                                 <Select
                                     isMulti
-                                    options={devices}
-                                    getOptionLabel={(option) => option.deviceName}
-                                    getOptionValue={(option) => option.id}
-                                    value={devices.filter((device) =>
-                                        formData.deviceIds.includes(device.id)
-                                    )}
-                                    onChange={handleDeviceChange}
-                                    placeholder="Select devices"
-                                    components={{ Option: deviceOption}}
+                                    options={workTypes}
+                                    value={selectedWorkTypes}
+                                    onChange={setSelectedWorkTypes}
+                                    placeholder="Select work types"
+
                                 />
                             </Form.Group>
 
                         </Col>
                     </Row>
                     <Row>
-                        <Col md={7}>
+                        <Col md={8}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Description</Form.Label>
                                 <Form.Control
@@ -315,39 +275,7 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                                 />
                             </Form.Group>
                         </Col>
-                        <Col md={5}>
-                            <Form.Group className="mb-3">
-                                <div className="d-flex mb-2">
-                                    <Form.Label className="align-items-centre mb-0">Selected Work Types</Form.Label>
-                                </div>
-                                <Select
-                                    isMulti
-                                    options={workTypes}
-                                    value={selectedWorkTypes}
-                                    onChange={setSelectedWorkTypes}
-                                    placeholder="Select work types"
-
-                                />
-                            </Form.Group>
-                        </Col>
-                    </Row>
-
-
-                    <Row>
                         <Col md={4}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Customer Numeration</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Enter Customer Numeration"
-                                    value={formData.clientNumeration}
-                                    onChange={handleChange}
-                                    id="clientNumeration"
-
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col md={3}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Priority</Form.Label>
                                 <Form.Select
@@ -360,7 +288,10 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                                 </Form.Select>
                             </Form.Group>
                         </Col>
-                        <Col md={5}>
+                    </Row>
+
+                    <Row>
+                        <Col md={4}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Responsible</Form.Label>
                                 <Form.Control
