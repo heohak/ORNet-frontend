@@ -11,9 +11,9 @@ function WikiDetails({ show, onClose, reFetch, wiki }) {
                 {error && <Alert variant="danger">{error}</Alert>}
                 <Card.Text>
                     <h3 className="fw-bold mb-4">{wiki.problem}</h3>
-                    <pre style={{whiteSpace: "pre-wrap", wordWrap: "break-word"}}>
+                    <p style={{whiteSpace: "pre-wrap", wordWrap: "break-word"}}>
                         {wiki.solution}
-                    </pre>
+                    </p>
                 </Card.Text>
             </Modal.Body>
             <Modal.Footer>

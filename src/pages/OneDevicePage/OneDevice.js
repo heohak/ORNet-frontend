@@ -34,17 +34,18 @@ function OneDevice() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [deviceRes, linkedDevicesRes, availableLinkedDevicesRes, maintenanceInfoRes] = await Promise.all([
+                const [deviceRes, linkedDevicesRes, availableLinkedDevicesRes] = await Promise.all([
+                    //maintenanceInfoRes
                     axiosInstance.get(`${config.API_BASE_URL}/device/${deviceId}`),
                     axiosInstance.get(`${config.API_BASE_URL}/linked/device/${deviceId}`),
                     axiosInstance.get(`${config.API_BASE_URL}/linked/device/not-used`),
-                    axiosInstance.get(`${config.API_BASE_URL}/device/maintenances/${deviceId}`)
+                    //axiosInstance.get(`${config.API_BASE_URL}/device/maintenances/${deviceId}`)
                 ]);
 
                 const fetchedDevice = deviceRes.data;
                 setLinkedDevices(linkedDevicesRes.data);
                 setAvailableLinkedDevices(availableLinkedDevicesRes.data);
-                setMaintenanceInfo(maintenanceInfoRes.data);
+                //setMaintenanceInfo(maintenanceInfoRes.data);
                 const clientId = fetchedDevice.clientId;
                 const locationId = fetchedDevice.locationId;
                 const classificatorId = fetchedDevice.classificatorId;

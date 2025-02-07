@@ -45,7 +45,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, cl
 
     const handleUpdateWorker = async (e) => {
         e.preventDefault();
-        const trimmedPhoneNumber = editingWorker.phoneNumber.trim();
+        const trimmedPhoneNumber = editingWorker.phoneNumber?.trim();
 
         // Check if the phone number contains only digits and allowed characters
         if (trimmedPhoneNumber && !/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
@@ -135,7 +135,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, cl
                                     <Form.Control
                                         required
                                         type="text"
-                                        value={editingWorker.phoneNumber}
+                                        value={editingWorker.phoneNumber || ""}
                                         onChange={(e) => setEditingWorker({ ...editingWorker, phoneNumber: e.target.value })}
                                         isInvalid={!!phoneNumberError}
                                     />

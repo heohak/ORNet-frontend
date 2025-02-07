@@ -289,6 +289,11 @@ function ClientWorker({workers, client, clientId, refresh, setRefresh, reFetchRo
                                             <FontAwesomeIcon icon={faMapMarkerAlt} className="me-2" />
                                             {workerLocations[worker.id]?.name || 'N/A'}
                                         </div>
+
+                                        <div>
+                                            <FaComment className="me-1" />
+                                            {worker.comment ? worker.comment : 'N/A'}
+                                        </div>
                                     </Card.Text>
 
 

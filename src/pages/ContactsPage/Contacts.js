@@ -5,7 +5,7 @@ import { Alert, Button, Card, Col, Container, Row, Spinner, Badge } from "react-
 import config from "../../config/config";
 import WorkerSearchFilter from './WorkerSearchFilter';
 import '../../css/Contacts.css';
-import {FaEnvelope, FaPhone, FaUserTie, FaComment, FaIdBadge} from "react-icons/fa";
+import {FaEnvelope, FaPhone, FaUserTie, FaComment, FaIdBadge, FaStar, FaRegStar} from "react-icons/fa";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBuilding, faMapMarkerAlt} from "@fortawesome/free-solid-svg-icons";
 import WorkerCommentModal from "../OneClientPage/WorkerCommentModal";
@@ -92,7 +92,7 @@ function Contacts() {
 
 
     const handleCopyEmails = () => {
-        const emails = workers.map(worker => worker.email).filter(email => email).join(", ");
+        const emails = workers.map(worker => worker.email).filter(email => email).join("; ");
         const textarea = document.createElement("textarea");
         textarea.value = emails;
         textarea.style.position = "fixed"; // Prevent scrolling to bottom
@@ -171,14 +171,20 @@ function Contacts() {
                                             alignItems: 'center'
                                         }}>
                                             <Card.Title className='all-page-cardTitle'>
-                                                {worker.firstName} {worker.lastName}{' '}
-                                                {worker.favorite && <Badge bg="warning">Favorite</Badge>}
+                                                {worker.firstName} {worker.lastName}
                                             </Card.Title>
-                                            {/* Comment icon */}
-                                            <Button variant="link" onClick={() => handleOpenCommentModal(worker)}>
-                                                <FaComment title="View/Edit Comment" />
-                                            </Button>
+                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                {worker.favorite && (
+                                                    <span style={{ cursor: 'pointer', marginRight: '10px' }}>
+                <FaStar style={{ color: 'gold' }} />
+            </span>
+                                                )}
+                                                <Button variant="link" onClick={() => handleOpenCommentModal(worker)}>
+                                                    <FaComment title="View/Edit Comment" />
+                                                </Button>
+                                            </div>
                                         </div>
+
                                         <Card.Text className="all-page-cardText" style={{ wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}>
                                             {/* Role */}
                                             <div>
@@ -226,6 +232,13 @@ function Contacts() {
                                                 <FontAwesomeIcon icon={faBuilding} className="me-2" />
                                                 {workerEmployers[worker.id] || 'N/A'}
                                             </div>
+
+                                            {/* Comment */}
+                                            <div>
+                                                <FaComment className="me-1" />
+                                                {worker.comment ? worker.comment : 'N/A'}
+                                            </div>
+
                                         </Card.Text>
 
 

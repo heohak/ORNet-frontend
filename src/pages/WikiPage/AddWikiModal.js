@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
-import axios from "axios";
-import config from "../../config/config";
 import axiosInstance from "../../config/axiosInstance";
+import config from "../../config/config";
+import TextareaAutosize from 'react-textarea-autosize';
 
 function AddWikiModal({ show, onClose, reFetch }) {
     const [problem, setProblem] = useState('');
@@ -29,9 +29,8 @@ function AddWikiModal({ show, onClose, reFetch }) {
         }
     };
 
-
     return (
-        <Modal backdrop="static" show={show} onHide={onClose}>
+        <Modal backdrop="static" show={show} onHide={onClose} size="lg">
             <Form onSubmit={handleAdd}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add Wiki</Modal.Title>
@@ -49,9 +48,15 @@ function AddWikiModal({ show, onClose, reFetch }) {
                     </Form.Group>
                     <Form.Group controlId="formSolution" className="mt-3">
                         <Form.Label>Description</Form.Label>
-                        <Form.Control
-                            as="textarea"
-                            rows={3}
+                        {/* Use TextareaAutosize to auto-expand with more text */}
+                        <TextareaAutosize
+                            minRows={3}
+                            style={{
+                                width: '100%',
+                                padding: '.375rem .75rem',
+                                border: '1px solid #ced4da',
+                                borderRadius: '.25rem'
+                            }}
                             value={solution}
                             onChange={(e) => setSolution(e.target.value)}
                             placeholder="Enter description"
@@ -60,7 +65,9 @@ function AddWikiModal({ show, onClose, reFetch }) {
                     </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="outline-info" onClick={onClose}>Cancel</Button>
+                    <Button variant="outline-info" onClick={onClose}>
+                        Cancel
+                    </Button>
                     <Button
                         variant="primary"
                         type="submit"

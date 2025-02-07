@@ -34,9 +34,6 @@ const MenuBar = () => {
                         <LinkContainer to="/customers">
                             <Nav.Link eventKey="/customers">Customers</Nav.Link>
                         </LinkContainer>
-                        <LinkContainer to="/trainings">
-                            <Nav.Link eventKey="/trainings">Trainings</Nav.Link>
-                        </LinkContainer>
                         <LinkContainer to="/devices">
                             <Nav.Link eventKey="/devices">Devices</Nav.Link>
                         </LinkContainer>
@@ -45,6 +42,9 @@ const MenuBar = () => {
                         </LinkContainer>
                         <LinkContainer to="/tickets">
                             <Nav.Link eventKey="/tickets">Tickets</Nav.Link>
+                        </LinkContainer>
+                        <LinkContainer to="/trainings">
+                            <Nav.Link eventKey="/trainings">Trainings</Nav.Link>
                         </LinkContainer>
                         <LinkContainer to="/contacts">
                             <Nav.Link eventKey="/contacts">Email List</Nav.Link>
