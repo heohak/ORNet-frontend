@@ -205,19 +205,38 @@ function Devices() {
                     <Alert variant="info"> No devices found.</Alert>
                     ) : (
                 sortedDevices.map((device, index) => {
-                    const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                    // Get the base background color based on even/odd index
+                    const baseBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                    // Retrieve the last visited device ID from localStorage
+                    const lastVisitedDeviceId = localStorage.getItem("lastVisitedDeviceId");
+                    // If this device is the last visited, override the background color (e.g., light yellow)
+                    const rowBgColor = (device.id.toString() === lastVisitedDeviceId) ? "#ffffcc" : baseBgColor;
                     return (
                         <Row
                             key={device.id}
                             className="mb-2 py-2"
-                            style={{ backgroundColor: rowBgColor, cursor: 'pointer'}}
-                            onClick={() => navigate(`/device/${device.id}`, {state: {fromPath: `/devices`}})}
+                            style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
+                            onClick={() => {
+                                // Store the current device's id as the last visited
+                                localStorage.setItem("lastVisitedDeviceId", device.id);
+                                navigate(`/device/${device.id}`, { state: { fromPath: `/devices` } });
+                            }}
                         >
-                            <Col md={3}>{classificators[device.classificatorId] || 'Unknown Type'}</Col>
-                            <Col md={2}>{device.deviceName}</Col>
-                            <Col md={3}>{getLocationName(device.locationId)}</Col>
-                            <Col md={2}>{device.serialNumber}</Col>
-                            <Col md={2}>{device.version || 'N/A'}</Col>
+                            <Col md={3}>
+                                {classificators[device.classificatorId] || 'Unknown Type'}
+                            </Col>
+                            <Col md={2}>
+                                {device.deviceName}
+                            </Col>
+                            <Col md={3}>
+                                {getLocationName(device.locationId)}
+                            </Col>
+                            <Col md={2}>
+                                {device.serialNumber}
+                            </Col>
+                            <Col md={2}>
+                                {device.version || 'N/A'}
+                            </Col>
                         </Row>
                     );
                 })
