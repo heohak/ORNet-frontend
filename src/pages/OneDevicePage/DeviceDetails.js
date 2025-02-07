@@ -242,7 +242,7 @@ function DeviceDetails({ device, navigate, setRefresh }) {
                                 .join(' / ')}
                         </h4>
                     </Col>
-                    <Col className="col-md-auto">
+                    <Col className="col-md-auto" style={{ alignSelf: "flex-start" }}>
                         <div className="d-flex">
                             <Button
                                 variant="link"

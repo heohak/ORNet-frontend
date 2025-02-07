@@ -59,7 +59,7 @@ const DeviceExtras = ({ deviceId }) => {
         <>
             <Card className="mb-4">
                 <Card.Header>
-                    <Row className="align-items-center">
+                    <Row className="align-items-center mt-1">
                         <h5>Comments & Files</h5>
                     </Row>
                 </Card.Header>
