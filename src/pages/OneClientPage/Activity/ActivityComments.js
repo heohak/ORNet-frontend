@@ -4,6 +4,8 @@ import TextareaAutosize from "react-textarea-autosize";
 import { FaPaperPlane } from "react-icons/fa";
 import axiosInstance from "../../../config/axiosInstance";
 import {DateUtils} from "../../../utils/DateUtils";
+import Linkify from 'react-linkify';
+
 
 const ActivityComments = forwardRef(({ activity, reFetch, isEditing }, ref) => {
     const [comments, setComments] = useState([]);
@@ -121,10 +123,11 @@ const ActivityComments = forwardRef(({ activity, reFetch, isEditing }, ref) => {
                                     {activity.activity &&
                                         activity.activity.split("\n").map((line, idx) => (
                                             <React.Fragment key={idx}>
-                                                {line}
+                                                <Linkify>{line}</Linkify>
                                                 <br />
                                             </React.Fragment>
                                         ))}
+
                                 </div>
                             )}
                         </ListGroup.Item>

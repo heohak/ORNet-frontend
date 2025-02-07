@@ -3,6 +3,7 @@ import React, {forwardRef, useImperativeHandle, useState} from "react";
 import config from "../../../config/config";
 import axiosInstance from "../../../config/axiosInstance";
 import TextareaAutosize from "react-textarea-autosize";
+import Linkify from "react-linkify";
 
 
 const ModalDescription = forwardRef(({ activity, reFetch, isEditing }, ref) => {
@@ -41,21 +42,21 @@ const ModalDescription = forwardRef(({ activity, reFetch, isEditing }, ref) => {
                         {description &&
                             description.split("\n").map((line, index) => (
                                 <React.Fragment key={index}>
-                                    {line.split(/(https?:\/\/[^\s]+)/g).map((part, i) =>
-                                        part.match(/https?:\/\/[^\s]+/) ? (
+                                    <Linkify
+                                        componentDecorator={(decoratedHref, decoratedText, key) => (
                                             <a
-                                                key={i}
-                                                href={part}
+                                                key={key}
+                                                href={decoratedHref}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                style={{ color: '#007bff', textDecoration: 'underline' }}
+                                                style={{ color: "#007bff", textDecoration: "underline" }}
                                             >
-                                                {part}
+                                                {decoratedText}
                                             </a>
-                                        ) : (
-                                            part
-                                        )
-                                    )}
+                                        )}
+                                    >
+                                        {line}
+                                    </Linkify>
                                     <br />
                                 </React.Fragment>
                             ))}
