@@ -43,6 +43,7 @@ import AdminDashboard from "./pages/TestPages/AdminDashboard";
 import UserProfile from "./pages/TestPages/UserProfile";
 import UserDetails from "./pages/TestPages/UserDetails";
 import Trainings from './pages/TrainingPage/Trainings';
+import Maintenances from "./pages/MaintenancePage/Maintenances";
 
 axios.defaults.withCredentials=true;
 
@@ -128,6 +129,11 @@ function App() {
                             path="/linkeddevices"
                             element={<ViewLinkedDevices />
                         }
+                        />
+                        <Route
+                            path="/maintenances"
+                            element={<Maintenances />
+                            }
                         />
                         <Route
                             path="/device/:deviceId"
