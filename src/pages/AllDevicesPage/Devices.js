@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Row, Col, Spinner, Alert, Button, Container } from 'react-bootstrap';
+import React, { useEffect, useState, } from 'react';
+import { Row, Col, Spinner, Alert, Button, Container, Form } from 'react-bootstrap';
 import axios from 'axios';
 import config from '../../config/config';
 import AddDeviceModal from './AddDeviceModal';
@@ -21,6 +21,12 @@ function Devices() {
     const [sortConfig, setSortConfig] = useState({ key: 'deviceName', direction: 'ascending' });
     const navigate = useNavigate();
     const [locationNames, setLocationNames] = useState({});
+
+    // New states for inline editing the version
+    const [editingDeviceId, setEditingDeviceId] = useState(null);
+    const [editingVersion, setEditingVersion] = useState("");
+    const [longPressTimer, setLongPressTimer] = useState(null);
+
 
     useEffect(() => {
         const fetchDevices = async () => {
@@ -157,6 +163,47 @@ function Devices() {
         return '↕';
     };
 
+    // When the user mouses down on the version cell, start a long press timer.
+    const handleVersionMouseDown = (device) => {
+        const timer = setTimeout(() => {
+            setEditingDeviceId(device.id);
+            setEditingVersion(device.version || "");
+        }, 1000); // 1 second long press
+        setLongPressTimer(timer);
+    };
+
+// Cancel the timer if the mouse is released or leaves the cell.
+    const handleVersionMouseUpOrLeave = () => {
+        if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            setLongPressTimer(null);
+        }
+    };
+
+// When the inline version input loses focus, update the device.
+// This function also auto‑updates versionUpdateDate to now.
+    const handleVersionUpdate = async (device) => {
+        try {
+            // Create an updated device object
+            const updatedDevice = {
+                ...device,
+                version: editingVersion,
+                versionUpdateDate: new Date().toISOString(), // update to current date/time
+            };
+            // Send update request (adjust endpoint as needed)
+            await axiosInstance.put(`${config.API_BASE_URL}/device/update/${device.id}`, updatedDevice);
+            // Update the local devices list (or trigger a refresh)
+            setDevices((prevDevices) =>
+                prevDevices.map((d) => (d.id === device.id ? updatedDevice : d))
+            );
+        } catch (error) {
+            console.error("Error updating device version:", error);
+        }
+        setEditingDeviceId(null);
+        setEditingVersion("");
+    };
+
+
 
     return (
         <>
@@ -216,27 +263,58 @@ function Devices() {
                             key={device.id}
                             className="mb-2 py-2"
                             style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
-                            onClick={() => {
+
+                        >
+                            <Col md={3} onClick={() => {
                                 // Store the current device's id as the last visited
                                 localStorage.setItem("lastVisitedDeviceId", device.id);
                                 navigate(`/device/${device.id}`, { state: { fromPath: `/devices` } });
-                            }}
-                        >
-                            <Col md={3}>
+                            }}>
                                 {classificators[device.classificatorId] || 'Unknown Type'}
                             </Col>
-                            <Col md={2}>
+                            <Col md={2}
+                                 onClick={() => {
+                                     // Store the current device's id as the last visited
+                                     localStorage.setItem("lastVisitedDeviceId", device.id);
+                                     navigate(`/device/${device.id}`, { state: { fromPath: `/devices` } });
+                                 }}>
                                 {device.deviceName}
                             </Col>
-                            <Col md={3}>
+                            <Col md={3}
+                                 onClick={() => {
+                                     // Store the current device's id as the last visited
+                                     localStorage.setItem("lastVisitedDeviceId", device.id);
+                                     navigate(`/device/${device.id}`, { state: { fromPath: `/devices` } });
+                                 }}>
                                 {getLocationName(device.locationId)}
                             </Col>
-                            <Col md={2}>
+                            <Col md={2}
+                                 onClick={() => {
+                                     // Store the current device's id as the last visited
+                                     localStorage.setItem("lastVisitedDeviceId", device.id);
+                                     navigate(`/device/${device.id}`, { state: { fromPath: `/devices` } });
+                                 }}>
                                 {device.serialNumber}
                             </Col>
-                            <Col md={2}>
-                                {device.version || 'N/A'}
+                            <Col
+                                md={2}
+                                onMouseDown={() => handleVersionMouseDown(device)}
+                                onMouseUp={handleVersionMouseUpOrLeave}
+                                onMouseLeave={handleVersionMouseUpOrLeave}
+                            >
+                                {editingDeviceId === device.id ? (
+                                    <Form.Control
+                                        type="text"
+                                        value={editingVersion}
+                                        onChange={(e) => setEditingVersion(e.target.value)}
+                                        onBlur={() => handleVersionUpdate(device)}
+                                        autoFocus
+                                    />
+                                ) : (
+                                    device.version || 'N/A'
+                                )}
                             </Col>
+
                         </Row>
                     );
                 })
