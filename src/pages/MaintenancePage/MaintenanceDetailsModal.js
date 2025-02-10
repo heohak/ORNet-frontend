@@ -60,6 +60,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
     };
 
     const formatDuration = (durationString) => {
+        if (!durationString) return "0h 0min";
         const match = durationString.match(/PT(\d+H)?(\d+M)?/);
         const hours = match[1] ? parseInt(match[1]) : 0;
         const minutes = match[2] ? parseInt(match[2]) : 0;

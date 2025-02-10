@@ -89,7 +89,7 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client, locati
                             key={maintenance.id}
                             className="align-items-center"
                             style={{ margin: '0 0', cursor: 'pointer' }}
-                            onClick={() => handleMaintenanceClick(maintenance.id)}
+                            onClick={() => handleMaintenanceClick(maintenance)}
                         >
                             <Col className="py-2" style={{ backgroundColor: rowBgColor}}>
                                 <Row className="align-items-center">

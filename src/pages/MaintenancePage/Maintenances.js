@@ -4,6 +4,7 @@ import MaintenanceFilters from "./MaintenanceFilters";
 import MaintenanceList from "./MaintenanceList";
 import axiosInstance from "../../config/axiosInstance";
 import MaintenanceDetailsModal from "./MaintenanceDetailsModal";
+import AddMaintenanceModal from "./AddMaintenanceModal";
 
 
 const Maintenances = () => {
@@ -13,7 +14,7 @@ const Maintenances = () => {
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
-    const [trainerNames, setTrainerNames] = useState({});
+    const [customers, setCustomers] = useState([]);
     const [responsibleNames, setResponsibleNames] = useState({});
     const [locationNames, setLocationNames] = useState({});
     const [refresh, setRefresh] = useState(false);
@@ -24,6 +25,19 @@ const Maintenances = () => {
         fetchResponsibleNames();
     },[refresh]);
 
+    useEffect(() => {
+        fetchCustomers();
+    },[])
+
+
+    const fetchCustomers = async() => {
+        try {
+            const response = await axiosInstance.get(`/client/all`)
+            setCustomers(response.data)
+        } catch (error) {
+            console.error("Error fetching customers", error)
+        }
+    }
     const fetchMaintenances = async() => {
         try {
             const response = await axiosInstance.get(`/maintenance/all`)
@@ -92,8 +106,12 @@ const Maintenances = () => {
                     setRefresh={() => setRefresh(!refresh)}
                     responsibleNames={responsibleNames}
                 />
-
             }
+            <AddMaintenanceModal
+                show={showAddModal}
+                onHide={() => setShowAddModal(false)}
+                clients={customers}
+            />
 
         </Container>
     );
