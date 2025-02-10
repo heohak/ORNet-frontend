@@ -3,7 +3,7 @@ import {useParams, useNavigate, useLocation} from 'react-router-dom';
 import {Container, Spinner, Alert, Accordion, Button} from 'react-bootstrap';
 import config from "../../config/config";
 import ClientDetails from "./ClientDetails";
-import ClientDevices from "./ClientDevices";
+import ClientDevices from "./ClientDevices/ClientDevices";
 import ClientWorker from "./ClientWorker";
 import SoftwareDetails from "./SoftwareDetails";
 import ClientTickets from "./ClientTickets";

@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Form, Button, Alert, Modal, Row, Col } from 'react-bootstrap';
-import config from "../../config/config";
+import config from "../../../config/config";
 import Select from 'react-select';
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import '../../css/OneClientPage/AddActivityModal.css';
-import '../../css/DarkenedModal.css';
+import '../../../css/OneClientPage/AddActivityModal.css';
+import '../../../css/DarkenedModal.css';
 import CreatableSelect from 'react-select/creatable';
 
 
 import { format } from 'date-fns';
-import axiosInstance from "../../config/axiosInstance";
+import axiosInstance from "../../../config/axiosInstance";
 
 function AddClientDevice({ clientId, onClose, setRefresh }) {
 

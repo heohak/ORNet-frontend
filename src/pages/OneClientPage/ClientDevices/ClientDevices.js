@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Alert, Button, Col, Form, ListGroup, Row, Spinner } from 'react-bootstrap';
 import AddClientDevice from './AddClientDevice';
 import { useNavigate } from 'react-router-dom';
-import config from "../../config/config";
-import '../../css/OneClientPage/OneClient.css';
-import axiosInstance from "../../config/axiosInstance";
-import {DateUtils} from "../../utils/DateUtils";
+import config from "../../../config/config";
+import '../../../css/OneClientPage/OneClient.css';
+import axiosInstance from "../../../config/axiosInstance";
+import {DateUtils} from "../../../utils/DateUtils";
 
 function ClientDevices({ clientId, locations }) {
     const [showAddDeviceModal, setShowAddDeviceModal] = useState(false);
