@@ -114,11 +114,16 @@ function EditDevice({ deviceId, onClose, setRefresh, introducedDate, writtenOffD
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setDeviceData({
-            ...deviceData,
-            [name]: value,
+        setDeviceData((prevState) => {
+            const newState = { ...prevState, [name]: value };
+            // If the version field is changed, automatically update versionUpdateDate to now
+            if (name === "version") {
+                newState.versionUpdateDate = new Date();
+            }
+            return newState;
         });
     };
+
 
     // Handle change for attributes
     const handleAttributeChange = (e) => {

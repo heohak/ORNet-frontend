@@ -162,6 +162,21 @@ function OneClient() {
         }
     };
 
+    const handleBackNavigation = () => {
+        // If we came from e.g. "/customers"
+        if (location.state?.fromPath) {
+            navigate(location.state.fromPath, {
+                state: {
+                    // pass back the same filters to restore them
+                    filters: location.state.filters
+                }
+            });
+        } else {
+            // fallback if no fromPath
+            navigate(-1);
+        }
+    };
+
 
 
 
@@ -193,7 +208,7 @@ function OneClient() {
                     <div className="client-name">
                         <Button
                             variant="link"
-                            onClick={() => navigate('/customers')}
+                            onClick={handleBackNavigation}
                             className="p-0 me-2"
                             style={{ fontSize: '1.5rem', color: '#0d6efd' }}
                             aria-label="Go back"

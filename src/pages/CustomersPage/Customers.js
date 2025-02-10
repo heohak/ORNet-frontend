@@ -19,11 +19,12 @@ import GenerateReportModal from "../../modals/GenerateReportModal";
 import '../../css/Customers.css';
 import noImg from '../../assets/no-img.jpg';
 import personIcon from '../../assets/thumbnail_person icon.png';
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import axiosInstance from "../../config/axiosInstance";
 import {DateUtils} from "../../utils/DateUtils";
 
 function Customers() {
+    const location = useLocation();
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -40,6 +41,18 @@ function Customers() {
     const [activityDates, setActivityDates] = useState({});
     const countryFlagApi = "https://restcountries.com/v3.1/alpha";
     const navigate = useNavigate();
+
+    useEffect(() => {
+        // If we navigated back here with filters in location.state, restore them
+        if (location.state?.filters) {
+            const f = location.state.filters;
+            setSearchQuery(f.searchQuery || '');
+            setSelectedClientTypes(f.selectedClientTypes || []);
+            setSelectedCountry(f.selectedCountry || '');
+            // If you want to restore sortConfig as well, do it here
+            // e.g. setSortConfig(f.sortConfig || { key: 'shortName', direction: 'ascending' })
+        }
+    }, [location.state]);
 
     useEffect(() => {
         fetchAvailableCountries();
@@ -376,7 +389,16 @@ function Customers() {
                                         key={customer.id}
                                         className="mb-2 py-2"
                                         style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
-                                        onClick={() => navigate(`/customer/${customer.id}`)}
+                                        onClick={() => navigate(`/customer/${customer.id}`, {
+                                            state: {
+                                                fromPath: '/customers',
+                                                filters: {
+                                                    searchQuery,
+                                                    selectedClientTypes,
+                                                    selectedCountry,
+                                                }
+                                            }
+                                        })}
                                     >
                                         <Col md={1}>
                                             <img
