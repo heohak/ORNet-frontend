@@ -18,6 +18,7 @@ const Maintenances = () => {
     const [responsibleNames, setResponsibleNames] = useState({});
     const [locationNames, setLocationNames] = useState({});
     const [refresh, setRefresh] = useState(false);
+    const [baitWorkers, setBaitWorkers] = useState([]);
 
     useEffect(() => {
         fetchMaintenances();
@@ -27,9 +28,19 @@ const Maintenances = () => {
 
     useEffect(() => {
         fetchCustomers();
+        fetchBaitWorkers();
     },[])
 
 
+    const fetchBaitWorkers = async() => {
+        try {
+            const response = await axiosInstance.get(`/bait/worker/all`)
+            const workers = response.data.map(worker => ({value: worker.id, label: `${worker.firstName} ${worker.lastName}`}))
+            setBaitWorkers(workers)
+        } catch (error) {
+            console.error("Error fetching Bait Workers", error);
+        }
+    }
     const fetchCustomers = async() => {
         try {
             const response = await axiosInstance.get(`/client/all`)
@@ -111,6 +122,7 @@ const Maintenances = () => {
                 show={showAddModal}
                 onHide={() => setShowAddModal(false)}
                 clients={customers}
+                workers={baitWorkers}
             />
 
         </Container>

@@ -6,7 +6,7 @@ import AsyncSelect from "react-select/async";
 import axiosInstance from "../../config/axiosInstance";
 import config from "../../config/config";
 
-const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId }) => {
+const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers }) => {
     const [error, setError] = useState("");
     const [maintenanceName, setMaintenanceName] = useState("");
     const [maintenanceDate, setMaintenanceDate] = useState(null);
@@ -19,6 +19,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId }) => {
     const [softwares, setSoftwares] = useState([]);
     const [devices, setDevices] = useState([]);
     const [linkedDevices, setLinkedDevices] = useState([]);
+    const [selectedWorker, setSelectedWorker] = useState(null);
 
     // State for AsyncSelect dropdowns
     const [selectedDevices, setSelectedDevices] = useState([]);
@@ -105,6 +106,28 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId }) => {
         }
     };
 
+    const handleSubmit = async() => {
+        try {
+            await axiosInstance.post(`/maintenance/add`, {
+                maintenanceName,
+                maintenanceDate,
+                lastDate,
+                comment: description,
+                deviceIds: selectedDevices.map(device => device.value),
+                linkedDeviceIds: selectedLinkedDevices.map(linkedDevice => linkedDevice.value),
+                softwareIds: selectedSoftwares.map(soft => soft.value),
+                maintenanceStatus: "OPEN",
+                baitWorkerId: selectedWorker.id,
+                clientId,
+                locationId,
+
+
+            })
+        } catch (error) {
+            console.error("Error submitting the maintenance", error)
+        }
+    }
+
     return (
         <Modal size="xl" backdrop="static" show={show} onHide={onHide}>
             <Modal.Header closeButton>
@@ -117,7 +140,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId }) => {
                         <p>{error}</p>
                     </Alert>
                 )}
-                <Form onSubmit={(e) => e.preventDefault()}>
+                <Form onSubmit={handleSubmit}>
                     <Row>
                         <Col>
                             <Form.Group className="mb-3">
@@ -212,14 +235,31 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId }) => {
                                 />
                             </Form.Group>
                         </Col>
+                        <Col>
+                            <Form.Label>Responsible Worker</Form.Label>
+                            <Form.Control
+                                as="select"
+                                value={selectedWorker?.id}
+                                onChange={(e) => setSelectedWorker(e.target.value)}
+                                id="workerId"
+                                required
+                            >
+                                <option value="">Select Responsible</option>
+                                {workers.map(worker => (
+                                    <option key={worker.id} value={worker.id}>
+                                        {worker.label}
+                                    </option>
+                                ))}
+                            </Form.Control>
+                        </Col>
                     </Row>
                     <Row>
                         <Col>
                             <Form.Label>Devices</Form.Label>
                             <AsyncSelect
+                                isDisabled={!clientId || !locationId}
                                 isMulti
-                                cacheOptions
-                                defaultOptions
+                                defaultOptions={devices}
                                 loadOptions={loadDevices}
                                 value={selectedDevices}
                                 onChange={setSelectedDevices}
@@ -229,9 +269,9 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId }) => {
                         <Col>
                             <Form.Label>Linked Devices</Form.Label>
                             <AsyncSelect
+                                isDisabled={!clientId || !locationId}
                                 isMulti
-                                cacheOptions
-                                defaultOptions
+                                defaultOptions={linkedDevices}
                                 loadOptions={loadLinkedDevices}
                                 value={selectedLinkedDevices}
                                 onChange={setSelectedLinkedDevices}
@@ -241,6 +281,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId }) => {
                         <Col>
                             <Form.Label>Softwares</Form.Label>
                             <Select
+                                isDisabled={!clientId}
                                 isMulti
                                 options={softwares}
                                 value={selectedSoftwares}
