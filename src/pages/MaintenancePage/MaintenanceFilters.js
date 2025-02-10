@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Row, Col, Alert } from 'react-bootstrap';
 import axiosInstance from '../../config/axiosInstance';
-import ReactDatePicker from "react-datepicker";
-import { format } from 'date-fns'; // Import format function from date-fns
-import "react-datepicker/dist/react-datepicker.css";
 
-const TrainingFilters = ({ onFilter }) => {
+const MaintenanceFilters = ({ setMaintenances }) => {
     const [searchQuery, setSearchQuery] = useState('');
-    const [trainingDate, setTrainingDate] = useState(null); // Use null for no date selected
+    const [trainingDate, setTrainingDate] = useState('');
     const [clientId, setClientId] = useState('');
     const [locationId, setLocationId] = useState('');
     const [trainingType, setTrainingType] = useState('');
@@ -21,7 +18,6 @@ const TrainingFilters = ({ onFilter }) => {
     useEffect(() => {
         fetchClients();
         fetchLocations();
-        fetchTrainingTypes();
     }, []);
 
     const fetchClients = async () => {
@@ -44,24 +40,18 @@ const TrainingFilters = ({ onFilter }) => {
         }
     };
 
-    const fetchTrainingTypes = async () => {
-        // If training types are predefined, list them here
-        setTrainingTypes(['ON_SITE', 'TEAMS']); // Adjust based on backend enums
-    };
 
     const handleSearchAndFilter = async () => {
         try {
-            const response = await axiosInstance.get('/training/search', {
+            const response = await axiosInstance.get('/maintenance/search', {
                 params: {
                     q: searchQuery,
                     clientId: clientId || undefined,
                     locationId: locationId || undefined,
-                    // Format the selected date as "yyyy-MM-dd" for LocalDate
-                    date: trainingDate ? format(trainingDate, 'yyyy-MM-dd') : undefined,
-                    type: trainingType || undefined
+
                 }
             });
-            onFilter(response.data);
+            setMaintenances(response.data);
         } catch (error) {
             console.error('Error searching and filtering trainings:', error);
             setError(error.message);
@@ -75,7 +65,7 @@ const TrainingFilters = ({ onFilter }) => {
         }, 300);
         setTypingTimeout(timeout);
         return () => clearTimeout(timeout);
-    }, [searchQuery, clientId, locationId, trainingDate, trainingType]);
+    }, [searchQuery, clientId, locationId]);
 
     return (
         <>
@@ -93,7 +83,7 @@ const TrainingFilters = ({ onFilter }) => {
                 <Col md={3}>
                     <Form.Control
                         type="text"
-                        placeholder="Search trainings..."
+                        placeholder="Search maintenances..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -141,13 +131,10 @@ const TrainingFilters = ({ onFilter }) => {
                     </Form.Control>
                 </Col>
                 <Col md={2}>
-                    <ReactDatePicker
-                        selected={trainingDate}
-                        onChange={(date) => setTrainingDate(date)}
-                        dateFormat="dd.MM.yyyy"
-                        className="form-control"
-                        placeholderText="Select Date"
-                        isClearable
+                    <Form.Control
+                        type="date"
+                        value={trainingDate}
+                        onChange={(e) => setTrainingDate(e.target.value)}
                     />
                 </Col>
             </Row>
@@ -155,4 +142,4 @@ const TrainingFilters = ({ onFilter }) => {
     );
 };
 
-export default TrainingFilters;
+export default MaintenanceFilters;

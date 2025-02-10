@@ -7,6 +7,8 @@ import '../../../css/NewTicket.css';
 import TextareaAutosize from 'react-textarea-autosize';
 import axiosInstance from "../../../config/axiosInstance";
 import {DateUtils} from "../../../utils/DateUtils";
+import Linkify from 'react-linkify';
+
 
 const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
     const [newActivity, setNewActivity] = useState("");
@@ -157,7 +159,7 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
                                     {activity && activity.activity &&
                                         activity.activity.split("\n").map((line, index) => (
                                             <React.Fragment key={index}>
-                                                {line}
+                                                <Linkify>{line}</Linkify>
                                                 <br />
                                             </React.Fragment>
                                         ))}

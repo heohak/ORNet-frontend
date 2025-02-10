@@ -186,6 +186,18 @@ function DeviceDetails({ device, navigate, setRefresh }) {
         }
     };
 
+    const handleLeftColumnChange = (key, newValue) => {
+        setLeftColumnValues((prev) => {
+            const updated = { ...prev, [key]: newValue };
+            if (key === 'version') {
+                // version changed => update versionUpdateDate automatically
+                updated.versionUpdateDate = new Date().toISOString();
+            }
+            return updated;
+        });
+    };
+
+
     // When the left column edit icon is clicked:
     // If in edit mode, save automatically; otherwise, enable edit mode.
     const handleLeftColumnToggle = () => {
@@ -242,7 +254,7 @@ function DeviceDetails({ device, navigate, setRefresh }) {
                                 .join(' / ')}
                         </h4>
                     </Col>
-                    <Col className="col-md-auto">
+                    <Col className="col-md-auto" style={{ alignSelf: "flex-start" }}>
                         <div className="d-flex">
                             <Button
                                 variant="link"
@@ -317,9 +329,7 @@ function DeviceDetails({ device, navigate, setRefresh }) {
                                             {key === 'versionUpdateDate' ? (
                                                 <ReactDatePicker
                                                     selected={value ? new Date(value) : null}
-                                                    onChange={(date) =>
-                                                        setLeftColumnValues((prev) => ({ ...prev, [key]: date }))
-                                                    }
+                                                    onChange={(date) => handleLeftColumnChange(key, date.toISOString())}
                                                     dateFormat="dd.MM.yyyy"
                                                     className="form-control inline-edit"
                                                     placeholderText="Select date"
@@ -329,9 +339,7 @@ function DeviceDetails({ device, navigate, setRefresh }) {
                                                 <Form.Control
                                                     type="text"
                                                     value={value}
-                                                    onChange={(e) =>
-                                                        setLeftColumnValues((prev) => ({ ...prev, [key]: e.target.value }))
-                                                    }
+                                                    onChange={(e) => handleLeftColumnChange(key, e.target.value)}
                                                     className="form-control inline-edit"
                                                 />
                                             )}

@@ -40,6 +40,9 @@ const MenuBar = () => {
                         <LinkContainer to="/linkeddevices">
                             <Nav.Link eventKey="/linkeddevices">Linked Devices</Nav.Link>
                         </LinkContainer>
+                        <LinkContainer to="/maintenances">
+                            <Nav.Link eventKey="/maintenances">Maintenances</Nav.Link>
+                        </LinkContainer>
                         <LinkContainer to="/tickets">
                             <Nav.Link eventKey="/tickets">Tickets</Nav.Link>
                         </LinkContainer>

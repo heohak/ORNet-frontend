@@ -5,6 +5,8 @@ import axios from "axios";
 import config from "../../../config/config";
 import axiosInstance from "../../../config/axiosInstance";
 import {Col, Row} from "react-bootstrap";
+import TextareaAutosize from "react-textarea-autosize";
+import Linkify from "react-linkify";
 
 
 const NewTicketDescription = ({ticket}) => {
@@ -37,10 +39,10 @@ const NewTicketDescription = ({ticket}) => {
                     <Col md={6}>
                         <h4>Description</h4>
                         {isEditing ? (
-                            <textarea
+                            <TextareaAutosize
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                rows={4}
+                                minRows={4}
                                 style={{ width: '100%' }}
                             />
                         ) : (
@@ -48,20 +50,22 @@ const NewTicketDescription = ({ticket}) => {
                                 {description &&
                                     description.split("\n").map((line, index) => (
                                         <React.Fragment key={index}>
-                                            {line}
+                                            <Linkify>{line}</Linkify>
                                             <br />
                                         </React.Fragment>
-                                    ))}
+                                    ))
+                                }
                             </p>
                         )}
+
                     </Col>
                     <Col md={6}>
                         <h4>Internal Comment</h4>
                         {isEditing ? (
-                            <textarea
+                            <TextareaAutosize
                                 value={internalComment}
                                 onChange={(e) => setInternalComment(e.target.value)}
-                                rows={4}
+                                minRows={4}
                                 style={{ width: '100%' }}
                             />
                         ) : (
@@ -69,12 +73,14 @@ const NewTicketDescription = ({ticket}) => {
                                 {internalComment &&
                                     internalComment.split("\n").map((line, index) => (
                                         <React.Fragment key={index}>
-                                            {line}
+                                            <Linkify>{line}</Linkify>
                                             <br />
                                         </React.Fragment>
-                                    ))}
+                                    ))
+                                }
                             </p>
                         )}
+
                     </Col>
                 </Row>
 

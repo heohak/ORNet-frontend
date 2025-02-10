@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { Card, Row, Col, Button } from 'react-bootstrap';
-import { FaUpload } from 'react-icons/fa';
+import React, { useEffect, useState, useRef } from 'react';
+import { Card, Row, Col, Button, Form } from 'react-bootstrap';
+import { FaUpload, FaPaperPlane } from 'react-icons/fa';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faComments } from "@fortawesome/free-solid-svg-icons";
 import axiosInstance from '../../config/axiosInstance';
 import config from '../../config/config';
 import FileUploadModal from '../../modals/FileUploadModal';
 import FileList from '../../modals/FileList';
-import CommentsModal from '../../modals/CommentsModal';
 import { DateUtils } from '../../utils/DateUtils';
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faComments} from "@fortawesome/free-solid-svg-icons";
+import Linkify from 'react-linkify';
 
 const DeviceExtras = ({ deviceId }) => {
     const [files, setFiles] = useState([]);
     const [comments, setComments] = useState([]);
     const [showUploadModal, setShowUploadModal] = useState(false);
-    const [showCommentsModal, setShowCommentsModal] = useState(false);
+    const [inlineComment, setInlineComment] = useState("");
 
     useEffect(() => {
         fetchFiles();
@@ -39,52 +39,78 @@ const DeviceExtras = ({ deviceId }) => {
         }
     };
 
+    const handleInlineAddComment = async (e) => {
+        e.preventDefault();
+        if (inlineComment.trim() === "") return;
+        try {
+            await axiosInstance.put(
+                `${config.API_BASE_URL}/device/comment/${deviceId}`,
+                inlineComment,
+                { headers: { "Content-Type": "text/plain" } }
+            );
+            fetchComments();
+            setInlineComment("");
+        } catch (error) {
+            console.error("Error adding comment inline:", error);
+        }
+    };
+
     return (
         <>
             <Card className="mb-4">
                 <Card.Header>
-                    <Row className="align-items-center">
-                        <Col><h5>Files & Comments</h5></Col>
-                        <Col className="text-end">
-                            <Button
-                                variant="link"
-                                onClick={() => setShowUploadModal(true)}
-                                title="Upload Files"
-                                className="text-primary p-0 me-2"
-                            >
-                                <FaUpload />
-                            </Button>
-                            <Button
-                                variant="link"
-                                className="text-primary"
-                                onClick={() => setShowCommentsModal(true)}
-                                title="View Comments"
-                            >
-                                <FontAwesomeIcon icon={faComments} />
-                            </Button>
-                        </Col>
+                    <Row className="align-items-center mt-1">
+                        <h5>Comments & Files</h5>
                     </Row>
                 </Card.Header>
                 <Card.Body>
                     <Row>
                         <Col md={6}>
-                            <h6>Files</h6>
-                            {files.length > 0 ? (
-                                <FileList files={files} />
-                            ) : (
-                                <p className="text-muted">No files available.</p>
-                            )}
-                        </Col>
-                        <Col md={6}>
                             <h6>Comments</h6>
                             {comments.length > 0 ? (
                                 comments.map((comment, index) => (
                                     <div key={index} className="mb-2">
-                                        <strong>{DateUtils.formatDate(comment.timestamp)}</strong>: {comment.comment}
+                                        <strong>{DateUtils.formatDate(comment.timestamp)}</strong>: <Linkify>{comment.comment}</Linkify>
                                     </div>
                                 ))
                             ) : (
                                 <p className="text-muted">No comments available.</p>
+                            )}
+                            <Form onSubmit={handleInlineAddComment} className="mt-2 d-flex align-items-center">
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Add a comment..."
+                                    value={inlineComment}
+                                    onChange={(e) => setInlineComment(e.target.value)}
+                                    style={{ maxWidth: "70%" }}
+                                    className="me-2"
+                                />
+                                <Button type="submit" variant="link" className="p-0 text-primary" title="Submit Comment">
+                                    <FaPaperPlane size={24} />
+                                </Button>
+                            </Form>
+                        </Col>
+                        <Col md={6}>
+                            <Row className="align-items-center">
+                                <Col>
+                                    <h6 className="mb-0">Files</h6>
+                                </Col>
+                                <Col className="text-end">
+                                    <Button
+                                        variant="link"
+                                        onClick={() => setShowUploadModal(true)}
+                                        title="Upload Files"
+                                        style={{ marginRight: "12px" }}
+                                        className="text-primary p-0"
+                                    >
+                                        <FaUpload size={20} />
+                                    </Button>
+                                </Col>
+                            </Row>
+                            {files.length > 0 ? (
+                                <FileList files={files} />
+                            ) : (
+                                <p className="text-muted">No files available.</p>
                             )}
                         </Col>
                     </Row>
@@ -96,12 +122,6 @@ const DeviceExtras = ({ deviceId }) => {
                 handleClose={() => setShowUploadModal(false)}
                 uploadEndpoint={`${config.API_BASE_URL}/device/upload/${deviceId}`}
                 onUploadSuccess={fetchFiles}
-            />
-
-            <CommentsModal
-                show={showCommentsModal}
-                handleClose={() => setShowCommentsModal(false)}
-                deviceId={deviceId}
             />
         </>
     );

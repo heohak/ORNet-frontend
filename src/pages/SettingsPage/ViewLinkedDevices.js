@@ -220,6 +220,10 @@ function ViewLinkedDevices() {
         });
         setFieldsConfig(initialFieldsConfig);
     };
+    const getLocationName = (locationId) => {
+        const loc = locations.find((l) => l.id === locationId);
+        return loc ? loc.name : "Unknown";
+    };
 
     // =======================
     // Sorting
@@ -240,12 +244,19 @@ function ViewLinkedDevices() {
     };
 
     const sortedLinkedDevices = [...linkedDevices].sort((a, b) => {
-        const valueA = a[sortConfig.key] || '';
-        const valueB = b[sortConfig.key] || '';
+        let valueA, valueB;
+        if (sortConfig.key === 'location') {
+            valueA = getLocationName(a.locationId).toLowerCase();
+            valueB = getLocationName(b.locationId).toLowerCase();
+        } else {
+            valueA = (a[sortConfig.key] || '').toLowerCase();
+            valueB = (b[sortConfig.key] || '').toLowerCase();
+        }
         if (valueA < valueB) return sortConfig.direction === 'ascending' ? -1 : 1;
         if (valueA > valueB) return sortConfig.direction === 'ascending' ? 1 : -1;
         return 0;
     });
+
 
     // =======================
     // Table Row Click -> Open Details
@@ -495,6 +506,8 @@ function ViewLinkedDevices() {
         }
     };
 
+
+
     // =======================
     // Render
     // =======================
@@ -528,11 +541,14 @@ function ViewLinkedDevices() {
                         <Col md={3} onClick={() => handleSort('manufacturer')} style={{ cursor: 'pointer' }}>
                             Manufacturer {renderSortIcon('manufacturer')}
                         </Col>
-                        <Col md={3} onClick={() => handleSort('productCode')} style={{ cursor: 'pointer' }}>
+                        <Col md={2} onClick={() => handleSort('productCode')} style={{ cursor: 'pointer' }}>
                             Product Code {renderSortIcon('productCode')}
                         </Col>
-                        <Col md={3} onClick={() => handleSort('serialNumber')} style={{ cursor: 'pointer' }}>
+                        <Col md={2} onClick={() => handleSort('serialNumber')} style={{ cursor: 'pointer' }}>
                             Serial Number {renderSortIcon('serialNumber')}
+                        </Col>
+                        <Col md={2} onClick={() => handleSort('location')} style={{ cursor: 'pointer' }}>
+                            Location {renderSortIcon('location')}
                         </Col>
                     </Row>
                     <hr />
@@ -560,8 +576,9 @@ function ViewLinkedDevices() {
                                 >
                                     <Col md={3}>{device.name}</Col>
                                     <Col md={3}>{device.manufacturer}</Col>
-                                    <Col md={3}>{device.productCode}</Col>
-                                    <Col md={3}>{device.serialNumber}</Col>
+                                    <Col md={2}>{device.productCode}</Col>
+                                    <Col md={2}>{device.serialNumber}</Col>
+                                    <Col md={2}>{getLocationName(device.locationId)}</Col>
                                 </Row>
                             );
                         })

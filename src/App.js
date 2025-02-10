@@ -6,12 +6,12 @@ import MenuBar from './components/MenuBar';
 import Footer from './components/Footer';
 import Customers from './pages/CustomersPage/Customers';
 import Login from './pages/LoginPage/Login';
-import ClientDevices from './pages/OneClientPage/ClientDevices';
+import ClientDevices from './pages/OneClientPage/ClientDevices/ClientDevices';
 import Tickets from './pages/TicketsPage/Tickets';
 import AddClientWorker from './pages/OneClientPage/AddClientWorker';
 import Devices from './pages/AllDevicesPage/Devices';
 import OneDevice from './pages/OneDevicePage/OneDevice';
-import AddClientDevice from './pages/OneClientPage/AddClientDevice';
+import AddClientDevice from './pages/OneClientPage/ClientDevices/AddClientDevice';
 import SoftwareDetails from './pages/OneClientPage/SoftwareDetails';
 import OneClient from './pages/OneClientPage/OneClient';
 import Wiki from './pages/WikiPage/Wiki';
@@ -43,6 +43,7 @@ import AdminDashboard from "./pages/TestPages/AdminDashboard";
 import UserProfile from "./pages/TestPages/UserProfile";
 import UserDetails from "./pages/TestPages/UserDetails";
 import Trainings from './pages/TrainingPage/Trainings';
+import Maintenances from "./pages/MaintenancePage/Maintenances";
 
 axios.defaults.withCredentials=true;
 
@@ -128,6 +129,11 @@ function App() {
                             path="/linkeddevices"
                             element={<ViewLinkedDevices />
                         }
+                        />
+                        <Route
+                            path="/maintenances"
+                            element={<Maintenances />
+                            }
                         />
                         <Route
                             path="/device/:deviceId"

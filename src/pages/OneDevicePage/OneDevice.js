@@ -1,14 +1,11 @@
 import React, {useEffect, useState, useRef} from 'react';
-import axios from 'axios';
 import {useLocation, useNavigate, useParams} from 'react-router-dom';
 import {Alert, Button, Col, Container, Row, Spinner, Accordion} from 'react-bootstrap';
 import config from "../../config/config";
 import DeviceDetails from "./DeviceDetails";
 import MaintenanceInfo from "./MaintenanceInfo";
 import LinkedDevices from "./LinkedDevices";
-import CommentsModal from "../../modals/CommentsModal";
 import '../../css/OneDevicePage/OneDevice.css';
-import DeviceFileList from "./DeviceFileList";
 import DeviceTickets from "./DeviceTickets";
 import DeviceExtras from "./DeviceExtras";
 import {FaArrowLeft} from "react-icons/fa";
@@ -91,13 +88,21 @@ function OneDevice() {
 
     const handleBackNavigation = () => {
         if (location.state?.fromPath) {
-            navigate(`${location.state.fromPath}`, { state: {fromPath: location.state.fromPath, openAccordion: 'tickets' }});
+            // Pass through any filters we might have in location.state
+            navigate(location.state.fromPath, {
+                state: {
+                    fromPath: location.state.fromPath,
+                    openAccordion: 'tickets',
+                    filters: location.state?.filters // <- add this line
+                },
+            });
         } else if (device && device.clientId) {
             navigate(`/customer/${device.clientId}`);
         } else {
             navigate(-1);
         }
     };
+
 
 
 

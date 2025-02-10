@@ -1,13 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import {Container, Table, Button, Modal, Spinner, Row, Col} from 'react-bootstrap';
+import React, { useEffect, useState, useMemo } from 'react';
+import { Container, Button, Row, Col } from 'react-bootstrap';
 import TrainingFilters from './TrainingFilters';
 import AddTrainingModal from './AddTrainingModal';
-import EditTrainingModal from './EditTrainingModal';
 import TrainingService from './TrainingService';
 import axiosInstance from '../../config/axiosInstance';
-import {DateUtils} from "../../utils/DateUtils";
+import { DateUtils } from "../../utils/DateUtils"; // Import DateUtils for date formatting
 import TrainingDetailsModal from './TrainingDetailsModal';
-
 
 const Trainings = () => {
     const [trainings, setTrainings] = useState([]);
@@ -19,6 +17,7 @@ const Trainings = () => {
     const [trainerNames, setTrainerNames] = useState({});
     const [clientNames, setClientNames] = useState({});
     const [locationNames, setLocationNames] = useState({});
+    const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'descending' });
 
     useEffect(() => {
         fetchTrainings();
@@ -28,8 +27,7 @@ const Trainings = () => {
         setLoading(true);
         try {
             let data = await TrainingService.getTrainings(filters);
-            data = data.sort((a, b) => new Date(b.trainingDate) - new Date(a.trainingDate));
-
+            // Initially, the trainings were sorted by date descending.
             setTrainings(data);
             fetchTrainers(data);
             fetchClients(data);
@@ -97,6 +95,71 @@ const Trainings = () => {
         }
     };
 
+    const handleSort = (key) => {
+        let direction = 'ascending';
+        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+            direction = 'descending';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const renderSortArrow = (key) => {
+        if (sortConfig.key === key) {
+            return sortConfig.direction === 'ascending' ? '▲' : '▼';
+        }
+        return '↕';
+    };
+
+    const sortedTrainings = useMemo(() => {
+        let sortableTrainings = [...trainings];
+        if (sortConfig) {
+            sortableTrainings.sort((a, b) => {
+                let aValue, bValue;
+                switch (sortConfig.key) {
+                    case 'name':
+                        aValue = a.name.toLowerCase();
+                        bValue = b.name.toLowerCase();
+                        break;
+                    case 'client':
+                        aValue = (clientNames[a.clientId] || a.clientId.toString()).toLowerCase();
+                        bValue = (clientNames[b.clientId] || b.clientId.toString()).toLowerCase();
+                        break;
+                    case 'location':
+                        // If a's location is null/undefined and b's is not, sort a after b.
+                        if (a.locationId == null && b.locationId != null) {
+                            return 1;
+                        }
+                        // If b's location is null/undefined and a's is not, sort b after a.
+                        if (a.locationId != null && b.locationId == null) {
+                            return -1;
+                        }
+                        // If both are null, consider them equal.
+                        if (a.locationId == null && b.locationId == null) {
+                            return 0;
+                        }
+                        aValue = (locationNames[a.locationId] || a.locationId.toString()).toLowerCase();
+                        bValue = (locationNames[b.locationId] || b.locationId.toString()).toLowerCase();
+                        break;
+                    case 'type':
+                        aValue = a.trainingType.toLowerCase();
+                        bValue = b.trainingType.toLowerCase();
+                        break;
+                    case 'date':
+                        aValue = new Date(a.trainingDate);
+                        bValue = new Date(b.trainingDate);
+                        break;
+                    default:
+                        aValue = a[sortConfig.key];
+                        bValue = b[sortConfig.key];
+                }
+                if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
+                if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
+                return 0;
+            });
+        }
+        return sortableTrainings;
+    }, [trainings, sortConfig, clientNames, locationNames]);
+
     return (
         <Container className="mt-5">
             <Row className="d-flex justify-content-between mb-4">
@@ -113,15 +176,25 @@ const Trainings = () => {
             </Row>
 
             <Row className="row-margin-0 fw-bold mt-2">
-                <Col md={3}>Name</Col>
-                <Col md={3}>Client</Col>
-                <Col md={3}>Location</Col>
-                <Col md={2}>Type</Col>
-                <Col md={1}>Date</Col>
+                <Col md={3} onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
+                    Name {renderSortArrow('name')}
+                </Col>
+                <Col md={3} onClick={() => handleSort('client')} style={{ cursor: 'pointer' }}>
+                    Client {renderSortArrow('client')}
+                </Col>
+                <Col md={3} onClick={() => handleSort('location')} style={{ cursor: 'pointer' }}>
+                    Location {renderSortArrow('location')}
+                </Col>
+                <Col md={2} onClick={() => handleSort('type')} style={{ cursor: 'pointer' }}>
+                    Type {renderSortArrow('type')}
+                </Col>
+                <Col md={1} onClick={() => handleSort('date')} style={{ cursor: 'pointer' }}>
+                    Date {renderSortArrow('date')}
+                </Col>
             </Row>
             <hr />
 
-            {trainings.map((training, index) => {
+            {sortedTrainings.map((training, index) => {
                 const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
                 return (
                     <Row
@@ -149,16 +222,11 @@ const Trainings = () => {
                 );
             })}
 
-            {showAddModal && <AddTrainingModal show={showAddModal} onHide={() => setShowAddModal(false)} onSave={fetchTrainings} />}
-            {showEditModal && (
-                <EditTrainingModal
-                    show={showEditModal}
-                    onHide={() => setShowEditModal(false)}
-                    training={selectedTraining}
-                    onSave={(updatedTraining) => {
-                        setSelectedTraining(updatedTraining); // Update details modal
-                        fetchTrainings();
-                    }}
+            {showAddModal && (
+                <AddTrainingModal
+                    show={showAddModal}
+                    onHide={() => setShowAddModal(false)}
+                    onSave={fetchTrainings}
                 />
             )}
             {showDetailsModal && selectedTraining && (
@@ -169,8 +237,10 @@ const Trainings = () => {
                     trainerNames={trainerNames}
                     clientNames={clientNames}
                     locationNames={locationNames}
-                    onEdit={() => setShowEditModal(true)}
-                    onUpdate={(updatedTraining) => setSelectedTraining(updatedTraining)} // Refresh details modal
+                    onUpdate={(updatedTraining) => {
+                        setSelectedTraining(updatedTraining);
+                        fetchTrainings();
+                    }}
                     onDelete={() => handleDelete(selectedTraining.id)}
                 />
             )}
