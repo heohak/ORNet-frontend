@@ -83,7 +83,7 @@ const MaintenanceFilters = ({ setMaintenances }) => {
                 <Col md={3}>
                     <Form.Control
                         type="text"
-                        placeholder="Search trainings..."
+                        placeholder="Search maintenances..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />

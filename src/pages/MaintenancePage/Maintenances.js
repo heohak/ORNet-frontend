@@ -14,13 +14,15 @@ const Maintenances = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [trainerNames, setTrainerNames] = useState({});
-    const [clientNames, setClientNames] = useState({});
+    const [responsibleNames, setResponsibleNames] = useState({});
     const [locationNames, setLocationNames] = useState({});
+    const [refresh, setRefresh] = useState(false);
 
     useEffect(() => {
         fetchMaintenances();
         fetchLocationNames();
-    },[]);
+        fetchResponsibleNames();
+    },[refresh]);
 
     const fetchMaintenances = async() => {
         try {
@@ -28,6 +30,19 @@ const Maintenances = () => {
             setMaintenances(response.data);
         } catch (error) {
             console.error('Error fetching maintenances', error);
+        }
+    }
+
+    const fetchResponsibleNames = async() => {
+        try {
+            const response = await axiosInstance.get(`/bait/worker/all`)
+            const workers = response.data.reduce((acc, worker) => {
+                acc[worker.id] = worker.firstName;
+                return acc;
+            }, {});
+            setResponsibleNames(workers);
+        } catch (error) {
+            console.error("Error fetching Bait Workers", error)
         }
     }
 
@@ -72,6 +87,10 @@ const Maintenances = () => {
                     show={showDetailsModal}
                     onHide={() => setShowDetailsModal(false)}
                     maintenance={selectedMaintenance}
+                    locationNames={locationNames}
+                    setMaintenance={setSelectedMaintenance}
+                    setRefresh={() => setRefresh(!refresh)}
+                    responsibleNames={responsibleNames}
                 />
 
             }

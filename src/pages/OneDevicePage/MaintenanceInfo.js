@@ -1,8 +1,8 @@
 // MaintenanceInfo.js
 import React, { useState } from 'react';
 import { Row, Col, Button, Alert } from 'react-bootstrap';
-import MaintenanceModal from "../OneClientPage/MaintenanceModal";
-import AddMaintenanceModal from "../OneClientPage/AddMaintenanceModal";
+import MaintenanceModal from "../OneClientPage/ClientMaintenances/MaintenanceModal";
+import AddMaintenanceModal from "../OneClientPage/ClientMaintenances/AddMaintenanceModal";
 import '../../css/OneDevicePage/OneDevice.css';
 import {DateUtils} from "../../utils/DateUtils"; // Adjust the path as needed
 

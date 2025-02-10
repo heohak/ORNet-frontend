@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {Modal, Row, Col, Accordion, Button, Spinner, Form} from 'react-bootstrap';
 import axios from 'axios';
-import config from '../../config/config';
+import config from '../../../config/config';
 import { FaUpload } from 'react-icons/fa';
-import FileList from '../../modals/FileList';
-import MaintenanceComment from './MaintenanceComment';
+import FileList from '../../../modals/FileList';
 import { format } from 'date-fns';
-import axiosInstance from "../../config/axiosInstance";
+import axiosInstance from "../../../config/axiosInstance";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheck, faEdit} from "@fortawesome/free-solid-svg-icons";
 
@@ -164,11 +163,6 @@ function MaintenanceModal({ show, handleClose, maintenanceId, locationName, setR
 
                     <Row>
                     <Col md={8}>
-                            <MaintenanceComment
-                                comment={comment}
-                                setComment={setComment}
-                                isEditing={isEditing}
-                            />
                         </Col>
                         <Col md={4}>
                             {/* Files Accordion */}

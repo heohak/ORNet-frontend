@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import { Row, Col, Button, Alert } from 'react-bootstrap';
 import MaintenanceModal from "./MaintenanceModal";
 import AddMaintenanceModal from "./AddMaintenanceModal";
-import '../../css/Customers.css';
-import '../../css/OneClientPage/OneClient.css';
-import {DateUtils} from "../../utils/DateUtils";
+import '../../../css/Customers.css';
+import '../../../css/OneClientPage/OneClient.css';
+import {DateUtils} from "../../../utils/DateUtils";
+import MaintenanceDetailsModal from "../../MaintenancePage/MaintenanceDetailsModal";
 
 
-function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
-    const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
+
+function ClientMaintenances({ maintenances, clientId, setRefresh, client, locationNames, responsibleNames }) {
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [showAddMaintenanceModal, setShowAddMaintenanceModal] = useState(false);
-    const [selectedMaintenanceId, setSelectedMaintenanceId] = useState(null);
+    const [selectedMaintenance, setSelectedMaintenance] = useState(null);
     const [sortConfig, setSortConfig] = useState({ key: 'maintenanceName', direction: 'ascending' });
 
 
@@ -38,9 +40,9 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
         return '↕';
     };
 
-    const handleMaintenanceClick = (maintenanceId) => {
-        setSelectedMaintenanceId(maintenanceId);
-        setShowMaintenanceModal(true);
+    const handleMaintenanceClick = (maintenance) => {
+        setSelectedMaintenance(maintenance);
+        setShowDetailsModal(true);
     };
 
     return (
@@ -60,11 +62,20 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
 
             {/* Sortable Table Headers */}
             <Row className="row-margin-0 fw-bold">
-                <Col md={6} onClick={() => handleSort('maintenanceName')}>
+                <Col md={3} onClick={() => handleSort('maintenanceName')}>
                     Maintenance Name {renderSortArrow('maintenanceName')}
                 </Col>
-                <Col md={6} onClick={() => handleSort('maintenanceDate')}>
-                    Date {renderSortArrow('maintenanceDate')}
+                <Col md={3} onClick={() => handleSort('location')}>
+                    Location {renderSortArrow('location')}
+                </Col>
+                <Col md={3} onClick={() => handleSort('maintenanceDate')}>
+                    Planned Date {renderSortArrow('maintenanceDate')}
+                </Col>
+                <Col md={2} onClick={() => handleSort('maintenanceStatus')}>
+                    Status {renderSortArrow('maintenanceStatus')}
+                </Col>
+                <Col md={1} onClick={() => handleSort('lastDate')}>
+                    Last Date {renderSortArrow('lastDate')}
                 </Col>
             </Row>
             <hr />
@@ -82,8 +93,21 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
                         >
                             <Col className="py-2" style={{ backgroundColor: rowBgColor}}>
                                 <Row className="align-items-center">
-                                    <Col md={6}>{maintenance.maintenanceName}</Col>
-                                    <Col md={6}>{DateUtils.formatDate(maintenance.maintenanceDate)}</Col>
+                                    <Col md={3} className="py-2">
+                                        {maintenance.maintenanceName}
+                                    </Col>
+                                    <Col md={3} className="py-2">
+                                        {locationNames[maintenance.locationId]}
+                                    </Col>
+                                    <Col md={3} className="py-2">
+                                        {DateUtils.formatDate(maintenance.maintenanceDate)}
+                                    </Col>
+                                    <Col md={2} className="py-2">
+                                        {maintenance.maintenanceStatus}
+                                    </Col>
+                                    <Col md={1} className="py-2">
+                                        {DateUtils.formatDate(maintenance.lastDate)}
+                                    </Col>
                                 </Row>
                             </Col>
                         </Row>
@@ -103,12 +127,18 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client }) {
             />
 
             {/* Maintenance Details Modal */}
-            <MaintenanceModal
-                show={showMaintenanceModal}
-                handleClose={() => setShowMaintenanceModal(false)}
-                maintenanceId={selectedMaintenanceId}
-                setRefresh={setRefresh}
-            />
+            {selectedMaintenance &&
+                <MaintenanceDetailsModal
+                    show={showDetailsModal}
+                    onHide={() => setShowDetailsModal(false)}
+                    maintenance={selectedMaintenance}
+                    locationNames={locationNames}
+                    setMaintenance={setSelectedMaintenance}
+                    setRefresh={setRefresh}
+                    responsibleNames={responsibleNames}
+                />
+
+            }
         </>
     );
 }

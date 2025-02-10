@@ -1,7 +1,5 @@
 import {Alert, Button, Col, Row} from "react-bootstrap";
 import {DateUtils} from "../../utils/DateUtils";
-import AddMaintenanceModal from "./AddMaintenanceModal";
-import MaintenanceModal from "./MaintenanceModal";
 import React, {useEffect, useState} from "react";
 import AddTrainingModal from "../TrainingPage/AddTrainingModal";
 import TrainingDetailsModal from "../TrainingPage/TrainingDetailsModal";

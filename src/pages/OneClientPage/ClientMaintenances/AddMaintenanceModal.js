@@ -1,13 +1,12 @@
 // AddMaintenanceModal.js
 import React, { useState } from 'react';
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
-import axios from 'axios';
-import config from "../../config/config";
+import config from "../../../config/config";
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import '../../css/OneClientPage/AddActivityModal.css'; // Adjust the path as needed
+import '../../../css/OneClientPage/AddActivityModal.css'; // Adjust the path as needed
 import { format } from 'date-fns';
-import axiosInstance from "../../config/axiosInstance";
+import axiosInstance from "../../../config/axiosInstance";
 
 function AddMaintenanceModal({ show, handleClose, clientId, locationId, deviceId, setRefresh, onAddMaintenance }) {
     const [maintenanceName, setMaintenanceName] = useState('');

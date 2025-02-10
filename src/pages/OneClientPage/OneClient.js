@@ -8,7 +8,7 @@ import ClientWorker from "./ClientWorker";
 import SoftwareDetails from "./SoftwareDetails";
 import ClientTickets from "./ClientTickets";
 import ClientThirdPartyIT from "./ClientThirdPartyIT";
-import ClientMaintenances from "./ClientMaintenances";
+import ClientMaintenances from "./ClientMaintenances/ClientMaintenances";
 import ClientLocations from "./ClientLocations";
 import ClientTrainings from "./ClientTrainings";
 import '../../css/Customers.css';
@@ -38,6 +38,7 @@ function OneClient() {
     const [openStatusId, setOpenStatusId] = useState('');
     const [roles, setRoles] = useState([]);
     const [trainings, setTrainings] = useState([]);
+    const [baitWorkersMap, setBaitWorkersMap] = useState({});
 
 
     const navigate = useNavigate();
@@ -47,7 +48,7 @@ function OneClient() {
 
             try {
                 const [clientRes, workerRes, softwareRes, ticketsRes, maintenanceRes, statusesRes,
-                    locationsRes, activityRes, trainingsRes] = await Promise.all([
+                    locationsRes, activityRes, trainingsRes, baitWorkersRes] = await Promise.all([
                     axiosInstance.get(`${config.API_BASE_URL}/client/${clientId}`),
                     axiosInstance.get(`${config.API_BASE_URL}/worker/${clientId}`),
                     axiosInstance.get(`${config.API_BASE_URL}/software/client/${clientId}`),
@@ -56,7 +57,8 @@ function OneClient() {
                     axiosInstance.get(`${config.API_BASE_URL}/ticket/classificator/all`),
                     axiosInstance.get(`${config.API_BASE_URL}/client/locations/${clientId}`),
                     axiosInstance.get(`${config.API_BASE_URL}/client/activities/${clientId}`),
-                    axiosInstance.get(`/training/client/${clientId}`)
+                    axiosInstance.get(`/training/client/${clientId}`),
+                    axiosInstance.get(`/bait/worker/all`)
                 ]);
 
                 setClient(clientRes.data);
@@ -89,6 +91,12 @@ function OneClient() {
                     return acc;
                 }, {});
                 setLocationsMap(locationMap);
+
+                const baitWorkers = baitWorkersRes.data.reduce((acc, worker) => {
+                    acc[worker.id] = worker.firstName;
+                    return acc;
+                }, {});
+                setBaitWorkersMap(baitWorkers)
 
             } catch (error) {
                 setError(error.message);
@@ -288,8 +296,10 @@ function OneClient() {
                                     <ClientMaintenances
                                         maintenances={maintenances}
                                         clientId={clientId}
-                                        setRefresh={setRefresh}
+                                        setRefresh={!refresh}
                                         client={client}
+                                        locationNames={locationsMap}
+                                        responsibleNames={baitWorkersMap}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
