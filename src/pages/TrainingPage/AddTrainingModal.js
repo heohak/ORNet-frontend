@@ -61,7 +61,8 @@ const AddTrainingModal = ({ show, onHide, onSave, clientId }) => {
         }
     };
 
-    const handleSave = async () => {
+    const handleSave = async (e) => {
+        e.preventDefault();
         await TrainingService.addTraining(training);
         onSave();
         onHide();
