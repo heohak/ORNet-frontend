@@ -21,7 +21,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
 
     useEffect(() => {
         fetchDevices();
-    }, []);
+    }, [maintenance.id]);
 
     const reFetchMaintenance = async() => {
         try {
@@ -92,7 +92,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
     return (
         <Modal size="xl" show={show} onHide={onHide}>
             <Modal.Header closeButton>
-                <Modal.Title>Maintenance Details</Modal.Title>
+                <Modal.Title>Maintenance Details </Modal.Title> <Modal.Title style={{color: "red"}}> (Hetkel pooleli)</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Row>
@@ -231,7 +231,11 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                         </Row>
                     );
                 })}
-
+                <Row>
+                    <Col>
+                        Linked Device list
+                    </Col>
+                </Row>
                 {/*Linked Devices*/}
                 {linkedDevices.map((linkedDevice, index) => {
                     const rowBgColor = index % 2 === 0 ? "#f8f9fa" : "#ffffff";
@@ -242,7 +246,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                             style={{ margin: "0", cursor: "pointer", backgroundColor: rowBgColor }}
                         >
                             <Col md={3} className="py-2">
-                                {linkedDevice.deviceName} {linkedDevice.serialNumber}
+                                {linkedDevice.name} {linkedDevice.serialNumber}
                             </Col>
                             <Col md={3} className="py-2">Add file</Col>
                             <Col md={3} className="py-2">{linkedDevice.status}</Col>
@@ -250,7 +254,11 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                         </Row>
                     );
                 })}
-
+                <Row>
+                    <Col>
+                        Software list
+                    </Col>
+                </Row>
                 {/*Softwares*/}
                 {softwares.map((software, index) => {
                     const rowBgColor = index % 2 === 0 ? "#f8f9fa" : "#ffffff";
