@@ -19,7 +19,9 @@ const deviceOption = ({ innerProps, innerRef, data, isFocused }) => {
             }}
         >
             <div style={{ fontWeight: 'bold' }}>{data.deviceName}</div>
-            <div style={{ fontSize: '0.85em', color: '#666' }}>SN: {data.serialNumber}</div>
+            <div style={{ fontSize: '0.85em', color: '#666' }}>
+                SN: {data.serialNumber}
+            </div>
             <div style={{ fontSize: '0.85em', color: '#666' }}>
                 CRN: {[data.workstationNo, data.cameraNo, data.otherNo].filter(Boolean).join('/')}
             </div>
@@ -37,14 +39,15 @@ function LinkedDeviceSearchFilter({ setLinkedDevices }) {
     const [error, setError] = useState(null);
     const [typingTimeout, setTypingTimeout] = useState(null);
 
-    // Fetch locations for the location dropdown
+    // States for date filtering
+    const [searchDate, setSearchDate] = useState(''); // Expecting format YYYY-MM-DD
+    const [comparison, setComparison] = useState(''); // e.g., 'after' or 'before'
+
     useEffect(() => {
         const fetchLocations = async () => {
             try {
                 const response = await axiosInstance.get(`${config.API_BASE_URL}/location/all`);
-                const sortedLocations = response.data.sort((a, b) =>
-                    a.name.localeCompare(b.name)
-                );
+                const sortedLocations = response.data.sort((a, b) => a.name.localeCompare(b.name));
                 setLocations(sortedLocations);
             } catch (err) {
                 console.error('Error fetching locations:', err);
@@ -54,14 +57,12 @@ function LinkedDeviceSearchFilter({ setLinkedDevices }) {
         fetchLocations();
     }, []);
 
-    // Fetch devices for the device dropdown
     useEffect(() => {
         const fetchDevices = async () => {
             try {
                 const response = await axiosInstance.get(`${config.API_BASE_URL}/device/all`);
-                // Optionally filter out devices that are written off
-                const filteredDevices = response.data.filter(device => !device.writtenOffDate);
-                setDevices(filteredDevices);
+                const filtered = response.data.filter(d => !d.writtenOffDate);
+                setDevices(filtered);
             } catch (err) {
                 console.error('Error fetching devices:', err);
                 setError('Error fetching devices');
@@ -70,17 +71,20 @@ function LinkedDeviceSearchFilter({ setLinkedDevices }) {
         fetchDevices();
     }, []);
 
-    // Function to call the search endpoint with the current filter parameters
     const handleSearchAndFilter = async () => {
         try {
-            const response = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/search`, {
-                params: {
-                    q: searchQuery || undefined,
-                    locationId: locationId || undefined,
-                    deviceId: deviceId || undefined,
-                    template: isTemplate ? true : undefined,
-                },
-            });
+            const params = {
+                q: searchQuery || undefined,
+                locationId: locationId ? parseInt(locationId, 10) : undefined,
+                deviceId: deviceId ? parseInt(deviceId, 10) : undefined,
+                template: isTemplate ? true : undefined,
+            };
+            // Only include date and comparison if both are provided
+            if (searchDate && comparison) {
+                params.date = searchDate;
+                params.comparison = comparison;
+            }
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/search`, { params });
             setLinkedDevices(response.data);
         } catch (err) {
             console.error('Error searching linked devices:', err);
@@ -88,16 +92,15 @@ function LinkedDeviceSearchFilter({ setLinkedDevices }) {
         }
     };
 
-    // Debounce the search/filter request to avoid excessive API calls
+    // Debounce the search/filter request to avoid excessive API calls.
     useEffect(() => {
         if (typingTimeout) clearTimeout(typingTimeout);
         const timeout = setTimeout(() => {
             handleSearchAndFilter();
         }, 300);
         setTypingTimeout(timeout);
-
         return () => clearTimeout(timeout);
-    }, [searchQuery, locationId, deviceId, isTemplate]);
+    }, [searchQuery, locationId, deviceId, isTemplate, searchDate, comparison]);
 
     return (
         <>
@@ -111,6 +114,7 @@ function LinkedDeviceSearchFilter({ setLinkedDevices }) {
                     </Col>
                 </Row>
             )}
+
             <Row className="mb-3">
                 {/* Free-text search input */}
                 <Col md={3}>
@@ -123,14 +127,14 @@ function LinkedDeviceSearchFilter({ setLinkedDevices }) {
                 </Col>
 
                 {/* Location dropdown */}
-                <Col md={3}>
+                <Col md={2}>
                     <Form.Control
                         as="select"
                         value={locationId}
                         onChange={(e) => setLocationId(e.target.value)}
                     >
                         <option value="">Select Location</option>
-                        {locations.map((loc) => (
+                        {locations.map(loc => (
                             <option key={loc.id} value={loc.id}>
                                 {loc.name}
                             </option>
@@ -139,29 +143,50 @@ function LinkedDeviceSearchFilter({ setLinkedDevices }) {
                 </Col>
 
                 {/* Devices dropdown using react-select */}
-                <Col md={3}>
+                <Col md={2}>
                     <Select
                         options={devices}
-                        value={devices.find(device => String(device.id) === String(deviceId)) || null}
+                        value={devices.find(d => String(d.id) === String(deviceId)) || null}
                         onChange={(selected) => setDeviceId(selected ? selected.id : '')}
                         placeholder="Select Device..."
                         isClearable
-                        getOptionLabel={(option) => option.deviceName}
-                        getOptionValue={(option) => option.id.toString()}
+                        getOptionLabel={o => o.deviceName}
+                        getOptionValue={o => o.id.toString()}
                         components={{ Option: deviceOption }}
                     />
                 </Col>
 
-                <Col className="align-content-center" md={3}>
-                    <Form.Check
-                        type="checkbox"
-                        label="Template Only"
-                        checked={isTemplate}
-                        onChange={(e) => setIsTemplate(e.target.checked)}
-                    />
+                {/* Grouped Date Filter, Comparison, and Template Checkbox */}
+                <Col md={5}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+                        <Form.Select
+                            value={comparison}
+                            onChange={(e) => setComparison(e.target.value)}
+                            style={{ width: '70px' }} // Comparison select is smaller
+                        >
+                            <option value="">--</option>
+                            <option value="after">After</option>
+                            <option value="before">Before</option>
+                        </Form.Select>
+                        <Form.Control
+                            type="date"
+                            value={searchDate}
+                            onChange={(e) => setSearchDate(e.target.value)}
+                            style={{ width: '150px' }} // Fixed width for the date input
+                        />
+
+                        <div style={{ marginLeft: '20px' }}>
+                            <Form.Check
+                                type="checkbox"
+                                label="Template Only"
+                                checked={isTemplate}
+                                onChange={(e) => setIsTemplate(e.target.checked)}
+                                style={{ marginBottom: 0 }}
+                            />
+                        </div>
+                    </div>
                 </Col>
             </Row>
-
         </>
     );
 }
