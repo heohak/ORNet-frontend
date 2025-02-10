@@ -102,6 +102,15 @@ function LinkedDeviceSearchFilter({ setLinkedDevices }) {
         return () => clearTimeout(timeout);
     }, [searchQuery, locationId, deviceId, isTemplate, searchDate, comparison]);
 
+    const handleComparisonChange = (e) => {
+        const newComparison = e.target.value;
+        setComparison(newComparison);
+        // If user selects "--", reset the date to blank so the date filter is disabled.
+        if (newComparison === "") {
+            setSearchDate("");
+        }
+    };
+
     return (
         <>
             {error && (
@@ -161,7 +170,7 @@ function LinkedDeviceSearchFilter({ setLinkedDevices }) {
                     <div style={{ display: 'inline-flex', alignItems: 'center' }}>
                         <Form.Select
                             value={comparison}
-                            onChange={(e) => setComparison(e.target.value)}
+                            onChange={handleComparisonChange}
                             style={{ width: '70px' }} // Comparison select is smaller
                         >
                             <option value="">--</option>
