@@ -6,10 +6,12 @@ import AddDeviceModal from './AddDeviceModal';
 import DeviceSearchFilter from './DeviceSearchFilter';
 import SummaryModal from './SummaryModal';
 import '../../css/AllDevicesPage/Devices.css';
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import axiosInstance from "../../config/axiosInstance";
 
 function Devices() {
+
+    const location = useLocation();
     const [devices, setDevices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -26,6 +28,28 @@ function Devices() {
     const [editingDeviceId, setEditingDeviceId] = useState(null);
     const [editingVersion, setEditingVersion] = useState("");
     const [longPressTimer, setLongPressTimer] = useState(null);
+
+    const [searchQuery, setSearchQuery] = useState("");
+    const [classificatorId, setClassificatorId] = useState("");
+    const [clientId, setClientId] = useState("");
+    const [locationId, setLocationId] = useState("");
+    const [writtenOff, setWrittenOff] = useState(false);
+    const [searchDate, setSearchDate] = useState("");
+    const [comparison, setComparison] = useState("");
+
+    useEffect(() => {
+        // If there's filter data in location.state, re‑apply it
+        if (location.state?.filters) {
+            const f = location.state.filters;
+            setSearchQuery(f.searchQuery || "");
+            setClassificatorId(f.classificatorId || "");
+            setClientId(f.clientId || "");
+            setLocationId(f.locationId || "");
+            setWrittenOff(f.writtenOff || false);
+            setSearchDate(f.searchDate || "");
+            setComparison(f.comparison || "");
+        }
+    }, [location.state]);
 
 
     useEffect(() => {
@@ -222,7 +246,23 @@ function Devices() {
                     </Col>
                 </Row>
                 <Row className="mt-4">
-                    <DeviceSearchFilter setDevices={setDevices} />
+                    <DeviceSearchFilter
+                        searchQuery={searchQuery}
+                        setSearchQuery={setSearchQuery}
+                        classificatorId={classificatorId}
+                        setClassificatorId={setClassificatorId}
+                        clientId={clientId}
+                        setClientId={setClientId}
+                        locationId={locationId}
+                        setLocationId={setLocationId}
+                        writtenOff={writtenOff}
+                        setWrittenOff={setWrittenOff}
+                        searchDate={searchDate}
+                        setSearchDate={setSearchDate}
+                        comparison={comparison}
+                        setComparison={setComparison}
+                        setDevices={setDevices}
+                    />
                 </Row>
 
 
@@ -268,7 +308,20 @@ function Devices() {
                             <Col md={3} onClick={() => {
                                 // Store the current device's id as the last visited
                                 localStorage.setItem("lastVisitedDeviceId", device.id);
-                                navigate(`/device/${device.id}`, { state: { fromPath: `/devices` } });
+                                navigate(`/device/${device.id}`, {
+                                    state: {
+                                        fromPath: "/devices",
+                                        filters: {
+                                            searchQuery,
+                                            classificatorId,
+                                            clientId,
+                                            locationId,
+                                            writtenOff,
+                                            searchDate,
+                                            comparison
+                                        }
+                                    }
+                                });
                             }}>
                                 {classificators[device.classificatorId] || 'Unknown Type'}
                             </Col>
@@ -276,7 +329,20 @@ function Devices() {
                                  onClick={() => {
                                      // Store the current device's id as the last visited
                                      localStorage.setItem("lastVisitedDeviceId", device.id);
-                                     navigate(`/device/${device.id}`, { state: { fromPath: `/devices` } });
+                                     navigate(`/device/${device.id}`, {
+                                         state: {
+                                             fromPath: "/devices",
+                                             filters: {
+                                                 searchQuery,
+                                                 classificatorId,
+                                                 clientId,
+                                                 locationId,
+                                                 writtenOff,
+                                                 searchDate,
+                                                 comparison
+                                             }
+                                         }
+                                     });
                                  }}>
                                 {device.deviceName}
                             </Col>
@@ -284,7 +350,20 @@ function Devices() {
                                  onClick={() => {
                                      // Store the current device's id as the last visited
                                      localStorage.setItem("lastVisitedDeviceId", device.id);
-                                     navigate(`/device/${device.id}`, { state: { fromPath: `/devices` } });
+                                     navigate(`/device/${device.id}`, {
+                                         state: {
+                                             fromPath: "/devices",
+                                             filters: {
+                                                 searchQuery,
+                                                 classificatorId,
+                                                 clientId,
+                                                 locationId,
+                                                 writtenOff,
+                                                 searchDate,
+                                                 comparison
+                                             }
+                                         }
+                                     });
                                  }}>
                                 {getLocationName(device.locationId)}
                             </Col>
@@ -292,7 +371,20 @@ function Devices() {
                                  onClick={() => {
                                      // Store the current device's id as the last visited
                                      localStorage.setItem("lastVisitedDeviceId", device.id);
-                                     navigate(`/device/${device.id}`, { state: { fromPath: `/devices` } });
+                                     navigate(`/device/${device.id}`, {
+                                         state: {
+                                             fromPath: "/devices",
+                                             filters: {
+                                                 searchQuery,
+                                                 classificatorId,
+                                                 clientId,
+                                                 locationId,
+                                                 writtenOff,
+                                                 searchDate,
+                                                 comparison
+                                             }
+                                         }
+                                     });
                                  }}>
                                 {device.serialNumber}
                             </Col>

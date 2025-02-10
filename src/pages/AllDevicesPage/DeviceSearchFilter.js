@@ -3,12 +3,14 @@ import { Form, Row, Col, Alert } from 'react-bootstrap';
 import axiosInstance from '../../config/axiosInstance';
 import config from '../../config/config';
 
-function DeviceSearchFilter({ setDevices }) {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [classificatorId, setClassificatorId] = useState("");
-    const [clientId, setClientId] = useState("");
-    const [locationId, setLocationId] = useState("");
-    const [writtenOff, setWrittenOff] = useState(false);
+function DeviceSearchFilter({ searchQuery, setSearchQuery,
+                                classificatorId, setClassificatorId,
+                                clientId, setClientId,
+                                locationId, setLocationId,
+                                writtenOff, setWrittenOff,
+                                searchDate, setSearchDate,
+                                comparison, setComparison,
+                                setDevices }) {
     const [classificators, setClassificators] = useState([]);
     const [clients, setClients] = useState([]);
     const [locations, setLocations] = useState([]);
@@ -17,8 +19,6 @@ function DeviceSearchFilter({ setDevices }) {
     const [typingTimeout, setTypingTimeout] = useState(null);
 
     // States for date filtering
-    const [searchDate, setSearchDate] = useState(""); // e.g. YYYY-MM-DD
-    const [comparison, setComparison] = useState(""); // e.g. "after" or "before"
 
     useEffect(() => {
         const fetchClassificators = async () => {

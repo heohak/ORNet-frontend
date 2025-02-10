@@ -91,13 +91,21 @@ function OneDevice() {
 
     const handleBackNavigation = () => {
         if (location.state?.fromPath) {
-            navigate(`${location.state.fromPath}`, { state: {fromPath: location.state.fromPath, openAccordion: 'tickets' }});
+            // Pass through any filters we might have in location.state
+            navigate(location.state.fromPath, {
+                state: {
+                    fromPath: location.state.fromPath,
+                    openAccordion: 'tickets',
+                    filters: location.state?.filters // <- add this line
+                },
+            });
         } else if (device && device.clientId) {
             navigate(`/customer/${device.clientId}`);
         } else {
             navigate(-1);
         }
     };
+
 
 
 
