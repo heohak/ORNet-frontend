@@ -5,7 +5,6 @@ import AddTrainingModal from "../TrainingPage/AddTrainingModal";
 import TrainingDetailsModal from "../TrainingPage/TrainingDetailsModal";
 import axiosInstance from "../../config/axiosInstance";
 import TrainingService from "../TrainingPage/TrainingService";
-import EditTrainingModal from "../TrainingPage/EditTrainingModal";
 
 
 const ClientTrainings = ({trainings, locations, clientId, setTrainings, clientName}) => {
@@ -178,27 +177,22 @@ const ClientTrainings = ({trainings, locations, clientId, setTrainings, clientNa
             />
 
             {/* Maintenance Details Modal */}
-            <TrainingDetailsModal
-                show={showTrainingModal}
-                onHide={() => setShowTrainingModal(false)}
-                training={selectedTraining}
-                trainerNames={trainerNames}
-                clientNames={clientNames}
-                locationNames={locationNames}
-                onEdit={() => setShowEditModal(true)}
-                onDelete={() => handleDelete(selectedTraining.id)}
-            />
-            {showEditModal && (
-                <EditTrainingModal
-                    show={showEditModal}
-                    onHide={() => setShowEditModal(false)}
+            {selectedTraining &&
+                <TrainingDetailsModal
+                    show={showTrainingModal}
+                    onHide={() => setShowTrainingModal(false)}
                     training={selectedTraining}
-                    onSave={(updatedTraining) => {
-                        setSelectedTraining(updatedTraining); // Update details modal
+                    trainerNames={trainerNames}
+                    clientNames={clientNames}
+                    locationNames={locationNames}
+                    onEdit={() => setShowEditModal(true)}
+                    onDelete={() => handleDelete(selectedTraining.id)}
+                    onUpdate={(updatedTraining) => {
+                        setSelectedTraining(updatedTraining);
                         fetchTrainings();
                     }}
                 />
-            )}
+            }
         </>
     );
 

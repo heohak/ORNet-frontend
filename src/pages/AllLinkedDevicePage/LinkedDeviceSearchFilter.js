@@ -4,6 +4,7 @@ import { Row, Col, Form, Alert } from 'react-bootstrap';
 import Select from 'react-select';
 import axiosInstance from '../../config/axiosInstance';
 import config from '../../config/config';
+import ReactDatePicker from "react-datepicker";
 
 // Custom option component for displaying device details in the dropdown
 const deviceOption = ({ innerProps, innerRef, data, isFocused }) => {
@@ -42,6 +43,8 @@ function LinkedDeviceSearchFilter({ setLinkedDevices }) {
     // States for date filtering
     const [searchDate, setSearchDate] = useState(''); // Expecting format YYYY-MM-DD
     const [comparison, setComparison] = useState(''); // e.g., 'after' or 'before'
+    const [searchDateObj, setSearchDateObj] = useState(null);
+
 
     useEffect(() => {
         const fetchLocations = async () => {
@@ -108,8 +111,10 @@ function LinkedDeviceSearchFilter({ setLinkedDevices }) {
         // If user selects "--", reset the date to blank so the date filter is disabled.
         if (newComparison === "") {
             setSearchDate("");
+            setSearchDateObj(null);
         }
     };
+
 
     return (
         <>
@@ -177,12 +182,20 @@ function LinkedDeviceSearchFilter({ setLinkedDevices }) {
                             <option value="after">After</option>
                             <option value="before">Before</option>
                         </Form.Select>
-                        <Form.Control
-                            type="date"
-                            value={searchDate}
-                            onChange={(e) => setSearchDate(e.target.value)}
-                            style={{ width: '150px' }} // Fixed width for the date input
-                        />
+                        <div style={{ width: '150px' }}>
+                            <ReactDatePicker
+                                selected={searchDateObj}
+                                onChange={(date) => {
+                                    setSearchDateObj(date);
+                                    // Convert the picked date to a string in YYYY-MM-DD for the query parameters
+                                    setSearchDate(date ? date.toISOString().split('T')[0] : '');
+                                }}
+                                dateFormat="dd/MM/yyyy"           // Display format: day/month/year
+                                className="form-control"          // To match Bootstrap styling
+                                placeholderText="dd/mm/yyyy"
+                                isClearable
+                            />
+                        </div>
 
                         <div style={{ marginLeft: '20px' }}>
                             <Form.Check

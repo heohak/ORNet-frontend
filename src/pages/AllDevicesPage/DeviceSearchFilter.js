@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Form, Row, Col, Alert } from 'react-bootstrap';
 import axiosInstance from '../../config/axiosInstance';
 import config from '../../config/config';
+import ReactDatePicker from "react-datepicker";
 
 function DeviceSearchFilter({ searchQuery, setSearchQuery,
                                 classificatorId, setClassificatorId,
@@ -17,6 +18,14 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
     const [allLocations, setAllLocations] = useState([]);
     const [error, setError] = useState(null);
     const [typingTimeout, setTypingTimeout] = useState(null);
+    const [searchDateObj, setSearchDateObj] = useState(null);
+
+    useEffect(() => {
+        if (searchDate) {
+            setSearchDateObj(new Date(searchDate));
+        }
+    }, []);
+
 
     // States for date filtering
 
@@ -111,14 +120,6 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
         return () => clearTimeout(timeout);
     }, [searchQuery, classificatorId, clientId, locationId, writtenOff, searchDate, comparison]);
 
-    const handleComparisonChange = (e) => {
-        const newComparison = e.target.value;
-        setComparison(newComparison);
-        // If user selects "--", reset the date to blank so the date filter is disabled.
-        if (newComparison === "") {
-            setSearchDate("");
-        }
-    };
 
     return (
         <>
@@ -199,7 +200,14 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
                         {/* Comparison */}
                         <Form.Select
                             value={comparison}
-                            onChange={handleComparisonChange}
+                            onChange={(e) => {
+                                const newComparison = e.target.value;
+                                setComparison(newComparison);
+                                if (newComparison === "") {
+                                    setSearchDate("");
+                                    setSearchDateObj(null);
+                                }
+                            }}
                             style={{ width: '70px' }}
                         >
                             <option value="">--</option>
@@ -207,13 +215,21 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
                             <option value="before">Before</option>
                         </Form.Select>
 
-                        {/* Date input */}
-                        <Form.Control
-                            type="date"
-                            value={searchDate}
-                            onChange={(e) => setSearchDate(e.target.value)}
-                            style={{ width: '150px' }}
-                        />
+
+                        <div style={{width: '150px' }}>
+                            <ReactDatePicker
+                                selected={searchDateObj}
+                                onChange={(date) => {
+                                    setSearchDateObj(date);
+                                    // Convert the selected date to YYYY-MM-DD for your query
+                                    setSearchDate(date ? date.toISOString().split('T')[0] : '');
+                                }}
+                                dateFormat="dd/MM/yyyy"          // Display format: day/month/year
+                                className="form-control"         // To match Bootstrap styling
+                                placeholderText="dd/mm/yyyy"
+                                isClearable
+                            />
+                        </div>
 
                         {/* Written-off switch with a label */}
                         <Form.Check

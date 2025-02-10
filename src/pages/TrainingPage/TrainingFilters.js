@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Row, Col, Alert } from 'react-bootstrap';
 import axiosInstance from '../../config/axiosInstance';
+import ReactDatePicker from "react-datepicker";
+import { format } from 'date-fns'; // Import format function from date-fns
+import "react-datepicker/dist/react-datepicker.css";
 
 const TrainingFilters = ({ onFilter }) => {
     const [searchQuery, setSearchQuery] = useState('');
-    const [trainingDate, setTrainingDate] = useState('');
+    const [trainingDate, setTrainingDate] = useState(null); // Use null for no date selected
     const [clientId, setClientId] = useState('');
     const [locationId, setLocationId] = useState('');
     const [trainingType, setTrainingType] = useState('');
@@ -53,7 +56,8 @@ const TrainingFilters = ({ onFilter }) => {
                     q: searchQuery,
                     clientId: clientId || undefined,
                     locationId: locationId || undefined,
-                    date: trainingDate || undefined,
+                    // Format the selected date as "yyyy-MM-dd" for LocalDate
+                    date: trainingDate ? format(trainingDate, 'yyyy-MM-dd') : undefined,
                     type: trainingType || undefined
                 }
             });
@@ -137,10 +141,13 @@ const TrainingFilters = ({ onFilter }) => {
                     </Form.Control>
                 </Col>
                 <Col md={2}>
-                    <Form.Control
-                        type="date"
-                        value={trainingDate}
-                        onChange={(e) => setTrainingDate(e.target.value)}
+                    <ReactDatePicker
+                        selected={trainingDate}
+                        onChange={(date) => setTrainingDate(date)}
+                        dateFormat="dd.MM.yyyy"
+                        className="form-control"
+                        placeholderText="Select Date"
+                        isClearable
                     />
                 </Col>
             </Row>
