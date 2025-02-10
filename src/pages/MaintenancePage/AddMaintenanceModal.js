@@ -6,7 +6,7 @@ import AsyncSelect from "react-select/async";
 import axiosInstance from "../../config/axiosInstance";
 import config from "../../config/config";
 
-const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers }) => {
+const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers, setRefresh }) => {
     const [error, setError] = useState("");
     const [maintenanceName, setMaintenanceName] = useState("");
     const [maintenanceDate, setMaintenanceDate] = useState(null);
@@ -19,7 +19,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers 
     const [softwares, setSoftwares] = useState([]);
     const [devices, setDevices] = useState([]);
     const [linkedDevices, setLinkedDevices] = useState([]);
-    const [selectedWorker, setSelectedWorker] = useState(null);
+    const [selectedWorkerId, setSelectedWorkerId] = useState("");
 
     // State for AsyncSelect dropdowns
     const [selectedDevices, setSelectedDevices] = useState([]);
@@ -106,7 +106,10 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers 
         }
     };
 
-    const handleSubmit = async() => {
+    const handleSubmit = async(e) => {
+        e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         try {
             await axiosInstance.post(`/maintenance/add`, {
                 maintenanceName,
@@ -117,15 +120,32 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers 
                 linkedDeviceIds: selectedLinkedDevices.map(linkedDevice => linkedDevice.value),
                 softwareIds: selectedSoftwares.map(soft => soft.value),
                 maintenanceStatus: "OPEN",
-                baitWorkerId: selectedWorker.id,
+                baitWorkerId: selectedWorkerId,
                 clientId,
                 locationId,
-
-
             })
+            setRefresh(); //Refetches the maintenances on the main page
         } catch (error) {
             console.error("Error submitting the maintenance", error)
+        } finally {
+            setIsSubmitting(false);
+            onHide()
+            clearFields();
         }
+    }
+
+    const clearFields = () => {
+        setMaintenanceName("")
+        setMaintenanceDate("")
+        setSelectedWorkerId("");
+        setLastDate(null);
+        setClientId("");
+        setLocationId("");
+        setSelectedDevices([])
+        setSelectedLinkedDevices([]);
+        setDescription("");
+        setSelectedSoftwares([]);
+
     }
 
     return (
@@ -239,14 +259,14 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers 
                             <Form.Label>Responsible Worker</Form.Label>
                             <Form.Control
                                 as="select"
-                                value={selectedWorker?.id}
-                                onChange={(e) => setSelectedWorker(e.target.value)}
+                                value={selectedWorkerId}
+                                onChange={(e) => setSelectedWorkerId(e.target.value)}
                                 id="workerId"
                                 required
                             >
                                 <option value="">Select Responsible</option>
                                 {workers.map(worker => (
-                                    <option key={worker.id} value={worker.id}>
+                                    <option key={worker.value} value={worker.value}>
                                         {worker.label}
                                     </option>
                                 ))}

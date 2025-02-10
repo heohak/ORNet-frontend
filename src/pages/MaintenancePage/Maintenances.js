@@ -123,6 +123,7 @@ const Maintenances = () => {
                 onHide={() => setShowAddModal(false)}
                 clients={customers}
                 workers={baitWorkers}
+                setRefresh={() => setRefresh(!refresh)}
             />
 
         </Container>
