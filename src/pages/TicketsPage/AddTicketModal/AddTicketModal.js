@@ -75,10 +75,8 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
         setAvailableDevices(sortedList)
     };
 
-    const changeAvailableContacts = (locationId) => {
-        locationId = parseInt(locationId)
-        const filteredList = contacts.filter(contact => contact.locationId === locationId)
-        const sortedList = sortList(filteredList, "Contact")
+    const changeAvailableContacts = () => {
+        const sortedList = sortList(contacts, "Contact")
         setAvailableContacts(sortedList)
     }
 
@@ -119,6 +117,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
 
                     setLocations(locationRes.data.sort((a, b) => a.name.localeCompare(b.name)));
                     setContacts(contactsWithRoles);
+                    changeAvailableContacts(contactsWithRoles);
                 } catch (error) {
                     console.error('Error fetching locations or contacts:', error);
                 }
@@ -137,7 +136,6 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
             newValue = parseInt(value);
         } else if (id === 'locationId') {
             changeAvailableDevices(value);
-            changeAvailableContacts(value);
             setSelectedContacts([]);
             setSelectedDevices([]);
         }
