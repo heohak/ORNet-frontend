@@ -1,18 +1,37 @@
-// MaintenanceInfo.js
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { Row, Col, Button, Alert } from 'react-bootstrap';
-import MaintenanceModal from "../OneClientPage/ClientMaintenances/MaintenanceModal";
-import AddMaintenanceModal from "../OneClientPage/ClientMaintenances/AddMaintenanceModal";
-import '../../css/OneDevicePage/OneDevice.css';
-import {DateUtils} from "../../utils/DateUtils"; // Adjust the path as needed
+import AddMaintenanceModal from "../MaintenancePage/AddMaintenanceModal";
+import '../../css/Customers.css';
+import '../../css/OneClientPage/OneClient.css';
+import {DateUtils} from "../../utils/DateUtils";
+import MaintenanceDetailsModal from "../MaintenancePage/MaintenanceDetailsModal";
+import axiosInstance from "../../config/axiosInstance";
 
-function MaintenanceInfo({ maintenanceInfo, deviceId, setRefresh }) {
-    const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
+
+
+function MaintenanceInfo({ maintenances, clientId, setRefresh, locationNames, responsibleNames }) {
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [showAddMaintenanceModal, setShowAddMaintenanceModal] = useState(false);
-    const [selectedMaintenanceId, setSelectedMaintenanceId] = useState(null);
+    const [selectedMaintenance, setSelectedMaintenance] = useState(null);
+    const [showTermsModal, setShowTermsModal] = useState(false);
     const [sortConfig, setSortConfig] = useState({ key: 'maintenanceName', direction: 'ascending' });
+    const [baitWorkers, setBaitWorkers] = useState([])
 
 
+
+    useEffect(() => {
+        fetchBaitWorkers();
+    },[])
+
+    const fetchBaitWorkers = async() => {
+        try {
+            const response = await axiosInstance.get(`/bait/worker/all`)
+            const workers = response.data.map(worker => ({value: worker.id, label: `${worker.firstName} ${worker.lastName}`}))
+            setBaitWorkers(workers)
+        } catch (error) {
+            console.error("Error fetching Bait Workers", error);
+        }
+    }
     const handleSort = (key) => {
         let direction = 'ascending';
         if (sortConfig.key === key && sortConfig.direction === 'ascending') {
@@ -21,7 +40,7 @@ function MaintenanceInfo({ maintenanceInfo, deviceId, setRefresh }) {
         setSortConfig({ key, direction });
     };
 
-    const sortedMaintenances = [...maintenanceInfo].sort((a, b) => {
+    const sortedMaintenances = [...maintenances].sort((a, b) => {
         const valueA = a[sortConfig.key];
         const valueB = b[sortConfig.key];
 
@@ -37,33 +56,48 @@ function MaintenanceInfo({ maintenanceInfo, deviceId, setRefresh }) {
         return '↕';
     };
 
-    const handleMaintenanceClick = (maintenanceId) => {
-        setSelectedMaintenanceId(maintenanceId);
-        setShowMaintenanceModal(true);
+    const handleMaintenanceClick = (maintenance) => {
+        setSelectedMaintenance(maintenance);
+        setShowDetailsModal(true);
     };
 
     return (
         <>
-            <Row className="d-flex justify-content-between align-items-center mb-2">
+            <Row className="row-margin-0 d-flex justify-content-between align-items-center mb-2">
                 <Col className="col-md-auto">
-                    <h2 className="mb-0" style={{ paddingBottom: "20px" }}>
+                    <h2 className="mb-0" style={{paddingBottom: "20px"}}>
                         Maintenances
                     </h2>
                 </Col>
                 <Col className="col-md-auto">
-                    <Button variant="primary" onClick={() => setShowAddMaintenanceModal(true)}>
+                    {/*
+                    <Button variant="primary" onClick={() => setShowTermsModal(true)} className="me-2">
+                        Terms
+                    </Button>
+
+                   <Button variant="primary" onClick={() => setShowAddMaintenanceModal(true)}>
                         Add Maintenance
                     </Button>
+*/}
                 </Col>
             </Row>
 
             {/* Sortable Table Headers */}
-            <Row style={{ fontWeight: "bold" }} className="text-center">
-                <Col md={6} onClick={() => handleSort('maintenanceName')} style={{ cursor: 'pointer' }}>
+            <Row className="row-margin-0 fw-bold">
+                <Col md={3} onClick={() => handleSort('maintenanceName')}>
                     Maintenance Name {renderSortArrow('maintenanceName')}
                 </Col>
-                <Col md={6} onClick={() => handleSort('maintenanceDate')} style={{ cursor: 'pointer' }}>
-                    Date {renderSortArrow('maintenanceDate')}
+                <Col md={3} onClick={() => handleSort('location')}>
+                    Location {renderSortArrow('location')}
+                </Col>
+                <Col md={3} onClick={() => handleSort('maintenanceDate')}>
+                    Planned Date {renderSortArrow('maintenanceDate')}
+                </Col>
+                <Col md={2} onClick={() => handleSort('maintenanceStatus')}>
+                    Status {renderSortArrow('maintenanceStatus')}
+                </Col>
+                <Col md={1} onClick={() => handleSort('lastDate')}>
+                    Last Date {renderSortArrow('lastDate')}
                 </Col>
             </Row>
             <hr />
@@ -75,39 +109,58 @@ function MaintenanceInfo({ maintenanceInfo, deviceId, setRefresh }) {
                     return (
                         <Row
                             key={maintenance.id}
-                            className="align-items-center text-center py-2"
-                            style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
-                            onClick={() => handleMaintenanceClick(maintenance.id)}
+                            className="align-items-center"
+                            style={{ margin: '0 0', cursor: 'pointer' }}
+                            onClick={() => handleMaintenanceClick(maintenance)}
                         >
-                            <Col md={6}>{maintenance.maintenanceName}</Col>
-                            <Col md={6}>
-                                {maintenance.maintenanceDate
-                                    ? DateUtils.formatDate(maintenance.maintenanceDate)
-                                    : ''}
+                            <Col className="py-2" style={{ backgroundColor: rowBgColor}}>
+                                <Row className="align-items-center">
+                                    <Col md={3} className="py-2">
+                                        {maintenance.maintenanceName}
+                                    </Col>
+                                    <Col md={3} className="py-2">
+                                        {locationNames[maintenance.locationId]}
+                                    </Col>
+                                    <Col md={3} className="py-2">
+                                        {DateUtils.formatDate(maintenance.maintenanceDate)}
+                                    </Col>
+                                    <Col md={2} className="py-2">
+                                        {maintenance.maintenanceStatus}
+                                    </Col>
+                                    <Col md={1} className="py-2">
+                                        {DateUtils.formatDate(maintenance.lastDate)}
+                                    </Col>
+                                </Row>
                             </Col>
                         </Row>
                     );
                 })
             ) : (
-                <Alert className="mt-3" variant="info">
-                    No maintenances available.
-                </Alert>
+                <Alert className="mt-3" variant="info">No maintenances available.</Alert>
             )}
 
             {/* Add Maintenance Modal */}
             <AddMaintenanceModal
                 show={showAddMaintenanceModal}
-                handleClose={() => setShowAddMaintenanceModal(false)}
-                deviceId={deviceId}
+                onHide={() => setShowAddMaintenanceModal(false)}
+                selectedClientId={clientId}
                 setRefresh={setRefresh}
+                workers={baitWorkers}
+                clients={[clientId]}
             />
 
             {/* Maintenance Details Modal */}
-            <MaintenanceModal
-                show={showMaintenanceModal}
-                handleClose={() => setShowMaintenanceModal(false)}
-                maintenanceId={selectedMaintenanceId}
-            />
+            {selectedMaintenance &&
+                <MaintenanceDetailsModal
+                    show={showDetailsModal}
+                    onHide={() => setShowDetailsModal(false)}
+                    maintenance={selectedMaintenance}
+                    locationNames={locationNames}
+                    setMaintenance={setSelectedMaintenance}
+                    setRefresh={setRefresh}
+                    responsibleNames={responsibleNames}
+                />
+            }
         </>
     );
 }

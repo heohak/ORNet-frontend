@@ -15,12 +15,12 @@ function OneDevice() {
     const {deviceId} = useParams();
     const [device, setDevice] = useState(null);
     const [linkedDevices, setLinkedDevices] = useState([]);
-    const [maintenanceInfo, setMaintenanceInfo] = useState([]);
+    const [maintenances, setMaintenances] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
-    const [showMaintenanceFieldModal, setShowMaintenanceFieldModal] = useState(false);
+    const [responsibleNames, setResponsibleNames] = useState([]);
+    const [locationNames, setLocationNames] = useState([]);
     const [availableLinkedDevices, setAvailableLinkedDevices] = useState([]);
     const [refresh, setRefresh] = useState(false);
     const location = useLocation();
@@ -31,18 +31,19 @@ function OneDevice() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [deviceRes, linkedDevicesRes, availableLinkedDevicesRes] = await Promise.all([
+                const [deviceRes, linkedDevicesRes, availableLinkedDevicesRes, baitWorkersRes, maintenancesRes] = await Promise.all([
                     //maintenanceInfoRes
                     axiosInstance.get(`${config.API_BASE_URL}/device/${deviceId}`),
                     axiosInstance.get(`${config.API_BASE_URL}/linked/device/${deviceId}`),
                     axiosInstance.get(`${config.API_BASE_URL}/linked/device/not-used`),
-                    //axiosInstance.get(`${config.API_BASE_URL}/device/maintenances/${deviceId}`)
+                    axiosInstance.get(`/bait/worker/all`),
+                    axiosInstance.get(`/device/maintenances/${deviceId}`)
                 ]);
 
                 const fetchedDevice = deviceRes.data;
                 setLinkedDevices(linkedDevicesRes.data);
                 setAvailableLinkedDevices(availableLinkedDevicesRes.data);
-                //setMaintenanceInfo(maintenanceInfoRes.data);
+                setMaintenances(maintenancesRes.data);
                 const clientId = fetchedDevice.clientId;
                 const locationId = fetchedDevice.locationId;
                 const classificatorId = fetchedDevice.classificatorId;
@@ -58,6 +59,16 @@ function OneDevice() {
                     classificatorName: classificatorRes.data.name
                 };
                 setDevice(enhancedDeviceData);
+                const workers = baitWorkersRes.data.reduce((acc, worker) => {
+                    acc[worker.id] = worker.firstName;
+                    return acc;
+                }, {});
+                setResponsibleNames(workers);
+                const locId = locationRes.data.id;
+                const locName = locationRes.data.name;
+                const locationName = { [locId]: locName };
+                setLocationNames((prev) => ({ ...prev, ...locationName }));
+
             } catch (error) {
                 setError(error.message);
             } finally {
@@ -233,14 +244,11 @@ function OneDevice() {
                                 <Accordion.Header>Maintenance Information</Accordion.Header>
                                 <Accordion.Body>
                                     <MaintenanceInfo
-                                        maintenanceInfo={maintenanceInfo}
-                                        setMaintenanceInfo={setMaintenanceInfo}
-                                        showMaintenanceModal={showMaintenanceModal}
-                                        setShowMaintenanceModal={setShowMaintenanceModal}
-                                        showMaintenanceFieldModal={showMaintenanceFieldModal}
-                                        setShowMaintenanceFieldModal={setShowMaintenanceFieldModal}
-                                        deviceId={deviceId}
+                                        maintenances={maintenances}
+                                        clientId={device.clientId}
                                         setRefresh={handleRefresh}
+                                        locationNames={locationNames}
+                                        responsibleNames={responsibleNames}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
