@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { Row, Col, Button, Alert } from 'react-bootstrap';
 import MaintenanceModal from "./MaintenanceModal";
-import AddMaintenanceModal from "./AddMaintenanceModal";
+import AddMaintenanceModal from "../../MaintenancePage/AddMaintenanceModal";
 import '../../../css/Customers.css';
 import '../../../css/OneClientPage/OneClient.css';
 import {DateUtils} from "../../../utils/DateUtils";
 import MaintenanceDetailsModal from "../../MaintenancePage/MaintenanceDetailsModal";
 import TermsModal from "./TermsModal";
+import axiosInstance from "../../../config/axiosInstance";
 
 
 
@@ -16,8 +17,23 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client, locati
     const [selectedMaintenance, setSelectedMaintenance] = useState(null);
     const [showTermsModal, setShowTermsModal] = useState(false);
     const [sortConfig, setSortConfig] = useState({ key: 'maintenanceName', direction: 'ascending' });
+    const [baitWorkers, setBaitWorkers] = useState([])
 
 
+
+    useEffect(() => {
+        fetchBaitWorkers();
+    },[])
+
+    const fetchBaitWorkers = async() => {
+        try {
+            const response = await axiosInstance.get(`/bait/worker/all`)
+            const workers = response.data.map(worker => ({value: worker.id, label: `${worker.firstName} ${worker.lastName}`}))
+            setBaitWorkers(workers)
+        } catch (error) {
+            console.error("Error fetching Bait Workers", error);
+        }
+    }
     const handleSort = (key) => {
         let direction = 'ascending';
         if (sortConfig.key === key && sortConfig.direction === 'ascending') {
@@ -126,10 +142,11 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client, locati
             {/* Add Maintenance Modal */}
             <AddMaintenanceModal
                 show={showAddMaintenanceModal}
-                handleClose={() => setShowAddMaintenanceModal(false)}
-                clientId={clientId}
+                onHide={() => setShowAddMaintenanceModal(false)}
+                selectedClientId={clientId}
                 setRefresh={setRefresh}
-                client={client}
+                workers={baitWorkers}
+                clients={[client]}
             />
 
             {/* Maintenance Details Modal */}

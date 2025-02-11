@@ -311,7 +311,7 @@ function OneClient() {
                                     <ClientMaintenances
                                         maintenances={maintenances}
                                         clientId={clientId}
-                                        setRefresh={!refresh}
+                                        setRefresh={() => setRefresh(!refresh)}
                                         client={client}
                                         locationNames={locationsMap}
                                         responsibleNames={baitWorkersMap}

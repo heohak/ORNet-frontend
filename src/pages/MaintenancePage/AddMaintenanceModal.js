@@ -111,7 +111,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
         if (isSubmitting) return;
         setIsSubmitting(true);
         try {
-            await axiosInstance.post(`/maintenance/add`, {
+            const response = await axiosInstance.post(`/maintenance/add`, {
                 maintenanceName,
                 maintenanceDate,
                 lastDate,
@@ -121,9 +121,9 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                 softwareIds: selectedSoftwares.map(soft => soft.value),
                 maintenanceStatus: "OPEN",
                 baitWorkerId: selectedWorkerId,
-                clientId,
                 locationId,
             })
+            await axiosInstance.put(`/client/maintenance/${clientId}/${response.data.token}`)
             setRefresh(); //Refetches the maintenances on the main page
         } catch (error) {
             console.error("Error submitting the maintenance", error)

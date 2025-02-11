@@ -6,7 +6,8 @@ import TextareaAutosize from "react-textarea-autosize";
 import Linkify from "react-linkify";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import {FaEdit, FaPlus, FaSave} from "react-icons/fa";
+import {FaEdit, FaFileUpload, FaPlus, FaSave} from "react-icons/fa";
+import ShowFilesModal from "./ShowFilesModal";
 
 const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, setMaintenance, setRefresh, responsibleNames }) => {
     const [devices, setDevices] = useState([]);
@@ -18,9 +19,20 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
     const [description, setDescription] = useState(maintenance.comment || "");
     const [hours, setHours] = useState("");
     const [minutes, setMinutes] = useState("");
+    const [status, setStatus] = useState(maintenance.maintenanceStatus || "OPEN");
+    const [comments, setComments] = useState([]);
+    const [editableComments, setEditableComments] = useState([]);
+    const [responsibleId, setResponsibleId] = useState(maintenance.baitWorkerId || "");
+    const [selectedCommentId, setSelectedCommentId] = useState("");
+    const [modalOpen, setModalOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+
+
 
     useEffect(() => {
         fetchDevices();
+        fetchComments();
     }, [maintenance.id]);
 
     const reFetchMaintenance = async() => {
@@ -49,15 +61,35 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
         }
     };
 
+    const fetchComments = async () => {
+        try {
+            const response = await axiosInstance.get(`/maintenance-comment/maintenance/${maintenance.id}`);
+            setComments(response.data);
+        } catch (error) {
+            console.error("Error fetching comments:", error);
+        }
+    };
+
     const toggleEdit = () => {
         if (isEditing) {
-            // Save the changes to maintenance object (You can add an API call here if needed)
-            maintenance.maintenanceDate = startDate;
-            maintenance.lastDate = endDate;
-            maintenance.comment = description;
+            setMaintenance((prev) => ({
+                ...prev,
+                maintenanceDate: startDate,
+                lastDate: endDate,
+                comment: description,
+                maintenanceStatus: status,
+                baitWorkerId: responsibleId
+            }));
+            // Save edited comments back to the state when exiting edit mode
+            setComments(editableComments);
+        } else {
+            // Initialize editable comments when entering edit mode
+            setEditableComments(comments.map(comment => ({...comment})));
         }
         setIsEditing(!isEditing);
     };
+
+
 
     const formatDuration = (durationString) => {
         if (!durationString) return "0h 0min";
@@ -89,203 +121,398 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
         }
     };
 
+    const handleSave = async () => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+        console.log(responsibleId);
+        try {
+            await axiosInstance.put(`/maintenance/update/${maintenance.id}`, {
+                maintenanceDate: startDate,
+                lastDate: endDate,
+                comment: description,
+                maintenanceStatus: status,
+                baitWorkerId: responsibleId
+            })
+
+            // Loop through each edited comment and send it to the backend
+            for (const comment of editableComments) {
+                await axiosInstance.put(`/maintenance-comment/update/${comment.id}`, {
+                    maintenanceStatus: comment.maintenanceStatus,
+                    comment: comment.comment
+                });
+            }
+
+            // Refresh the maintenance data
+            await reFetchMaintenance();
+            setRefresh();
+            onHide();
+        } catch (error) {
+            console.error("Error saving comments:", error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+
     return (
-        <Modal size="xl" show={show} onHide={onHide}>
-            <Modal.Header closeButton>
-                <Modal.Title>Maintenance Details </Modal.Title> <Modal.Title style={{color: "red"}}> (Hetkel pooleli)</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <Row>
-                    <Col md={4}>Date</Col>
-                    <Col md={3}>Location</Col>
-                    <Col md={3}>Time Spent - {formatDuration(maintenance.timeSpent)}</Col>
-                    <Col className="text-end">
-                        <Button variant="link" onClick={toggleEdit}>
-                            {isEditing ? <FaSave /> : <FaEdit />}
-                        </Button>
-                    </Col>
-                </Row>
-                <Row >
-                    <Col md={4}>
-                        {isEditing ? (
+        <>
+            <Modal size="xl" backdrop="static" show={show} onHide={onHide}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Maintenance Details </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Row>
+                        <Col md={4}>Date</Col>
+                        <Col md={3}>Location</Col>
+                        <Col md={2}>Time Spent - {formatDuration(maintenance.timeSpent)}</Col>
+                        <Col md={2}>Status</Col>
+                        <Col className="text-end">
+                            <Button variant="link" onClick={toggleEdit}>
+                                {isEditing ? <FaSave /> : <FaEdit />}
+                            </Button>
+                        </Col>
+                    </Row>
+                    <Row >
+                        <Col md={4}>
+                            {isEditing ? (
+                                <Row>
+                                    <Col>
+                                        <DatePicker
+                                            selected={startDate}
+                                            onChange={(date) => setStartDate(date)}
+                                            dateFormat="dd.MM.yyyy"
+                                            className="form-control dark-placeholder"
+                                            placeholderText="Select Start Date"
+                                        />
+                                    </Col>
+                                    <Col>
+                                        <DatePicker
+                                            selected={endDate}
+                                            onChange={(date) => setEndDate(date)}
+                                            dateFormat="dd.MM.yyyy"
+                                            className="form-control dark-placeholder"
+                                            placeholderText="Select End Date"
+                                        />
+                                    </Col>
+                                </Row>
+                            ) : (
+                                <h4>{DateUtils.formatDate(maintenance.maintenanceDate)} - {DateUtils.formatDate(maintenance.lastDate)}</h4>
+                            )}
+                        </Col>
+                        <Col md={3}>
+                            <h4>{locationNames[maintenance.locationId]}</h4>
+                        </Col>
+                        <Col md={2}>
                             <Row>
-                                <Col>
-                                    <DatePicker
-                                        selected={startDate}
-                                        onChange={(date) => setStartDate(date)}
-                                        dateFormat="dd.MM.yyyy"
-                                        className="form-control dark-placeholder"
-                                        placeholderText="Select Start Date"
+                                <Col className="col-md-auto" style={{paddingRight: "0"}}>
+                                    <input
+                                        type="number"
+                                        value={hours}
+                                        onChange={(e) => setHours(e.target.value)}
+                                        placeholder="h"
+                                        className="form-control me-2"
+                                        min="0"
+                                        style={{ width: "50px", appearance: "textfield" }}
                                     />
                                 </Col>
-                                <Col>
-                                    <DatePicker
-                                        selected={endDate}
-                                        onChange={(date) => setEndDate(date)}
-                                        dateFormat="dd.MM.yyyy"
-                                        className="form-control dark-placeholder"
-                                        placeholderText="Select End Date"
+                                <Col className="col-md-auto p-0">
+                                    <input
+                                        type="number"
+                                        value={minutes}
+                                        onChange={(e) => setMinutes(e.target.value)}
+                                        placeholder="m"
+                                        className="form-control me-2"
+                                        min="0"
+                                        max="59"
+                                        style={{ width: "50px", appearance: "textfield" }}
                                     />
+                                </Col>
+                                <Col className="col-md-auto p-0">
+                                    <Button variant="link" onClick={handleTimeSubmit}>
+                                        <FaPlus />
+                                    </Button>
                                 </Col>
                             </Row>
-                        ) : (
-                            <h4>{DateUtils.formatDate(maintenance.maintenanceDate)} - {DateUtils.formatDate(maintenance.lastDate)}</h4>
-                        )}
-                    </Col>
-                    <Col md={3}>
-                        <h4>{locationNames[maintenance.locationId]}</h4>
-                    </Col>
-                    <Col md={3}>
-                        <Row>
-                            <Col className="col-md-auto" style={{paddingRight: "0"}}>
-                                <input
-                                    type="number"
-                                    value={hours}
-                                    onChange={(e) => setHours(e.target.value)}
-                                    placeholder="h"
-                                    className="form-control me-2"
-                                    min="0"
-                                    style={{ width: "50px", appearance: "textfield" }}
+                        </Col>
+                        <Col md={2}>
+                            {isEditing ? (
+                                <Form.Select
+                                    value={status}
+                                    onChange={(e) => setStatus(e.target.value)}
+                                >
+                                    <option value="OPEN">OPEN</option>
+                                    <option value="DONE">DONE</option>
+                                </Form.Select>
+                            ) : (
+                                maintenance.maintenanceStatus
+                            )}
+                        </Col>
+                    </Row>
+                    <Row className="mt-4">
+                        <Col>Description</Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            {isEditing ? (
+                                <TextareaAutosize
+                                    minRows={2}
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    className="mt-2"
+                                    style={{
+                                        width: "100%",
+                                        backgroundColor: "#f8f9fa",
+                                        borderRadius: "8px",
+                                        padding: "8px",
+                                        border: "1px solid #ddd",
+                                    }}
                                 />
-                            </Col>
-                            <Col className="col-md-auto p-0">
-                                <input
-                                    type="number"
-                                    value={minutes}
-                                    onChange={(e) => setMinutes(e.target.value)}
-                                    placeholder="m"
-                                    className="form-control me-2"
-                                    min="0"
-                                    max="59"
-                                    style={{ width: "50px", appearance: "textfield" }}
-                                />
-                            </Col>
-                            <Col className="col-md-auto p-0">
-                                <Button variant="link" onClick={handleTimeSubmit}>
-                                    <FaPlus />
-                                </Button>
-                            </Col>
-                        </Row>
-                    </Col>
-                </Row>
-                <Row className="mt-4">
-                    <Col>Description</Col>
-                </Row>
-                <Row>
-                    <Col>
-                        {isEditing ? (
-                            <TextareaAutosize
-                                minRows={2}
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                className="mt-2"
-                                style={{
-                                    width: "100%",
-                                    backgroundColor: "#f8f9fa",
-                                    borderRadius: "8px",
-                                    padding: "8px",
-                                    border: "1px solid #ddd",
-                                }}
-                            />
-                        ) : (
-                            <div
-                                style={{
-                                    backgroundColor: "#f8f9fa",
-                                    borderRadius: "8px",
-                                    padding: "10px",
-                                    border: "1px solid #ddd",
-                                }}
+                            ) : (
+                                <div
+                                    style={{
+                                        backgroundColor: "#f8f9fa",
+                                        borderRadius: "8px",
+                                        padding: "10px",
+                                        border: "1px solid #ddd",
+                                    }}
+                                >
+                                    {maintenance.comment &&
+                                        maintenance.comment.split("\n").map((line, idx) => (
+                                            <React.Fragment key={idx}>
+                                                <Linkify>{line}</Linkify>
+                                                <br />
+                                            </React.Fragment>
+                                        ))}
+                                </div>
+                            )}
+                        </Col>
+                    </Row>
+                    <Row className="mt-4">
+                        <Col md={3}>Device List</Col>
+                        <Col md={1}>Icon</Col>
+                        <Col md={1}>Status</Col>
+                        <Col md={7}>Comment</Col>
+                    </Row>
+                    {/*Devices*/}
+                    {devices.map((device, index) => {
+                        const rowBgColor = index % 2 === 0 ? "#f8f9fa" : "#ffffff";
+
+                        // Find the comment related to this device
+                        const relatedComment = comments.find((comment) => comment.deviceId === device.id);
+
+                        return (
+                            <Row
+                                key={device.id}
+                                className="align-items-center mt-2"
+                                style={{ margin: "0", backgroundColor: rowBgColor }}
                             >
-                                {maintenance.comment &&
-                                    maintenance.comment.split("\n").map((line, idx) => (
-                                        <React.Fragment key={idx}>
-                                            <Linkify>{line}</Linkify>
-                                            <br />
-                                        </React.Fragment>
+                                <Col md={3} className="py-2">
+                                    {device.deviceName} {device.serialNumber}
+                                </Col>
+                                <Col md={1} className="py-2">
+                                    <FaFileUpload
+                                        style={{ cursor: "pointer" }}
+                                        onClick={() => {
+                                            setSelectedCommentId(relatedComment?.id || null);
+                                            setModalOpen(true);
+                                        }}
+                                    />
+                                </Col>
+                                <Col md={1} className="py-2">
+                                    {isEditing && editableComments ? (
+                                        <Form.Select
+                                            value={editableComments.find(c => c.deviceId === device.id)?.maintenanceStatus || "OPEN"}
+                                            onChange={(e) => {
+                                                setEditableComments(editableComments.map(comment =>
+                                                    comment.deviceId === device.id ? { ...comment, maintenanceStatus: e.target.value } : comment
+                                                ));
+                                            }}
+                                        >
+                                            <option value="OPEN">OPEN</option>
+                                            <option value="DONE">DONE</option>
+                                        </Form.Select>
+
+                                    ) : (
+                                        relatedComment?.maintenanceStatus || "N/A"
+                                    )}
+                                </Col>
+                                <Col md={7} className="py-2">
+                                    {isEditing && editableComments ? (
+                                        <Form.Control
+                                            as="textarea"
+                                            value={editableComments.find(c => c.deviceId === device.id)?.comment || ""}
+                                            onChange={(e) => {
+                                                setEditableComments(editableComments.map(comment =>
+                                                    comment.deviceId === device.id ? { ...comment, comment: e.target.value } : comment
+                                                ));
+                                            }}
+                                        />
+                                    ) : (
+                                        relatedComment?.comment || "N/A"
+                                    )}
+                                </Col>
+                            </Row>
+                        );
+                    })}
+                    <Row>
+                        <Col>
+                            Linked Device list
+                        </Col>
+                    </Row>
+                    {/*Linked Devices*/}
+                    {linkedDevices.map((linkedDevice, index) => {
+                        const rowBgColor = index % 2 === 0 ? "#f8f9fa" : "#ffffff";
+
+                        // Find the comment related to this device
+                        const relatedComment = comments.find((comment) => comment.linkedDeviceId === linkedDevice.id);
+
+                        return (
+                            <Row
+                                key={linkedDevice.id}
+                                className="align-items-center mt-2"
+                                style={{ margin: "0", backgroundColor: rowBgColor }}
+                            >
+                                <Col md={3} className="py-2">
+                                    {linkedDevice.name} {linkedDevice.serialNumber}
+                                </Col>
+                                <Col md={1} className="py-2">
+                                    <FaFileUpload
+                                        style={{ cursor: "pointer" }}
+                                        onClick={() => {
+                                            setSelectedCommentId(relatedComment?.id || null);
+                                            setModalOpen(true);
+                                        }}
+                                    />
+                                </Col>
+                                <Col md={1} className="py-2">
+                                    {isEditing && editableComments ? (
+                                        <Form.Select
+                                            value={editableComments.find(c => c.linkedDeviceId === linkedDevice.id)?.maintenanceStatus || ""}
+                                            onChange={(e) => {
+                                                setEditableComments(editableComments.map(comment =>
+                                                    comment.linkedDeviceId === linkedDevice.id ? { ...comment, maintenanceStatus: e.target.value } : comment
+                                                ));
+                                            }}
+                                        >
+                                            <option value="OPEN">OPEN</option>
+                                            <option value="DONE">DONE</option>
+                                        </Form.Select>
+                                    ) : (
+                                        relatedComment?.maintenanceStatus || "N/A"
+                                    )}
+                                </Col>
+                                <Col md={7} className="py-2">
+                                    {isEditing && editableComments ? (
+                                        <Form.Control
+                                            as="textarea"
+                                            value={editableComments.find(c => c.linkedDeviceId === linkedDevice.id)?.comment || ""}
+                                            onChange={(e) => {
+                                                setEditableComments(editableComments.map(comment =>
+                                                    comment.linkedDeviceId === linkedDevice.id ? { ...comment, comment: e.target.value } : comment
+                                                ));
+                                            }}
+                                        />
+                                    ) : (
+                                        relatedComment?.comment || "N/A"
+                                    )}
+                                </Col>
+                            </Row>
+                        );
+                    })}
+                    <Row>
+                        <Col>
+                            Software list
+                        </Col>
+                    </Row>
+                    {/*Softwares*/}
+                    {softwares.map((software, index) => {
+                        const rowBgColor = index % 2 === 0 ? "#f8f9fa" : "#ffffff";
+
+                        // Find the comment related to this device
+                        const relatedComment = comments.find((comment) => comment.softwareId === software.id);
+                        return (
+                            <Row
+                                key={software.id}
+                                className="align-items-center mt-2"
+                                style={{ margin: "0", cursor: "pointer", backgroundColor: rowBgColor }}
+                            >
+                                <Col md={3} className="py-2">
+                                    {software.name} {software.serialNumber}
+                                </Col>
+                                <Col md={1} className="py-2">
+                                    <FaFileUpload
+                                        style={{ cursor: "pointer" }}
+                                        onClick={() => {
+                                            setSelectedCommentId(relatedComment?.id || null);
+                                            setModalOpen(true);
+                                        }}
+                                    />
+                                </Col>
+                                <Col md={1} className="py-2">
+                                    {isEditing && editableComments ? (
+                                        <Form.Select
+                                            value={editableComments.find(c => c.softwareId === software.id)?.maintenanceStatus || ""}
+                                            onChange={(e) => {
+                                                setEditableComments(editableComments.map(comment =>
+                                                    comment.softwareId === software.id ? { ...comment, maintenanceStatus: e.target.value } : comment
+                                                ));
+                                            }}
+                                        >
+                                            <option value="OPEN">OPEN</option>
+                                            <option value="DONE">DONE</option>
+                                        </Form.Select>
+                                    ) : (
+                                        relatedComment?.maintenanceStatus || "N/A"
+                                    )}
+                                </Col>
+                                <Col md={7} className="py-2">
+                                    {isEditing && editableComments ? (
+                                        <Form.Control
+                                            as="textarea"
+                                            value={editableComments.find(c => c.softwareId === software.id)?.comment || ""}
+                                            onChange={(e) => {
+                                                setEditableComments(editableComments.map(comment =>
+                                                    comment.softwareId === software.id ? { ...comment, comment: e.target.value } : comment
+                                                ));
+                                            }}
+                                        />
+                                    ) : (
+                                        relatedComment?.comment || "N/A"
+                                    )}
+                                </Col>
+
+                            </Row>
+                        );
+                    })}
+                    <Row className="mt-4 justify-content-between">
+                        <Col md={2}>
+                            {isEditing ? (
+                                <Form.Select value={responsibleId} onChange={(e) => setResponsibleId(e.target.value)}>
+                                    {Object.entries(responsibleNames).map(([id, name]) => (
+                                        <option key={id} value={id}>{name}</option>
                                     ))}
-                            </div>
-                        )}
-                    </Col>
-                </Row>
-                <Row className="mt-4">
-                    <Col>Device List</Col>
-                    <Col>Icon</Col>
-                    <Col>Status</Col>
-                    <Col>Comment</Col>
-                </Row>
-                {/*Devices*/}
-                {devices.map((device, index) => {
-                    const rowBgColor = index % 2 === 0 ? "#f8f9fa" : "#ffffff";
-                    return (
-                        <Row
-                            key={device.id}
-                            className="align-items-center mt-2"
-                            style={{ margin: "0", cursor: "pointer", backgroundColor: rowBgColor }}
-                        >
-                            <Col md={3} className="py-2">
-                                {device.deviceName} {device.serialNumber}
-                            </Col>
-                            <Col md={3} className="py-2">Add file</Col>
-                            <Col md={3} className="py-2">{device.status}</Col>
-                            <Col md={2} className="py-2">{device.maintenanceStatus}</Col>
-                        </Row>
-                    );
-                })}
-                <Row>
-                    <Col>
-                        Linked Device list
-                    </Col>
-                </Row>
-                {/*Linked Devices*/}
-                {linkedDevices.map((linkedDevice, index) => {
-                    const rowBgColor = index % 2 === 0 ? "#f8f9fa" : "#ffffff";
-                    return (
-                        <Row
-                            key={linkedDevice.id}
-                            className="align-items-center mt-2"
-                            style={{ margin: "0", cursor: "pointer", backgroundColor: rowBgColor }}
-                        >
-                            <Col md={3} className="py-2">
-                                {linkedDevice.name} {linkedDevice.serialNumber}
-                            </Col>
-                            <Col md={3} className="py-2">Add file</Col>
-                            <Col md={3} className="py-2">{linkedDevice.status}</Col>
-                            <Col md={2} className="py-2">{linkedDevice.maintenanceStatus}</Col>
-                        </Row>
-                    );
-                })}
-                <Row>
-                    <Col>
-                        Software list
-                    </Col>
-                </Row>
-                {/*Softwares*/}
-                {softwares.map((software, index) => {
-                    const rowBgColor = index % 2 === 0 ? "#f8f9fa" : "#ffffff";
-                    return (
-                        <Row
-                            key={software.id}
-                            className="align-items-center mt-2"
-                            style={{ margin: "0", cursor: "pointer", backgroundColor: rowBgColor }}
-                        >
-                            <Col md={3} className="py-2">
-                                {software.name} {software.serialNumber}
-                            </Col>
-                            <Col md={3} className="py-2">Add file</Col>
-                            <Col md={3} className="py-2">{software.status}</Col>
-                            <Col md={2} className="py-2">{software.maintenanceStatus}</Col>
-                        </Row>
-                    );
-                })}
-                <Row className="mt-4 justify-content-between">
-                    <Col>Service Provided by: {responsibleNames[maintenance.baitWorkerId]}</Col>
-                    <Col className="col-md-auto">
-                        {/*<Button className="me-2">Print Pdf</Button>*/}
-                        <Button>Save</Button>
-                    </Col>
-                </Row>
-            </Modal.Body>
-        </Modal>
+                                </Form.Select>
+                            ) : (
+                                <span>Service Provided by: {responsibleNames[maintenance.baitWorkerId]}</span>
+                            )}
+                        </Col>
+
+                        <Col className="col-md-auto">
+                            {/*<Button className="me-2">Print Pdf</Button>*/}
+                            <Button onClick={handleSave} disabled={isSubmitting}>
+                                {isSubmitting ? 'Saving...' : 'Save'}
+                            </Button>
+                        </Col>
+                    </Row>
+                </Modal.Body>
+            </Modal>
+            {modalOpen && selectedCommentId && (
+                <ShowFilesModal
+                    maintenanceCommentId={selectedCommentId}
+                    onClose={() => setModalOpen(false)}
+                />
+            )}
+        </>
     );
 };
 
