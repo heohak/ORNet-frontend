@@ -6,6 +6,7 @@ import '../../../css/Customers.css';
 import '../../../css/OneClientPage/OneClient.css';
 import {DateUtils} from "../../../utils/DateUtils";
 import MaintenanceDetailsModal from "../../MaintenancePage/MaintenanceDetailsModal";
+import TermsModal from "./TermsModal";
 
 
 
@@ -13,6 +14,7 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client, locati
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [showAddMaintenanceModal, setShowAddMaintenanceModal] = useState(false);
     const [selectedMaintenance, setSelectedMaintenance] = useState(null);
+    const [showTermsModal, setShowTermsModal] = useState(false);
     const [sortConfig, setSortConfig] = useState({ key: 'maintenanceName', direction: 'ascending' });
 
 
@@ -54,6 +56,10 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client, locati
                     </h2>
                 </Col>
                 <Col className="col-md-auto">
+                    <Button variant="primary" onClick={() => setShowTermsModal(true)} className="me-2">
+                        Terms
+                    </Button>
+
                     <Button variant="primary" onClick={() => setShowAddMaintenanceModal(true)}>
                         Add Maintenance
                     </Button>
@@ -137,8 +143,15 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client, locati
                     setRefresh={setRefresh}
                     responsibleNames={responsibleNames}
                 />
-
             }
+
+            {/* Terms Modal */}
+            <TermsModal
+                show={showTermsModal}
+                onHide={() => setShowTermsModal(false)}
+                setRefresh={setRefresh}
+                clientId={clientId}
+            />
         </>
     );
 }
