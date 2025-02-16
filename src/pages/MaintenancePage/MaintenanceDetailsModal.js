@@ -544,15 +544,22 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                     <Row className="mt-4 justify-content-between">
                         <Col md={2}>
                             {isEditing ? (
-                                <Form.Select value={responsibleId} onChange={(e) => setResponsibleId(e.target.value)}>
-                                    {Object.entries(responsibleNames).map(([id, name]) => (
-                                        <option key={id} value={id}>{name}</option>
-                                    ))}
-                                </Form.Select>
+                                <>
+                                    <span>Assignee:</span>
+                                    <Form.Select className="mt-2" value={responsibleId} onChange={(e) => setResponsibleId(e.target.value)}>
+                                        {Object.entries(responsibleNames).map(([id, name]) => (
+                                            <option key={id} value={id}>{name}</option>
+                                        ))}
+                                    </Form.Select>
+                                </>
                             ) : (
-                                <span>Service Provided by: {responsibleNames[maintenance.baitWorkerId]}</span>
+                                <>
+                                    <span>Service Provided by: </span>
+                                    <span className="mt-2">{responsibleNames[maintenance.baitWorkerId]}</span>
+                                </>
                             )}
                         </Col>
+
 
                         <Col className="col-md-auto">
                             {/*<Button className="me-2">Print Pdf</Button>*/}

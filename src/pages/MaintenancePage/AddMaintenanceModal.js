@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import AsyncSelect from "react-select/async";
 import axiosInstance from "../../config/axiosInstance";
-import config from "../../config/config";
 
 const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers, setRefresh }) => {
     const [error, setError] = useState("");
