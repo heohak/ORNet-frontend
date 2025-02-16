@@ -222,7 +222,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                                     onChange={(selectedClient) => {
                                         if (selectedClient) {
                                             setClientId(selectedClient.id);
-                                            // optionally setDescription(selectedClient.maintenanceDescription || "")
+                                            setDescription(selectedClient.maintenanceDescription || "")
                                         } else {
                                             setClientId("");
                                         }
@@ -313,7 +313,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                         <Col>
                             <div className="d-flex justify-content-between align-items-center mb-1">
                                 <Form.Label className="mb-0">Devices</Form.Label>
-                                <Button variant="link" onClick={handleSelectAllDevices} style={{ padding: 0 }}>
+                                <Button variant="link" onClick={handleSelectAllDevices} style={{ padding: 0, textDecoration: 'none' }}>
                                     Select All
                                 </Button>
                             </div>
@@ -330,7 +330,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                         <Col>
                             <div className="d-flex justify-content-between align-items-center mb-1">
                                 <Form.Label className="mb-0">Linked Devices</Form.Label>
-                                <Button variant="link" onClick={handleSelectAllLinked} style={{ padding: 0 }}>
+                                <Button variant="link" onClick={handleSelectAllLinked} style={{ padding: 0, textDecoration: 'none' }}>
                                     Select All
                                 </Button>
                             </div>
@@ -347,7 +347,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                         <Col>
                             <div className="d-flex justify-content-between align-items-center mb-1">
                                 <Form.Label className="mb-0">Softwares</Form.Label>
-                                <Button variant="link" onClick={handleSelectAllSoftware} style={{ padding: 0 }}>
+                                <Button variant="link" onClick={handleSelectAllSoftware} style={{ padding: 0, textDecoration: 'none' }}>
                                     Select All
                                 </Button>
                             </div>
