@@ -197,7 +197,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                         <Col md={2}>Status</Col>
                         <Col className="text-end">
                             <Button variant="link" onClick={toggleEdit}>
-                                {isEditing ? <FaSave /> : <FaEdit />}
+                                {isEditing ? <FaSave  style={{ fontSize: '1.5rem' }} /> : <FaEdit  style={{ fontSize: '1.5rem' }} />}
                             </Button>
                         </Col>
                     </Row>
