@@ -136,16 +136,19 @@ function Contacts() {
 
     return (
         <>
-            <div className="contact-search-menu">
-                <div className="contact-search-menu-items">
-                    <div className="contact-search-menu-header mb-4">
+        <div className="contact-search-menu">
+            <div className="contact-search-menu-items">
+                <div className="contact-search-menu-header mb-4">
                         <h1 className="mb-0">Email List</h1>
-                        <div className="d-flex">
+                    <div className="d-flex align-items-center">
+                        <span style={{ marginRight: '10px', fontWeight: 'bold' }}>
+                                Selected contacts: {workers.filter(worker => worker.email).length}
+                        </span>
                             <Button variant="primary" onClick={handleCopyEmails}>
                                 {copied ? "Emails Copied!" : "Copy Emails"}
                             </Button>
-                        </div>
                     </div>
+                </div>
                     <WorkerSearchFilter setWorkers={setWorkers} setLoading={setLoading} />
                 </div>
             </div>
