@@ -118,7 +118,13 @@ const TrainingDetailsModal = ({ show, onHide, training, trainerNames, clientName
 
     return (
         <>
-            <Modal show={show} onHide={onHide} size="lg">
+            <Modal
+                show={show}
+                onHide={onHide}
+                size="lg"
+                backdrop="static"
+                dialogClassName={showFileUploadModal ? "dimmed" : ""}
+            >
                 <Modal.Header closeButton>
                     <Modal.Title>{isEditing ? "Edit Training" : "Training Details"}</Modal.Title>
                 </Modal.Header>

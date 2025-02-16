@@ -7,10 +7,12 @@ const MaintenanceFilters = ({ setMaintenances }) => {
     const [trainingDate, setTrainingDate] = useState('');
     const [clientId, setClientId] = useState('');
     const [locationId, setLocationId] = useState('');
+    const [baitWorkerId, setBaitWorkerId] = useState('');
     const [trainingType, setTrainingType] = useState('');
 
     const [clients, setClients] = useState([]);
     const [locations, setLocations] = useState([]);
+    const [baitWorkers, setBaitWorkers] = useState([]);
     const [trainingTypes, setTrainingTypes] = useState([]); // Assuming predefined enums
     const [error, setError] = useState(null);
     const [typingTimeout, setTypingTimeout] = useState(null);
@@ -18,6 +20,7 @@ const MaintenanceFilters = ({ setMaintenances }) => {
     useEffect(() => {
         fetchClients();
         fetchLocations();
+        fetchBaitWorkers();
     }, []);
 
     const fetchClients = async () => {
@@ -40,6 +43,16 @@ const MaintenanceFilters = ({ setMaintenances }) => {
         }
     };
 
+    const fetchBaitWorkers = async () => {
+        try {
+            const response = await axiosInstance.get('/bait/worker/all');
+            setBaitWorkers(response.data.sort((a, b) => a.firstName.localeCompare(b.firstName)));
+        } catch (error) {
+            console.error('Error fetching locations:', error);
+            setError(error.message);
+        }
+    };
+
 
     const handleSearchAndFilter = async () => {
         try {
@@ -48,6 +61,7 @@ const MaintenanceFilters = ({ setMaintenances }) => {
                     q: searchQuery,
                     clientId: clientId || undefined,
                     locationId: locationId || undefined,
+                    baitWorkerId: baitWorkerId || undefined
 
                 }
             });
@@ -65,7 +79,7 @@ const MaintenanceFilters = ({ setMaintenances }) => {
         }, 300);
         setTypingTimeout(timeout);
         return () => clearTimeout(timeout);
-    }, [searchQuery, clientId, locationId]);
+    }, [searchQuery, clientId, locationId, baitWorkerId]);
 
     return (
         <>
@@ -119,24 +133,24 @@ const MaintenanceFilters = ({ setMaintenances }) => {
                 <Col md={2}>
                     <Form.Control
                         as="select"
-                        value={trainingType}
-                        onChange={(e) => setTrainingType(e.target.value)}
+                        value={baitWorkerId}
+                        onChange={(e) => setBaitWorkerId(e.target.value)}
                     >
-                        <option value="">Select Type</option>
-                        {trainingTypes.map((type, index) => (
-                            <option key={index} value={type}>
-                                {type}
+                        <option value="">Select Assignee</option>
+                        {baitWorkers.map((worker) => (
+                            <option key={worker.id} value={worker.id}>
+                                {worker.firstName}
                             </option>
                         ))}
                     </Form.Control>
                 </Col>
-                <Col md={2}>
-                    <Form.Control
-                        type="date"
-                        value={trainingDate}
-                        onChange={(e) => setTrainingDate(e.target.value)}
-                    />
-                </Col>
+                {/*<Col md={2}>*/}
+                {/*    <Form.Control*/}
+                {/*        type="date"*/}
+                {/*        value={trainingDate}*/}
+                {/*        onChange={(e) => setTrainingDate(e.target.value)}*/}
+                {/*    />*/}
+                {/*</Col>*/}
             </Row>
         </>
     );

@@ -101,8 +101,8 @@ const NewTicketDetails = ({ ticket, activeKey, eventKey, handleAccordionToggle, 
                     return {...contact, roles: rolesRes.data.map(role => role.role)};
                 })
             );
-            const filteredContacts = contactsWithRoles.filter(contact => contact.locationId === ticket.locationId);
-            setAvailableContacts(filteredContacts);
+
+            setAvailableContacts(contactsWithRoles);
 
             setSelectedContacts(
                 editedTicket.contactIds.map(contactId =>

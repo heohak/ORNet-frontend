@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import AsyncSelect from "react-select/async";
 import axiosInstance from "../../config/axiosInstance";
-import config from "../../config/config";
 
 const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers, setRefresh }) => {
     const [error, setError] = useState("");
@@ -16,13 +15,13 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
     const [locationId, setLocationId] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [description, setDescription] = useState("");
-    const [softwares, setSoftwares] = useState([]);
-    const [devices, setDevices] = useState([]);
-    const [linkedDevices, setLinkedDevices] = useState([]);
+    const [softwares, setSoftwares] = useState([]); // array of { value, label } for all software
+    const [devices, setDevices] = useState([]);    // array of { value, label } for all devices
+    const [linkedDevices, setLinkedDevices] = useState([]); // array of { value, label }
     const [selectedWorkerId, setSelectedWorkerId] = useState("");
 
-    // State for AsyncSelect dropdowns
-    const [selectedDevices, setSelectedDevices] = useState([]);
+    // Multi-select states
+    const [selectedDevices, setSelectedDevices] = useState([]);         // selected devices
     const [selectedLinkedDevices, setSelectedLinkedDevices] = useState([]);
     const [selectedSoftwares, setSelectedSoftwares] = useState([]);
 
@@ -40,42 +39,56 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
         }
     }, [locationId]);
 
+    // Fetch all locations for the chosen client
     const fetchLocations = async () => {
         try {
             const response = await axiosInstance.get(`/client/locations/${clientId}`);
-            setLocations(response.data.sort((a, b) => a.name.localeCompare(b.name)));
+            const sorted = response.data.sort((a, b) => a.name.localeCompare(b.name));
+            setLocations(sorted);
         } catch (error) {
             console.error("Error fetching locations:", error);
         }
     };
 
+    // Fetch all devices for the chosen location
     const fetchDevices = async () => {
         try {
             const response = await axiosInstance.get(`/device/search`, { params: { locationId } });
-            const sortedDevices = response.data.sort((a, b) => a.deviceName.localeCompare(b.deviceName));
-            setDevices(sortedDevices.map(device => ({value: device.id, label: device.deviceName})))
+            const sorted = response.data.sort((a, b) => a.deviceName.localeCompare(b.deviceName));
+            // Convert to { value, label } format
+            const mapped = sorted.map(device => ({
+                value: device.id,
+                label: device.deviceName
+            }));
+            setDevices(mapped);
         } catch (error) {
             console.error("Error fetching devices:", error);
         }
     };
 
+    // Fetch all linked devices for the chosen location
     const fetchLinkedDevices = async () => {
         try {
             const response = await axiosInstance.get(`/linked/device/search`, { params: { locationId } });
-            const sortedLinkedDevices = response.data.sort((a, b) => a.name.localeCompare(b.name));
-            setLinkedDevices(sortedLinkedDevices.map(linkedDevice => ({value: linkedDevice.id, label: linkedDevice.name})))
+            const sorted = response.data.sort((a, b) => a.name.localeCompare(b.name));
+            const mapped = sorted.map(linkedDevice => ({
+                value: linkedDevice.id,
+                label: linkedDevice.name
+            }));
+            setLinkedDevices(mapped);
         } catch (error) {
             console.error("Error fetching linked devices:", error);
         }
     };
 
-    // Async loaders for react-select
+    // We load device options dynamically in the AsyncSelect.
+    // But we also keep the entire `devices` array in state for "Select All."
     const loadDevices = async (inputValue) => {
         try {
             const response = await axiosInstance.get(`/device/search`, {
-                params: {clientId, locationId, q: inputValue }
+                params: { clientId, locationId, q: inputValue }
             });
-            return response.data.map((device) => ({ value: device.id, label: device.deviceName }));
+            return response.data.map((d) => ({ value: d.id, label: d.deviceName }));
         } catch (error) {
             console.error("Error loading devices:", error);
             return [];
@@ -87,26 +100,43 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
             const response = await axiosInstance.get(`/linked/device/search`, {
                 params: { clientId, locationId, q: inputValue }
             });
-            return response.data.map((device) => ({ value: device.id, label: device.name }));
+            return response.data.map((dev) => ({ value: dev.id, label: dev.name }));
         } catch (error) {
             console.error("Error loading linked devices:", error);
             return [];
         }
     };
 
-    const fetchSoftwares = async() => {
+    // Fetch software for the chosen client
+    const fetchSoftwares = async () => {
         if (clientId) {
             try {
                 const response = await axiosInstance.get(`/software/client/${clientId}`);
-                const softwareRes = response.data.map(soft => ({value: soft.id, label: soft.name}))
-                setSoftwares(softwareRes.sort((a, b) => a.label.localeCompare(b.label)));
+                const mapped = response.data.map((soft) => ({
+                    value: soft.id,
+                    label: soft.name
+                }));
+                setSoftwares(mapped.sort((a, b) => a.label.localeCompare(b.label)));
             } catch (error) {
-                console.error('Error fetching locations or contacts:', error);
+                console.error("Error fetching client software:", error);
             }
         }
     };
 
-    const handleSubmit = async(e) => {
+    // "Select all" handlers
+    const handleSelectAllDevices = () => {
+        setSelectedDevices(devices); // select entire devices array
+    };
+
+    const handleSelectAllLinked = () => {
+        setSelectedLinkedDevices(linkedDevices);
+    };
+
+    const handleSelectAllSoftware = () => {
+        setSelectedSoftwares(softwares);
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (isSubmitting) return;
         setIsSubmitting(true);
@@ -116,40 +146,46 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                 maintenanceDate,
                 lastDate,
                 comment: description,
-                deviceIds: selectedDevices.map(device => device.value),
-                linkedDeviceIds: selectedLinkedDevices.map(linkedDevice => linkedDevice.value),
-                softwareIds: selectedSoftwares.map(soft => soft.value),
+                deviceIds: selectedDevices.map(d => d.value),
+                linkedDeviceIds: selectedLinkedDevices.map(ld => ld.value),
+                softwareIds: selectedSoftwares.map(sw => sw.value),
                 maintenanceStatus: "OPEN",
                 baitWorkerId: selectedWorkerId,
                 locationId,
-            })
-            await axiosInstance.put(`/client/maintenance/${clientId}/${response.data.token}`)
-            setRefresh(); //Refetches the maintenances on the main page
+            });
+            // attach the new maintenance to the client
+            await axiosInstance.put(`/client/maintenance/${clientId}/${response.data.token}`);
+
+            setRefresh();  // re-fetch maintenances
+            handleClose();
         } catch (error) {
-            console.error("Error submitting the maintenance", error)
+            console.error("Error submitting the maintenance", error);
+            setError("Failed to add maintenance.");
         } finally {
             setIsSubmitting(false);
-            onHide()
-            clearFields();
         }
-    }
+    };
+
+    const handleClose = () => {
+        clearFields();
+        onHide();
+    };
 
     const clearFields = () => {
-        setMaintenanceName("")
-        setMaintenanceDate("")
-        setSelectedWorkerId("");
+        setMaintenanceName("");
+        setMaintenanceDate(null);
         setLastDate(null);
-        setClientId("");
+        setSelectedWorkerId("");
+        setClientId(selectedClientId || "");
         setLocationId("");
-        setSelectedDevices([])
+        setSelectedDevices([]);
         setSelectedLinkedDevices([]);
-        setDescription("");
         setSelectedSoftwares([]);
-
-    }
+        setDescription("");
+    };
 
     return (
-        <Modal size="xl" backdrop="static" show={show} onHide={onHide}>
+        <Modal size="xl" backdrop="static" show={show} onHide={handleClose}>
             <Modal.Header closeButton>
                 <Modal.Title>Add New Maintenance</Modal.Title>
             </Modal.Header>
@@ -179,45 +215,42 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                                 <Form.Label>Customer</Form.Label>
                                 <Select
                                     options={[...clients].sort((a, b) => a.fullName.localeCompare(b.fullName))}
-
-                                    getOptionLabel={client => client.fullName}
-                                    getOptionValue={client => client.id.toString()}
-                                    value={clients.find(client => client.id === Number(clientId)) || null}
-                                    onChange={selectedClient => {
+                                    getOptionLabel={(client) => client.fullName}
+                                    getOptionValue={(client) => client.id.toString()}
+                                    value={clients.find((c) => c.id === Number(clientId)) || null}
+                                    onChange={(selectedClient) => {
                                         if (selectedClient) {
                                             setClientId(selectedClient.id);
+                                            setDescription(selectedClient.maintenanceDescription || "")
                                         } else {
                                             setClientId("");
-
                                         }
                                     }}
                                     isDisabled={!!selectedClientId}
-                                    isSearchable={true}
-                                    placeholder={selectedClientId ? "Customer locked to selected" : "Select Customer"}
+                                    isSearchable
+                                    placeholder={selectedClientId ? "Customer locked" : "Select Customer"}
+                                    required
                                 />
                             </Form.Group>
                         </Col>
                         <Col>
                             <Form.Group className="mb-3">
-                                <div className="d-flex mb-2">
-                                    <Form.Label className="align-items-centre mb-0">Location</Form.Label>
-                                </div>
+                                <Form.Label>Location</Form.Label>
                                 <Form.Control
                                     as="select"
                                     value={locationId}
                                     onChange={(e) => setLocationId(e.target.value)}
-                                    id="locationId"
                                     disabled={!clientId}
                                     required
                                 >
                                     {!clientId ? (
-                                        <option value="">Pick a customer before picking a location</option>
+                                        <option value="">Pick a customer before location</option>
                                     ) : (
                                         <>
                                             <option value="">Select Location</option>
-                                            {locations.map(location => (
-                                                <option key={location.id} value={location.id}>
-                                                    {location.name}
+                                            {locations.map((loc) => (
+                                                <option key={loc.id} value={loc.id}>
+                                                    {loc.name}
                                                 </option>
                                             ))}
                                         </>
@@ -226,6 +259,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                             </Form.Group>
                         </Col>
                     </Row>
+
                     <Row>
                         <Col>
                             <Form.Group className="mb-3">
@@ -234,8 +268,8 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                                     selected={maintenanceDate}
                                     onChange={(date) => setMaintenanceDate(date)}
                                     dateFormat="dd.MM.yyyy"
-                                    className="form-control dark-placeholder"
-                                    placeholderText="Select a date"
+                                    className="form-control"
+                                    placeholderText="Select date"
                                     isClearable
                                     required
                                 />
@@ -248,8 +282,8 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                                     selected={lastDate}
                                     onChange={(date) => setLastDate(date)}
                                     dateFormat="dd.MM.yyyy"
-                                    className="form-control dark-placeholder"
-                                    placeholderText="Select a date"
+                                    className="form-control"
+                                    placeholderText="Select date"
                                     isClearable
                                     required
                                 />
@@ -261,21 +295,27 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                                 as="select"
                                 value={selectedWorkerId}
                                 onChange={(e) => setSelectedWorkerId(e.target.value)}
-                                id="workerId"
                                 required
                             >
                                 <option value="">Select Responsible</option>
-                                {workers.map(worker => (
-                                    <option key={worker.value} value={worker.value}>
-                                        {worker.label}
+                                {workers.map((w) => (
+                                    <option key={w.value} value={w.value}>
+                                        {w.label}
                                     </option>
                                 ))}
                             </Form.Control>
                         </Col>
                     </Row>
+
+                    {/* Devices, Linked Devices, Softwares with "Select All" */}
                     <Row>
                         <Col>
-                            <Form.Label>Devices</Form.Label>
+                            <div className="d-flex justify-content-between align-items-center mb-1">
+                                <Form.Label className="mb-0">Devices</Form.Label>
+                                <Button variant="link" onClick={handleSelectAllDevices} style={{ padding: 0, textDecoration: 'none' }}>
+                                    Select All
+                                </Button>
+                            </div>
                             <AsyncSelect
                                 isDisabled={!clientId || !locationId}
                                 isMulti
@@ -287,7 +327,12 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                             />
                         </Col>
                         <Col>
-                            <Form.Label>Linked Devices</Form.Label>
+                            <div className="d-flex justify-content-between align-items-center mb-1">
+                                <Form.Label className="mb-0">Linked Devices</Form.Label>
+                                <Button variant="link" onClick={handleSelectAllLinked} style={{ padding: 0, textDecoration: 'none' }}>
+                                    Select All
+                                </Button>
+                            </div>
                             <AsyncSelect
                                 isDisabled={!clientId || !locationId}
                                 isMulti
@@ -299,34 +344,40 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                             />
                         </Col>
                         <Col>
-                            <Form.Label>Softwares</Form.Label>
+                            <div className="d-flex justify-content-between align-items-center mb-1">
+                                <Form.Label className="mb-0">Softwares</Form.Label>
+                                <Button variant="link" onClick={handleSelectAllSoftware} style={{ padding: 0, textDecoration: 'none' }}>
+                                    Select All
+                                </Button>
+                            </div>
                             <Select
                                 isDisabled={!clientId}
                                 isMulti
                                 options={softwares}
                                 value={selectedSoftwares}
                                 onChange={setSelectedSoftwares}
-                                placeholder="Select work types"
-                                required
+                                placeholder="Select software"
                             />
                         </Col>
                     </Row>
+
                     <Row>
                         <Col>
                             <Form.Group className="mb-3">
                                 <Form.Label>Description</Form.Label>
                                 <Form.Control
                                     as="textarea"
-                                    placeholder="Enter Description"
                                     rows={4}
+                                    placeholder="Enter description"
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
                                 />
                             </Form.Group>
                         </Col>
                     </Row>
+
                     <Modal.Footer>
-                        <Button variant="outline-info" onClick={onHide}>
+                        <Button variant="outline-info" onClick={handleClose}>
                             Cancel
                         </Button>
                         <Button variant="primary" type="submit" disabled={isSubmitting}>

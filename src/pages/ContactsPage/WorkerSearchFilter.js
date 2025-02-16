@@ -1,13 +1,14 @@
-import React, {useEffect, useState} from 'react';
-import {Alert, Col, Form, FormCheck, Row} from 'react-bootstrap';
-import axios from 'axios';
-import config from "../../config/config";
+import React, { useEffect, useState } from 'react';
+import { Alert, Col, Form, FormCheck, Row } from 'react-bootstrap';
 import axiosInstance from "../../config/axiosInstance";
+import config from "../../config/config";
+import Select from 'react-select';
 
-function WorkerSearchFilter({ setWorkers, setLoading}) {
+function WorkerSearchFilter({ setWorkers, setLoading }) {
     const [searchQuery, setSearchQuery] = useState("");
     const [roleId, setRoleId] = useState("");
-    const [clientId, setClientId] = useState("");
+    // Still use an array for multiple client IDs
+    const [clientIds, setClientIds] = useState([]);
     const [locationId, setLocationId] = useState("");
     const [favorite, setFavorite] = useState(false);
     const [roles, setRoles] = useState([]);
@@ -16,6 +17,10 @@ function WorkerSearchFilter({ setWorkers, setLoading}) {
     const [allLocations, setAllLocations] = useState([]);
     const [error, setError] = useState(null);
     const [typingTimeout, setTypingTimeout] = useState(null);
+
+    // New states for country filter
+    const [countryOptions, setCountryOptions] = useState([]);
+    const [selectedCountries, setSelectedCountries] = useState([]);
 
     useEffect(() => {
         const fetchClientsAndRoles = async () => {
@@ -28,12 +33,10 @@ function WorkerSearchFilter({ setWorkers, setLoading}) {
                 const sortedClients = clientsRes.data.sort((a, b) =>
                     a.shortName.localeCompare(b.shortName)
                 );
-
                 // Sort roles by role name
                 const sortedRoles = rolesRes.data.sort((a, b) =>
                     a.role.localeCompare(b.role)
                 );
-
                 setClients(sortedClients);
                 setRoles(
                     sortedRoles.map((role) => ({
@@ -45,6 +48,7 @@ function WorkerSearchFilter({ setWorkers, setLoading}) {
                 setError(error.message);
             }
         };
+
         const fetchAllLocations = async () => {
             try {
                 const response = await axiosInstance.get(`${config.API_BASE_URL}/location/all`);
@@ -52,7 +56,6 @@ function WorkerSearchFilter({ setWorkers, setLoading}) {
                 const sortedLocations = response.data.sort((a, b) =>
                     a.name.localeCompare(b.name)
                 );
-
                 setAllLocations(sortedLocations);
                 setLocations(sortedLocations);
             } catch (error) {
@@ -61,16 +64,31 @@ function WorkerSearchFilter({ setWorkers, setLoading}) {
             }
         };
 
+        const fetchCountries = async () => {
+            try {
+                const response = await axiosInstance.get('https://restcountries.com/v3.1/all');
+                const options = response.data.map(country => ({
+                    value: country.cca3,
+                    label: country.name.common,
+                }));
+                options.sort((a, b) => a.label.localeCompare(b.label));
+                setCountryOptions(options);
+            } catch (error) {
+                console.error('Error fetching countries:', error);
+            }
+        };
 
         fetchClientsAndRoles();
-        fetchAllLocations()
+        fetchAllLocations();
+        fetchCountries();
     }, []);
 
     useEffect(() => {
         const fetchClientLocations = async () => {
-            if (clientId) {
+            // If exactly one client is selected, fetch its locations. Otherwise, show all.
+            if (clientIds.length === 1) {
                 try {
-                    const response = await axiosInstance.get(`${config.API_BASE_URL}/client/locations/${clientId}`);
+                    const response = await axiosInstance.get(`${config.API_BASE_URL}/client/locations/${clientIds[0]}`);
                     setLocations(response.data);
                 } catch (error) {
                     console.error('Error fetching client locations:', error);
@@ -82,28 +100,33 @@ function WorkerSearchFilter({ setWorkers, setLoading}) {
         };
 
         fetchClientLocations();
-    }, [clientId, allLocations]);
+    }, [clientIds, allLocations]);
 
     const handleSearchAndFilter = async () => {
-        setLoading(true); // Start loading
+        setLoading(true);
         try {
             const response = await axiosInstance.get(`${config.API_BASE_URL}/worker/search`, {
                 params: {
                     q: searchQuery,
                     roleId: roleId || undefined,
-                    clientId: clientId || undefined,
+                    // When only one client is selected, send it via clientId
+                    clientId: clientIds.length === 1 ? clientIds[0] : undefined,
+                    // When multiple are selected, send them via clientIds as a comma-separated string
+                    clientIds: clientIds.length > 1 ? clientIds.toString() : undefined,
                     locationId: locationId || undefined,
-                    favorite: favorite || undefined
+                    favorite: favorite || undefined,
+                    // Send countries if any are selected
+                    countries: selectedCountries.length > 0
+                        ? selectedCountries.map(option => option.value).toString()
+                        : undefined,
                 }
             });
-            // Sort workers: favorites first, then alphabetically by first and last name
             const sortedWorkers = response.data.sort((a, b) => {
                 if (a.favorite === b.favorite) {
                     return (a.firstName + " " + a.lastName).localeCompare(b.firstName + " " + b.lastName);
                 }
-                return a.favorite ? -1 : 1; // Favorites come first
+                return a.favorite ? -1 : 1;
             });
-
             setWorkers(sortedWorkers);
         } catch (error) {
             setError(error.message);
@@ -119,7 +142,7 @@ function WorkerSearchFilter({ setWorkers, setLoading}) {
         }, 300);
         setTypingTimeout(timeout);
         return () => clearTimeout(timeout);
-    }, [searchQuery, roleId, clientId, locationId, favorite]);
+    }, [searchQuery, roleId, clientIds, locationId, favorite, selectedCountries]);
 
     return (
         <>
@@ -157,18 +180,22 @@ function WorkerSearchFilter({ setWorkers, setLoading}) {
                     </Form.Control>
                 </Col>
                 <Col>
-                    <Form.Control
-                        as="select"
-                        value={clientId}
-                        onChange={(e) => setClientId(e.target.value)}
-                    >
-                        <option value="">Select Customer</option>
-                        {clients.map((client) => (
-                            <option key={client.id} value={client.id}>
-                                {client.shortName}
-                            </option>
-                        ))}
-                    </Form.Control>
+                    {/* Multi-select for clients */}
+                    <Select
+                        isMulti
+                        options={clients.map(client => ({
+                            value: client.id,
+                            label: client.shortName
+                        }))}
+                        value={clientIds.map(id => {
+                            const client = clients.find(c => c.id === id);
+                            return client ? { value: client.id, label: client.shortName } : null;
+                        })}
+                        onChange={(selectedOptions) =>
+                            setClientIds(selectedOptions ? selectedOptions.map(option => option.value) : [])
+                        }
+                        placeholder="Select Customer(s)"
+                    />
                 </Col>
                 <Col>
                     <Form.Control
@@ -183,6 +210,16 @@ function WorkerSearchFilter({ setWorkers, setLoading}) {
                             </option>
                         ))}
                     </Form.Control>
+                </Col>
+                <Col>
+                    {/* New multi-select for countries */}
+                    <Select
+                        isMulti
+                        options={countryOptions}
+                        value={selectedCountries}
+                        onChange={(selectedOptions) => setSelectedCountries(selectedOptions)}
+                        placeholder="Select Country(s)"
+                    />
                 </Col>
                 <Col className="col-md-auto d-flex">
                     <FormCheck
