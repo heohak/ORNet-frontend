@@ -48,13 +48,13 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
         try {
             const response = await axiosInstance.get(`/maintenance/connections/${maintenance.id}`);
             if (response.data.Devices.length > 0) {
-                setDevices(response.data.Devices);
+                setDevices(response.data.Devices.sort((a, b) => a.deviceName.localeCompare(b.deviceName)));
             }
             if (response.data.LinkedDevices.length > 0) {
-                setLinkedDevices(response.data.LinkedDevices);
+                setLinkedDevices(response.data.LinkedDevices.sort((a, b) => a.name.localeCompare(b.name)));
             }
             if (response.data.Software.length > 0) {
-                setSoftwares(response.data.Software);
+                setSoftwares(response.data.Software.sort((a, b) => a.name.localeCompare(b.name)));
             }
         } catch (error) {
             console.error("Error fetching devices", error);
@@ -156,7 +156,13 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
 
     return (
         <>
-            <Modal size="xl" backdrop="static" show={show} onHide={onHide}>
+            <Modal
+                size="xl"
+                backdrop="static"
+                show={show}
+                onHide={onHide}
+                dialogClassName={modalOpen ? "dimmed" : ""}
+            >
                 <Modal.Header closeButton>
                     <Modal.Title>Maintenance Details </Modal.Title>
                 </Modal.Header>
