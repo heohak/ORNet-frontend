@@ -1,4 +1,4 @@
-import {Button, Col, Form, Modal, Row} from "react-bootstrap";
+import {Alert, Button, Col, Form, Modal, Row, Spinner} from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 import { DateUtils } from "../../utils/DateUtils";
 import axiosInstance from "../../config/axiosInstance";
@@ -26,14 +26,26 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
     const [selectedCommentId, setSelectedCommentId] = useState("");
     const [modalOpen, setModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [loading, setLoading] = useState(false);
 
 
 
 
     useEffect(() => {
-        fetchDevices();
-        fetchComments();
-    }, [maintenance.id]);
+        if (show && maintenance.id) {
+            fetchDevices();
+            fetchComments();
+        }
+    }, [show, maintenance.id]);
+
+
+    const onClose = () => {
+        onHide();
+        setDevices([]);
+        setLinkedDevices([]);
+        setSoftwares([]);
+        setIsEditing(false);
+    }
 
     const reFetchMaintenance = async() => {
         try {
@@ -45,6 +57,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
     }
 
     const fetchDevices = async () => {
+        setLoading(true);
         try {
             const response = await axiosInstance.get(`/maintenance/connections/${maintenance.id}`);
             if (response.data.Devices.length > 0) {
@@ -58,6 +71,8 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
             }
         } catch (error) {
             console.error("Error fetching devices", error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -145,7 +160,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
             // Refresh the maintenance data
             await reFetchMaintenance();
             setRefresh();
-            onHide();
+            onClose();
         } catch (error) {
             console.error("Error saving comments:", error);
         } finally {
@@ -160,7 +175,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                 size="xl"
                 backdrop="static"
                 show={show}
-                onHide={onHide}
+                onHide={onClose}
                 dialogClassName={modalOpen ? "dimmed" : ""}
             >
                 <Modal.Header closeButton>
@@ -293,203 +308,231 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                             )}
                         </Col>
                     </Row>
-                    <Row className="mt-4">
-                        <Col md={3}>Device List</Col>
-                        <Col md={1}>Icon</Col>
-                        <Col md={1}>Status</Col>
-                        <Col md={7}>Comment</Col>
-                    </Row>
-                    {/*Devices*/}
-                    {devices.map((device, index) => {
-                        const rowBgColor = index % 2 === 0 ? "#f8f9fa" : "#ffffff";
+                    {loading ? (
+                            <div className="text-center mt-1">
+                                <Spinner animation="border" role="status">
+                                    <span className="visually-hidden">Loading...</span>
+                                </Spinner>
+                            </div>
+                        ) : (
+                            <>
+                                <Row className="mt-4">
+                                    {/* Display the first available section header */}
+                                    {devices.length > 0 ? (
+                                        <Col className="fw-bold" md={3}>Device List:</Col>
+                                    ) : linkedDevices.length > 0 ? (
+                                        <Col className="fw-bold" md={3}>Linked Device List:</Col>
+                                    ) : softwares.length > 0 ? (
+                                        <Col className="fw-bold" md={3}>Softwares List:</Col>
+                                    ) : (
+                                        <Col className="fw-bold">Device List:</Col>
+                                    )}
+                                        <Col md={1}>Files</Col>
+                                    <Col md={1}>Status</Col>
+                                    <Col md={7}>Comment</Col>
+                                </Row>
+                                {devices.length === 0 && linkedDevices.length === 0 && softwares.length === 0 &&
+                                    <div className="mt-2">
+                                        <Alert variant="info">No devices found.</Alert>
+                                    </div>
+                                }
+                                {/*Devices*/}
+                                {devices.map((device, index) => {
+                                    const rowBgColor = index % 2 === 0 ? "#f8f9fa" : "#ffffff";
 
-                        // Find the comment related to this device
-                        const relatedComment = comments.find((comment) => comment.deviceId === device.id);
+                                    // Find the comment related to this device
+                                    const relatedComment = comments.find((comment) => comment.deviceId === device.id);
 
-                        return (
-                            <Row
-                                key={device.id}
-                                className="align-items-center mt-2"
-                                style={{ margin: "0", backgroundColor: rowBgColor }}
-                            >
-                                <Col md={3} className="py-2">
-                                    {device.deviceName} {device.serialNumber}
-                                </Col>
-                                <Col md={1} className="py-2">
-                                    <FaFileUpload
-                                        style={{ cursor: "pointer" }}
-                                        onClick={() => {
-                                            setSelectedCommentId(relatedComment?.id || null);
-                                            setModalOpen(true);
-                                        }}
-                                    />
-                                </Col>
-                                <Col md={1} className="py-2">
-                                    {isEditing && editableComments ? (
-                                        <Form.Select
-                                            value={editableComments.find(c => c.deviceId === device.id)?.maintenanceStatus || "OPEN"}
-                                            onChange={(e) => {
-                                                setEditableComments(editableComments.map(comment =>
-                                                    comment.deviceId === device.id ? { ...comment, maintenanceStatus: e.target.value } : comment
-                                                ));
-                                            }}
+                                    return (
+                                        <Row
+                                            key={device.id}
+                                            className="align-items-center mt-2"
+                                            style={{ margin: "0", backgroundColor: rowBgColor }}
                                         >
-                                            <option value="OPEN">OPEN</option>
-                                            <option value="DONE">DONE</option>
-                                        </Form.Select>
+                                            <Col md={3} className="py-2">
+                                                {device.deviceName} {device.serialNumber}
+                                            </Col>
+                                            <Col md={1} className="py-2">
+                                                <FaFileUpload
+                                                    style={{ cursor: "pointer" }}
+                                                    onClick={() => {
+                                                        setSelectedCommentId(relatedComment?.id || null);
+                                                        setModalOpen(true);
+                                                    }}
+                                                />
+                                            </Col>
+                                            <Col md={1} className="py-2">
+                                                {isEditing && editableComments ? (
+                                                    <Form.Select
+                                                        value={editableComments.find(c => c.deviceId === device.id)?.maintenanceStatus || "OPEN"}
+                                                        onChange={(e) => {
+                                                            setEditableComments(editableComments.map(comment =>
+                                                                comment.deviceId === device.id ? { ...comment, maintenanceStatus: e.target.value } : comment
+                                                            ));
+                                                        }}
+                                                    >
+                                                        <option value="OPEN">OPEN</option>
+                                                        <option value="DONE">DONE</option>
+                                                    </Form.Select>
 
-                                    ) : (
-                                        relatedComment?.maintenanceStatus || "N/A"
-                                    )}
-                                </Col>
-                                <Col md={7} className="py-2">
-                                    {isEditing && editableComments ? (
-                                        <Form.Control
-                                            as="textarea"
-                                            value={editableComments.find(c => c.deviceId === device.id)?.comment || ""}
-                                            onChange={(e) => {
-                                                setEditableComments(editableComments.map(comment =>
-                                                    comment.deviceId === device.id ? { ...comment, comment: e.target.value } : comment
-                                                ));
-                                            }}
-                                        />
-                                    ) : (
-                                        relatedComment?.comment || "N/A"
-                                    )}
-                                </Col>
-                            </Row>
-                        );
-                    })}
-                    <Row>
-                        <Col>
-                            Linked Device list
-                        </Col>
-                    </Row>
-                    {/*Linked Devices*/}
-                    {linkedDevices.map((linkedDevice, index) => {
-                        const rowBgColor = index % 2 === 0 ? "#f8f9fa" : "#ffffff";
+                                                ) : (
+                                                    relatedComment?.maintenanceStatus || "N/A"
+                                                )}
+                                            </Col>
+                                            <Col md={7} className="py-2">
+                                                {isEditing && editableComments ? (
+                                                    <Form.Control
+                                                        as="textarea"
+                                                        value={editableComments.find(c => c.deviceId === device.id)?.comment || ""}
+                                                        onChange={(e) => {
+                                                            setEditableComments(editableComments.map(comment =>
+                                                                comment.deviceId === device.id ? { ...comment, comment: e.target.value } : comment
+                                                            ));
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    relatedComment?.comment || "N/A"
+                                                )}
+                                            </Col>
+                                        </Row>
+                                    );
+                                })}
+                                {linkedDevices.length > 0 && devices.length > 0 && (
+                                <Row>
+                                    <Col className="fw-bold">
+                                        Linked Device list:
+                                    </Col>
+                                </Row>
+                                )}
+                                {/*Linked Devices*/}
+                                {linkedDevices.map((linkedDevice, index) => {
+                                    const rowBgColor = index % 2 === 0 ? "#f8f9fa" : "#ffffff";
 
-                        // Find the comment related to this device
-                        const relatedComment = comments.find((comment) => comment.linkedDeviceId === linkedDevice.id);
+                                    // Find the comment related to this device
+                                    const relatedComment = comments.find((comment) => comment.linkedDeviceId === linkedDevice.id);
 
-                        return (
-                            <Row
-                                key={linkedDevice.id}
-                                className="align-items-center mt-2"
-                                style={{ margin: "0", backgroundColor: rowBgColor }}
-                            >
-                                <Col md={3} className="py-2">
-                                    {linkedDevice.name} {linkedDevice.serialNumber}
-                                </Col>
-                                <Col md={1} className="py-2">
-                                    <FaFileUpload
-                                        style={{ cursor: "pointer" }}
-                                        onClick={() => {
-                                            setSelectedCommentId(relatedComment?.id || null);
-                                            setModalOpen(true);
-                                        }}
-                                    />
-                                </Col>
-                                <Col md={1} className="py-2">
-                                    {isEditing && editableComments ? (
-                                        <Form.Select
-                                            value={editableComments.find(c => c.linkedDeviceId === linkedDevice.id)?.maintenanceStatus || ""}
-                                            onChange={(e) => {
-                                                setEditableComments(editableComments.map(comment =>
-                                                    comment.linkedDeviceId === linkedDevice.id ? { ...comment, maintenanceStatus: e.target.value } : comment
-                                                ));
-                                            }}
+                                    return (
+                                        <Row
+                                            key={linkedDevice.id}
+                                            className="align-items-center mt-2"
+                                            style={{ margin: "0", backgroundColor: rowBgColor }}
                                         >
-                                            <option value="OPEN">OPEN</option>
-                                            <option value="DONE">DONE</option>
-                                        </Form.Select>
-                                    ) : (
-                                        relatedComment?.maintenanceStatus || "N/A"
-                                    )}
-                                </Col>
-                                <Col md={7} className="py-2">
-                                    {isEditing && editableComments ? (
-                                        <Form.Control
-                                            as="textarea"
-                                            value={editableComments.find(c => c.linkedDeviceId === linkedDevice.id)?.comment || ""}
-                                            onChange={(e) => {
-                                                setEditableComments(editableComments.map(comment =>
-                                                    comment.linkedDeviceId === linkedDevice.id ? { ...comment, comment: e.target.value } : comment
-                                                ));
-                                            }}
-                                        />
-                                    ) : (
-                                        relatedComment?.comment || "N/A"
-                                    )}
-                                </Col>
-                            </Row>
-                        );
-                    })}
-                    <Row>
-                        <Col>
-                            Software list
-                        </Col>
-                    </Row>
-                    {/*Softwares*/}
-                    {softwares.map((software, index) => {
-                        const rowBgColor = index % 2 === 0 ? "#f8f9fa" : "#ffffff";
+                                            <Col md={3} className="py-2">
+                                                {linkedDevice.name} {linkedDevice.serialNumber}
+                                            </Col>
+                                            <Col md={1} className="py-2">
+                                                <FaFileUpload
+                                                    style={{ cursor: "pointer" }}
+                                                    onClick={() => {
+                                                        setSelectedCommentId(relatedComment?.id || null);
+                                                        setModalOpen(true);
+                                                    }}
+                                                />
+                                            </Col>
+                                            <Col md={1} className="py-2">
+                                                {isEditing && editableComments ? (
+                                                    <Form.Select
+                                                        value={editableComments.find(c => c.linkedDeviceId === linkedDevice.id)?.maintenanceStatus || ""}
+                                                        onChange={(e) => {
+                                                            setEditableComments(editableComments.map(comment =>
+                                                                comment.linkedDeviceId === linkedDevice.id ? { ...comment, maintenanceStatus: e.target.value } : comment
+                                                            ));
+                                                        }}
+                                                    >
+                                                        <option value="OPEN">OPEN</option>
+                                                        <option value="DONE">DONE</option>
+                                                    </Form.Select>
+                                                ) : (
+                                                    relatedComment?.maintenanceStatus || "N/A"
+                                                )}
+                                            </Col>
+                                            <Col md={7} className="py-2">
+                                                {isEditing && editableComments ? (
+                                                    <Form.Control
+                                                        as="textarea"
+                                                        value={editableComments.find(c => c.linkedDeviceId === linkedDevice.id)?.comment || ""}
+                                                        onChange={(e) => {
+                                                            setEditableComments(editableComments.map(comment =>
+                                                                comment.linkedDeviceId === linkedDevice.id ? { ...comment, comment: e.target.value } : comment
+                                                            ));
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    relatedComment?.comment || "N/A"
+                                                )}
+                                            </Col>
+                                        </Row>
+                                    );
+                                })}
+                                {softwares.length > 0 && (linkedDevices.length > 0 || devices.length) > 0 && (
+                                <Row>
+                                    <Col className="fw-bold">
+                                        Software list:
+                                    </Col>
+                                </Row>
+                                )}
+                                {/*Softwares*/}
+                                {softwares.map((software, index) => {
+                                    const rowBgColor = index % 2 === 0 ? "#f8f9fa" : "#ffffff";
 
-                        // Find the comment related to this device
-                        const relatedComment = comments.find((comment) => comment.softwareId === software.id);
-                        return (
-                            <Row
-                                key={software.id}
-                                className="align-items-center mt-2"
-                                style={{ margin: "0", cursor: "pointer", backgroundColor: rowBgColor }}
-                            >
-                                <Col md={3} className="py-2">
-                                    {software.name} {software.serialNumber}
-                                </Col>
-                                <Col md={1} className="py-2">
-                                    <FaFileUpload
-                                        style={{ cursor: "pointer" }}
-                                        onClick={() => {
-                                            setSelectedCommentId(relatedComment?.id || null);
-                                            setModalOpen(true);
-                                        }}
-                                    />
-                                </Col>
-                                <Col md={1} className="py-2">
-                                    {isEditing && editableComments ? (
-                                        <Form.Select
-                                            value={editableComments.find(c => c.softwareId === software.id)?.maintenanceStatus || ""}
-                                            onChange={(e) => {
-                                                setEditableComments(editableComments.map(comment =>
-                                                    comment.softwareId === software.id ? { ...comment, maintenanceStatus: e.target.value } : comment
-                                                ));
-                                            }}
+                                    // Find the comment related to this device
+                                    const relatedComment = comments.find((comment) => comment.softwareId === software.id);
+                                    return (
+                                        <Row
+                                            key={software.id}
+                                            className="align-items-center mt-2"
+                                            style={{ margin: "0", cursor: "pointer", backgroundColor: rowBgColor }}
                                         >
-                                            <option value="OPEN">OPEN</option>
-                                            <option value="DONE">DONE</option>
-                                        </Form.Select>
-                                    ) : (
-                                        relatedComment?.maintenanceStatus || "N/A"
-                                    )}
-                                </Col>
-                                <Col md={7} className="py-2">
-                                    {isEditing && editableComments ? (
-                                        <Form.Control
-                                            as="textarea"
-                                            value={editableComments.find(c => c.softwareId === software.id)?.comment || ""}
-                                            onChange={(e) => {
-                                                setEditableComments(editableComments.map(comment =>
-                                                    comment.softwareId === software.id ? { ...comment, comment: e.target.value } : comment
-                                                ));
-                                            }}
-                                        />
-                                    ) : (
-                                        relatedComment?.comment || "N/A"
-                                    )}
-                                </Col>
+                                            <Col md={3} className="py-2">
+                                                {software.name} {software.serialNumber}
+                                            </Col>
+                                            <Col md={1} className="py-2">
+                                                <FaFileUpload
+                                                    style={{ cursor: "pointer" }}
+                                                    onClick={() => {
+                                                        setSelectedCommentId(relatedComment?.id || null);
+                                                        setModalOpen(true);
+                                                    }}
+                                                />
+                                            </Col>
+                                            <Col md={1} className="py-2">
+                                                {isEditing && editableComments ? (
+                                                    <Form.Select
+                                                        value={editableComments.find(c => c.softwareId === software.id)?.maintenanceStatus || ""}
+                                                        onChange={(e) => {
+                                                            setEditableComments(editableComments.map(comment =>
+                                                                comment.softwareId === software.id ? { ...comment, maintenanceStatus: e.target.value } : comment
+                                                            ));
+                                                        }}
+                                                    >
+                                                        <option value="OPEN">OPEN</option>
+                                                        <option value="DONE">DONE</option>
+                                                    </Form.Select>
+                                                ) : (
+                                                    relatedComment?.maintenanceStatus || "N/A"
+                                                )}
+                                            </Col>
+                                            <Col md={7} className="py-2">
+                                                {isEditing && editableComments ? (
+                                                    <Form.Control
+                                                        as="textarea"
+                                                        value={editableComments.find(c => c.softwareId === software.id)?.comment || ""}
+                                                        onChange={(e) => {
+                                                            setEditableComments(editableComments.map(comment =>
+                                                                comment.softwareId === software.id ? { ...comment, comment: e.target.value } : comment
+                                                            ));
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    relatedComment?.comment || "N/A"
+                                                )}
+                                            </Col>
 
-                            </Row>
-                        );
-                    })}
+                                        </Row>
+                                    );
+                                })}
+                            </>
+                        )}
                     <Row className="mt-4 justify-content-between">
                         <Col md={2}>
                             {isEditing ? (

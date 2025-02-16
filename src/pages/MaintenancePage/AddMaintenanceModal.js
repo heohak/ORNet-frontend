@@ -307,7 +307,6 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                                 value={selectedSoftwares}
                                 onChange={setSelectedSoftwares}
                                 placeholder="Select work types"
-                                required
                             />
                         </Col>
                     </Row>

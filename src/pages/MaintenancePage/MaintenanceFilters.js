@@ -144,13 +144,13 @@ const MaintenanceFilters = ({ setMaintenances }) => {
                         ))}
                     </Form.Control>
                 </Col>
-                <Col md={2}>
-                    <Form.Control
-                        type="date"
-                        value={trainingDate}
-                        onChange={(e) => setTrainingDate(e.target.value)}
-                    />
-                </Col>
+                {/*<Col md={2}>*/}
+                {/*    <Form.Control*/}
+                {/*        type="date"*/}
+                {/*        value={trainingDate}*/}
+                {/*        onChange={(e) => setTrainingDate(e.target.value)}*/}
+                {/*    />*/}
+                {/*</Col>*/}
             </Row>
         </>
     );
