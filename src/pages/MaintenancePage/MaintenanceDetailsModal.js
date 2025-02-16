@@ -14,15 +14,15 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
     const [softwares, setSoftwares] = useState([]);
     const [linkedDevices, setLinkedDevices] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
-    const [startDate, setStartDate] = useState(new Date(maintenance.maintenanceDate));
-    const [endDate, setEndDate] = useState(new Date(maintenance.lastDate));
-    const [description, setDescription] = useState(maintenance.comment || "");
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
+    const [description, setDescription] = useState("");
     const [hours, setHours] = useState("");
     const [minutes, setMinutes] = useState("");
-    const [status, setStatus] = useState(maintenance.maintenanceStatus || "OPEN");
+    const [status, setStatus] = useState("");
     const [comments, setComments] = useState([]);
     const [editableComments, setEditableComments] = useState([]);
-    const [responsibleId, setResponsibleId] = useState(maintenance.baitWorkerId || "");
+    const [responsibleId, setResponsibleId] = useState();
     const [selectedCommentId, setSelectedCommentId] = useState("");
     const [modalOpen, setModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,6 +33,11 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
 
     useEffect(() => {
         if (show && maintenance.id) {
+            setDescription(maintenance.comment || "");
+            setStartDate(new Date(maintenance.maintenanceDate))
+            setEndDate(new Date(maintenance.lastDate))
+            setStatus(maintenance.maintenanceStatus || "OPEN")
+            setResponsibleId(maintenance.baitWorkerId || "")
             fetchDevices();
             fetchComments();
         }
@@ -44,7 +49,9 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
         setDevices([]);
         setLinkedDevices([]);
         setSoftwares([]);
-        setIsEditing(false);
+        if (isEditing) {
+            toggleEdit();
+        }
     }
 
     const reFetchMaintenance = async() => {
@@ -87,6 +94,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
 
     const toggleEdit = () => {
         if (isEditing) {
+            setStartDate()
             setMaintenance((prev) => ({
                 ...prev,
                 maintenanceDate: startDate,
