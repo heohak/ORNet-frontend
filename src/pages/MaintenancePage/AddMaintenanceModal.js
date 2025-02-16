@@ -195,6 +195,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                                     isDisabled={!!selectedClientId}
                                     isSearchable={true}
                                     placeholder={selectedClientId ? "Customer locked to selected" : "Select Customer"}
+                                    required
                                 />
                             </Form.Group>
                         </Col>
