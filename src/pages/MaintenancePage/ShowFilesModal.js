@@ -15,7 +15,7 @@ const ShowFilesModal = ({ maintenanceCommentId, onClose }) => {
                 const response = await axiosInstance.get(
                     `/maintenance-comment/files/${maintenanceCommentId}`
                 );
-                setFiles(response.data);
+                setFiles(response.data.sort((a, b) => a.fileName.localeCompare(b.fileName)));
             } catch (error) {
                 console.error("Error fetching files:", error);
             }
@@ -109,7 +109,7 @@ const ShowFilesModal = ({ maintenanceCommentId, onClose }) => {
             </Modal.Header>
             <Modal.Body>
                 <h6>Existing Files:</h6>
-                <ul>
+                <ul style={{paddingLeft: "0"}}>
                     {files.length > 0 ? (
                         files.map((file, index) => (
                             <li key={index} className="d-flex justify-content-between align-items-center">
