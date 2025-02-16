@@ -186,7 +186,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                                     onChange={selectedClient => {
                                         if (selectedClient) {
                                             setClientId(selectedClient.id);
-                                            setDescription(selectedClient.maintenanceDescription)
+                                            setDescription(selectedClient.maintenanceDescription || "")
                                         } else {
                                             setClientId("");
 
