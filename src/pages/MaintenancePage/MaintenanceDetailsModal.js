@@ -6,8 +6,10 @@ import TextareaAutosize from "react-textarea-autosize";
 import Linkify from "react-linkify";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import {FaEdit, FaFileUpload, FaPlus, FaSave} from "react-icons/fa";
+import {FaEdit, FaFileUpload, FaPlus, FaSave, FaCheckCircle, FaExclamationCircle, FaTrash} from "react-icons/fa";
 import ShowFilesModal from "./ShowFilesModal";
+import DeleteConfirmModal from "./DeleteConfirmModal";
+
 
 const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, setMaintenance, setRefresh, responsibleNames }) => {
     const [devices, setDevices] = useState([]);
@@ -20,24 +22,28 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
     const [hours, setHours] = useState("");
     const [minutes, setMinutes] = useState("");
     const [status, setStatus] = useState("");
-    const [comments, setComments] = useState([]);
+    const [comments, setComments] = useState([]); // device, soft or link device objects with its attributes
     const [editableComments, setEditableComments] = useState([]);
     const [responsibleId, setResponsibleId] = useState();
     const [selectedCommentId, setSelectedCommentId] = useState("");
-    const [modalOpen, setModalOpen] = useState(false);
+    const [fileModalOpen, setFileModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [internalComment, setInternalComment] = useState('');
 
 
 
 
     useEffect(() => {
         if (show && maintenance.id) {
-            setDescription(maintenance.comment || "");
+            setDescription(maintenance.description || "");
+            setInternalComment(maintenance.internalComment || "");
             setStartDate(new Date(maintenance.maintenanceDate))
             setEndDate(new Date(maintenance.lastDate))
             setStatus(maintenance.maintenanceStatus || "OPEN")
             setResponsibleId(maintenance.baitWorkerId || "")
+            setEditableComments([]); // Reset editableComments when a new maintenance is loaded
             fetchDevices();
             fetchComments();
         }
@@ -94,12 +100,12 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
 
     const toggleEdit = () => {
         if (isEditing) {
-            setStartDate()
             setMaintenance((prev) => ({
                 ...prev,
                 maintenanceDate: startDate,
                 lastDate: endDate,
-                comment: description,
+                description: description,
+                internalComment: internalComment,
                 maintenanceStatus: status,
                 baitWorkerId: responsibleId
             }));
@@ -112,6 +118,16 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
         setIsEditing(!isEditing);
     };
 
+    useEffect(() => {
+        if (status === "DONE") {
+            setEditableComments(prevComments =>
+                prevComments.map(comment => ({
+                    ...comment,
+                    maintenanceStatus: "DONE"
+                }))
+            );
+        }
+    }, [status]);
 
 
     const formatDuration = (durationString) => {
@@ -152,7 +168,8 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
             await axiosInstance.put(`/maintenance/update/${maintenance.id}`, {
                 maintenanceDate: startDate,
                 lastDate: endDate,
-                comment: description,
+                description,
+                internalComment,
                 maintenanceStatus: status,
                 baitWorkerId: responsibleId
             })
@@ -184,7 +201,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                 backdrop="static"
                 show={show}
                 onHide={onClose}
-                dialogClassName={modalOpen ? "dimmed" : ""}
+                dialogClassName={fileModalOpen || showDeleteModal ? "dimmed" : ""}
             >
                 <Modal.Header closeButton>
                     <Modal.Title>Maintenance Details </Modal.Title>
@@ -235,25 +252,25 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                             <Row>
                                 <Col className="col-md-auto" style={{paddingRight: "0"}}>
                                     <input
-                                        type="number"
+                                        type="text"
                                         value={hours}
                                         onChange={(e) => setHours(e.target.value)}
                                         placeholder="h"
                                         className="form-control me-2"
                                         min="0"
-                                        style={{ width: "50px", appearance: "textfield" }}
+                                        style={{ width: "50px"}}
                                     />
                                 </Col>
                                 <Col className="col-md-auto p-0">
                                     <input
-                                        type="number"
+                                        type="text"
                                         value={minutes}
                                         onChange={(e) => setMinutes(e.target.value)}
                                         placeholder="m"
                                         className="form-control me-2"
                                         min="0"
                                         max="59"
-                                        style={{ width: "50px", appearance: "textfield" }}
+                                        style={{ width: "50px"}}
                                     />
                                 </Col>
                                 <Col className="col-md-auto p-0">
@@ -305,8 +322,8 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                         border: "1px solid #ddd",
                                     }}
                                 >
-                                    {maintenance.comment &&
-                                        maintenance.comment.split("\n").map((line, idx) => (
+                                    {maintenance.description &&
+                                        maintenance.description.split("\n").map((line, idx) => (
                                             <React.Fragment key={idx}>
                                                 <Linkify>{line}</Linkify>
                                                 <br />
@@ -335,9 +352,10 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                     ) : (
                                         <Col className="fw-bold">Device List:</Col>
                                     )}
-                                        <Col md={1}>Files</Col>
+                                    <Col md={2}>Serial No</Col>
+                                    <Col md={1}>Files</Col>
                                     <Col md={1}>Status</Col>
-                                    <Col md={7}>Comment</Col>
+                                    <Col md={5}>Comment</Col>
                                 </Row>
                                 {devices.length === 0 && linkedDevices.length === 0 && softwares.length === 0 &&
                                     <div className="mt-2">
@@ -358,14 +376,15 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                             style={{ margin: "0", backgroundColor: rowBgColor }}
                                         >
                                             <Col md={3} className="py-2">
-                                                {device.deviceName} {device.serialNumber}
+                                                {device.deviceName}
                                             </Col>
+                                            <Col md={2}>{device.serialNumber}</Col>
                                             <Col md={1} className="py-2">
                                                 <FaFileUpload
                                                     style={{ cursor: "pointer" }}
                                                     onClick={() => {
                                                         setSelectedCommentId(relatedComment?.id || null);
-                                                        setModalOpen(true);
+                                                        setFileModalOpen(true);
                                                     }}
                                                 />
                                             </Col>
@@ -384,10 +403,16 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                                     </Form.Select>
 
                                                 ) : (
-                                                    relatedComment?.maintenanceStatus || "N/A"
+                                                    <span>
+                                                        {relatedComment?.maintenanceStatus === "DONE" ? (
+                                                            <FaCheckCircle style={{ color: "green" }} />
+                                                        ) : (
+                                                            <FaExclamationCircle style={{ color: "goldenrod" }} />
+                                                        )}
+                                                     </span>
                                                 )}
                                             </Col>
-                                            <Col md={7} className="py-2">
+                                            <Col md={5} className="py-2">
                                                 {isEditing && editableComments ? (
                                                     <Form.Control
                                                         as="textarea"
@@ -426,14 +451,15 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                             style={{ margin: "0", backgroundColor: rowBgColor }}
                                         >
                                             <Col md={3} className="py-2">
-                                                {linkedDevice.name} {linkedDevice.serialNumber}
+                                                {linkedDevice.name}
                                             </Col>
+                                            <Col md={2}>{linkedDevice.serialNumber}</Col>
                                             <Col md={1} className="py-2">
                                                 <FaFileUpload
                                                     style={{ cursor: "pointer" }}
                                                     onClick={() => {
                                                         setSelectedCommentId(relatedComment?.id || null);
-                                                        setModalOpen(true);
+                                                        setFileModalOpen(true);
                                                     }}
                                                 />
                                             </Col>
@@ -451,10 +477,16 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                                         <option value="DONE">DONE</option>
                                                     </Form.Select>
                                                 ) : (
-                                                    relatedComment?.maintenanceStatus || "N/A"
+                                                    <span>
+                                                        {relatedComment?.maintenanceStatus === "DONE" ? (
+                                                            <FaCheckCircle style={{ color: "green" }} />
+                                                        ) : (
+                                                            <FaExclamationCircle style={{ color: "goldenrod" }} />
+                                                        )}
+                                                     </span>
                                                 )}
                                             </Col>
-                                            <Col md={7} className="py-2">
+                                            <Col md={5} className="py-2">
                                                 {isEditing && editableComments ? (
                                                     <Form.Control
                                                         as="textarea"
@@ -492,14 +524,15 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                             style={{ margin: "0", cursor: "pointer", backgroundColor: rowBgColor }}
                                         >
                                             <Col md={3} className="py-2">
-                                                {software.name} {software.serialNumber}
+                                                {software.name}
                                             </Col>
+                                            <Col md={2}></Col>
                                             <Col md={1} className="py-2">
                                                 <FaFileUpload
                                                     style={{ cursor: "pointer" }}
                                                     onClick={() => {
                                                         setSelectedCommentId(relatedComment?.id || null);
-                                                        setModalOpen(true);
+                                                        setFileModalOpen(true);
                                                     }}
                                                 />
                                             </Col>
@@ -513,14 +546,20 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                                             ));
                                                         }}
                                                     >
-                                                        <option value="OPEN">OPEN</option>
-                                                        <option value="DONE">DONE</option>
+                                                        <option value="OPEN">🔶</option>
+                                                        <option value="DONE">✅</option>
                                                     </Form.Select>
                                                 ) : (
-                                                    relatedComment?.maintenanceStatus || "N/A"
+                                                    <span>
+                                                        {relatedComment?.maintenanceStatus === "DONE" ? (
+                                                            <FaCheckCircle style={{ color: "green" }} />
+                                                        ) : (
+                                                            <FaExclamationCircle style={{ color: "goldenrod" }} />
+                                                        )}
+                                                     </span>
                                                 )}
                                             </Col>
-                                            <Col md={7} className="py-2">
+                                            <Col md={5} className="py-2">
                                                 {isEditing && editableComments ? (
                                                     <Form.Control
                                                         as="textarea"
@@ -541,6 +580,45 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                 })}
                             </>
                         )}
+                    <Row className="mt-4">
+                        <Col>Comment</Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            {isEditing ? (
+                                <TextareaAutosize
+                                    minRows={2}
+                                    value={internalComment}
+                                    onChange={(e) => setInternalComment(e.target.value)}
+                                    className="mt-2"
+                                    style={{
+                                        width: "100%",
+                                        backgroundColor: "#f8f9fa",
+                                        borderRadius: "8px",
+                                        padding: "8px",
+                                        border: "1px solid #ddd",
+                                    }}
+                                />
+                            ) : (
+                                <div
+                                    style={{
+                                        backgroundColor: "#f8f9fa",
+                                        borderRadius: "8px",
+                                        padding: "10px",
+                                        border: "1px solid #ddd",
+                                    }}
+                                >
+                                    {maintenance.internalComment &&
+                                        maintenance.internalComment.split("\n").map((line, idx) => (
+                                            <React.Fragment key={idx}>
+                                                <Linkify>{line}</Linkify>
+                                                <br />
+                                            </React.Fragment>
+                                        ))}
+                                </div>
+                            )}
+                        </Col>
+                    </Row>
                     <Row className="mt-4 justify-content-between">
                         <Col md={2}>
                             {isEditing ? (
@@ -563,6 +641,13 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
 
                         <Col className="col-md-auto">
                             {/*<Button className="me-2">Print Pdf</Button>*/}
+                            <FaTrash
+                                size={25}
+                                style={{ cursor: "pointer"}}
+                                onClick={() => setShowDeleteModal(true)} // Add your delete function here
+                                title="Delete Ticket"
+                                className="text-danger me-4" // Optional: add a color class
+                            />
                             <Button onClick={handleSave} disabled={isSubmitting}>
                                 {isSubmitting ? 'Saving...' : 'Save'}
                             </Button>
@@ -570,12 +655,19 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                     </Row>
                 </Modal.Body>
             </Modal>
-            {modalOpen && selectedCommentId && (
+            {fileModalOpen && selectedCommentId && (
                 <ShowFilesModal
                     maintenanceCommentId={selectedCommentId}
-                    onClose={() => setModalOpen(false)}
+                    onClose={() => setFileModalOpen(false)}
                 />
             )}
+            <DeleteConfirmModal
+                show={showDeleteModal}
+                onHide={() => setShowDeleteModal(false)}
+                onDelete={() => {setRefresh(); onClose(); setShowDeleteModal(false);}}
+                maintenanceId={maintenance.id}
+                maintenanceName={maintenance.maintenanceName}
+            />
         </>
     );
 };
