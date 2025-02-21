@@ -7,7 +7,7 @@ import Select from 'react-select';
 import TrainingService from './TrainingService';
 import FileUploadModal from '../../modals/FileUploadModal';
 import ReactDatePicker from "react-datepicker";
-import {DateUtils} from "../../utils/DateUtils";
+import { DateUtils, parseLocalDate, formatLocalDate } from "../../utils/DateUtils";
 
 const TrainingDetailsModal = ({ show, onHide, training, trainerNames, clientNames, locationNames, onUpdate, onDelete }) => {
     const [isEditing, setIsEditing] = useState(false);
@@ -177,15 +177,22 @@ const TrainingDetailsModal = ({ show, onHide, training, trainerNames, clientName
                             <Form.Label className="fw-bold">Date</Form.Label>
                             {isEditing ? (
                                 <ReactDatePicker
-                                    selected={editableTraining.trainingDate}
-                                    onChange={(date) => setEditableTraining({ ...editableTraining, trainingDate: date })}
+                                    selected={editableTraining.trainingDate ? parseLocalDate(editableTraining.trainingDate) : null}
+                                    onChange={(date) =>
+                                        setEditableTraining({
+                                            ...editableTraining,
+                                            trainingDate: date ? formatLocalDate(date) : ''
+                                        })
+                                    }
                                     dateFormat="dd.MM.yyyy"
                                     className="form-control dark-placeholder"
                                     placeholderText="Select Update Date"
                                     isClearable
                                 />
                             ) : (
-                                <p className="border rounded p-2 bg-light">{DateUtils.formatDate(training.trainingDate)}</p>
+                                <p className="border rounded p-2 bg-light">
+                                    {DateUtils.formatDate(training.trainingDate)}
+                                </p>
                             )}
                         </Form.Group>
 
