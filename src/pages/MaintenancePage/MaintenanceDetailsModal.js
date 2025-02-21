@@ -1,4 +1,4 @@
-import {Alert, Button, Col, Form, Modal, Row, Spinner} from "react-bootstrap";
+import {Alert, Button, Col, Form, Modal, Row, Spinner, Dropdown} from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 import { DateUtils } from "../../utils/DateUtils";
 import axiosInstance from "../../config/axiosInstance";
@@ -192,6 +192,11 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    //Returns the right icon depending on the status
+    const getStatusIcon = (status) => {
+        return status === "DONE" ? <FaCheckCircle style={{ color: "green" }} /> : <FaExclamationCircle style={{ color: "goldenrod" }} />;
     };
 
 
@@ -391,17 +396,24 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                             </Col>
                                             <Col md={1} className="py-2">
                                                 {isEditing && editableComments ? (
-                                                    <Form.Select
-                                                        value={editableComments.find(c => c.deviceId === device.id)?.maintenanceStatus || "OPEN"}
-                                                        onChange={(e) => {
-                                                            setEditableComments(editableComments.map(comment =>
-                                                                comment.deviceId === device.id ? { ...comment, maintenanceStatus: e.target.value } : comment
-                                                            ));
-                                                        }}
-                                                    >
-                                                        <option value="OPEN">OPEN</option>
-                                                        <option value="DONE">DONE</option>
-                                                    </Form.Select>
+                                                    <Dropdown>
+                                                        <Dropdown.Toggle variant="light">
+                                                            {getStatusIcon(editableComments.find(c => c.deviceId === device.id)?.maintenanceStatus || "OPEN")}
+                                                        </Dropdown.Toggle>
+
+                                                        <Dropdown.Menu>
+                                                            <Dropdown.Item onClick={() => setEditableComments(editableComments.map(comment =>
+                                                                comment.deviceId === device.id ? { ...comment, maintenanceStatus: "OPEN" } : comment
+                                                            ))}>
+                                                                <FaExclamationCircle style={{ color: "goldenrod" }} /> OPEN
+                                                            </Dropdown.Item>
+                                                            <Dropdown.Item onClick={() => setEditableComments(editableComments.map(comment =>
+                                                                comment.deviceId === device.id ? { ...comment, maintenanceStatus: "DONE" } : comment
+                                                            ))}>
+                                                                <FaCheckCircle style={{ color: "green" }} /> DONE
+                                                            </Dropdown.Item>
+                                                        </Dropdown.Menu>
+                                                    </Dropdown>
 
                                                 ) : (
                                                     <span>
@@ -466,17 +478,24 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                             </Col>
                                             <Col md={1} className="py-2">
                                                 {isEditing && editableComments ? (
-                                                    <Form.Select
-                                                        value={editableComments.find(c => c.linkedDeviceId === linkedDevice.id)?.maintenanceStatus || ""}
-                                                        onChange={(e) => {
-                                                            setEditableComments(editableComments.map(comment =>
-                                                                comment.linkedDeviceId === linkedDevice.id ? { ...comment, maintenanceStatus: e.target.value } : comment
-                                                            ));
-                                                        }}
-                                                    >
-                                                        <option value="OPEN">OPEN</option>
-                                                        <option value="DONE">DONE</option>
-                                                    </Form.Select>
+                                                    <Dropdown>
+                                                        <Dropdown.Toggle variant="light">
+                                                            {getStatusIcon(editableComments.find(c => c.linkedDeviceId === linkedDevice.id)?.maintenanceStatus || "OPEN")}
+                                                        </Dropdown.Toggle>
+
+                                                        <Dropdown.Menu>
+                                                            <Dropdown.Item onClick={() => setEditableComments(editableComments.map(comment =>
+                                                                comment.linkedDeviceId === linkedDevice.id ? { ...comment, maintenanceStatus: "OPEN" } : comment
+                                                            ))}>
+                                                                <FaExclamationCircle style={{ color: "goldenrod" }} /> OPEN
+                                                            </Dropdown.Item>
+                                                            <Dropdown.Item onClick={() => setEditableComments(editableComments.map(comment =>
+                                                                comment.linkedDeviceId === linkedDevice.id ? { ...comment, maintenanceStatus: "DONE" } : comment
+                                                            ))}>
+                                                                <FaCheckCircle style={{ color: "green" }} /> DONE
+                                                            </Dropdown.Item>
+                                                        </Dropdown.Menu>
+                                                    </Dropdown>
                                                 ) : (
                                                     <span>
                                                         {relatedComment?.maintenanceStatus === "DONE" ? (
@@ -539,17 +558,24 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                             </Col>
                                             <Col md={1} className="py-2">
                                                 {isEditing && editableComments ? (
-                                                    <Form.Select
-                                                        value={editableComments.find(c => c.softwareId === software.id)?.maintenanceStatus || ""}
-                                                        onChange={(e) => {
-                                                            setEditableComments(editableComments.map(comment =>
-                                                                comment.softwareId === software.id ? { ...comment, maintenanceStatus: e.target.value } : comment
-                                                            ));
-                                                        }}
-                                                    >
-                                                        <option value="OPEN">🔶</option>
-                                                        <option value="DONE">✅</option>
-                                                    </Form.Select>
+                                                    <Dropdown>
+                                                        <Dropdown.Toggle variant="light">
+                                                            {getStatusIcon(editableComments.find(c => c.softwareId === software.id)?.maintenanceStatus || "OPEN")}
+                                                        </Dropdown.Toggle>
+
+                                                        <Dropdown.Menu>
+                                                            <Dropdown.Item onClick={() => setEditableComments(editableComments.map(comment =>
+                                                                comment.softwareId === software.id ? { ...comment, maintenanceStatus: "OPEN" } : comment
+                                                            ))}>
+                                                                <FaExclamationCircle style={{ color: "goldenrod" }} /> OPEN
+                                                            </Dropdown.Item>
+                                                            <Dropdown.Item onClick={() => setEditableComments(editableComments.map(comment =>
+                                                                comment.softwareId === software.id ? { ...comment, maintenanceStatus: "DONE" } : comment
+                                                            ))}>
+                                                                <FaCheckCircle style={{ color: "green" }} /> DONE
+                                                            </Dropdown.Item>
+                                                        </Dropdown.Menu>
+                                                    </Dropdown>
                                                 ) : (
                                                     <span>
                                                         {relatedComment?.maintenanceStatus === "DONE" ? (
