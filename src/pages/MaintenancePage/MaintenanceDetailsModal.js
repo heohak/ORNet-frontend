@@ -16,8 +16,8 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
     const [softwares, setSoftwares] = useState([]);
     const [linkedDevices, setLinkedDevices] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
-    const [startDate, setStartDate] = useState(null);
-    const [endDate, setEndDate] = useState(null);
+    const [lastDate, setLastDate] = useState(null);
+    const [plannedDate, setPlannedDate] = useState(null);
     const [description, setDescription] = useState("");
     const [hours, setHours] = useState("");
     const [minutes, setMinutes] = useState("");
@@ -39,8 +39,8 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
         if (show && maintenance.id) {
             setDescription(maintenance.description || "");
             setInternalComment(maintenance.internalComment || "");
-            setStartDate(new Date(maintenance.maintenanceDate))
-            setEndDate(new Date(maintenance.lastDate))
+            setLastDate(new Date(maintenance.lastDate))
+            setPlannedDate(new Date(maintenance.maintenanceDate))
             setStatus(maintenance.maintenanceStatus || "OPEN")
             setResponsibleId(maintenance.baitWorkerId || "")
             setEditableComments([]); // Reset editableComments when a new maintenance is loaded
@@ -102,8 +102,8 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
         if (isEditing) {
             setMaintenance((prev) => ({
                 ...prev,
-                maintenanceDate: startDate,
-                lastDate: endDate,
+                maintenanceDate: lastDate,
+                lastDate: plannedDate,
                 description: description,
                 internalComment: internalComment,
                 maintenanceStatus: status,
@@ -166,8 +166,8 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
         console.log(responsibleId);
         try {
             await axiosInstance.put(`/maintenance/update/${maintenance.id}`, {
-                maintenanceDate: startDate,
-                lastDate: endDate,
+                maintenanceDate: lastDate,
+                lastDate: plannedDate,
                 description,
                 internalComment,
                 maintenanceStatus: status,
@@ -224,8 +224,8 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                 <Row>
                                     <Col>
                                         <DatePicker
-                                            selected={startDate}
-                                            onChange={(date) => setStartDate(date)}
+                                            selected={lastDate}
+                                            onChange={(date) => setLastDate(date)}
                                             dateFormat="dd.MM.yyyy"
                                             className="form-control dark-placeholder"
                                             placeholderText="Select Start Date"
@@ -233,8 +233,8 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                     </Col>
                                     <Col>
                                         <DatePicker
-                                            selected={endDate}
-                                            onChange={(date) => setEndDate(date)}
+                                            selected={plannedDate}
+                                            onChange={(date) => setPlannedDate(date)}
                                             dateFormat="dd.MM.yyyy"
                                             className="form-control dark-placeholder"
                                             placeholderText="Select End Date"
@@ -242,7 +242,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                     </Col>
                                 </Row>
                             ) : (
-                                <h4>{DateUtils.formatDate(maintenance.maintenanceDate)} - {DateUtils.formatDate(maintenance.lastDate)}</h4>
+                                <h4>{DateUtils.formatDate(maintenance.lastDate)} - {DateUtils.formatDate(maintenance.maintenanceDate)}</h4>
                             )}
                         </Col>
                         <Col md={3}>
