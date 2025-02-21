@@ -102,8 +102,8 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
         if (isEditing) {
             setMaintenance((prev) => ({
                 ...prev,
-                maintenanceDate: lastDate,
-                lastDate: plannedDate,
+                maintenanceDate: plannedDate,
+                lastDate: lastDate,
                 description: description,
                 internalComment: internalComment,
                 maintenanceStatus: status,
@@ -167,8 +167,8 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
         console.log(responsibleId);
         try {
             await axiosInstance.put(`/maintenance/update/${maintenance.id}`, {
-                maintenanceDate: lastDate,
-                lastDate: plannedDate,
+                maintenanceDate: plannedDate,
+                lastDate: lastDate,
                 description,
                 internalComment,
                 maintenanceStatus: status,

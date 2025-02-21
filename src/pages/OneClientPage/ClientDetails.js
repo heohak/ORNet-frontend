@@ -12,7 +12,7 @@ import { format } from 'date-fns';
 // Define the default visibility of each field
 
 
-function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles, maintenances }) {
+function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles }) {
     const [client, setClient] = useState(null);
     const [error, setError] = useState(null);
     const [showEditClient, setShowEditClient] = useState(false);
@@ -21,25 +21,17 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles,
 
     useEffect(() => {
         fetchClientData();
+        fetchNextMaintenanceDate();
     }, [clientId]);
 
-    useEffect(() => {
-        const getNextMaintenanceDate = () => {
-            if (!maintenances || maintenances.length === 0) return null;
-
-            const now = new Date();
-
-            const futureMaintenances = maintenances
-                .map(m => new Date(m.maintenanceDate))
-                .filter(date => date > now);
-
-            if (futureMaintenances.length === 0) return null;
-
-            return new Date(Math.min(...futureMaintenances));
-        };
-
-        setNextMaintenanceDate(getNextMaintenanceDate());
-    }, [maintenances]);
+    const fetchNextMaintenanceDate = async() => {
+        try {
+            const response = await axiosInstance.get(`/maintenance/next/${clientId}`)
+            setNextMaintenanceDate(response.data);
+        } catch (error) {
+            console.error("Error fetching next maintenance date", error)
+        }
+    }
 
     useEffect(() => {
         const fetchLastTrainingDate = async () => {
