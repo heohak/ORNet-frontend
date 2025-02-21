@@ -1,27 +1,32 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axiosInstance from "../../config/axiosInstance";
-import { Modal, Button, Form } from "react-bootstrap";
-import { FaDownload } from "react-icons/fa";
+import {Modal, Button, Form, Alert, Row, Col} from "react-bootstrap";
+import {FaDownload, FaTrash} from "react-icons/fa";
 import { saveAs } from "file-saver";
 
 const ShowFilesModal = ({ maintenanceCommentId, onClose }) => {
     const [files, setFiles] = useState([]);
     const [selectedFiles, setSelectedFiles] = useState([]);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(false);
+    const [selectedFileId, setSelectedFileId] = useState(null);
+    const [selectedFileName, setSelectedFileName] = useState('');
 
     // Fetch existing files
     useEffect(() => {
-        const fetchFiles = async () => {
-            try {
-                const response = await axiosInstance.get(
-                    `/maintenance-comment/files/${maintenanceCommentId}`
-                );
-                setFiles(response.data.sort((a, b) => a.fileName.localeCompare(b.fileName)));
-            } catch (error) {
-                console.error("Error fetching files:", error);
-            }
-        };
         fetchFiles();
     }, [maintenanceCommentId]);
+    const fetchFiles = async () => {
+        try {
+            const response = await axiosInstance.get(
+                `/maintenance-comment/files/${maintenanceCommentId}`
+            );
+            setFiles(response.data.sort((a, b) => a.fileName.localeCompare(b.fileName)));
+        } catch (error) {
+            console.error("Error fetching files:", error);
+        }
+    };
 
     // Handle file selection
     const handleFileChange = (e) => {
@@ -31,6 +36,8 @@ const ShowFilesModal = ({ maintenanceCommentId, onClose }) => {
 
     // Upload files
     const handleUpload = async (e) => {
+        if (loading) return;
+        setLoading(true);
         e.preventDefault();
         if (!selectedFiles.length) return;
 
@@ -58,6 +65,7 @@ const ShowFilesModal = ({ maintenanceCommentId, onClose }) => {
         } catch (error) {
             console.error("Error uploading files:", error);
         }
+        setLoading(false);
     };
 
     // Open file in a new tab
@@ -102,51 +110,127 @@ const ShowFilesModal = ({ maintenanceCommentId, onClose }) => {
         }
     };
 
-    return (
-        <Modal backdrop="static" show onHide={onClose} centered>
-            <Modal.Header closeButton>
-                <Modal.Title>Manage Files</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <h6>Existing Files:</h6>
-                <ul style={{paddingLeft: "0"}}>
-                    {files.length > 0 ? (
-                        files.map((file, index) => (
-                            <li key={index} className="d-flex justify-content-between align-items-center">
-                                <a
-                                    onClick={() => handleFileOpen(file.id)}
-                                    style={{ cursor: "pointer", color: "#0d6efd", textDecoration: "none" }}
-                                >
-                                    {file.fileName}
-                                </a>
-                                <Button
-                                    variant="link"
-                                    onClick={() => handleFileDownload(file.id, file.fileName)}
-                                    className="p-0"
-                                >
-                                    <FaDownload />
-                                </Button>
-                            </li>
-                        ))
-                    ) : (
-                        <p>No files found.</p>
-                    )}
-                </ul>
+    const confirmDelete = async (e) => {
+        e.preventDefault();
+        if (loading) return;
+        setLoading(true);
+        try {
+            // Send delete request to the server
+            const response = await axiosInstance.delete(`/admin/file/${selectedFileId}`);
 
-                <h6>Upload New Files:</h6>
-                <Form.Group>
-                    <Form.Control type="file" multiple onChange={handleFileChange} />
-                </Form.Group>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={onClose}>
-                    Close
-                </Button>
-                <Button variant="primary" onClick={handleUpload}>
-                    Upload
-                </Button>
-            </Modal.Footer>
-        </Modal>
+            if (response.status === 200) {
+                // Successfully deleted file
+                setShowDeleteModal(false);  // Close the modal
+                setError(false);
+            }
+            fetchFiles();
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                // Handle unauthorized error (401)
+                setError("You are not authorized to delete this file. Only admins can delete files.");
+            } else {
+                setError("An error occurred while trying to delete the file.");
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <>
+            <Modal backdrop="static" show onHide={onClose} centered dialogClassName={showDeleteModal ? "dimmed" : ""}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Manage Files</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <h6>Existing Files:</h6>
+                    <ul style={{paddingLeft: "0"}}>
+                        {files.length > 0 ? (
+                            files.map((file, index) => {
+                                const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                                return (
+                                    <Row
+                                        key={file.id}
+                                        className="align-items-center"
+                                        style={{ backgroundColor: rowBgColor }}
+                                    >
+                                        <Col>
+                                            <a
+                                                onClick={() => handleFileOpen(file.id)}
+                                                style={{cursor: 'pointer', textDecoration: 'none', color: '#0d6efd' }}
+                                            >
+                                                {file.fileName}
+                                            </a>
+                                        </Col>
+                                        <Col md="auto">
+                                            <a onClick={() => handleFileDownload(file.id, file.fileName)}>
+                                                <Button variant="link" className="p-0">
+                                                    <FaDownload />
+                                                </Button>
+                                            </a>
+                                            <a onClick={() => {
+                                                setSelectedFileId(file.id); // Set the file ID
+                                                setSelectedFileName(file.fileName); // Set the file name
+                                                setShowDeleteModal(true); // Show delete confirmation modal
+                                            }}>
+                                                <Button variant="link" className="ms-4 p-0">
+                                                    <FaTrash className="text-danger" />
+                                                </Button>
+                                            </a>
+                                        </Col>
+                                    </Row>
+                                );
+                            })) : (
+                            <p>No files found.</p>
+                        )}
+                    </ul>
+
+                    <h6>Upload New Files:</h6>
+                    <Form.Group>
+                        <Form.Control type="file" multiple onChange={handleFileChange} />
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={onClose}>
+                        Close
+                    </Button>
+                    <Button variant="primary" onClick={handleUpload}>
+                        Upload
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            {/* Delete confirmation Modal */}
+            <Modal
+                backdrop="static"
+                show={showDeleteModal}
+                onHide={() => {setShowDeleteModal(false); setError(false);}}
+                centered
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm File Delete</Modal.Title>
+                </Modal.Header>
+                <Form onSubmit={confirmDelete}>
+                    <Modal.Body>
+                        {error && (
+                            <Alert variant="danger">
+                                <Alert.Heading>Error</Alert.Heading>
+                                <p>{error}</p>
+                            </Alert>
+                        )}
+                        <p>Are you sure you want to delete this file {selectedFileName}?</p>
+                        <p className="fw-bold">This change is permanent!</p>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="outline-info" onClick={() => setShowDeleteModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="danger" type="submit" disabled={loading}>
+                            {loading ? 'Deleting...' : 'Delete File'}
+                        </Button>
+                    </Modal.Footer>
+                </Form>
+            </Modal>
+        </>
     );
 };
 
