@@ -111,6 +111,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
             }));
             // Save edited comments back to the state when exiting edit mode
             setComments(editableComments);
+            handleSave();
         } else {
             // Initialize editable comments when entering edit mode
             setEditableComments(comments.map(comment => ({...comment})));
@@ -185,7 +186,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
             // Refresh the maintenance data
             await reFetchMaintenance();
             setRefresh();
-            onClose();
+
         } catch (error) {
             console.error("Error saving comments:", error);
         } finally {
@@ -581,7 +582,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                             </>
                         )}
                     <Row className="mt-4">
-                        <Col>Comment</Col>
+                        <Col>Internal Comment</Col>
                     </Row>
                     <Row>
                         <Col>
@@ -648,9 +649,9 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                 title="Delete Ticket"
                                 className="text-danger me-4" // Optional: add a color class
                             />
-                            <Button onClick={handleSave} disabled={isSubmitting}>
-                                {isSubmitting ? 'Saving...' : 'Save'}
-                            </Button>
+                            {/*<Button onClick={handleSave} disabled={isSubmitting}>*/}
+                            {/*    {isSubmitting ? 'Saving...' : 'Save'}*/}
+                            {/*</Button>*/}
                         </Col>
                     </Row>
                 </Modal.Body>
