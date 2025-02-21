@@ -18,8 +18,14 @@ const MaintenanceList = ({ maintenances, locationNames, setSelectedMaintenance, 
     const windowWidth = useWindowWidth();
     const isMobile = windowWidth < 768; // Adjust breakpoint as needed
 
+    // Custom function to get sorting value
+    const getSortValue = (item, key) => {
+        if (key === 'locationId') return locationNames[item.locationId] || ''; // Convert ID to name
+        return item[key];
+    };
+
     // Use sorting hook
-    const { sortedItems, handleSort, sortConfig } = MaintenanceSort(maintenances);
+    const { sortedItems, handleSort, sortConfig } = MaintenanceSort(maintenances, { key: 'maintenanceName', direction: 'ascending' }, getSortValue);
 
     const renderSortArrow = (key) => {
         if (sortConfig.key === key) {

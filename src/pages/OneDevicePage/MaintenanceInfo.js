@@ -6,6 +6,7 @@ import '../../css/OneClientPage/OneClient.css';
 import {DateUtils} from "../../utils/DateUtils";
 import MaintenanceDetailsModal from "../MaintenancePage/MaintenanceDetailsModal";
 import axiosInstance from "../../config/axiosInstance";
+import MaintenanceSort from "../../utils/MaintenanceSort";
 
 
 
@@ -14,7 +15,6 @@ function MaintenanceInfo({ maintenances, clientId, setRefresh, locationNames, re
     const [showAddMaintenanceModal, setShowAddMaintenanceModal] = useState(false);
     const [selectedMaintenance, setSelectedMaintenance] = useState(null);
     const [showTermsModal, setShowTermsModal] = useState(false);
-    const [sortConfig, setSortConfig] = useState({ key: 'maintenanceName', direction: 'ascending' });
     const [baitWorkers, setBaitWorkers] = useState([])
 
 
@@ -32,22 +32,15 @@ function MaintenanceInfo({ maintenances, clientId, setRefresh, locationNames, re
             console.error("Error fetching Bait Workers", error);
         }
     }
-    const handleSort = (key) => {
-        let direction = 'ascending';
-        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
-            direction = 'descending';
-        }
-        setSortConfig({ key, direction });
+    // Custom function to get sorting value
+    const getSortValue = (item, key) => {
+        if (key === 'locationId') return locationNames[item.locationId] || ''; // Convert ID to name
+        return item[key];
     };
 
-    const sortedMaintenances = [...maintenances].sort((a, b) => {
-        const valueA = a[sortConfig.key];
-        const valueB = b[sortConfig.key];
+    // Use sorting hook
+    const { sortedItems, handleSort, sortConfig } = MaintenanceSort(maintenances, { key: 'maintenanceName', direction: 'ascending' }, getSortValue);
 
-        if (valueA < valueB) return sortConfig.direction === 'ascending' ? -1 : 1;
-        if (valueA > valueB) return sortConfig.direction === 'ascending' ? 1 : -1;
-        return 0;
-    });
 
     const renderSortArrow = (key) => {
         if (sortConfig.key === key) {
@@ -87,8 +80,8 @@ function MaintenanceInfo({ maintenances, clientId, setRefresh, locationNames, re
                 <Col md={3} onClick={() => handleSort('maintenanceName')}>
                     Maintenance Name {renderSortArrow('maintenanceName')}
                 </Col>
-                <Col md={3} onClick={() => handleSort('location')}>
-                    Location {renderSortArrow('location')}
+                <Col md={3} onClick={() => handleSort('locationId')}>
+                    Location {renderSortArrow('locationId')}
                 </Col>
                 <Col md={3} onClick={() => handleSort('maintenanceDate')}>
                     Planned Date {renderSortArrow('maintenanceDate')}
@@ -103,8 +96,8 @@ function MaintenanceInfo({ maintenances, clientId, setRefresh, locationNames, re
             <hr />
 
             {/* Maintenance List */}
-            {sortedMaintenances.length > 0 ? (
-                sortedMaintenances.map((maintenance, index) => {
+            {sortedItems.length > 0 ? (
+                sortedItems.map((maintenance, index) => {
                     const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
                     return (
                         <Row

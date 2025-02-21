@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import { Row, Col, Button, Alert } from 'react-bootstrap';
-import MaintenanceModal from "./MaintenanceModal";
 import AddMaintenanceModal from "../../MaintenancePage/AddMaintenanceModal";
 import '../../../css/Customers.css';
 import '../../../css/OneClientPage/OneClient.css';
@@ -38,9 +37,14 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client, locati
             console.error("Error fetching Bait Workers", error);
         }
     }
-    // Use the custom sorting hook
-    const { sortedItems: sortedMaintenances, handleSort, sortConfig } = MaintenanceSort(maintenances);
+    // Custom function to get sorting value
+    const getSortValue = (item, key) => {
+        if (key === 'locationId') return locationNames[item.locationId] || ''; // Convert ID to name
+        return item[key];
+    };
 
+    // Use sorting hook
+    const { sortedItems, handleSort, sortConfig } = MaintenanceSort(maintenances, { key: 'maintenanceName', direction: 'ascending' }, getSortValue);
 
     const renderSortArrow = (key) => {
         if (sortConfig.key === key) {
@@ -78,8 +82,8 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client, locati
                 <Col md={3} onClick={() => handleSort('maintenanceName')}>
                     Maintenance Name {renderSortArrow('maintenanceName')}
                 </Col>
-                <Col md={3} onClick={() => handleSort('location')}>
-                    Location {renderSortArrow('location')}
+                <Col md={3} onClick={() => handleSort('locationId')}>
+                    Location {renderSortArrow('locationId')}
                 </Col>
                 <Col md={3} onClick={() => handleSort('maintenanceDate')}>
                     Planned Date {renderSortArrow('maintenanceDate')}
@@ -94,8 +98,8 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client, locati
             <hr />
 
             {/* Maintenance List */}
-            {sortedMaintenances.length > 0 ? (
-                sortedMaintenances.map((maintenance, index) => {
+            {sortedItems.length > 0 ? (
+                sortedItems.map((maintenance, index) => {
                     const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
                     return (
                         <Row
