@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Row, Col, Card } from 'react-bootstrap';
 import { DateUtils } from "../../utils/DateUtils";
+import MaintenanceSort from "../../utils/MaintenanceSort";
 
 // Custom hook to detect window width
 const useWindowWidth = () => {
@@ -17,11 +18,21 @@ const MaintenanceList = ({ maintenances, locationNames, setSelectedMaintenance, 
     const windowWidth = useWindowWidth();
     const isMobile = windowWidth < 768; // Adjust breakpoint as needed
 
+    // Use sorting hook
+    const { sortedItems, handleSort, sortConfig } = MaintenanceSort(maintenances);
+
+    const renderSortArrow = (key) => {
+        if (sortConfig.key === key) {
+            return sortConfig.direction === 'ascending' ? '▲' : '▼';
+        }
+        return '↕';
+    };
+
     if (isMobile) {
         // Mobile view: render each maintenance as a card
         return (
             <div className="mt-3">
-                {maintenances.map((maintenance) => (
+                {sortedItems.map((maintenance) => (
                     <Card
                         key={maintenance.id}
                         className="mb-3"
@@ -51,18 +62,28 @@ const MaintenanceList = ({ maintenances, locationNames, setSelectedMaintenance, 
         );
     }
 
-    // Desktop view: render the table-like row layout
+    // Desktop view: render the table-like row layout with sortable headers
     return (
         <>
             <Row className="row-margin-0 fw-bold mt-2">
-                <Col md={3}>Maintenance Name</Col>
-                <Col md={3}>Location</Col>
-                <Col md={3}>Planned Date</Col>
-                <Col md={2}>Status</Col>
-                <Col md={1}>Last Date</Col>
+                <Col md={3} onClick={() => handleSort('maintenanceName')}>
+                    Maintenance Name {renderSortArrow('maintenanceName')}
+                </Col>
+                <Col md={3} onClick={() => handleSort('locationId')}>
+                    Location {renderSortArrow('locationId')}
+                </Col>
+                <Col md={3} onClick={() => handleSort('maintenanceDate')}>
+                    Planned Date {renderSortArrow('maintenanceDate')}
+                </Col>
+                <Col md={2} onClick={() => handleSort('maintenanceStatus')}>
+                    Status {renderSortArrow('maintenanceStatus')}
+                </Col>
+                <Col md={1} onClick={() => handleSort('lastDate')}>
+                    Last Date {renderSortArrow('lastDate')}
+                </Col>
             </Row>
             <hr />
-            {maintenances.map((maintenance, index) => {
+            {sortedItems.map((maintenance, index) => {
                 const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
                 return (
                     <Row

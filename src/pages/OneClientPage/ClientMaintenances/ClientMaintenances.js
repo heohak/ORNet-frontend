@@ -8,6 +8,8 @@ import {DateUtils} from "../../../utils/DateUtils";
 import MaintenanceDetailsModal from "../../MaintenancePage/MaintenanceDetailsModal";
 import TermsModal from "./TermsModal";
 import axiosInstance from "../../../config/axiosInstance";
+import MaintenanceSort from "../../../utils/MaintenanceSort";
+
 
 
 
@@ -16,7 +18,6 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client, locati
     const [showAddMaintenanceModal, setShowAddMaintenanceModal] = useState(false);
     const [selectedMaintenance, setSelectedMaintenance] = useState(null);
     const [showTermsModal, setShowTermsModal] = useState(false);
-    const [sortConfig, setSortConfig] = useState({ key: 'maintenanceName', direction: 'ascending' });
     const [baitWorkers, setBaitWorkers] = useState([])
 
 
@@ -28,28 +29,18 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client, locati
     const fetchBaitWorkers = async() => {
         try {
             const response = await axiosInstance.get(`/bait/worker/all`)
-            const workers = response.data.map(worker => ({value: worker.id, label: `${worker.firstName} ${worker.lastName}`}))
+            const workers = response.data.map(worker => ({
+                value: worker.id,
+                label: `${worker.firstName} ${worker.lastName}`
+            }))
             setBaitWorkers(workers)
         } catch (error) {
             console.error("Error fetching Bait Workers", error);
         }
     }
-    const handleSort = (key) => {
-        let direction = 'ascending';
-        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
-            direction = 'descending';
-        }
-        setSortConfig({ key, direction });
-    };
+    // Use the custom sorting hook
+    const { sortedItems: sortedMaintenances, handleSort, sortConfig } = MaintenanceSort(maintenances);
 
-    const sortedMaintenances = [...maintenances].sort((a, b) => {
-        const valueA = a[sortConfig.key];
-        const valueB = b[sortConfig.key];
-
-        if (valueA < valueB) return sortConfig.direction === 'ascending' ? -1 : 1;
-        if (valueA > valueB) return sortConfig.direction === 'ascending' ? 1 : -1;
-        return 0;
-    });
 
     const renderSortArrow = (key) => {
         if (sortConfig.key === key) {
