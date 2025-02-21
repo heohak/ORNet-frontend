@@ -34,6 +34,9 @@ const MaintenanceList = ({ maintenances, locationNames, setSelectedMaintenance, 
         return '↕';
     };
 
+    // Retrieve the last visited maintenance ID from localStorage.
+    const lastVisitedMaintenanceId = localStorage.getItem("lastVisitedMaintenanceId");
+
     if (isMobile) {
         // Mobile view: render each maintenance as a card
         return (
@@ -42,8 +45,15 @@ const MaintenanceList = ({ maintenances, locationNames, setSelectedMaintenance, 
                     <Card
                         key={maintenance.id}
                         className="mb-3"
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => { setSelectedMaintenance(maintenance); setShowDetailsModal(true); }}
+                        style={{
+                            cursor: 'pointer',
+                            backgroundColor: maintenance.id.toString() === lastVisitedMaintenanceId ? "#ffffcc" : "inherit"
+                        }}
+                        onClick={() => {
+                            localStorage.setItem("lastVisitedMaintenanceId", maintenance.id);
+                            setSelectedMaintenance(maintenance);
+                            setShowDetailsModal(true);
+                        }}
                     >
                         <Card.Body>
                             <Card.Title>{maintenance.maintenanceName}</Card.Title>
@@ -90,13 +100,18 @@ const MaintenanceList = ({ maintenances, locationNames, setSelectedMaintenance, 
             </Row>
             <hr />
             {sortedItems.map((maintenance, index) => {
-                const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                const baseBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                const rowBgColor = maintenance.id.toString() === lastVisitedMaintenanceId ? "#ffffcc" : baseBgColor;
                 return (
                     <Row
                         key={maintenance.id}
                         className="align-items-center"
                         style={{ margin: "0", cursor: 'pointer', backgroundColor: rowBgColor }}
-                        onClick={() => { setSelectedMaintenance(maintenance); setShowDetailsModal(true); }}
+                        onClick={() => {
+                            localStorage.setItem("lastVisitedMaintenanceId", maintenance.id);
+                            setSelectedMaintenance(maintenance);
+                            setShowDetailsModal(true);
+                        }}
                     >
                         <Col md={3} className="py-2">
                             {maintenance.maintenanceName}

@@ -164,37 +164,6 @@ function Devices() {
         return locationNames[locId] || 'Loading...';
     };
 
-    // Early returns based on loading/error should now work properly since all hooks are called above.
-    if (loading) {
-        return (
-            <div className="text-center mt-5">
-                <Spinner animation="border" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                </Spinner>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="mt-5">
-                <Alert variant="danger">
-                    <Alert.Heading>Error</Alert.Heading>
-                    <p>{error}</p>
-                </Alert>
-            </div>
-        );
-    }
-
-    const sortedDevices = sortDevices(devices, sortConfig.key, sortConfig.direction);
-
-    const renderSortArrow = (key) => {
-        if (sortConfig.key === key) {
-            return sortConfig.direction === 'ascending' ? '▲' : '▼';
-        }
-        return '↕';
-    };
-
     // Inline version editing: start a long press timer to trigger editing
     const handleVersionMouseDown = (device) => {
         const timer = setTimeout(() => {
@@ -227,6 +196,40 @@ function Devices() {
         }
         setEditingDeviceId(null);
         setEditingVersion("");
+    };
+
+    // Retrieve the last visited device ID from localStorage
+    const lastVisitedDeviceId = localStorage.getItem("lastVisitedDeviceId");
+
+    // Early returns based on loading/error should now work properly since all hooks are called above.
+    if (loading) {
+        return (
+            <div className="text-center mt-5">
+                <Spinner animation="border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </Spinner>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="mt-5">
+                <Alert variant="danger">
+                    <Alert.Heading>Error</Alert.Heading>
+                    <p>{error}</p>
+                </Alert>
+            </div>
+        );
+    }
+
+    const sortedDevices = sortDevices(devices, sortConfig.key, sortConfig.direction);
+
+    const renderSortArrow = (key) => {
+        if (sortConfig.key === key) {
+            return sortConfig.direction === 'ascending' ? '▲' : '▼';
+        }
+        return '↕';
     };
 
     return (
@@ -266,7 +269,7 @@ function Devices() {
                 </Row>
 
                 {isMobile ? (
-                    // Mobile view: render each device as a Card
+                    // Mobile view: render each device as a Card with last visited highlighting.
                     sortedDevices.length === 0 ? (
                         <Alert variant="info">No devices found.</Alert>
                     ) : (
@@ -274,7 +277,10 @@ function Devices() {
                             <Card
                                 key={device.id}
                                 className="mb-3"
-                                style={{ cursor: 'pointer' }}
+                                style={{
+                                    cursor: 'pointer',
+                                    backgroundColor: device.id.toString() === lastVisitedDeviceId ? "#ffffcc" : "inherit"
+                                }}
                                 onClick={() => {
                                     localStorage.setItem("lastVisitedDeviceId", device.id);
                                     navigate(`/device/${device.id}`, {

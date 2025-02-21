@@ -170,6 +170,9 @@ const Trainings = () => {
         return sortableTrainings;
     }, [trainings, sortConfig, clientNames, locationNames]);
 
+    // Retrieve the last visited training ID from localStorage.
+    const lastVisitedTrainingId = localStorage.getItem("lastVisitedTrainingId");
+
     return (
         <Container className="mt-5">
             <Row className="d-flex justify-content-between mb-4">
@@ -187,7 +190,7 @@ const Trainings = () => {
                 <TrainingFilters onFilter={setTrainings} />
             </Row>
 
-            {/* Desktop view: render headers and row layout */}
+            {/* Desktop view header */}
             {!isMobile && (
                 <>
                     <Row className="row-margin-0 fw-bold mt-2">
@@ -216,13 +219,20 @@ const Trainings = () => {
             ) : (
                 <>
                     {isMobile ? (
-                        // Mobile view: render each training as a card
+                        // Mobile view: render each training as a card with last visited highlighting.
                         sortedTrainings.map((training) => (
                             <Card
                                 key={training.id}
                                 className="mb-3"
-                                style={{ cursor: 'pointer' }}
-                                onClick={() => { setSelectedTraining(training); setShowDetailsModal(true); }}
+                                style={{
+                                    cursor: 'pointer',
+                                    backgroundColor: training.id.toString() === lastVisitedTrainingId ? "#ffffcc" : "inherit"
+                                }}
+                                onClick={() => {
+                                    localStorage.setItem("lastVisitedTrainingId", training.id);
+                                    setSelectedTraining(training);
+                                    setShowDetailsModal(true);
+                                }}
                             >
                                 <Card.Body>
                                     <Card.Title>{training.name}</Card.Title>
@@ -244,15 +254,20 @@ const Trainings = () => {
                             </Card>
                         ))
                     ) : (
-                        // Desktop view: render each training as a row
+                        // Desktop view: render each training as a row with last visited highlighting.
                         sortedTrainings.map((training, index) => {
-                            const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                            const baseBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                            const rowBgColor = training.id.toString() === lastVisitedTrainingId ? "#ffffcc" : baseBgColor;
                             return (
                                 <Row
                                     key={training.id}
                                     className="align-items-center"
                                     style={{ margin: "0", cursor: 'pointer', backgroundColor: rowBgColor }}
-                                    onClick={() => { setSelectedTraining(training); setShowDetailsModal(true); }}
+                                    onClick={() => {
+                                        localStorage.setItem("lastVisitedTrainingId", training.id);
+                                        setSelectedTraining(training);
+                                        setShowDetailsModal(true);
+                                    }}
                                 >
                                     <Col md={3} className="py-2">
                                         {training.name}

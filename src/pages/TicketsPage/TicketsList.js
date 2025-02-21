@@ -26,6 +26,9 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
     const windowWidth = useWindowWidth();
     const isMobile = windowWidth < 768; // adjust breakpoint as needed
 
+    // Retrieve the last visited ticket ID from localStorage.
+    const lastVisitedTicketId = localStorage.getItem("lastVisitedTicketId");
+
     // Fetch all locations when the component mounts
     useEffect(() => {
         const fetchLocations = async () => {
@@ -128,7 +131,7 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
     return (
         <div className="mt-3">
             {isMobile ? (
-                // Mobile view: Render tickets as cards
+                // Mobile view: Render tickets as cards with last visited highlighting.
                 sortedTickets.map((ticket) => {
                     const status = statuses.find((status) => status.id === ticket.statusId);
                     const statusName = status?.status || 'Unknown Status';
@@ -138,8 +141,14 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
                         <Card
                             key={ticket.id}
                             className="mb-3"
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => onNavigate(ticket)}
+                            style={{
+                                cursor: 'pointer',
+                                backgroundColor: ticket.id.toString() === lastVisitedTicketId ? "#ffffcc" : "inherit"
+                            }}
+                            onClick={() => {
+                                localStorage.setItem("lastVisitedTicketId", ticket.id);
+                                onNavigate(ticket);
+                            }}
                         >
                             <Card.Body>
                                 <Card.Title>{ticket.title}</Card.Title>
@@ -182,7 +191,7 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
                     );
                 })
             ) : (
-                // Desktop view: Render header row and ticket rows
+                // Desktop view: Render header row and ticket rows with last visited highlighting.
                 <>
                     <Row className="fw-bold">
                         <Col md={1} onClick={() => handleSort('date')} style={{ cursor: 'pointer' }}>
@@ -210,13 +219,17 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
                         const statusColor = status?.color || '#007bff';
                         const priorityColor = ticket.crisis ? 'red' : 'green';
                         // Alternating row background colors
-                        const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                        const baseBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                        const rowBgColor = ticket.id.toString() === lastVisitedTicketId ? "#ffffcc" : baseBgColor;
                         return (
                             <Row
                                 key={ticket.id}
                                 className="align-items-center py-1"
                                 style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
-                                onClick={() => onNavigate(ticket)}
+                                onClick={() => {
+                                    localStorage.setItem("lastVisitedTicketId", ticket.id);
+                                    onNavigate(ticket);
+                                }}
                             >
                                 <Col md={1}>{DateUtils.formatDate(ticket.startDateTime)}</Col>
                                 <Col md={1}>{ticket.baitNumeration}</Col>

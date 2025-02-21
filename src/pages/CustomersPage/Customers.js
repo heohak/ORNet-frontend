@@ -233,6 +233,8 @@ function Customers() {
     }
 
     const sortedCustomers = sortCustomers(customers, sortConfig.key, sortConfig.direction);
+    // Retrieve the last visited customer ID from localStorage
+    const lastVisitedCustomerId = localStorage.getItem("lastVisitedCustomerId");
 
     return (
         <Container className="mt-5">
@@ -350,72 +352,72 @@ function Customers() {
                         sortedCustomers.length === 0 ? (
                             <Alert variant="info">No customers found.</Alert>
                         ) : (
-                            sortedCustomers.map((customer) => {
-                                // Determine client types for display
-                                const customerTypes = [];
-                                if (customer.pathologyClient) customerTypes.push('Pathology');
-                                if (customer.surgeryClient) customerTypes.push('Surgery');
-                                if (customer.editorClient) customerTypes.push('Editor');
-                                if (customer.otherMedicalDevices) customerTypes.push('Other');
-                                if (customer.prospect) customerTypes.push('Prospect');
-                                if (customer.agreement) customerTypes.push('Agreement');
-                                const customerTypeDisplay = customerTypes.length > 0 ? customerTypes.join(', ') : 'N/A';
-
-                                // Get activity deadline color and formatted update date
-                                const deadlineColor = getDeadlineColor(activityDates[customer.id]?.endDateTime);
-                                const updateDate = DateUtils.formatDate(activityDates[customer.id]?.updateDateTime) || "N/A";
-
-                                return (
-                                    <Card
-                                        key={customer.id}
-                                        className="mb-3"
-                                        style={{ cursor: 'pointer' }}
-                                        onClick={() => navigate(`/customer/${customer.id}`, {
+                            sortedCustomers.map((customer) => (
+                                <Card
+                                    key={customer.id}
+                                    className="mb-3"
+                                    style={{
+                                        cursor: 'pointer',
+                                        // Highlight if this customer was the last visited
+                                        backgroundColor: customer.id.toString() === lastVisitedCustomerId ? "#ffffcc" : "inherit"
+                                    }}
+                                    onClick={() => {
+                                        localStorage.setItem("lastVisitedCustomerId", customer.id);
+                                        navigate(`/customer/${customer.id}`, {
                                             state: {
                                                 fromPath: '/customers',
                                                 filters: { searchQuery, selectedClientTypes, selectedCountry }
                                             }
-                                        })}
-                                    >
-                                        <Card.Body>
-                                            <Card.Title>{customer.fullName}</Card.Title>
-                                            <Card.Subtitle className="mb-2 text-muted">{customer.shortName}</Card.Subtitle>
-                                            <Card.Text>
-                                                <div>
-                                                    <strong>Country:</strong> {customer.country}{' '}
-                                                    <img
-                                                        src={countryFlags[customer.country] ? countryFlags[customer.country] : noImg}
-                                                        alt={`${customer.country} flag`}
-                                                        style={{
-                                                            width: '24px',
-                                                            height: '24px',
-                                                            borderRadius: '50%',
-                                                            marginLeft: '8px'
-                                                        }}
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <strong>Type:</strong> {customerTypeDisplay}
-                                                </div>
-                                                <div>
-                                                    <strong>Activity:</strong>{' '}
-                                                    <span
-                                                        style={{
-                                                            display: 'inline-block',
-                                                            width: '12px',
-                                                            height: '12px',
-                                                            borderRadius: '50%',
-                                                            backgroundColor: deadlineColor,
-                                                            marginRight: '8px'
-                                                        }}
-                                                    />
-                                                    {updateDate}
-                                                </div>
-                                            </Card.Text>
-                                        </Card.Body>
-                                    </Card>
-                                );
-                            })
+                                        });
+                                    }}
+                                >
+                                    <Card.Body>
+                                        <Card.Title>{customer.fullName}</Card.Title>
+                                        <Card.Subtitle className="mb-2 text-muted">{customer.shortName}</Card.Subtitle>
+                                        <Card.Text>
+                                            <div>
+                                                <strong>Country:</strong> {customer.country}{' '}
+                                                <img
+                                                    src={countryFlags[customer.country] ? countryFlags[customer.country] : noImg}
+                                                    alt={`${customer.country} flag`}
+                                                    style={{
+                                                        width: '24px',
+                                                        height: '24px',
+                                                        borderRadius: '50%',
+                                                        marginLeft: '8px'
+                                                    }}
+                                                />
+                                            </div>
+                                            <div>
+                                                <strong>Type:</strong> {
+                                                [
+                                                    customer.pathologyClient && 'Pathology',
+                                                    customer.surgeryClient && 'Surgery',
+                                                    customer.editorClient && 'Editor',
+                                                    customer.otherMedicalDevices && 'Other',
+                                                    customer.prospect && 'Prospect',
+                                                    customer.agreement && 'Agreement'
+                                                ].filter(Boolean).join(', ') || 'N/A'
+                                            }
+                                            </div>
+                                            <div>
+                                                <strong>Activity:</strong>{' '}
+                                                <span
+                                                    style={{
+                                                        display: 'inline-block',
+                                                        width: '12px',
+                                                        height: '12px',
+                                                        borderRadius: '50%',
+                                                        backgroundColor: getDeadlineColor(activityDates[customer.id]?.endDateTime),
+                                                        marginRight: '8px'
+                                                    }}
+                                                />
+                                                {DateUtils.formatDate(activityDates[customer.id]?.updateDateTime) || "N/A"}
+                                            </div>
+                                        </Card.Text>
+                                    </Card.Body>
+                                </Card>
+                            ))
                         )
                     ) : (
                         // Desktop view: Render header and rows
@@ -457,19 +459,25 @@ function Customers() {
                                     const deadlineColor = getDeadlineColor(activityDates[customer.id]?.endDateTime);
                                     const updateDate = DateUtils.formatDate(activityDates[customer.id]?.updateDateTime) || "N/A";
 
-                                    const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                                    // Determine the background color:
+                                    // If this customer was last visited, use yellow; otherwise, use alternating colors.
+                                    const baseBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                                    const rowBgColor = (customer.id.toString() === lastVisitedCustomerId) ? "#ffffcc" : baseBgColor;
 
                                     return (
                                         <Row
                                             key={customer.id}
                                             className="mb-2 py-2"
                                             style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
-                                            onClick={() => navigate(`/customer/${customer.id}`, {
-                                                state: {
-                                                    fromPath: '/customers',
-                                                    filters: { searchQuery, selectedClientTypes, selectedCountry }
-                                                }
-                                            })}
+                                            onClick={() => {
+                                                localStorage.setItem("lastVisitedCustomerId", customer.id);
+                                                navigate(`/customer/${customer.id}`, {
+                                                    state: {
+                                                        fromPath: '/customers',
+                                                        filters: { searchQuery, selectedClientTypes, selectedCountry }
+                                                    }
+                                                });
+                                            }}
                                         >
                                             <Col md={1}>
                                                 <img

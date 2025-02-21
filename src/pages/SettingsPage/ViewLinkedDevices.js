@@ -266,9 +266,11 @@ function ViewLinkedDevices() {
     });
 
     // =======================
-    // Table Row Click -> Open Details
+    // Table/Card Row Click -> Open Details
     // =======================
     const handleLinkedDeviceClick = (devId) => {
+        // Save the last visited linked device id to localStorage.
+        localStorage.setItem("lastVisitedLinkedDeviceId", devId);
         const device = linkedDevices.find(d => d.id === devId);
         if (device) {
             // Initialize edit states with current device values
@@ -515,6 +517,9 @@ function ViewLinkedDevices() {
     // =======================
     // Render
     // =======================
+    // Retrieve the last visited linked device ID from localStorage
+    const lastVisitedLinkedDeviceId = localStorage.getItem("lastVisitedLinkedDeviceId");
+
     return (
         <Container className="mt-5">
             <Row>
@@ -546,12 +551,15 @@ function ViewLinkedDevices() {
                     ) : linkedDevices.length === 0 ? (
                         <Alert variant="info">No linked devices found.</Alert>
                     ) : isMobile ? (
-                        // Mobile view: Render each linked device as a Card
+                        // Mobile view: Render each linked device as a Card with last visited highlighting.
                         sortedLinkedDevices.map((device) => (
                             <Card
                                 key={device.id}
                                 className="mb-3"
-                                style={{ cursor: 'pointer' }}
+                                style={{
+                                    cursor: 'pointer',
+                                    backgroundColor: device.id.toString() === lastVisitedLinkedDeviceId ? "#ffffcc" : "inherit"
+                                }}
                                 onClick={() => handleLinkedDeviceClick(device.id)}
                             >
                                 <Card.Body>
@@ -574,7 +582,7 @@ function ViewLinkedDevices() {
                             </Card>
                         ))
                     ) : (
-                        // Desktop view: Render table headers and rows
+                        // Desktop view: Render table headers and rows with last visited highlighting.
                         <>
                             <Row className="fw-bold">
                                 <Col md={3} onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
@@ -595,7 +603,8 @@ function ViewLinkedDevices() {
                             </Row>
                             <hr />
                             {sortedLinkedDevices.map((device, index) => {
-                                const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                                const baseBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                                const rowBgColor = (device.id.toString() === lastVisitedLinkedDeviceId) ? "#ffffcc" : baseBgColor;
                                 return (
                                     <Row
                                         key={device.id}
