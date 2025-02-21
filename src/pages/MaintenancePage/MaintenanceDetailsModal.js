@@ -347,7 +347,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                             </div>
                         ) : (
                             <>
-                                <Row className="mt-4">
+                                <Row style={{margin: "0"}} className="mt-4">
                                     {/* Display the first available section header */}
                                     {devices.length > 0 ? (
                                         <Col className="fw-bold" md={3}>Device List:</Col>
@@ -444,7 +444,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                     );
                                 })}
                                 {linkedDevices.length > 0 && devices.length > 0 && (
-                                <Row>
+                                <Row style={{margin: "0"}}>
                                     <Col className="fw-bold">
                                         Linked Device list:
                                     </Col>
@@ -525,7 +525,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                     );
                                 })}
                                 {softwares.length > 0 && (linkedDevices.length > 0 || devices.length) > 0 && (
-                                <Row>
+                                <Row style={{margin: "0"}}>
                                     <Col className="fw-bold">
                                         Software list:
                                     </Col>
