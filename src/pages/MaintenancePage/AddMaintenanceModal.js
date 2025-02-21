@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import AsyncSelect from "react-select/async";
 import axiosInstance from "../../config/axiosInstance";
+import {formatLocalDate, parseLocalDate} from "../../utils/DateUtils";
 
 const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers, setRefresh, onAdd }) => {
     const [error, setError] = useState("");
@@ -269,8 +270,8 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                             <Form.Group className="mb-3">
                                 <Form.Label>Planned Date</Form.Label>
                                 <ReactDatePicker
-                                    selected={maintenanceDate}
-                                    onChange={(date) => setMaintenanceDate(date)}
+                                    selected={parseLocalDate(maintenanceDate)}
+                                    onChange={(date) => setMaintenanceDate(formatLocalDate(date))}
                                     dateFormat="dd.MM.yyyy"
                                     className="form-control"
                                     placeholderText="Select date"
@@ -283,8 +284,8 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                             <Form.Group className="mb-3">
                                 <Form.Label>Last Date</Form.Label>
                                 <ReactDatePicker
-                                    selected={lastDate}
-                                    onChange={(date) => setLastDate(date)}
+                                    selected={parseLocalDate(lastDate)}
+                                    onChange={(date) => setLastDate(formatLocalDate(date))}
                                     dateFormat="dd.MM.yyyy"
                                     className="form-control"
                                     placeholderText="Select date"
