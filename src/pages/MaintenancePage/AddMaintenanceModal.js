@@ -136,12 +136,6 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
         setSelectedSoftwares(softwares);
     };
 
-    const formatDateForBackend = (date) => {
-        if (!date) return null; // Handle null case
-        const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()); // Reset time to midnight local time
-        return localDate.toISOString().split("T")[0]; // Extract YYYY-MM-DD
-    };
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -150,8 +144,8 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
         try {
             const response = await axiosInstance.post(`/maintenance/add`, {
                 maintenanceName,
-                maintenanceDate: formatDateForBackend(maintenanceDate),
-                lastDate: formatDateForBackend(lastDate),
+                maintenanceDate: maintenanceDate,
+                lastDate: lastDate,
                 description,
                 deviceIds: selectedDevices.map(d => d.value),
                 linkedDeviceIds: selectedLinkedDevices.map(ld => ld.value),
