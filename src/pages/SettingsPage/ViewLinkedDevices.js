@@ -10,6 +10,7 @@ import {
     Form,
     Spinner,
     Container,
+    Card
 } from 'react-bootstrap';
 import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import axiosInstance from '../../config/axiosInstance';
@@ -21,6 +22,17 @@ import 'react-datepicker/dist/react-datepicker.css';
 // Import your DeviceDetailsModal
 import DeviceDetailsModal from '../OneDevicePage/DeviceDetailsModal';
 import LinkedDeviceSearchFilter from "../AllLinkedDevicePage/LinkedDeviceSearchFilter";
+
+// Custom hook to get window width
+const useWindowWidth = () => {
+    const [width, setWidth] = useState(window.innerWidth);
+    useEffect(() => {
+        const handleResize = () => setWidth(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    return width;
+};
 
 function ViewLinkedDevices() {
     // =======================
@@ -77,6 +89,10 @@ function ViewLinkedDevices() {
     const [templates, setTemplates] = useState([]);
     const [mainDevices, setMainDevices] = useState([]);
 
+    // Get window width and determine mobile view
+    const windowWidth = useWindowWidth();
+    const isMobile = windowWidth < 768; // adjust breakpoint as needed
+
     // =======================
     // Effects
     // =======================
@@ -101,21 +117,16 @@ function ViewLinkedDevices() {
                 console.error("Error fetching main devices:", error);
             }
         };
-
         fetchMainDevices();
     }, []);
-
-
 
     // =======================
     // Fetch Linked Devices Templates
     // =======================
     const fetchTemplates = async () => {
         try {
-            const response = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/search`,{
-                params: {
-                    template: true
-                }
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/search`, {
+                params: { template: true }
             });
             setTemplates(response.data);
         } catch (error) {
@@ -124,9 +135,7 @@ function ViewLinkedDevices() {
     };
 
     const handleTemplateSelect = (templateId) => {
-        console.log(templateId)
         const template = templates.find(t => t.id === Number(templateId));
-        console.log(template)
         if (template) {
             setName(template.name);
             setManufacturer(template.manufacturer);
@@ -134,7 +143,6 @@ function ViewLinkedDevices() {
             setDescription(template.description);
         }
     };
-
 
     // =======================
     // Fetch Linked Devices
@@ -215,11 +223,11 @@ function ViewLinkedDevices() {
                     }
                 });
             }
-
             initialFieldsConfig[device.id] = fieldsConfigForDevice;
         });
         setFieldsConfig(initialFieldsConfig);
     };
+
     const getLocationName = (locationId) => {
         const loc = locations.find((l) => l.id === locationId);
         return loc ? loc.name : "Unknown";
@@ -256,7 +264,6 @@ function ViewLinkedDevices() {
         if (valueA > valueB) return sortConfig.direction === 'ascending' ? 1 : -1;
         return 0;
     });
-
 
     // =======================
     // Table Row Click -> Open Details
@@ -362,7 +369,6 @@ function ViewLinkedDevices() {
             setNewComment('');
         } catch (error) {
             console.error('Error adding comment:', error);
-            // Optionally set an error state here
         } finally {
             setIsSubmittingComment(false);
         }
@@ -462,7 +468,7 @@ function ViewLinkedDevices() {
             if (introducedDate) {
                 introducedDateFormatted = format(introducedDate, 'yyyy-MM-dd');
             }
-            let devicePayload
+            let devicePayload;
             if (isTemplate) {
                 devicePayload = {
                     name,
@@ -470,7 +476,7 @@ function ViewLinkedDevices() {
                     productCode,
                     description,
                     template: isTemplate
-                }
+                };
             } else {
                 devicePayload = {
                     name,
@@ -481,7 +487,7 @@ function ViewLinkedDevices() {
                     introducedDate: introducedDateFormatted,
                     locationId: locationId ? parseInt(locationId, 10) : null,
                     template: isTemplate
-                }
+                };
             }
 
             await axiosInstance.post(`${config.API_BASE_URL}/linked/device/add`, devicePayload);
@@ -506,8 +512,6 @@ function ViewLinkedDevices() {
         }
     };
 
-
-
     // =======================
     // Render
     // =======================
@@ -527,33 +531,10 @@ function ViewLinkedDevices() {
                         </Col>
                     </Row>
                     <Row className='mt-4'>
-
                         <LinkedDeviceSearchFilter setLinkedDevices={setLinkedDevices} />
-
                     </Row>
 
-
-                    {/* Sortable Table Headers */}
-                    <Row className="fw-bold">
-                        <Col md={3} onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
-                            Name {renderSortIcon('name')}
-                        </Col>
-                        <Col md={3} onClick={() => handleSort('manufacturer')} style={{ cursor: 'pointer' }}>
-                            Manufacturer {renderSortIcon('manufacturer')}
-                        </Col>
-                        <Col md={2} onClick={() => handleSort('productCode')} style={{ cursor: 'pointer' }}>
-                            Product Code {renderSortIcon('productCode')}
-                        </Col>
-                        <Col md={2} onClick={() => handleSort('serialNumber')} style={{ cursor: 'pointer' }}>
-                            Serial Number {renderSortIcon('serialNumber')}
-                        </Col>
-                        <Col md={2} onClick={() => handleSort('location')} style={{ cursor: 'pointer' }}>
-                            Location {renderSortIcon('location')}
-                        </Col>
-                    </Row>
-                    <hr />
-
-                    {/* Linked Devices Rows */}
+                    {/* Conditionally Render: Mobile view as Cards, Desktop view as table rows */}
                     {loading ? (
                         <div className="text-center my-4">
                             <Spinner animation="border" role="status">
@@ -564,24 +545,73 @@ function ViewLinkedDevices() {
                         <Alert variant="danger">{error}</Alert>
                     ) : linkedDevices.length === 0 ? (
                         <Alert variant="info">No linked devices found.</Alert>
+                    ) : isMobile ? (
+                        // Mobile view: Render each linked device as a Card
+                        sortedLinkedDevices.map((device) => (
+                            <Card
+                                key={device.id}
+                                className="mb-3"
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => handleLinkedDeviceClick(device.id)}
+                            >
+                                <Card.Body>
+                                    <Card.Title>{device.name}</Card.Title>
+                                    <Card.Text>
+                                        <div>
+                                            <strong>Manufacturer:</strong> {device.manufacturer}
+                                        </div>
+                                        <div>
+                                            <strong>Product Code:</strong> {device.productCode}
+                                        </div>
+                                        <div>
+                                            <strong>Serial Number:</strong> {device.serialNumber}
+                                        </div>
+                                        <div>
+                                            <strong>Location:</strong> {getLocationName(device.locationId)}
+                                        </div>
+                                    </Card.Text>
+                                </Card.Body>
+                            </Card>
+                        ))
                     ) : (
-                        sortedLinkedDevices.map((device, index) => {
-                            const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
-                            return (
-                                <Row
-                                    key={device.id}
-                                    className="align-items-center py-2"
-                                    style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
-                                    onClick={() => handleLinkedDeviceClick(device.id)}
-                                >
-                                    <Col md={3}>{device.name}</Col>
-                                    <Col md={3}>{device.manufacturer}</Col>
-                                    <Col md={2}>{device.productCode}</Col>
-                                    <Col md={2}>{device.serialNumber}</Col>
-                                    <Col md={2}>{getLocationName(device.locationId)}</Col>
-                                </Row>
-                            );
-                        })
+                        // Desktop view: Render table headers and rows
+                        <>
+                            <Row className="fw-bold">
+                                <Col md={3} onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
+                                    Name {renderSortIcon('name')}
+                                </Col>
+                                <Col md={3} onClick={() => handleSort('manufacturer')} style={{ cursor: 'pointer' }}>
+                                    Manufacturer {renderSortIcon('manufacturer')}
+                                </Col>
+                                <Col md={2} onClick={() => handleSort('productCode')} style={{ cursor: 'pointer' }}>
+                                    Product Code {renderSortIcon('productCode')}
+                                </Col>
+                                <Col md={2} onClick={() => handleSort('serialNumber')} style={{ cursor: 'pointer' }}>
+                                    Serial Number {renderSortIcon('serialNumber')}
+                                </Col>
+                                <Col md={2} onClick={() => handleSort('location')} style={{ cursor: 'pointer' }}>
+                                    Location {renderSortIcon('location')}
+                                </Col>
+                            </Row>
+                            <hr />
+                            {sortedLinkedDevices.map((device, index) => {
+                                const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                                return (
+                                    <Row
+                                        key={device.id}
+                                        className="align-items-center py-2"
+                                        style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
+                                        onClick={() => handleLinkedDeviceClick(device.id)}
+                                    >
+                                        <Col md={3}>{device.name}</Col>
+                                        <Col md={3}>{device.manufacturer}</Col>
+                                        <Col md={2}>{device.productCode}</Col>
+                                        <Col md={2}>{device.serialNumber}</Col>
+                                        <Col md={2}>{getLocationName(device.locationId)}</Col>
+                                    </Row>
+                                );
+                            })}
+                        </>
                     )}
 
                     {/* Add Linked Device Modal */}
@@ -596,7 +626,6 @@ function ViewLinkedDevices() {
                                         {error}
                                     </Alert>
                                 )}
-
                                 {/* Toggle Switch */}
                                 <Form.Group controlId="formIsTemplate" className="mb-3">
                                     <Form.Check
@@ -608,17 +637,17 @@ function ViewLinkedDevices() {
                                 </Form.Group>
                                 {!isTemplate && (
                                     <>
-                                <Form.Group controlId="formTemplateSelect" className="mb-3">
-                                    <Form.Label>Select Template</Form.Label>
-                                    <Form.Control as="select" onChange={(e) => handleTemplateSelect(e.target.value)}>
-                                        <option value="">Select a template...</option>
-                                        {templates.map((template) => (
-                                            <option key={template.id} value={template.id}>
-                                                {template.name}
-                                            </option>
-                                        ))}
-                                    </Form.Control>
-                                </Form.Group>
+                                        <Form.Group controlId="formTemplateSelect" className="mb-3">
+                                            <Form.Label>Select Template</Form.Label>
+                                            <Form.Control as="select" onChange={(e) => handleTemplateSelect(e.target.value)}>
+                                                <option value="">Select a template...</option>
+                                                {templates.map((template) => (
+                                                    <option key={template.id} value={template.id}>
+                                                        {template.name}
+                                                    </option>
+                                                ))}
+                                            </Form.Control>
+                                        </Form.Group>
                                     </>
                                 )}
                                 {/* Name Field */}
@@ -632,7 +661,6 @@ function ViewLinkedDevices() {
                                         required
                                     />
                                 </Form.Group>
-
                                 {/* Manufacturer Field */}
                                 <Form.Group controlId="formManufacturer" className="mb-3">
                                     <Form.Label>Manufacturer</Form.Label>
@@ -644,7 +672,6 @@ function ViewLinkedDevices() {
                                         required
                                     />
                                 </Form.Group>
-
                                 {/* Product Code Field */}
                                 <Form.Group controlId="formProductCode" className="mb-3">
                                     <Form.Label>Product Code</Form.Label>
@@ -656,7 +683,6 @@ function ViewLinkedDevices() {
                                         required
                                     />
                                 </Form.Group>
-
                                 {/* Description Field */}
                                 <Form.Group controlId="formDescription" className="mb-3">
                                     <Form.Label>Description</Form.Label>
@@ -668,7 +694,6 @@ function ViewLinkedDevices() {
                                         placeholder="Enter description"
                                     />
                                 </Form.Group>
-
                                 {/* Fields Disabled When isTemplate is True */}
                                 {!isTemplate && (
                                     <>
@@ -682,7 +707,6 @@ function ViewLinkedDevices() {
                                                 required
                                             />
                                         </Form.Group>
-
                                         <Form.Group controlId="formLocation" className="mb-3">
                                             <Form.Label>Location</Form.Label>
                                             <Form.Control
@@ -698,7 +722,6 @@ function ViewLinkedDevices() {
                                                 ))}
                                             </Form.Control>
                                         </Form.Group>
-
                                         <Form.Group controlId="formIntroducedDate" className="mb-3">
                                             <Form.Label>Introduced Date</Form.Label>
                                             <ReactDatePicker
@@ -723,7 +746,6 @@ function ViewLinkedDevices() {
                             </Modal.Footer>
                         </Form>
                     </Modal>
-
 
                     {/* DeviceDetailsModal */}
                     {currentDeviceId && (
@@ -752,7 +774,6 @@ function ViewLinkedDevices() {
                             isSubmitting={isSubmittingComment}
                             handleAddComment={handleAddComment}
                             isLinkedDevicePage={true}
-
                             editName={editName}
                             setEditName={setEditName}
                             editManufacturer={editManufacturer}
@@ -778,8 +799,7 @@ function ViewLinkedDevices() {
                 </Col>
             </Row>
         </Container>
-
-        );
+    );
 }
 
 export default ViewLinkedDevices;

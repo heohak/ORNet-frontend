@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import {Modal, Button, Form, Row} from 'react-bootstrap';
+import { Modal, Button, Form, Row } from 'react-bootstrap';
 import TrainingService from './TrainingService';
 import axiosInstance from '../../config/axiosInstance';
 import Select from 'react-select';
 import ReactDatePicker from "react-datepicker";
+import { parseLocalDate, formatLocalDate } from "../../utils/DateUtils";
 
 const AddTrainingModal = ({ show, onHide, onSave, clientId }) => {
     const [training, setTraining] = useState({
@@ -86,8 +87,8 @@ const AddTrainingModal = ({ show, onHide, onSave, clientId }) => {
                     <Form.Group className="mb-3">
                         <Form.Label>Date</Form.Label>
                         <ReactDatePicker
-                            selected={training.trainingDate ? new Date(training.trainingDate) : null}
-                            onChange={(date) => setTraining({ ...training, trainingDate: date ? date.toISOString().split('T')[0] : '' })}
+                            selected={parseLocalDate(training.trainingDate)}
+                            onChange={(date) => setTraining({ ...training, trainingDate: date ? formatLocalDate(date) : '' })}
                             dateFormat="dd.MM.yyyy"
                             className="form-control"
                             placeholderText="Select a date"
@@ -96,15 +97,15 @@ const AddTrainingModal = ({ show, onHide, onSave, clientId }) => {
                         />
                     </Form.Group>
                     {!clientId && (
-                    <Form.Group className="mb-3">
-                        <Form.Label>Client</Form.Label>
-                        <Form.Control as="select" value={training.clientId} onChange={(e) => setTraining({ ...training, clientId: e.target.value })} required >
-                            <option value="">Select Client</option>
-                            {clients.map(client => (
-                                <option key={client.id} value={client.id}>{client.fullName}</option>
-                            ))}
-                        </Form.Control>
-                    </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Client</Form.Label>
+                            <Form.Control as="select" value={training.clientId} onChange={(e) => setTraining({ ...training, clientId: e.target.value })} required >
+                                <option value="">Select Client</option>
+                                {clients.map(client => (
+                                    <option key={client.id} value={client.id}>{client.fullName}</option>
+                                ))}
+                            </Form.Control>
+                        </Form.Group>
                     )}
                     <Form.Group className="mb-3">
                         <Form.Label>Location</Form.Label>
@@ -135,7 +136,6 @@ const AddTrainingModal = ({ show, onHide, onSave, clientId }) => {
                             ))}
                         </Form.Control>
                     </Form.Group>
-
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={onHide}>Cancel</Button>

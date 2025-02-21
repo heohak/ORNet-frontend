@@ -58,6 +58,23 @@ const Maintenances = () => {
         }
     }
 
+    const fetchMaintenanceById = async (id) => {
+        try {
+            const response = await axiosInstance.get(`/maintenance/${id}`)
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching the maintenance", error);
+        }
+    }
+
+    const selectAddedMaintenance = async(maintenanceId) => {
+        const newMaintenance = await fetchMaintenanceById(maintenanceId);
+        if (newMaintenance) {
+            setSelectedMaintenance(newMaintenance);
+            setShowDetailsModal(true);
+        }
+    };
+
     const fetchResponsibleNames = async() => {
         try {
             const response = await axiosInstance.get(`/bait/worker/all`)
@@ -124,6 +141,7 @@ const Maintenances = () => {
                 clients={customers}
                 workers={baitWorkers}
                 setRefresh={() => setRefresh(!refresh)}
+                onAdd={(id) => selectAddedMaintenance(id)}
             />
 
         </Container>

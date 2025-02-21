@@ -4,8 +4,9 @@ import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import AsyncSelect from "react-select/async";
 import axiosInstance from "../../config/axiosInstance";
+import {formatLocalDate, parseLocalDate} from "../../utils/DateUtils";
 
-const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers, setRefresh }) => {
+const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers, setRefresh, onAdd }) => {
     const [error, setError] = useState("");
     const [maintenanceName, setMaintenanceName] = useState("");
     const [maintenanceDate, setMaintenanceDate] = useState(null);
@@ -136,6 +137,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
         setSelectedSoftwares(softwares);
     };
 
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isSubmitting) return;
@@ -143,9 +145,9 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
         try {
             const response = await axiosInstance.post(`/maintenance/add`, {
                 maintenanceName,
-                maintenanceDate,
-                lastDate,
-                comment: description,
+                maintenanceDate: maintenanceDate,
+                lastDate: lastDate,
+                description,
                 deviceIds: selectedDevices.map(d => d.value),
                 linkedDeviceIds: selectedLinkedDevices.map(ld => ld.value),
                 softwareIds: selectedSoftwares.map(sw => sw.value),
@@ -158,6 +160,9 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
 
             setRefresh();  // re-fetch maintenances
             handleClose();
+            setTimeout(() => {
+                onAdd(response.data.token);
+            }, 300);
         } catch (error) {
             console.error("Error submitting the maintenance", error);
             setError("Failed to add maintenance.");
@@ -265,8 +270,8 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                             <Form.Group className="mb-3">
                                 <Form.Label>Planned Date</Form.Label>
                                 <ReactDatePicker
-                                    selected={maintenanceDate}
-                                    onChange={(date) => setMaintenanceDate(date)}
+                                    selected={parseLocalDate(maintenanceDate)}
+                                    onChange={(date) => setMaintenanceDate(formatLocalDate(date))}
                                     dateFormat="dd.MM.yyyy"
                                     className="form-control"
                                     placeholderText="Select date"
@@ -279,8 +284,8 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                             <Form.Group className="mb-3">
                                 <Form.Label>Last Date</Form.Label>
                                 <ReactDatePicker
-                                    selected={lastDate}
-                                    onChange={(date) => setLastDate(date)}
+                                    selected={parseLocalDate(lastDate)}
+                                    onChange={(date) => setLastDate(formatLocalDate(date))}
                                     dateFormat="dd.MM.yyyy"
                                     className="form-control"
                                     placeholderText="Select date"
@@ -290,7 +295,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                             </Form.Group>
                         </Col>
                         <Col>
-                            <Form.Label>Responsible Worker</Form.Label>
+                            <Form.Label>Responsible Technical Specialist</Form.Label>
                             <Form.Control
                                 as="select"
                                 value={selectedWorkerId}

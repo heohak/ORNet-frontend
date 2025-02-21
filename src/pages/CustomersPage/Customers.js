@@ -11,7 +11,8 @@ import {
     DropdownButton,
     Dropdown,
     Spinner,
-    Form
+    Form,
+    Card
 } from 'react-bootstrap';
 import config from "../../config/config";
 import NewAddCustomer from "./NewAddCustomer";
@@ -19,17 +20,33 @@ import GenerateReportModal from "../../modals/GenerateReportModal";
 import '../../css/Customers.css';
 import noImg from '../../assets/no-img.jpg';
 import personIcon from '../../assets/thumbnail_person icon.png';
-import {useLocation, useNavigate} from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axiosInstance from "../../config/axiosInstance";
-import {DateUtils} from "../../utils/DateUtils";
+import { DateUtils } from "../../utils/DateUtils";
+
+// Custom hook to get current window width
+const useWindowWidth = () => {
+    const [width, setWidth] = useState(window.innerWidth);
+    useEffect(() => {
+        const handleResize = () => setWidth(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    return width;
+};
 
 function Customers() {
     const location = useLocation();
+    const navigate = useNavigate();
+
+    // Always call hooks at the top
+    const windowWidth = useWindowWidth();
+    const isMobile = windowWidth < 768; // adjust breakpoint as needed
+
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
-    // Instead of a single customerType string, we now maintain an array of selected client types
     const [selectedClientTypes, setSelectedClientTypes] = useState([]);
     const [showNewAddCustomerModal, setShowNewAddCustomerModal] = useState(false);
     const [showGenerateReportModal, setShowGenerateReportModal] = useState(false);
@@ -39,18 +56,16 @@ function Customers() {
     const [availableCountries, setAvailableCountries] = useState([]);
     const [selectedCountry, setSelectedCountry] = useState('');
     const [activityDates, setActivityDates] = useState({});
-    const countryFlagApi = "https://restcountries.com/v3.1/alpha";
-    const navigate = useNavigate();
 
+    const countryFlagApi = "https://restcountries.com/v3.1/alpha";
+
+    // Restore filters from location.state if available
     useEffect(() => {
-        // If we navigated back here with filters in location.state, restore them
         if (location.state?.filters) {
             const f = location.state.filters;
             setSearchQuery(f.searchQuery || '');
             setSelectedClientTypes(f.selectedClientTypes || []);
             setSelectedCountry(f.selectedCountry || '');
-            // If you want to restore sortConfig as well, do it here
-            // e.g. setSortConfig(f.sortConfig || { key: 'shortName', direction: 'ascending' })
         }
     }, [location.state]);
 
@@ -73,7 +88,6 @@ function Customers() {
 
             const response = await axiosInstance.get(`${config.API_BASE_URL}/client/search`, { params });
             const customersData = response.data;
-
             setCustomers(customersData);
             fetchCountryFlags(customersData); // Fetch flags separately
         } catch (error) {
@@ -82,7 +96,6 @@ function Customers() {
             setLoading(false);
         }
     };
-
 
     const fetchAvailableCountries = async () => {
         try {
@@ -93,14 +106,14 @@ function Customers() {
         }
     };
 
-    const fetchActivityDates = async() => {
+    const fetchActivityDates = async () => {
         try {
-            const response = await axiosInstance.get(`${config.API_BASE_URL}/client/activity/dates`)
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/client/activity/dates`);
             setActivityDates(response.data);
         } catch (error) {
             console.error('Error fetching activity dates', error);
         }
-    }
+    };
 
     const capitalizeFirstLetter = (string) => {
         if (string) {
@@ -122,27 +135,19 @@ function Customers() {
                 }
             }
         }));
-        setCountryFlags(flags); // Update state once all fetches are done
+        setCountryFlags(flags);
     };
 
     const getDeadlineColor = (endDateTime) => {
         const now = new Date();
         const endDate = new Date(endDateTime);
-
-        // If endDate is before today
         if (endDate < now) {
             return 'red';
         }
-
-        // Calculate the difference in milliseconds and convert to days
         const diffInDays = (endDate - now) / (1000 * 60 * 60 * 24);
-
-        // If the end date is within a week
         if (diffInDays <= 7) {
             return 'orange';
         }
-
-        // If the end date is more than a week away
         return 'green';
     };
 
@@ -150,7 +155,7 @@ function Customers() {
         if (typingTimeout) clearTimeout(typingTimeout);
         const timeout = setTimeout(() => {
             fetchCustomers(searchQuery, selectedClientTypes, selectedCountry);
-        }, 300); // 300ms delay before search triggers
+        }, 300);
         setTypingTimeout(timeout);
         return () => clearTimeout(timeout);
     }, [searchQuery, selectedClientTypes, selectedCountry]);
@@ -169,7 +174,7 @@ function Customers() {
 
     const handleCloseNewAddCustomerModal = () => {
         setShowNewAddCustomerModal(false);
-        fetchCustomers(); // Refresh the customer list after adding a new customer
+        fetchCustomers(); // Refresh after adding a customer
     };
 
     const handleGenerateReport = () => {
@@ -180,7 +185,7 @@ function Customers() {
         setShowGenerateReportModal(false);
     };
 
-    const handleSort = (key) => {
+    const handleSortChange = (key) => {
         let direction = 'ascending';
         if (sortConfig.key === key && sortConfig.direction === 'ascending') {
             direction = 'descending';
@@ -227,6 +232,8 @@ function Customers() {
         );
     }
 
+    const sortedCustomers = sortCustomers(customers, sortConfig.key, sortConfig.direction);
+
     return (
         <Container className="mt-5">
             <Row className="mb-3">
@@ -258,21 +265,18 @@ function Customers() {
                         </DropdownButton>
                     </InputGroup>
                 </Col>
-                <Col className="col-md-auto">
-                    {/* Right side: Buttons */}
-                    <Col className="text-end">
-                        <Button variant="primary" onClick={handleGenerateReport} className="me-2">
-                            Generate Report
-                        </Button>
-                        <Button variant="primary" onClick={handleNewAddCustomer}>
-                            Add Customer
-                        </Button>
-                    </Col>
+                <Col className="col-md-auto text-end">
+                    <Button variant="primary" onClick={handleGenerateReport} className="me-2">
+                        Generate Report
+                    </Button>
+                    <Button variant="primary" onClick={handleNewAddCustomer}>
+                        Add Customer
+                    </Button>
                 </Col>
             </Row>
+
             <Row>
                 <Col>
-                    {/* Client Type Filter (Checkboxes) */}
                     <Form>
                         <div className="d-flex flex-wrap">
                             <Form.Check
@@ -328,9 +332,6 @@ function Customers() {
                 </Col>
             </Row>
 
-
-
-            {/* Loading Spinner */}
             {loading && (
                 <Row className="justify-content-center">
                     <Col md={2} className="text-center">
@@ -344,32 +345,13 @@ function Customers() {
             {/* Customers List */}
             {!loading && (
                 <>
-                    <div className="mt-3">
-                        <Row style={{fontWeight: "bold"}} className="font-weight-bold">
-                            <Col md={1} onClick={() => handleSort('country')}>
-                                Country {renderSortArrow('country')}
-                            </Col>
-                            <Col md={2} onClick={() => handleSort('shortName')}>
-                                Short Name {renderSortArrow('shortName')}
-                            </Col>
-                            <Col md={4} onClick={() => handleSort('fullName')}>
-                                Full Name {renderSortArrow('fullName')}
-                            </Col>
-                            <Col md={3}>
-                                Type
-                            </Col>
-                            <Col md={1}>
-                                Contact
-                            </Col>
-                            <Col md={1}>
-                                Activity
-                            </Col>
-                        </Row>
-                        <hr />
-                        {sortCustomers(customers, sortConfig.key, sortConfig.direction).length === 0 ? (
+                    {isMobile ? (
+                        // Mobile view: Render each customer as a Card
+                        sortedCustomers.length === 0 ? (
                             <Alert variant="info">No customers found.</Alert>
                         ) : (
-                            sortCustomers(customers, sortConfig.key, sortConfig.direction).map((customer, index) => {
+                            sortedCustomers.map((customer) => {
+                                // Determine client types for display
                                 const customerTypes = [];
                                 if (customer.pathologyClient) customerTypes.push('Pathology');
                                 if (customer.surgeryClient) customerTypes.push('Surgery');
@@ -377,104 +359,193 @@ function Customers() {
                                 if (customer.otherMedicalDevices) customerTypes.push('Other');
                                 if (customer.prospect) customerTypes.push('Prospect');
                                 if (customer.agreement) customerTypes.push('Agreement');
-
                                 const customerTypeDisplay = customerTypes.length > 0 ? customerTypes.join(', ') : 'N/A';
 
-                                const deadlineColor = getDeadlineColor(activityDates[customer.id]?.endDateTime)
-
-                                const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                                // Get activity deadline color and formatted update date
+                                const deadlineColor = getDeadlineColor(activityDates[customer.id]?.endDateTime);
+                                const updateDate = DateUtils.formatDate(activityDates[customer.id]?.updateDateTime) || "N/A";
 
                                 return (
-                                    <Row
+                                    <Card
                                         key={customer.id}
-                                        className="mb-2 py-2"
-                                        style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
+                                        className="mb-3"
+                                        style={{ cursor: 'pointer' }}
                                         onClick={() => navigate(`/customer/${customer.id}`, {
                                             state: {
                                                 fromPath: '/customers',
-                                                filters: {
-                                                    searchQuery,
-                                                    selectedClientTypes,
-                                                    selectedCountry,
-                                                }
+                                                filters: { searchQuery, selectedClientTypes, selectedCountry }
                                             }
                                         })}
                                     >
-                                        <Col md={1}>
-                                            <img
-                                                src={countryFlags[customer.country] ? countryFlags[customer.country] : noImg}
-                                                alt={`${customer.country} flag`}
-                                                style={{
-                                                    width: '24px',
-                                                    height: '24px',
-                                                    borderRadius: '50%',
-                                                    marginRight: '8px',
-                                                }}
-                                            />
-                                            {customer.country}
-                                        </Col>
-                                        <Col md={2}>{customer.shortName}</Col>
-                                        <Col md={4}>{customer.fullName}</Col>
-                                        <Col md={3}>{customerTypeDisplay}</Col>
-                                        <Col md={1}>
-                                            <div
-                                                style={{
-                                                    background: '#d6d6ee',
-                                                    width: '24px',
-                                                    height: '24px',
-                                                    borderRadius: '6px',
-                                                    display: "grid",
-                                                    alignContent: "center",
-                                                    justifyContent: "center",
-                                                    cursor: 'pointer'
-                                                }}
-                                                onClick={(e) => {
-                                                    e.stopPropagation(); // Prevent the click from bubbling up to the row
-                                                    navigate(`/customer/${customer.id}`, { state: { openAccordion: 'contacts' } });
-                                                }}
-                                            >
-                                                <img
-                                                    src={personIcon}
-                                                    alt="person_icon.png"
-                                                    style={{
-                                                        width: '20px',
-                                                        height: '20px'
-                                                    }}
-                                                />
-                                            </div>
-                                        </Col>
-
-                                        <Col md={1}>
-                                            <div
-                                                style={{
-                                                    display: 'inline-flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'flex-end',
-                                                    cursor: 'pointer',
-                                                }}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    navigate(`/customer/${customer.id}`, { state: { openAccordion: 'activity' } });
-                                                }}
-                                            >
-                                                <span
-                                                    style={{
-                                                        display: 'inline-block',
-                                                        width: '12px',
-                                                        height: '12px',
-                                                        borderRadius: '50%',
-                                                        backgroundColor: deadlineColor,
-                                                        marginRight: '8px',
-                                                    }}
-                                                />
-                                                {DateUtils.formatDate(activityDates[customer.id]?.updateDateTime) || "N/A"}
-                                            </div>
-                                        </Col>
-                                    </Row>
+                                        <Card.Body>
+                                            <Card.Title>{customer.fullName}</Card.Title>
+                                            <Card.Subtitle className="mb-2 text-muted">{customer.shortName}</Card.Subtitle>
+                                            <Card.Text>
+                                                <div>
+                                                    <strong>Country:</strong> {customer.country}{' '}
+                                                    <img
+                                                        src={countryFlags[customer.country] ? countryFlags[customer.country] : noImg}
+                                                        alt={`${customer.country} flag`}
+                                                        style={{
+                                                            width: '24px',
+                                                            height: '24px',
+                                                            borderRadius: '50%',
+                                                            marginLeft: '8px'
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <strong>Type:</strong> {customerTypeDisplay}
+                                                </div>
+                                                <div>
+                                                    <strong>Activity:</strong>{' '}
+                                                    <span
+                                                        style={{
+                                                            display: 'inline-block',
+                                                            width: '12px',
+                                                            height: '12px',
+                                                            borderRadius: '50%',
+                                                            backgroundColor: deadlineColor,
+                                                            marginRight: '8px'
+                                                        }}
+                                                    />
+                                                    {updateDate}
+                                                </div>
+                                            </Card.Text>
+                                        </Card.Body>
+                                    </Card>
                                 );
                             })
-                        )}
-                    </div>
+                        )
+                    ) : (
+                        // Desktop view: Render header and rows
+                        <div className="mt-3">
+                            <Row className="fw-bold">
+                                <Col md={1} onClick={() => handleSortChange('country')} style={{ cursor: 'pointer' }}>
+                                    Country {renderSortArrow('country')}
+                                </Col>
+                                <Col md={2} onClick={() => handleSortChange('shortName')} style={{ cursor: 'pointer' }}>
+                                    Short Name {renderSortArrow('shortName')}
+                                </Col>
+                                <Col md={4} onClick={() => handleSortChange('fullName')} style={{ cursor: 'pointer' }}>
+                                    Full Name {renderSortArrow('fullName')}
+                                </Col>
+                                <Col md={3}>
+                                    Type
+                                </Col>
+                                <Col md={1}>
+                                    Contact
+                                </Col>
+                                <Col md={1}>
+                                    Activity
+                                </Col>
+                            </Row>
+                            <hr />
+                            {sortedCustomers.length === 0 ? (
+                                <Alert variant="info">No customers found.</Alert>
+                            ) : (
+                                sortedCustomers.map((customer, index) => {
+                                    const customerTypes = [];
+                                    if (customer.pathologyClient) customerTypes.push('Pathology');
+                                    if (customer.surgeryClient) customerTypes.push('Surgery');
+                                    if (customer.editorClient) customerTypes.push('Editor');
+                                    if (customer.otherMedicalDevices) customerTypes.push('Other');
+                                    if (customer.prospect) customerTypes.push('Prospect');
+                                    if (customer.agreement) customerTypes.push('Agreement');
+                                    const customerTypeDisplay = customerTypes.length > 0 ? customerTypes.join(', ') : 'N/A';
+
+                                    const deadlineColor = getDeadlineColor(activityDates[customer.id]?.endDateTime);
+                                    const updateDate = DateUtils.formatDate(activityDates[customer.id]?.updateDateTime) || "N/A";
+
+                                    const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+
+                                    return (
+                                        <Row
+                                            key={customer.id}
+                                            className="mb-2 py-2"
+                                            style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
+                                            onClick={() => navigate(`/customer/${customer.id}`, {
+                                                state: {
+                                                    fromPath: '/customers',
+                                                    filters: { searchQuery, selectedClientTypes, selectedCountry }
+                                                }
+                                            })}
+                                        >
+                                            <Col md={1}>
+                                                <img
+                                                    src={countryFlags[customer.country] ? countryFlags[customer.country] : noImg}
+                                                    alt={`${customer.country} flag`}
+                                                    style={{
+                                                        width: '24px',
+                                                        height: '24px',
+                                                        borderRadius: '50%',
+                                                        marginRight: '8px'
+                                                    }}
+                                                />
+                                                {customer.country}
+                                            </Col>
+                                            <Col md={2}>{customer.shortName}</Col>
+                                            <Col md={4}>{customer.fullName}</Col>
+                                            <Col md={3}>{customerTypeDisplay}</Col>
+                                            <Col md={1}>
+                                                <div
+                                                    style={{
+                                                        background: '#d6d6ee',
+                                                        width: '24px',
+                                                        height: '24px',
+                                                        borderRadius: '6px',
+                                                        display: "grid",
+                                                        alignContent: "center",
+                                                        justifyContent: "center",
+                                                        cursor: 'pointer'
+                                                    }}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        navigate(`/customer/${customer.id}`, { state: { openAccordion: 'contacts' } });
+                                                    }}
+                                                >
+                                                    <img
+                                                        src={personIcon}
+                                                        alt="person_icon.png"
+                                                        style={{
+                                                            width: '20px',
+                                                            height: '20px'
+                                                        }}
+                                                    />
+                                                </div>
+                                            </Col>
+                                            <Col md={1}>
+                                                <div
+                                                    style={{
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'flex-end',
+                                                        cursor: 'pointer',
+                                                    }}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        navigate(`/customer/${customer.id}`, { state: { openAccordion: 'activity' } });
+                                                    }}
+                                                >
+                                                    <span
+                                                        style={{
+                                                            display: 'inline-block',
+                                                            width: '12px',
+                                                            height: '12px',
+                                                            borderRadius: '50%',
+                                                            backgroundColor: deadlineColor,
+                                                            marginRight: '8px',
+                                                        }}
+                                                    />
+                                                    {updateDate}
+                                                </div>
+                                            </Col>
+                                        </Row>
+                                    );
+                                })
+                            )}
+                        </div>
+                    )}
                 </>
             )}
 
