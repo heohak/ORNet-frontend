@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Container, Button, Row, Col, Card } from 'react-bootstrap';
+import { Container, Button, Row, Col, Card, InputGroup, FormControl, Collapse } from 'react-bootstrap';
+import { FaFilter, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import TrainingFilters from './TrainingFilters';
 import AddTrainingModal from './AddTrainingModal';
 import TrainingService from './TrainingService';
 import axiosInstance from '../../config/axiosInstance';
-import { DateUtils } from "../../utils/DateUtils"; // Import DateUtils for date formatting
+import { DateUtils } from "../../utils/DateUtils";
 import TrainingDetailsModal from './TrainingDetailsModal';
 
 // Custom hook to get window width
@@ -29,9 +30,12 @@ const Trainings = () => {
     const [locationNames, setLocationNames] = useState({});
     const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'descending' });
 
-    // Get the window width to determine mobile/desktop view
+    // Mobile-specific state to toggle advanced filters
+    const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+    // Use our custom hook
     const windowWidth = useWindowWidth();
-    const isMobile = windowWidth < 768; // adjust breakpoint as needed
+    const isMobile = windowWidth < 768;
 
     useEffect(() => {
         fetchTrainings();
@@ -138,15 +142,9 @@ const Trainings = () => {
                         bValue = (clientNames[b.clientId] || b.clientId.toString()).toLowerCase();
                         break;
                     case 'location':
-                        if (a.locationId == null && b.locationId != null) {
-                            return 1;
-                        }
-                        if (a.locationId != null && b.locationId == null) {
-                            return -1;
-                        }
-                        if (a.locationId == null && b.locationId == null) {
-                            return 0;
-                        }
+                        if (a.locationId == null && b.locationId != null) return 1;
+                        if (a.locationId != null && b.locationId == null) return -1;
+                        if (a.locationId == null && b.locationId == null) return 0;
                         aValue = (locationNames[a.locationId] || a.locationId.toString()).toLowerCase();
                         bValue = (locationNames[b.locationId] || b.locationId.toString()).toLowerCase();
                         break;
@@ -170,59 +168,72 @@ const Trainings = () => {
         return sortableTrainings;
     }, [trainings, sortConfig, clientNames, locationNames]);
 
+    const lastVisitedTrainingId = localStorage.getItem("lastVisitedTrainingId");
+
     return (
         <Container className="mt-5">
-            <Row className="d-flex justify-content-between mb-4">
-                <Col className="col-md-auto">
+            {/* Header row: Title and Add Training button on one line */}
+            <Row className="align-items-center justify-content-between mb-4">
+                <Col xs="auto">
                     <h1 className="mb-0">Trainings</h1>
                 </Col>
-                <Col className="text-end">
+                <Col xs="auto">
                     <Button variant="primary" onClick={() => setShowAddModal(true)}>
                         Add Training
                     </Button>
                 </Col>
             </Row>
 
-            <Row className="mt-4">
-                <TrainingFilters onFilter={setTrainings} />
-            </Row>
-
-            {/* Desktop view: render headers and row layout */}
-            {!isMobile && (
+            {/* Filters */}
+            {isMobile ? (
                 <>
-                    <Row className="row-margin-0 fw-bold mt-2">
-                        <Col md={3} onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
-                            Name {renderSortArrow('name')}
+                    <Row className="mb-3 align-items-center">
+                        <Col className="align-items-center">
+                            {/* Render the original TrainingFilters with collapsed=true to show only the search bar */}
+                            <TrainingFilters collapsed onFilter={setTrainings} />
                         </Col>
-                        <Col md={3} onClick={() => handleSort('client')} style={{ cursor: 'pointer' }}>
-                            Client {renderSortArrow('client')}
-                        </Col>
-                        <Col md={3} onClick={() => handleSort('location')} style={{ cursor: 'pointer' }}>
-                            Location {renderSortArrow('location')}
-                        </Col>
-                        <Col md={2} onClick={() => handleSort('type')} style={{ cursor: 'pointer' }}>
-                            Type {renderSortArrow('type')}
-                        </Col>
-                        <Col md={1} onClick={() => handleSort('date')} style={{ cursor: 'pointer' }}>
-                            Date {renderSortArrow('date')}
+                        <Col xs="auto" className="d-flex align-items-center">
+                            <Button
+                                variant="outline-secondary"
+                                onClick={() => setShowMobileFilters(!showMobileFilters)}
+                            >
+                                <FaFilter style={{ marginRight: '0.5rem' }} />
+                                {showMobileFilters ? <FaChevronUp /> : <FaChevronDown />}
+                            </Button>
                         </Col>
                     </Row>
-                    <hr />
+                    <Collapse in={showMobileFilters}>
+                        <div className="mb-3" style={{ padding: '0 1rem' }}>
+                            {/* Render advanced filters without the search bar */}
+                            <TrainingFilters advancedOnly onFilter={setTrainings} />
+                        </div>
+                    </Collapse>
                 </>
+            ) : (
+                <Row className="mt-4">
+                    <TrainingFilters onFilter={setTrainings} />
+                </Row>
             )}
 
+            {/* Trainings List */}
             {loading ? (
                 <p>Loading trainings...</p>
             ) : (
                 <>
                     {isMobile ? (
-                        // Mobile view: render each training as a card
                         sortedTrainings.map((training) => (
                             <Card
                                 key={training.id}
                                 className="mb-3"
-                                style={{ cursor: 'pointer' }}
-                                onClick={() => { setSelectedTraining(training); setShowDetailsModal(true); }}
+                                style={{
+                                    cursor: 'pointer',
+                                    backgroundColor: training.id.toString() === lastVisitedTrainingId ? "#ffffcc" : "inherit"
+                                }}
+                                onClick={() => {
+                                    localStorage.setItem("lastVisitedTrainingId", training.id);
+                                    setSelectedTraining(training);
+                                    setShowDetailsModal(true);
+                                }}
                             >
                                 <Card.Body>
                                     <Card.Title>{training.name}</Card.Title>
@@ -244,34 +255,58 @@ const Trainings = () => {
                             </Card>
                         ))
                     ) : (
-                        // Desktop view: render each training as a row
-                        sortedTrainings.map((training, index) => {
-                            const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
-                            return (
-                                <Row
-                                    key={training.id}
-                                    className="align-items-center"
-                                    style={{ margin: "0", cursor: 'pointer', backgroundColor: rowBgColor }}
-                                    onClick={() => { setSelectedTraining(training); setShowDetailsModal(true); }}
-                                >
-                                    <Col md={3} className="py-2">
-                                        {training.name}
-                                    </Col>
-                                    <Col md={3} className="py-2">
-                                        {clientNames[training.clientId] || training.clientId}
-                                    </Col>
-                                    <Col md={3} className="py-2">
-                                        {locationNames[training.locationId] || training.locationId}
-                                    </Col>
-                                    <Col md={2} className="py-2">
-                                        {training.trainingType}
-                                    </Col>
-                                    <Col md={1} className="py-2">
-                                        {DateUtils.formatDate(training.trainingDate)}
-                                    </Col>
-                                </Row>
-                            );
-                        })
+                        <>
+                            <Row className="row-margin-0 fw-bold mt-2">
+                                <Col md={3} onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
+                                    Name {renderSortArrow('name')}
+                                </Col>
+                                <Col md={3} onClick={() => handleSort('client')} style={{ cursor: 'pointer' }}>
+                                    Client {renderSortArrow('client')}
+                                </Col>
+                                <Col md={3} onClick={() => handleSort('location')} style={{ cursor: 'pointer' }}>
+                                    Location {renderSortArrow('location')}
+                                </Col>
+                                <Col md={2} onClick={() => handleSort('type')} style={{ cursor: 'pointer' }}>
+                                    Type {renderSortArrow('type')}
+                                </Col>
+                                <Col md={1} onClick={() => handleSort('date')} style={{ cursor: 'pointer' }}>
+                                    Date {renderSortArrow('date')}
+                                </Col>
+                            </Row>
+                            <hr />
+                            {sortedTrainings.map((training, index) => {
+                                const baseBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                                const rowBgColor = training.id.toString() === lastVisitedTrainingId ? "#ffffcc" : baseBgColor;
+                                return (
+                                    <Row
+                                        key={training.id}
+                                        className="align-items-center py-2"
+                                        style={{ margin: "0", cursor: 'pointer', backgroundColor: rowBgColor }}
+                                        onClick={() => {
+                                            localStorage.setItem("lastVisitedTrainingId", training.id);
+                                            setSelectedTraining(training);
+                                            setShowDetailsModal(true);
+                                        }}
+                                    >
+                                        <Col md={3} className="py-2">
+                                            {training.name}
+                                        </Col>
+                                        <Col md={3} className="py-2">
+                                            {clientNames[training.clientId] || training.clientId}
+                                        </Col>
+                                        <Col md={3} className="py-2">
+                                            {locationNames[training.locationId] || training.locationId}
+                                        </Col>
+                                        <Col md={2} className="py-2">
+                                            {training.trainingType}
+                                        </Col>
+                                        <Col md={1} className="py-2">
+                                            {DateUtils.formatDate(training.trainingDate)}
+                                        </Col>
+                                    </Row>
+                                );
+                            })}
+                        </>
                     )}
                 </>
             )}

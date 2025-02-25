@@ -1,13 +1,13 @@
+// src/pages/Contacts/WorkerSearchFilter.js
 import React, { useEffect, useState } from 'react';
 import { Alert, Col, Form, FormCheck, Row } from 'react-bootstrap';
 import axiosInstance from "../../config/axiosInstance";
 import config from "../../config/config";
 import Select from 'react-select';
 
-function WorkerSearchFilter({ setWorkers, setLoading }) {
+function WorkerSearchFilter({ setWorkers, setLoading, collapsed = false, advancedOnly = false }) {
     const [searchQuery, setSearchQuery] = useState("");
     const [roleId, setRoleId] = useState("");
-    // Still use an array for multiple client IDs
     const [clientIds, setClientIds] = useState([]);
     const [locationId, setLocationId] = useState("");
     const [favorite, setFavorite] = useState(false);
@@ -17,7 +17,6 @@ function WorkerSearchFilter({ setWorkers, setLoading }) {
     const [allLocations, setAllLocations] = useState([]);
     const [error, setError] = useState(null);
     const [typingTimeout, setTypingTimeout] = useState(null);
-
     // New states for country filter
     const [countryOptions, setCountryOptions] = useState([]);
     const [selectedCountries, setSelectedCountries] = useState([]);
@@ -66,12 +65,12 @@ function WorkerSearchFilter({ setWorkers, setLoading }) {
 
         const fetchCountries = async () => {
             try {
-                const response = await axiosInstance.get('https://restcountries.com/v3.1/all');
-                const options = response.data.map(country => ({
-                    value: country.cca3,
-                    label: country.name.common,
+                const response = await axiosInstance.get('/client/countries');
+                let options = response.data.map(country => ({
+                    value: country,
+                    label: country
                 }));
-                options.sort((a, b) => a.label.localeCompare(b.label));
+                options = options.sort((a, b) => a.label.localeCompare(b.label));
                 setCountryOptions(options);
             } catch (error) {
                 console.error('Error fetching countries:', error);
@@ -117,7 +116,7 @@ function WorkerSearchFilter({ setWorkers, setLoading }) {
                     favorite: favorite || undefined,
                     // Send countries if any are selected
                     countries: selectedCountries.length > 0
-                        ? selectedCountries.map(option => option.value).toString()
+                        ? selectedCountries.map(option => option.label.toUpperCase()).toString()
                         : undefined,
                 }
             });
@@ -144,18 +143,115 @@ function WorkerSearchFilter({ setWorkers, setLoading }) {
         return () => clearTimeout(timeout);
     }, [searchQuery, roleId, clientIds, locationId, favorite, selectedCountries]);
 
-    return (
-        <>
-            {error && (
-                <Row className="mb-3">
+    if (error) {
+        return (
+            <Row className="mb-3">
+                <Col>
+                    <Alert variant="danger">
+                        <Alert.Heading>Error</Alert.Heading>
+                        <p>{error}</p>
+                    </Alert>
+                </Col>
+            </Row>
+        );
+    }
+
+    if (advancedOnly) {
+        // Render only advanced filters (without the search input), stacked vertically
+        return (
+            <>
+                <Row className="mb-2">
                     <Col>
-                        <Alert variant="danger">
-                            <Alert.Heading>Error</Alert.Heading>
-                            <p>{error}</p>
-                        </Alert>
+                        <Form.Control
+                            as="select"
+                            value={roleId}
+                            onChange={(e) => setRoleId(e.target.value)}
+                        >
+                            <option value="">Select Role</option>
+                            {roles.map((role) => (
+                                <option key={role.value} value={role.value}>
+                                    {role.label}
+                                </option>
+                            ))}
+                        </Form.Control>
                     </Col>
                 </Row>
-            )}
+                <Row className="mb-2">
+                    <Col>
+                        <Select
+                            isMulti
+                            options={clients.map(client => ({
+                                value: client.id,
+                                label: client.shortName
+                            }))}
+                            value={clientIds.map(id => {
+                                const client = clients.find(c => c.id === id);
+                                return client ? { value: client.id, label: client.shortName } : null;
+                            })}
+                            onChange={(selectedOptions) =>
+                                setClientIds(selectedOptions ? selectedOptions.map(option => option.value) : [])
+                            }
+                            placeholder="Select Customer(s)"
+                        />
+                    </Col>
+                </Row>
+                <Row className="mb-2">
+                    <Col>
+                        <Form.Control
+                            as="select"
+                            value={locationId}
+                            onChange={(e) => setLocationId(e.target.value)}
+                        >
+                            <option value="">Select Location</option>
+                            {locations.map((location) => (
+                                <option key={location.id} value={location.id}>
+                                    {location.name}
+                                </option>
+                            ))}
+                        </Form.Control>
+                    </Col>
+                </Row>
+                <Row className="mb-2">
+                    <Col>
+                        <Select
+                            isMulti
+                            options={countryOptions}
+                            value={selectedCountries}
+                            onChange={(selectedOptions) => setSelectedCountries(selectedOptions)}
+                            placeholder="Select Country(s)"
+                        />
+                    </Col>
+                </Row>
+                <Row className="mb-2">
+                    <Col>
+                        <FormCheck
+                            type="switch"
+                            id="favorite-switch"
+                            label="Favorite"
+                            checked={favorite}
+                            onChange={(e) => setFavorite(e.target.checked)}
+                        />
+                    </Col>
+                </Row>
+            </>
+        );
+    } else if (collapsed) {
+        // Render only the search input
+        return (
+            <Row>
+                <Col>
+                    <Form.Control
+                        type="text"
+                        placeholder="Search contacts..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                </Col>
+            </Row>
+        );
+    } else {
+        // Desktop view: Render all filters in one row
+        return (
             <Row className="mb-3">
                 <Col>
                     <Form.Control
@@ -180,7 +276,6 @@ function WorkerSearchFilter({ setWorkers, setLoading }) {
                     </Form.Control>
                 </Col>
                 <Col>
-                    {/* Multi-select for clients */}
                     <Select
                         isMulti
                         options={clients.map(client => ({
@@ -212,7 +307,6 @@ function WorkerSearchFilter({ setWorkers, setLoading }) {
                     </Form.Control>
                 </Col>
                 <Col>
-                    {/* New multi-select for countries */}
                     <Select
                         isMulti
                         options={countryOptions}
@@ -221,19 +315,18 @@ function WorkerSearchFilter({ setWorkers, setLoading }) {
                         placeholder="Select Country(s)"
                     />
                 </Col>
-                <Col className="col-md-auto d-flex">
+                <Col className="col-md-auto">
                     <FormCheck
                         type="switch"
                         id="favorite-switch"
                         label="Favorite"
                         checked={favorite}
                         onChange={(e) => setFavorite(e.target.checked)}
-                        className="align-content-center"
                     />
                 </Col>
             </Row>
-        </>
-    );
+        );
+    }
 }
 
 export default WorkerSearchFilter;

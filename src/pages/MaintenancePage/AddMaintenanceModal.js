@@ -37,6 +37,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
         if (locationId) {
             fetchDevices();
             fetchLinkedDevices();
+            fetchLastDate();
         }
     }, [locationId]);
 
@@ -81,6 +82,16 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
             console.error("Error fetching linked devices:", error);
         }
     };
+
+    //Fetch last date for selected location
+    const fetchLastDate = async() => {
+        try {
+            const response = await axiosInstance.get(`/maintenance/last/${locationId}`)
+            setLastDate(response.data);
+        } catch {
+            console.error("Error fetching last date for that location", error)
+        }
+    }
 
     // We load device options dynamically in the AsyncSelect.
     // But we also keep the entire `devices` array in state for "Select All."
@@ -268,24 +279,32 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                     <Row>
                         <Col>
                             <Form.Group className="mb-3">
-                                <Form.Label>Planned Date</Form.Label>
+                                <Form.Label>Last Date</Form.Label>
                                 <ReactDatePicker
-                                    selected={parseLocalDate(maintenanceDate)}
-                                    onChange={(date) => setMaintenanceDate(formatLocalDate(date))}
+                                    selected={parseLocalDate(lastDate)}
+                                    onChange={(date) => setLastDate(formatLocalDate(date))}
                                     dateFormat="dd.MM.yyyy"
                                     className="form-control"
-                                    placeholderText="Select date"
                                     isClearable
                                     required
+                                    disabled={!clientId || !locationId}
+                                    placeholderText={
+                                        !clientId
+                                            ? "Pick a customer"
+                                            : !locationId
+                                                ? "Pick a location"
+                                                : "Select Date"
+                                    }
+
                                 />
                             </Form.Group>
                         </Col>
                         <Col>
                             <Form.Group className="mb-3">
-                                <Form.Label>Last Date</Form.Label>
+                                <Form.Label>Planned Date</Form.Label>
                                 <ReactDatePicker
-                                    selected={parseLocalDate(lastDate)}
-                                    onChange={(date) => setLastDate(formatLocalDate(date))}
+                                    selected={parseLocalDate(maintenanceDate)}
+                                    onChange={(date) => setMaintenanceDate(formatLocalDate(date))}
                                     dateFormat="dd.MM.yyyy"
                                     className="form-control"
                                     placeholderText="Select date"

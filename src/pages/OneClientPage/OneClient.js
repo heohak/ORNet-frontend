@@ -231,7 +231,6 @@ function OneClient() {
                             setRefresh={setRefresh}
                             reFetchRoles={fetchRoles}
                             setRoles={setRoles}
-                            maintenances={maintenances}
                         />
                         <Accordion
                             activeKey={activeAccordionKeys}

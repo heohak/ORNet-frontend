@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Row, Col, Card } from 'react-bootstrap';
 import { DateUtils } from "../../utils/DateUtils";
+import MaintenanceSort from "../../utils/MaintenanceSort";
 
 // Custom hook to detect window width
 const useWindowWidth = () => {
@@ -17,16 +18,42 @@ const MaintenanceList = ({ maintenances, locationNames, setSelectedMaintenance, 
     const windowWidth = useWindowWidth();
     const isMobile = windowWidth < 768; // Adjust breakpoint as needed
 
+    // Custom function to get sorting value
+    const getSortValue = (item, key) => {
+        if (key === 'locationId') return locationNames[item.locationId] || ''; // Convert ID to name
+        return item[key];
+    };
+
+    // Use sorting hook
+    const { sortedItems, handleSort, sortConfig } = MaintenanceSort(maintenances, { key: 'maintenanceName', direction: 'ascending' }, getSortValue);
+
+    const renderSortArrow = (key) => {
+        if (sortConfig.key === key) {
+            return sortConfig.direction === 'ascending' ? '▲' : '▼';
+        }
+        return '↕';
+    };
+
+    // Retrieve the last visited maintenance ID from localStorage.
+    const lastVisitedMaintenanceId = localStorage.getItem("lastVisitedMaintenanceId");
+
     if (isMobile) {
         // Mobile view: render each maintenance as a card
         return (
             <div className="mt-3">
-                {maintenances.map((maintenance) => (
+                {sortedItems.map((maintenance) => (
                     <Card
                         key={maintenance.id}
                         className="mb-3"
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => { setSelectedMaintenance(maintenance); setShowDetailsModal(true); }}
+                        style={{
+                            cursor: 'pointer',
+                            backgroundColor: maintenance.id.toString() === lastVisitedMaintenanceId ? "#ffffcc" : "inherit"
+                        }}
+                        onClick={() => {
+                            localStorage.setItem("lastVisitedMaintenanceId", maintenance.id);
+                            setSelectedMaintenance(maintenance);
+                            setShowDetailsModal(true);
+                        }}
                     >
                         <Card.Body>
                             <Card.Title>{maintenance.maintenanceName}</Card.Title>
@@ -51,25 +78,40 @@ const MaintenanceList = ({ maintenances, locationNames, setSelectedMaintenance, 
         );
     }
 
-    // Desktop view: render the table-like row layout
+    // Desktop view: render the table-like row layout with sortable headers
     return (
         <>
             <Row className="row-margin-0 fw-bold mt-2">
-                <Col md={3}>Maintenance Name</Col>
-                <Col md={3}>Location</Col>
-                <Col md={3}>Planned Date</Col>
-                <Col md={2}>Status</Col>
-                <Col md={1}>Last Date</Col>
+                <Col md={3} onClick={() => handleSort('maintenanceName')}>
+                    Maintenance Name {renderSortArrow('maintenanceName')}
+                </Col>
+                <Col md={3} onClick={() => handleSort('locationId')}>
+                    Location {renderSortArrow('locationId')}
+                </Col>
+                <Col md={3} onClick={() => handleSort('maintenanceDate')}>
+                    Planned Date {renderSortArrow('maintenanceDate')}
+                </Col>
+                <Col md={2} onClick={() => handleSort('maintenanceStatus')}>
+                    Status {renderSortArrow('maintenanceStatus')}
+                </Col>
+                <Col md={1} onClick={() => handleSort('lastDate')}>
+                    Last Date {renderSortArrow('lastDate')}
+                </Col>
             </Row>
             <hr />
-            {maintenances.map((maintenance, index) => {
-                const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+            {sortedItems.map((maintenance, index) => {
+                const baseBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                const rowBgColor = maintenance.id.toString() === lastVisitedMaintenanceId ? "#ffffcc" : baseBgColor;
                 return (
                     <Row
                         key={maintenance.id}
                         className="align-items-center"
                         style={{ margin: "0", cursor: 'pointer', backgroundColor: rowBgColor }}
-                        onClick={() => { setSelectedMaintenance(maintenance); setShowDetailsModal(true); }}
+                        onClick={() => {
+                            localStorage.setItem("lastVisitedMaintenanceId", maintenance.id);
+                            setSelectedMaintenance(maintenance);
+                            setShowDetailsModal(true);
+                        }}
                     >
                         <Col md={3} className="py-2">
                             {maintenance.maintenanceName}

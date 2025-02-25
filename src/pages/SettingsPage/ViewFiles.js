@@ -142,7 +142,6 @@ function ViewFiles() {
             }
         } finally {
             setLoading(false);
-            setError(null);
         }
     };
 
@@ -256,7 +255,7 @@ function ViewFiles() {
                 </Form>
             </Modal>
             {/* Delete confirmation Modal */}
-            <Modal backdrop="static" show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+            <Modal backdrop="static" show={showDeleteModal} onHide={() => {setShowDeleteModal(false); setError(null)}}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm File Delete</Modal.Title>
                 </Modal.Header>

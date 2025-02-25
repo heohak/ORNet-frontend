@@ -16,14 +16,14 @@ browsers scrollbar */
 
 /* Centered content inside contact-search-menu */
 .contact-search-menu-items {
-    max-width: 90%; /* Default max-width for smaller screens */
+    /*max-width: 90%; !* Default max-width for smaller screens *!*/
     margin: 0 auto; /* Center horizontally */
     position: relative;
     padding-top: 15px;
     --bs-gutter-x: 1.5rem;
     --bs-gutter-y: 0;
-    padding-right: calc(var(--bs-gutter-x) * .5);
-    padding-left: calc(var(--bs-gutter-x) * .5);
+    /*padding-right: calc(var(--bs-gutter-x) * .5);*/
+    /*padding-left: calc(var(--bs-gutter-x) * .5);*/
 }
 
 .contact-search-menu-header {
@@ -54,7 +54,14 @@ browsers scrollbar */
 @media (max-width: 768px) {
 
     .contacts-container {
-        padding-top: 150px;
+        padding-top: 200px;
+    }
+}
+
+@media (min-width: 768px) {
+
+    .contacts-container {
+        padding-top: 180px;
     }
 }
 
@@ -78,6 +85,12 @@ browsers scrollbar */
         max-width: 1320px;
     }
 }
+
+.selected-worker {
+    background-color: rgba(0, 0, 255, 0.1); /* Light blue background */
+    transition: 0.3s;
+}
+
 
 
 

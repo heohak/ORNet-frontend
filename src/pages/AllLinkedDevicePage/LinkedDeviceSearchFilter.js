@@ -5,6 +5,8 @@ import Select from 'react-select';
 import axiosInstance from '../../config/axiosInstance';
 import config from '../../config/config';
 import ReactDatePicker from "react-datepicker";
+import "../../css/LinkedDeviceSearchFilter.css";
+import { FaFilter, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 // Custom option component for displaying device details in the dropdown
 const deviceOption = ({ innerProps, innerRef, data, isFocused }) => {
@@ -30,7 +32,7 @@ const deviceOption = ({ innerProps, innerRef, data, isFocused }) => {
     );
 };
 
-function LinkedDeviceSearchFilter({ setLinkedDevices }) {
+function LinkedDeviceSearchFilter({ setLinkedDevices, collapsed = false, advancedOnly = false }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [locationId, setLocationId] = useState('');
     const [deviceId, setDeviceId] = useState('');
@@ -39,12 +41,10 @@ function LinkedDeviceSearchFilter({ setLinkedDevices }) {
     const [devices, setDevices] = useState([]);
     const [error, setError] = useState(null);
     const [typingTimeout, setTypingTimeout] = useState(null);
-
     // States for date filtering
-    const [searchDate, setSearchDate] = useState(''); // Expecting format YYYY-MM-DD
-    const [comparison, setComparison] = useState(''); // e.g., 'after' or 'before'
+    const [searchDate, setSearchDate] = useState('');
+    const [comparison, setComparison] = useState('');
     const [searchDateObj, setSearchDateObj] = useState(null);
-
 
     useEffect(() => {
         const fetchLocations = async () => {
@@ -82,7 +82,6 @@ function LinkedDeviceSearchFilter({ setLinkedDevices }) {
                 deviceId: deviceId ? parseInt(deviceId, 10) : undefined,
                 template: isTemplate ? true : undefined,
             };
-            // Only include date and comparison if both are provided
             if (searchDate && comparison) {
                 params.date = searchDate;
                 params.comparison = comparison;
@@ -95,7 +94,6 @@ function LinkedDeviceSearchFilter({ setLinkedDevices }) {
         }
     };
 
-    // Debounce the search/filter request to avoid excessive API calls.
     useEffect(() => {
         if (typingTimeout) clearTimeout(typingTimeout);
         const timeout = setTimeout(() => {
@@ -108,13 +106,11 @@ function LinkedDeviceSearchFilter({ setLinkedDevices }) {
     const handleComparisonChange = (e) => {
         const newComparison = e.target.value;
         setComparison(newComparison);
-        // If user selects "--", reset the date to blank so the date filter is disabled.
         if (newComparison === "") {
             setSearchDate("");
             setSearchDateObj(null);
         }
     };
-
 
     return (
         <>
@@ -129,86 +125,161 @@ function LinkedDeviceSearchFilter({ setLinkedDevices }) {
                 </Row>
             )}
 
-            <Row className="mb-3">
-                {/* Free-text search input */}
-                <Col md={3}>
-                    <Form.Control
-                        type="text"
-                        placeholder="Search linked devices..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                </Col>
-
-                {/* Location dropdown */}
-                <Col md={2}>
-                    <Form.Control
-                        as="select"
-                        value={locationId}
-                        onChange={(e) => setLocationId(e.target.value)}
-                    >
-                        <option value="">Select Location</option>
-                        {locations.map(loc => (
-                            <option key={loc.id} value={loc.id}>
-                                {loc.name}
-                            </option>
-                        ))}
-                    </Form.Control>
-                </Col>
-
-                {/* Devices dropdown using react-select */}
-                <Col md={2}>
-                    <Select
-                        options={devices}
-                        value={devices.find(d => String(d.id) === String(deviceId)) || null}
-                        onChange={(selected) => setDeviceId(selected ? selected.id : '')}
-                        placeholder="Select Device..."
-                        isClearable
-                        getOptionLabel={o => o.deviceName}
-                        getOptionValue={o => o.id.toString()}
-                        components={{ Option: deviceOption }}
-                    />
-                </Col>
-
-                {/* Grouped Date Filter, Comparison, and Template Checkbox */}
-                <Col md={5}>
-                    <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-                        <Form.Select
-                            value={comparison}
-                            onChange={handleComparisonChange}
-                            style={{ width: '70px' }} // Comparison select is smaller
-                        >
-                            <option value="">--</option>
-                            <option value="after">After</option>
-                            <option value="before">Before</option>
-                        </Form.Select>
-                        <div style={{ width: '150px' }}>
+            {advancedOnly ? (
+                // Advanced filters: each filter in its own row with a small gap between them
+                <>
+                    <Row className="mb-2">
+                        <Col>
+                            <Form.Control
+                                as="select"
+                                value={locationId}
+                                onChange={(e) => setLocationId(e.target.value)}
+                            >
+                                <option value="">Select Location</option>
+                                {locations.map(loc => (
+                                    <option key={loc.id} value={loc.id}>
+                                        {loc.name}
+                                    </option>
+                                ))}
+                            </Form.Control>
+                        </Col>
+                    </Row>
+                    <Row className="mb-2">
+                        <Col>
+                            <Select
+                                options={devices}
+                                value={devices.find(d => String(d.id) === String(deviceId)) || null}
+                                onChange={(selected) => setDeviceId(selected ? selected.id : '')}
+                                placeholder="Select Device..."
+                                isClearable
+                                getOptionLabel={o => o.deviceName}
+                                getOptionValue={o => o.id.toString()}
+                                components={{ Option: deviceOption }}
+                            />
+                        </Col>
+                    </Row>
+                    <Row className="mb-2 align-items-center">
+                        <Col xs={4}>
+                            <Form.Select
+                                value={comparison}
+                                onChange={handleComparisonChange}
+                            >
+                                <option value="">--</option>
+                                <option value="after">After</option>
+                                <option value="before">Before</option>
+                            </Form.Select>
+                        </Col>
+                        <Col xs={8}>
                             <ReactDatePicker
                                 selected={searchDateObj}
                                 onChange={(date) => {
                                     setSearchDateObj(date);
-                                    // Convert the picked date to a string in YYYY-MM-DD for the query parameters
                                     setSearchDate(date ? date.toISOString().split('T')[0] : '');
                                 }}
-                                dateFormat="dd/MM/yyyy"           // Display format: day/month/year
-                                className="form-control"          // To match Bootstrap styling
+                                dateFormat="dd/MM/yyyy"
+                                className="form-control"
                                 placeholderText="dd/mm/yyyy"
                                 isClearable
                             />
-                        </div>
-
-                        <div style={{ marginLeft: '20px' }}>
+                        </Col>
+                    </Row>
+                    <Row className="mb-2">
+                        <Col>
                             <Form.Check
                                 type="checkbox"
                                 label="Template Only"
                                 checked={isTemplate}
                                 onChange={(e) => setIsTemplate(e.target.checked)}
-                                style={{ marginBottom: 0 }}
                             />
+                        </Col>
+                    </Row>
+                </>
+            ) : collapsed ? (
+                // Only the free-text search input
+                <Row>
+                    <Col md={12} className="d-flex align-items-center">
+                        <Form.Control
+                            type="text"
+                            placeholder="Search linked devices..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </Col>
+                </Row>
+            ) : (
+                // All filters in one row (desktop view)
+                <Row className="mb-3">
+                    <Col md={3} className="d-flex align-items-center">
+                        <Form.Control
+                            type="text"
+                            placeholder="Search linked devices..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </Col>
+                    <Col md={2} className="d-flex align-items-center">
+                        <Form.Control
+                            as="select"
+                            value={locationId}
+                            onChange={(e) => setLocationId(e.target.value)}
+                        >
+                            <option value="">Select Location</option>
+                            {locations.map(loc => (
+                                <option key={loc.id} value={loc.id}>
+                                    {loc.name}
+                                </option>
+                            ))}
+                        </Form.Control>
+                    </Col>
+                    <Col md={2}>
+                        <Select
+                            options={devices}
+                            value={devices.find(d => String(d.id) === String(deviceId)) || null}
+                            onChange={(selected) => setDeviceId(selected ? selected.id : '')}
+                            placeholder="Select Device..."
+                            isClearable
+                            getOptionLabel={o => o.deviceName}
+                            getOptionValue={o => o.id.toString()}
+                            components={{ Option: deviceOption }}
+                        />
+                    </Col>
+                    <Col md={5} className="d-flex align-items-center">
+                        <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+                            <Form.Select
+                                value={comparison}
+                                onChange={handleComparisonChange}
+                                style={{ width: '70px' }}
+                            >
+                                <option value="">--</option>
+                                <option value="after">After</option>
+                                <option value="before">Before</option>
+                            </Form.Select>
+                            <div style={{ width: '150px' }}>
+                                <ReactDatePicker
+                                    selected={searchDateObj}
+                                    onChange={(date) => {
+                                        setSearchDateObj(date);
+                                        setSearchDate(date ? date.toISOString().split('T')[0] : '');
+                                    }}
+                                    dateFormat="dd/MM/yyyy"
+                                    className="form-control"
+                                    placeholderText="dd/mm/yyyy"
+                                    isClearable
+                                />
+                            </div>
+                            <div style={{ marginLeft: '20px' }}>
+                                <Form.Check
+                                    type="checkbox"
+                                    label="Template Only"
+                                    checked={isTemplate}
+                                    onChange={(e) => setIsTemplate(e.target.checked)}
+                                    style={{ marginBottom: 0 }}
+                                />
+                            </div>
                         </div>
-                    </div>
-                </Col>
-            </Row>
+                    </Col>
+                </Row>
+            )}
         </>
     );
 }
