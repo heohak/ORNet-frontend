@@ -1,17 +1,22 @@
+// src/pages/DevicesPage/DeviceSearchFilter.js
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Alert, Form } from 'react-bootstrap';
 import axiosInstance from "../../config/axiosInstance";
 import config from '../../config/config';
 import ReactDatePicker from "react-datepicker";
 
-function DeviceSearchFilter({ searchQuery, setSearchQuery,
+function DeviceSearchFilter({
+                                searchQuery, setSearchQuery,
                                 classificatorId, setClassificatorId,
                                 clientId, setClientId,
                                 locationId, setLocationId,
                                 writtenOff, setWrittenOff,
                                 searchDate, setSearchDate,
                                 comparison, setComparison,
-                                setDevices }) {
+                                setDevices,
+                                collapsed = false,
+                                advancedOnly = false
+                            }) {
     const [classificators, setClassificators] = useState([]);
     const [clients, setClients] = useState([]);
     const [locations, setLocations] = useState([]);
@@ -20,7 +25,6 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
     const [typingTimeout, setTypingTimeout] = useState(null);
     const [searchDateObj, setSearchDateObj] = useState(null);
 
-    // Update searchDateObj whenever searchDate changes so that the datepicker reflects it
     useEffect(() => {
         setSearchDateObj(searchDate ? new Date(searchDate) : null);
     }, [searchDate]);
@@ -29,8 +33,8 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
         const fetchClassificators = async () => {
             try {
                 const response = await axiosInstance.get(`${config.API_BASE_URL}/device/classificator/all`);
-                const sortedClassificators = response.data.sort((a, b) => a.name.localeCompare(b.name));
-                setClassificators(sortedClassificators);
+                const sorted = response.data.sort((a, b) => a.name.localeCompare(b.name));
+                setClassificators(sorted);
             } catch (error) {
                 console.error('Error fetching classificators:', error);
                 setError(error.message);
@@ -40,8 +44,8 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
         const fetchClients = async () => {
             try {
                 const response = await axiosInstance.get(`${config.API_BASE_URL}/client/all`);
-                const sortedCustomers = response.data.sort((a, b) => a.shortName.localeCompare(b.shortName));
-                setClients(sortedCustomers);
+                const sorted = response.data.sort((a, b) => a.shortName.localeCompare(b.shortName));
+                setClients(sorted);
             } catch (error) {
                 console.error('Error fetching clients:', error);
                 setError(error.message);
@@ -51,9 +55,9 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
         const fetchAllLocations = async () => {
             try {
                 const response = await axiosInstance.get(`${config.API_BASE_URL}/location/all`);
-                const sortedLocations = response.data.sort((a, b) => a.name.localeCompare(b.name));
-                setAllLocations(sortedLocations);
-                setLocations(sortedLocations);
+                const sorted = response.data.sort((a, b) => a.name.localeCompare(b.name));
+                setAllLocations(sorted);
+                setLocations(sorted);
             } catch (error) {
                 console.error('Error fetching locations:', error);
                 setError(error.message);
@@ -70,8 +74,8 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
             if (clientId) {
                 try {
                     const response = await axiosInstance.get(`${config.API_BASE_URL}/client/locations/${clientId}`);
-                    const sortedLocations = response.data.sort((a, b) => a.name.localeCompare(b.name));
-                    setLocations(sortedLocations);
+                    const sorted = response.data.sort((a, b) => a.name.localeCompare(b.name));
+                    setLocations(sorted);
                 } catch (error) {
                     console.error('Error fetching client locations:', error);
                     setError(error.message);
@@ -83,7 +87,6 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
         fetchClientLocations();
     }, [clientId, allLocations]);
 
-    // Search/filter function
     const handleSearchAndFilter = async () => {
         try {
             const params = {
@@ -114,21 +117,114 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
         return () => clearTimeout(timeout);
     }, [searchQuery, classificatorId, clientId, locationId, writtenOff, searchDate, comparison]);
 
-    return (
-        <>
-            {error && (
-                <Row className="mb-3">
+    if (advancedOnly) {
+        // Advanced filters stacked vertically (without duplicating the search input)
+        return (
+            <>
+                <Row className="mb-2">
                     <Col>
-                        <Alert variant="danger">
-                            <Alert.Heading>Error</Alert.Heading>
-                            <p>{error}</p>
-                        </Alert>
+                        <Form.Control
+                            as="select"
+                            value={classificatorId}
+                            onChange={(e) => setClassificatorId(e.target.value)}
+                        >
+                            <option value="">Select Type</option>
+                            {classificators.map(cl => (
+                                <option key={cl.id} value={cl.id}>{cl.name}</option>
+                            ))}
+                        </Form.Control>
                     </Col>
                 </Row>
-            )}
-
+                <Row className="mb-2">
+                    <Col>
+                        <Form.Control
+                            as="select"
+                            value={clientId}
+                            onChange={(e) => setClientId(e.target.value)}
+                        >
+                            <option value="">Select Customer</option>
+                            {clients.map(client => (
+                                <option key={client.id} value={client.id}>{client.shortName}</option>
+                            ))}
+                        </Form.Control>
+                    </Col>
+                </Row>
+                <Row className="mb-2">
+                    <Col>
+                        <Form.Control
+                            as="select"
+                            value={locationId}
+                            onChange={(e) => setLocationId(e.target.value)}
+                        >
+                            <option value="">Select Location</option>
+                            {locations.map(loc => (
+                                <option key={loc.id} value={loc.id}>{loc.name}</option>
+                            ))}
+                        </Form.Control>
+                    </Col>
+                </Row>
+                <Row className="mb-2 align-items-center">
+                    <Col xs={4}>
+                        <Form.Select
+                            value={comparison}
+                            onChange={(e) => {
+                                const newComparison = e.target.value;
+                                setComparison(newComparison);
+                                if (newComparison === "") {
+                                    setSearchDate("");
+                                }
+                            }}
+                        >
+                            <option value="">--</option>
+                            <option value="after">After</option>
+                            <option value="before">Before</option>
+                        </Form.Select>
+                    </Col>
+                    <Col xs={8}>
+                        <ReactDatePicker
+                            selected={searchDateObj}
+                            onChange={(date) => {
+                                setSearchDateObj(date);
+                                setSearchDate(date ? date.toISOString().split('T')[0] : '');
+                            }}
+                            dateFormat="dd/MM/yyyy"
+                            className="form-control"
+                            placeholderText="dd/mm/yyyy"
+                            isClearable
+                        />
+                    </Col>
+                </Row>
+                <Row className="mb-2">
+                    <Col>
+                        <Form.Check
+                            type="switch"
+                            id="written-off-switch"
+                            label="Written-off"
+                            checked={writtenOff}
+                            onChange={(e) => setWrittenOff(e.target.checked)}
+                        />
+                    </Col>
+                </Row>
+            </>
+        );
+    } else if (collapsed) {
+        // Only free-text search input
+        return (
+            <Row>
+                <Col md={12} className="d-flex align-items-center">
+                    <Form.Control
+                        type="text"
+                        placeholder="Search devices..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                </Col>
+            </Row>
+        );
+    } else {
+        // Desktop view: All filters in one row
+        return (
             <Row className="mb-3">
-                {/* Free-text search input */}
                 <Col md={2}>
                     <Form.Control
                         type="text"
@@ -137,8 +233,6 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </Col>
-
-                {/* Classificator dropdown */}
                 <Col md={2}>
                     <Form.Control
                         as="select"
@@ -146,15 +240,11 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
                         onChange={(e) => setClassificatorId(e.target.value)}
                     >
                         <option value="">Select Type</option>
-                        {classificators.map((cl) => (
-                            <option key={cl.id} value={cl.id}>
-                                {cl.name}
-                            </option>
+                        {classificators.map(cl => (
+                            <option key={cl.id} value={cl.id}>{cl.name}</option>
                         ))}
                     </Form.Control>
                 </Col>
-
-                {/* Client dropdown */}
                 <Col md={2}>
                     <Form.Control
                         as="select"
@@ -162,15 +252,11 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
                         onChange={(e) => setClientId(e.target.value)}
                     >
                         <option value="">Select Customer</option>
-                        {clients.map((client) => (
-                            <option key={client.id} value={client.id}>
-                                {client.shortName}
-                            </option>
+                        {clients.map(client => (
+                            <option key={client.id} value={client.id}>{client.shortName}</option>
                         ))}
                     </Form.Control>
                 </Col>
-
-                {/* Location dropdown */}
                 <Col md={2}>
                     <Form.Control
                         as="select"
@@ -178,17 +264,13 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
                         onChange={(e) => setLocationId(e.target.value)}
                     >
                         <option value="">Select Location</option>
-                        {locations.map((loc) => (
-                            <option key={loc.id} value={loc.id}>
-                                {loc.name}
-                            </option>
+                        {locations.map(loc => (
+                            <option key={loc.id} value={loc.id}>{loc.name}</option>
                         ))}
                     </Form.Control>
                 </Col>
-
-                {/* Comparison + Date + Written-off */}
                 <Col md={4}>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'start' }}>
                         <Form.Select
                             value={comparison}
                             onChange={(e) => {
@@ -204,7 +286,6 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
                             <option value="after">After</option>
                             <option value="before">Before</option>
                         </Form.Select>
-
                         <div style={{ width: '150px' }}>
                             <ReactDatePicker
                                 selected={searchDateObj}
@@ -218,20 +299,20 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
                                 isClearable
                             />
                         </div>
-
-                        <Form.Check
-                            type="switch"
-                            id="written-off-switch"
-                            label="Written-off"
-                            checked={writtenOff}
-                            onChange={(e) => setWrittenOff(e.target.checked)}
-                            style={{ marginLeft: '20px' }}
-                        />
+                        <div style={{ marginLeft: '20px' }}>
+                            <Form.Check
+                                type="switch"
+                                id="written-off-switch"
+                                label="Written-off"
+                                checked={writtenOff}
+                                onChange={(e) => setWrittenOff(e.target.checked)}
+                            />
+                        </div>
                     </div>
                 </Col>
             </Row>
-        </>
-    );
+        );
+    }
 }
 
 export default DeviceSearchFilter;

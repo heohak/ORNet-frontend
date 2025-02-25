@@ -1,5 +1,6 @@
+// src/pages/DevicesPage/Devices.js
 import React, { useEffect, useState, useRef } from 'react';
-import { Row, Col, Spinner, Alert, Button, Container, Form, Card } from 'react-bootstrap';
+import { Row, Col, Spinner, Alert, Button, Container, Form, Card, Collapse } from 'react-bootstrap';
 import axiosInstance from "../../config/axiosInstance";
 import config from '../../config/config';
 import AddDeviceModal from './AddDeviceModal';
@@ -7,6 +8,7 @@ import DeviceSearchFilter from './DeviceSearchFilter';
 import SummaryModal from './SummaryModal';
 import '../../css/AllDevicesPage/Devices.css';
 import { useNavigate } from 'react-router-dom';
+import { FaFilter, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 // Custom hook to get current window width
 const useWindowWidth = () => {
@@ -48,6 +50,7 @@ function Devices() {
     const [refresh, setRefresh] = useState(false);
     const [showAddDeviceModal, setShowAddDeviceModal] = useState(false);
     const [showSummaryModal, setShowSummaryModal] = useState(false);
+    const [showMobileFilters, setShowMobileFilters] = useState(false);
 
     // Sorting state
     const [sortConfig, setSortConfig] = useState({ key: 'deviceName', direction: 'ascending' });
@@ -270,43 +273,127 @@ function Devices() {
     return (
         <>
             <Container className="mt-5">
-                <Row>
-                    <Col>
-                        <h1 className="mb-0">Devices</h1>
-                    </Col>
-                    <Col className="text-end">
-                        <Button variant="outline-secondary" onClick={handleClearFilters} className="me-2">
-                            Clear Filters
-                        </Button>
-                        <Button variant="primary" className="me-2" onClick={() => setShowSummaryModal(true)}>
-                            Show Summary
-                        </Button>
-                        <Button variant="primary" onClick={() => setShowAddDeviceModal(true)}>
-                            Add Device
-                        </Button>
-                    </Col>
-                </Row>
+                {/* Header Row */}
+                {isMobile ? (
+                    <Row className="d-flex justify-content-between align-items-center mb-4">
+                        <Col xs="auto">
+                            <h1 className="mb-0">Devices</h1>
+                        </Col>
+                        <Col xs="auto" className="text-end">
+                            <Button variant="primary" className="me-2" onClick={() => setShowSummaryModal(true)}>
+                                Summary
+                            </Button>
+                            <Button variant="primary" onClick={() => setShowAddDeviceModal(true)}>
+                                Add Device
+                            </Button>
+                        </Col>
+                    </Row>
+                ) : (
+                    <Row className="d-flex justify-content-between align-items-center mb-4">
+                        <Col xs="auto">
+                            <h1 className="mb-0">Devices</h1>
+                        </Col>
+                        <Col xs="auto" className="text-end">
+                            <Button variant="outline-secondary" onClick={handleClearFilters} className="me-2">
+                                Clear Filters
+                            </Button>
+                            <Button variant="primary" className="me-2" onClick={() => setShowSummaryModal(true)}>
+                                Show Summary
+                            </Button>
+                            <Button variant="primary" onClick={() => setShowAddDeviceModal(true)}>
+                                Add Device
+                            </Button>
+                        </Col>
+                    </Row>
+                )}
 
-                <Row className="mt-4">
-                    <DeviceSearchFilter
-                        searchQuery={searchQuery}
-                        setSearchQuery={setSearchQuery}
-                        classificatorId={classificatorId}
-                        setClassificatorId={setClassificatorId}
-                        clientId={clientId}
-                        setClientId={setClientId}
-                        locationId={locationId}
-                        setLocationId={setLocationId}
-                        writtenOff={writtenOff}
-                        setWrittenOff={setWrittenOff}
-                        searchDate={searchDate}
-                        setSearchDate={setSearchDate}
-                        comparison={comparison}
-                        setComparison={setComparison}
-                        setDevices={setDevices}
-                    />
-                </Row>
+                {/* Filters */}
+                {isMobile ? (
+                    <>
+                        <Row className="mb-3 align-items-center">
+                            <Col className="align-items-center">
+                                {/* Render collapsed search input */}
+                                <DeviceSearchFilter
+                                    collapsed
+                                    searchQuery={searchQuery}
+                                    setSearchQuery={setSearchQuery}
+                                    classificatorId={classificatorId}
+                                    setClassificatorId={setClassificatorId}
+                                    clientId={clientId}
+                                    setClientId={setClientId}
+                                    locationId={locationId}
+                                    setLocationId={setLocationId}
+                                    writtenOff={writtenOff}
+                                    setWrittenOff={setWrittenOff}
+                                    searchDate={searchDate}
+                                    setSearchDate={setSearchDate}
+                                    comparison={comparison}
+                                    setComparison={setComparison}
+                                    setDevices={setDevices}
+                                />
+                            </Col>
+                            <Col xs="auto" className="d-flex align-items-center">
+                                <Button variant="outline-secondary" onClick={() => setShowMobileFilters(!showMobileFilters)}>
+                                    <FaFilter style={{ marginRight: '0.5rem' }} />
+                                    {showMobileFilters ? <FaChevronUp /> : <FaChevronDown />}
+                                </Button>
+                            </Col>
+                        </Row>
+                        <Collapse in={showMobileFilters}>
+                            <div className="mb-3" style={{ padding: '0 1rem' }}>
+                                {/* Render advanced filters without duplicating the search input */}
+                                <DeviceSearchFilter
+                                    advancedOnly
+                                    searchQuery={searchQuery}
+                                    setSearchQuery={setSearchQuery}
+                                    classificatorId={classificatorId}
+                                    setClassificatorId={setClassificatorId}
+                                    clientId={clientId}
+                                    setClientId={setClientId}
+                                    locationId={locationId}
+                                    setLocationId={setLocationId}
+                                    writtenOff={writtenOff}
+                                    setWrittenOff={setWrittenOff}
+                                    searchDate={searchDate}
+                                    setSearchDate={setSearchDate}
+                                    comparison={comparison}
+                                    setComparison={setComparison}
+                                    setDevices={setDevices}
+                                />
+                                {/* Clear Filters button inside the dropdown */}
+                                <Row className="mt-2">
+                                    <Col>
+                                        <Button variant="outline-secondary" onClick={handleClearFilters} className="w-100">
+                                            Clear Filters
+                                        </Button>
+                                    </Col>
+                                </Row>
+                            </div>
+                        </Collapse>
+                    </>
+                ) : (
+                    <Row className="mt-4">
+                        <DeviceSearchFilter
+                            searchQuery={searchQuery}
+                            setSearchQuery={setSearchQuery}
+                            classificatorId={classificatorId}
+                            setClassificatorId={setClassificatorId}
+                            clientId={clientId}
+                            setClientId={setClientId}
+                            locationId={locationId}
+                            setLocationId={setLocationId}
+                            writtenOff={writtenOff}
+                            setWrittenOff={setWrittenOff}
+                            searchDate={searchDate}
+                            setSearchDate={setSearchDate}
+                            comparison={comparison}
+                            setComparison={setComparison}
+                            setDevices={setDevices}
+                        />
+                    </Row>
+                )}
 
+                {/* Devices Listing */}
                 {isMobile ? (
                     sortedDevices.length === 0 ? (
                         <Alert variant="info">No devices found.</Alert>
@@ -317,15 +404,12 @@ function Devices() {
                                 className="mb-3"
                                 style={{
                                     cursor: 'pointer',
-                                    backgroundColor:
-                                        device.id.toString() === lastVisitedDeviceId ? "#ffffcc" : "inherit"
+                                    backgroundColor: device.id.toString() === lastVisitedDeviceId ? "#ffffcc" : "inherit"
                                 }}
                                 onClick={() => {
                                     localStorage.setItem("lastVisitedDeviceId", device.id);
                                     navigate(`/device/${device.id}`, {
-                                        state: {
-                                            fromPath: "/devices",
-                                        }
+                                        state: { fromPath: "/devices" }
                                     });
                                 }}
                             >
@@ -380,49 +464,21 @@ function Devices() {
                                         key={device.id}
                                         className="mb-2 py-2"
                                         style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
+                                        onClick={() => {
+                                            localStorage.setItem("lastVisitedDeviceId", device.id);
+                                            navigate(`/device/${device.id}`, { state: { fromPath: "/devices" } });
+                                        }}
                                     >
-                                        <Col
-                                            md={3}
-                                            onClick={() => {
-                                                localStorage.setItem("lastVisitedDeviceId", device.id);
-                                                navigate(`/device/${device.id}`, {
-                                                    state : {fromPath: "/devices"}
-                                                });
-                                            }}
-                                        >
+                                        <Col md={3}>
                                             {classificators[device.classificatorId] || 'Unknown Type'}
                                         </Col>
-                                        <Col
-                                            md={2}
-                                            onClick={() => {
-                                                localStorage.setItem("lastVisitedDeviceId", device.id);
-                                                navigate(`/device/${device.id}`, {
-                                                    state : {fromPath: "/devices"}
-                                                });
-                                            }}
-                                        >
+                                        <Col md={2}>
                                             {device.deviceName}
                                         </Col>
-                                        <Col
-                                            md={3}
-                                            onClick={() => {
-                                                localStorage.setItem("lastVisitedDeviceId", device.id);
-                                                navigate(`/device/${device.id}`, {
-                                                    state : {fromPath: "/devices"}
-                                                });
-                                            }}
-                                        >
+                                        <Col md={3}>
                                             {getLocationName(device.locationId)}
                                         </Col>
-                                        <Col
-                                            md={2}
-                                            onClick={() => {
-                                                localStorage.setItem("lastVisitedDeviceId", device.id);
-                                                navigate(`/device/${device.id}`, {
-                                                    state : {fromPath: "/devices"}
-                                                });
-                                            }}
-                                        >
+                                        <Col md={2}>
                                             {device.serialNumber}
                                         </Col>
                                         <Col

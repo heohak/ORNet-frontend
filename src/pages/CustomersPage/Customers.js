@@ -11,7 +11,8 @@ import {
     Dropdown,
     Spinner,
     Form,
-    Card
+    Card,
+    Collapse
 } from 'react-bootstrap';
 import config from "../../config/config";
 import NewAddCustomer from "./NewAddCustomer";
@@ -22,6 +23,7 @@ import personIcon from '../../assets/thumbnail_person icon.png';
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../config/axiosInstance";
 import { DateUtils } from "../../utils/DateUtils";
+import { FaFilter, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 // Custom hook to get current window width
 const useWindowWidth = () => {
@@ -57,6 +59,7 @@ function Customers() {
     const [sortConfig, setSortConfig] = useState({ key: 'shortName', direction: 'ascending' });
     const [showNewAddCustomerModal, setShowNewAddCustomerModal] = useState(false);
     const [showGenerateReportModal, setShowGenerateReportModal] = useState(false);
+    const [showMobileFilters, setShowMobileFilters] = useState(false);
 
     // For skipping the initial save to localStorage
     const firstRender = useRef(true);
@@ -84,11 +87,7 @@ function Customers() {
             firstRender.current = false;
             return;
         }
-        const filters = {
-            searchQuery,
-            selectedClientTypes,
-            selectedCountry
-        };
+        const filters = { searchQuery, selectedClientTypes, selectedCountry };
         localStorage.setItem("customerFilters", JSON.stringify(filters));
     }, [searchQuery, selectedClientTypes, selectedCountry]);
 
@@ -257,118 +256,238 @@ function Customers() {
     const sortedCustomers = sortCustomers(customers, sortConfig.key, sortConfig.direction);
     const lastVisitedCustomerId = localStorage.getItem("lastVisitedCustomerId");
 
-    // Rendering
     return (
         <Container className="mt-5">
-            <Row className="mb-3">
-                <Col>
-                    <h1>Customers</h1>
-                </Col>
-            </Row>
-
-            <Row className="mb-4 align-items-center justify-content-between">
-                <Col>
-                    <InputGroup>
-                        <FormControl
-                            placeholder="Search customers..."
-                            value={searchQuery}
-                            onChange={(e) => handleSearchChange(e.target.value)}
-                        />
-                        <DropdownButton
-                            as={InputGroup.Append}
-                            variant="outline-secondary"
-                            title={selectedCountry || 'All Countries'}
-                            id="input-group-dropdown-country"
-                        >
-                            <Dropdown.Item onClick={() => handleCountryChange('')}>
-                                All Countries
-                            </Dropdown.Item>
-                            {availableCountries.map((code) => (
-                                <Dropdown.Item
-                                    key={code}
-                                    onClick={() => handleCountryChange(code)}
-                                >
-                                    {code}
-                                </Dropdown.Item>
-                            ))}
-                        </DropdownButton>
-                    </InputGroup>
-                </Col>
-                <Col className="col-md-auto text-end">
-                    {/* Clear Filters Button */}
-                    <Button
-                        variant="outline-secondary"
-                        onClick={handleClearFilters}
-                        className="me-2"
-                    >
-                        Clear Filters
-                    </Button>
-
-                    <Button variant="primary" onClick={handleGenerateReport} className="me-2">
-                        Generate Report
-                    </Button>
-                    <Button variant="primary" onClick={handleNewAddCustomer}>
-                        Add Customer
-                    </Button>
-                </Col>
-            </Row>
-
-            <Row>
-                <Col>
-                    <Form>
-                        <div className="d-flex flex-wrap">
-                            <Form.Check
-                                type="checkbox"
-                                label="Pathology"
-                                value="pathology"
-                                checked={selectedClientTypes.includes('pathology')}
-                                onChange={handleClientTypeCheck}
-                                className="me-3 mb-2"
-                            />
-                            <Form.Check
-                                type="checkbox"
-                                label="Surgery"
-                                value="surgery"
-                                checked={selectedClientTypes.includes('surgery')}
-                                onChange={handleClientTypeCheck}
-                                className="me-3 mb-2"
-                            />
-                            <Form.Check
-                                type="checkbox"
-                                label="Editor"
-                                value="editor"
-                                checked={selectedClientTypes.includes('editor')}
-                                onChange={handleClientTypeCheck}
-                                className="me-3 mb-2"
-                            />
-                            <Form.Check
-                                type="checkbox"
-                                label="Other"
-                                value="other"
-                                checked={selectedClientTypes.includes('other')}
-                                onChange={handleClientTypeCheck}
-                                className="me-3 mb-2"
-                            />
-                            <Form.Check
-                                type="checkbox"
-                                label="Prospect"
-                                value="prospect"
-                                checked={selectedClientTypes.includes('prospect')}
-                                onChange={handleClientTypeCheck}
-                                className="me-3 mb-2"
-                            />
-                            <Form.Check
-                                type="checkbox"
-                                label="Agreement"
-                                value="agreement"
-                                checked={selectedClientTypes.includes('agreement')}
-                                onChange={handleClientTypeCheck}
-                                className="me-3 mb-2"
-                            />
+            {isMobile ? (
+                <>
+                    {/* Mobile Header: Title + Generate Report & Add Customer buttons */}
+                    <Row className="d-flex justify-content-between align-items-center mb-4">
+                        <Col xs='auto'>
+                            <h1 className="mb-0">Customers</h1>
+                        </Col>
+                        <Col xs='auto' className="text-end">
+                            <Button variant="primary" onClick={handleGenerateReport} className="me-2">
+                                Report
+                            </Button>
+                            <Button variant="primary" onClick={handleNewAddCustomer}>
+                                Add New
+                            </Button>
+                        </Col>
+                    </Row>
+                    {/* Mobile Filters */}
+                    <Row className="mb-3 align-items-center">
+                        <Col>
+                            <InputGroup>
+                                <FormControl
+                                    placeholder="Search customers..."
+                                    value={searchQuery}
+                                    onChange={(e) => handleSearchChange(e.target.value)}
+                                />
+                            </InputGroup>
+                        </Col>
+                        <Col xs="auto" className="d-flex align-items-center">
+                            <Button variant="outline-secondary" onClick={() => setShowMobileFilters(!showMobileFilters)}>
+                                <FaFilter style={{ marginRight: '0.5rem' }} />
+                                {showMobileFilters ? <FaChevronUp /> : <FaChevronDown />}
+                            </Button>
+                        </Col>
+                    </Row>
+                    <Collapse in={showMobileFilters}>
+                        <div className="mb-3" style={{ padding: '0 1rem' }}>
+                            {/* Advanced filters: Country dropdown and Client Types checkboxes */}
+                            <Row className="mb-2">
+                                <Col>
+                                    <InputGroup>
+                                        <DropdownButton
+                                            as={InputGroup.Append}
+                                            variant="outline-secondary"
+                                            title={selectedCountry || 'All Countries'}
+                                            id="input-group-dropdown-country"
+                                        >
+                                            <Dropdown.Item onClick={() => handleCountryChange('')}>
+                                                All Countries
+                                            </Dropdown.Item>
+                                            {availableCountries.map((code) => (
+                                                <Dropdown.Item key={code} onClick={() => handleCountryChange(code)}>
+                                                    {code}
+                                                </Dropdown.Item>
+                                            ))}
+                                        </DropdownButton>
+                                    </InputGroup>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col>
+                                    <Form>
+                                        <div className="d-flex flex-wrap">
+                                            <Form.Check
+                                                type="checkbox"
+                                                label="Pathology"
+                                                value="pathology"
+                                                checked={selectedClientTypes.includes('pathology')}
+                                                onChange={handleClientTypeCheck}
+                                                className="me-3 mb-2"
+                                            />
+                                            <Form.Check
+                                                type="checkbox"
+                                                label="Surgery"
+                                                value="surgery"
+                                                checked={selectedClientTypes.includes('surgery')}
+                                                onChange={handleClientTypeCheck}
+                                                className="me-3 mb-2"
+                                            />
+                                            <Form.Check
+                                                type="checkbox"
+                                                label="Editor"
+                                                value="editor"
+                                                checked={selectedClientTypes.includes('editor')}
+                                                onChange={handleClientTypeCheck}
+                                                className="me-3 mb-2"
+                                            />
+                                            <Form.Check
+                                                type="checkbox"
+                                                label="Other"
+                                                value="other"
+                                                checked={selectedClientTypes.includes('other')}
+                                                onChange={handleClientTypeCheck}
+                                                className="me-3 mb-2"
+                                            />
+                                            <Form.Check
+                                                type="checkbox"
+                                                label="Prospect"
+                                                value="prospect"
+                                                checked={selectedClientTypes.includes('prospect')}
+                                                onChange={handleClientTypeCheck}
+                                                className="me-3 mb-2"
+                                            />
+                                            <Form.Check
+                                                type="checkbox"
+                                                label="Agreement"
+                                                value="agreement"
+                                                checked={selectedClientTypes.includes('agreement')}
+                                                onChange={handleClientTypeCheck}
+                                                className="me-3 mb-2"
+                                            />
+                                        </div>
+                                    </Form>
+                                </Col>
+                            </Row>
+                            {/* Clear Filters Button inside the dropdown */}
+                            <Row className="mt-2">
+                                <Col>
+                                    <Button variant="outline-secondary" onClick={handleClearFilters} className="w-100">
+                                        Clear Filters
+                                    </Button>
+                                </Col>
+                            </Row>
                         </div>
-                    </Form>
-                </Col>
-            </Row>
+                    </Collapse>
+                </>
+            ) : (
+                <>
+                    {/* Desktop Header */}
+                    <Row className="mb-3">
+                        <Col>
+                            <h1>Customers</h1>
+                        </Col>
+                    </Row>
+                    {/* Desktop Filters */}
+                    <Row className="mb-4 align-items-center justify-content-between">
+                        <Col>
+                            <InputGroup>
+                                <FormControl
+                                    placeholder="Search customers..."
+                                    value={searchQuery}
+                                    onChange={(e) => handleSearchChange(e.target.value)}
+                                />
+                                <DropdownButton
+                                    as={InputGroup.Append}
+                                    variant="outline-secondary"
+                                    title={selectedCountry || 'All Countries'}
+                                    id="input-group-dropdown-country"
+                                >
+                                    <Dropdown.Item onClick={() => handleCountryChange('')}>
+                                        All Countries
+                                    </Dropdown.Item>
+                                    {availableCountries.map((code) => (
+                                        <Dropdown.Item key={code} onClick={() => handleCountryChange(code)}>
+                                            {code}
+                                        </Dropdown.Item>
+                                    ))}
+                                </DropdownButton>
+                            </InputGroup>
+                        </Col>
+                        <Col className="col-md-auto text-end">
+                            <Button variant="outline-secondary" onClick={handleClearFilters} className="me-2">
+                                Clear Filters
+                            </Button>
+                            <Button variant="primary" onClick={handleGenerateReport} className="me-2">
+                                Generate Report
+                            </Button>
+                            <Button variant="primary" onClick={handleNewAddCustomer}>
+                                Add Customer
+                            </Button>
+                        </Col>
+                    </Row>
+                    {/* Desktop Client Types */}
+                    <Row>
+                        <Col>
+                            <Form>
+                                <div className="d-flex flex-wrap">
+                                    <Form.Check
+                                        type="checkbox"
+                                        label="Pathology"
+                                        value="pathology"
+                                        checked={selectedClientTypes.includes('pathology')}
+                                        onChange={handleClientTypeCheck}
+                                        className="me-3 mb-2"
+                                    />
+                                    <Form.Check
+                                        type="checkbox"
+                                        label="Surgery"
+                                        value="surgery"
+                                        checked={selectedClientTypes.includes('surgery')}
+                                        onChange={handleClientTypeCheck}
+                                        className="me-3 mb-2"
+                                    />
+                                    <Form.Check
+                                        type="checkbox"
+                                        label="Editor"
+                                        value="editor"
+                                        checked={selectedClientTypes.includes('editor')}
+                                        onChange={handleClientTypeCheck}
+                                        className="me-3 mb-2"
+                                    />
+                                    <Form.Check
+                                        type="checkbox"
+                                        label="Other"
+                                        value="other"
+                                        checked={selectedClientTypes.includes('other')}
+                                        onChange={handleClientTypeCheck}
+                                        className="me-3 mb-2"
+                                    />
+                                    <Form.Check
+                                        type="checkbox"
+                                        label="Prospect"
+                                        value="prospect"
+                                        checked={selectedClientTypes.includes('prospect')}
+                                        onChange={handleClientTypeCheck}
+                                        className="me-3 mb-2"
+                                    />
+                                    <Form.Check
+                                        type="checkbox"
+                                        label="Agreement"
+                                        value="agreement"
+                                        checked={selectedClientTypes.includes('agreement')}
+                                        onChange={handleClientTypeCheck}
+                                        className="me-3 mb-2"
+                                    />
+                                </div>
+                            </Form>
+                        </Col>
+                    </Row>
+                </>
+            )}
 
             {loading && (
                 <Row className="justify-content-center">
@@ -386,17 +505,14 @@ function Customers() {
                         <Alert variant="info">No customers found.</Alert>
                     ) : (
                         isMobile ? (
-                            // Mobile view: each customer is a Card
+                            // Mobile view: each customer as a Card
                             sortedCustomers.map((customer) => (
                                 <Card
                                     key={customer.id}
                                     className="mb-3"
                                     style={{
                                         cursor: 'pointer',
-                                        backgroundColor:
-                                            customer.id.toString() === lastVisitedCustomerId
-                                                ? "#ffffcc"
-                                                : "inherit"
+                                        backgroundColor: customer.id.toString() === lastVisitedCustomerId ? "#ffffcc" : "inherit"
                                     }}
                                     onClick={() => {
                                         localStorage.setItem("lastVisitedCustomerId", customer.id);
@@ -443,15 +559,11 @@ function Customers() {
                                                         width: '12px',
                                                         height: '12px',
                                                         borderRadius: '50%',
-                                                        backgroundColor: getDeadlineColor(
-                                                            activityDates[customer.id]?.endDateTime
-                                                        ),
+                                                        backgroundColor: getDeadlineColor(activityDates[customer.id]?.endDateTime),
                                                         marginRight: '8px'
                                                     }}
                                                 />
-                                                {DateUtils.formatDate(
-                                                    activityDates[customer.id]?.updateDateTime
-                                                ) || "N/A"}
+                                                {DateUtils.formatDate(activityDates[customer.id]?.updateDateTime) || "N/A"}
                                             </div>
                                         </Card.Text>
                                     </Card.Body>
@@ -506,9 +618,7 @@ function Customers() {
 
                                     const baseBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
                                     const rowBgColor =
-                                        customer.id.toString() === lastVisitedCustomerId
-                                            ? "#ffffcc"
-                                            : baseBgColor;
+                                        customer.id.toString() === lastVisitedCustomerId ? "#ffffcc" : baseBgColor;
 
                                     return (
                                         <Row
@@ -577,16 +687,16 @@ function Customers() {
                                                         });
                                                     }}
                                                 >
-                                                    <span
-                                                        style={{
-                                                            display: 'inline-block',
-                                                            width: '12px',
-                                                            height: '12px',
-                                                            borderRadius: '50%',
-                                                            backgroundColor: deadlineColor,
-                                                            marginRight: '8px',
-                                                        }}
-                                                    />
+                          <span
+                              style={{
+                                  display: 'inline-block',
+                                  width: '12px',
+                                  height: '12px',
+                                  borderRadius: '50%',
+                                  backgroundColor: deadlineColor,
+                                  marginRight: '8px',
+                              }}
+                          />
                                                     {updateDate}
                                                 </div>
                                             </Col>
@@ -599,7 +709,16 @@ function Customers() {
                 </>
             )}
 
-            {/* NewAddCustomer Modal */}
+            {loading && (
+                <Row className="justify-content-center">
+                    <Col md={2} className="text-center">
+                        <Spinner animation="border" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </Spinner>
+                    </Col>
+                </Row>
+            )}
+
             {showNewAddCustomerModal && (
                 <NewAddCustomer
                     show={showNewAddCustomerModal}
@@ -607,7 +726,6 @@ function Customers() {
                 />
             )}
 
-            {/* GenerateReportModal */}
             {showGenerateReportModal && (
                 <GenerateReportModal
                     show={showGenerateReportModal}
