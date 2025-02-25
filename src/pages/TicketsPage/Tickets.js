@@ -1,13 +1,23 @@
-import React, {useCallback, useEffect, useState} from 'react';
-import {useNavigate, useParams} from "react-router-dom";
-import axios from "axios";
-import {Button, Container} from "react-bootstrap";
+import React, { useCallback, useEffect, useState } from 'react';
+import { useNavigate, useParams } from "react-router-dom";
+import { Button, Container, Row, Col, Collapse } from "react-bootstrap";
+import { FaFilter, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import SearchBar from "./SearchBar";
 import TicketsList from "./TicketsList";
 import config from "../../config/config";
 import NewTicket from "./SingleTicketModal/NewTicket";
 import AddTicketModal from "./AddTicketModal/AddTicketModal";
 import axiosInstance from "../../config/axiosInstance";
+
+const useWindowWidth = () => {
+    const [width, setWidth] = useState(window.innerWidth);
+    useEffect(() => {
+        const handleResize = () => setWidth(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    return width;
+};
 
 function Tickets() {
     const [tickets, setTickets] = useState([]);
@@ -19,19 +29,22 @@ function Tickets() {
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const [statuses, setStatuses] = useState([]);
-    const [workTypes, setWorkTypes] = useState([]); // New state for work types
-    const [selectedWorkType, setSelectedWorkType] = useState(''); // New state for selected work type
+    const [workTypes, setWorkTypes] = useState([]);
+    const [selectedWorkType, setSelectedWorkType] = useState('');
     const [closedStatusId, setClosedStatusId] = useState(0);
     const [closedStatus, setClosedStatus] = useState(null);
-    const [ticket, setTicket] = useState(null); // selected ticket
-    const [ticketModal, setTicketModal] = useState(false); // to control modal state
+    const [ticket, setTicket] = useState(null);
+    const [ticketModal, setTicketModal] = useState(false);
     const [addTicketModal, setAddTicketModal] = useState(false);
 
+    // Mobile-specific state for advanced filters toggle
+    const [showMobileFilters, setShowMobileFilters] = useState(false);
+    const windowWidth = useWindowWidth();
+    const isMobile = windowWidth < 768;
 
     const navigate = useNavigate();
-    const {ticketId} = useParams();
+    const { ticketId } = useParams();
 
-    // Fetch status classifications
     useEffect(() => {
         fetchStatuses();
     }, []);
@@ -39,30 +52,27 @@ function Tickets() {
     const fetchStatuses = async () => {
         try {
             const response = await axiosInstance.get(`${config.API_BASE_URL}/ticket/classificator/all`);
-            setStatuses(response.data); // Set statuses once fetched
+            setStatuses(response.data);
         } catch (error) {
             console.error("Error fetching statuses", error);
         }
     };
 
-    // Fetch work types when the component mounts
     useEffect(() => {
         fetchWorkTypes();
     }, []);
 
     const fetchWorkTypes = async () => {
         try {
-            const response = await axiosInstance.get(`${config.API_BASE_URL}/work-type/classificator/all`); // Adjust the endpoint as needed
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/work-type/classificator/all`);
             setWorkTypes(response.data);
         } catch (error) {
             console.error("Error fetching work types", error);
         }
     };
 
-    // Find and set open and closed statuses once statuses are fetched
     useEffect(() => {
         const findClosedStatus = () => {
-            // Ensure statuses are available before proceeding
             if (statuses.length > 0) {
                 const closed = statuses.find(status => status.status === 'Closed');
                 if (closed) {
@@ -71,15 +81,13 @@ function Tickets() {
                 }
             }
         };
-
         findClosedStatus();
-    }, [statuses]); // This effect runs when 'statuses' is updated
+    }, [statuses]);
 
-    // Debounce the search query input
     useEffect(() => {
         const handler = setTimeout(() => {
             setDebouncedSearchQuery(searchQuery);
-        }, 500); // 500ms delay
+        }, 500);
         return () => {
             clearTimeout(handler);
         };
@@ -87,7 +95,7 @@ function Tickets() {
 
     useEffect(() => {
         fetchTickets();
-    }, [filter, debouncedSearchQuery, crisis, paid, selectedWorkType]); // Include selectedWorkType in dependencies
+    }, [filter, debouncedSearchQuery, crisis, paid, selectedWorkType]);
 
     useEffect(() => {
         if (ticketId) {
@@ -114,13 +122,12 @@ function Tickets() {
             if (crisis) {
                 params.append('crisis', crisis);
             }
-            if (paid) { // Append Paid parameter
+            if (paid) {
                 params.append('paid', paid);
             }
             if (selectedWorkType !== 'all') {
-                params.append('workTypeId', selectedWorkType); // Add work type to the filter
+                params.append('workTypeId', selectedWorkType);
             }
-
             const url = `${config.API_BASE_URL}/ticket/search?${params.toString()}`;
             const response = await axiosInstance.get(url);
             setTickets(response.data);
@@ -137,18 +144,17 @@ function Tickets() {
 
     const handleFilterChange = useCallback((newFilter) => {
         setFilter(newFilter);
-        setSearchQuery(''); // Clear search query when filter changes
     }, []);
 
     const handleCrisisChange = useCallback(() => {
-        setCrisis((prevCrisis) => !prevCrisis);
+        setCrisis(prev => !prev);
     }, []);
 
-    const handlePaidChange = useCallback(() => { // New handler for Paid
-        setPaid((prevPaid) => !prevPaid);
+    const handlePaidChange = useCallback(() => {
+        setPaid(prev => !prev);
     }, []);
 
-    const handleWorkTypeChange = useCallback((newWorkTypeId) => { // New handler for work type change
+    const handleWorkTypeChange = useCallback((newWorkTypeId) => {
         setSelectedWorkType(newWorkTypeId);
     }, []);
 
@@ -166,7 +172,7 @@ function Tickets() {
     };
 
     const handleNavigate = (ticket) => {
-        navigate(`/tickets/${ticket.id}`, {state: {fromPath: `/tickets/${ticket.id}`}});
+        navigate(`/tickets/${ticket.id}`, { state: { fromPath: `/tickets/${ticket.id}` } });
     };
 
     const closeTicketModal = () => {
@@ -175,28 +181,86 @@ function Tickets() {
 
     return (
         <Container className="mt-5">
-            <div className="mb-4">
-                <h1 className="mb-0">Tickets</h1>
-            </div>
-            <SearchBar
-                searchQuery={searchQuery}
-                onSearchChange={handleSearchChange}
-                onFilterChange={handleFilterChange}
-                onCrisisChange={handleCrisisChange}
-                onPaidChange={handlePaidChange}
-                onWorkTypeChange={handleWorkTypeChange} // Pass work type change handler
-                filter={filter}
-                crisis={crisis}
-                paid={paid}
-                statuses={statuses}
-                workTypes={workTypes} // Pass work types to SearchBar
-                selectedWorkType={selectedWorkType}
-                handleAddTicket={handleAddTicket}
-            />
+            {/* Header: Title and Add Ticket button on the same line */}
+            <Row className="align-items-center justify-content-between mb-4">
+                <Col xs="auto">
+                    <h1 className="mb-0">Tickets</h1>
+                </Col>
+                <Col xs="auto">
+                    <Button variant="primary" onClick={handleAddTicket}>
+                        Add Ticket
+                    </Button>
+                </Col>
+            </Row>
+
+            {isMobile ? (
+                <>
+                    <Row className="mb-3 align-items-center">
+                        <Col className="align-items-center">
+                            <SearchBar
+                                collapsed
+                                searchQuery={searchQuery}
+                                onSearchChange={handleSearchChange}
+                                onFilterChange={handleFilterChange}
+                                onCrisisChange={handleCrisisChange}
+                                onPaidChange={handlePaidChange}
+                                onWorkTypeChange={handleWorkTypeChange}
+                                filter={filter}
+                                crisis={crisis}
+                                paid={paid}
+                                statuses={statuses}
+                                workTypes={workTypes}
+                                selectedWorkType={selectedWorkType}
+                                handleAddTicket={handleAddTicket}
+                            />
+                        </Col>
+                        <Col xs="auto" className="d-flex align-items-center">
+                            <Button variant="outline-secondary" onClick={() => setShowMobileFilters(!showMobileFilters)}>
+                                <FaFilter style={{ marginRight: '0.5rem' }} />
+                                {showMobileFilters ? <FaChevronUp /> : <FaChevronDown />}
+                            </Button>
+                        </Col>
+                    </Row>
+                    <Collapse in={showMobileFilters}>
+                        <div className="mb-3" style={{ padding: '0 1rem' }}>
+                            <SearchBar
+                                advancedOnly
+                                onFilterChange={handleFilterChange}
+                                onCrisisChange={handleCrisisChange}
+                                onPaidChange={handlePaidChange}
+                                onWorkTypeChange={handleWorkTypeChange}
+                                filter={filter}
+                                crisis={crisis}
+                                paid={paid}
+                                statuses={statuses}
+                                workTypes={workTypes}
+                                selectedWorkType={selectedWorkType}
+                            />
+                        </div>
+                    </Collapse>
+                </>
+            ) : (
+                <SearchBar
+                    searchQuery={searchQuery}
+                    onSearchChange={handleSearchChange}
+                    onFilterChange={handleFilterChange}
+                    onCrisisChange={handleCrisisChange}
+                    onPaidChange={handlePaidChange}
+                    onWorkTypeChange={handleWorkTypeChange}
+                    filter={filter}
+                    crisis={crisis}
+                    paid={paid}
+                    statuses={statuses}
+                    workTypes={workTypes}
+                    selectedWorkType={selectedWorkType}
+                    handleAddTicket={handleAddTicket}
+                    hideAddTicket={true}  // Do not render the Add Ticket button in desktop SearchBar
+                />
+            )}
             <TicketsList
                 tickets={tickets}
                 loading={loading}
-                onNavigate={handleNavigate} // Pass the navigation handler
+                onNavigate={handleNavigate}
                 error={error}
                 statuses={statuses}
             />
@@ -204,7 +268,7 @@ function Tickets() {
                 <NewTicket
                     show={ticketModal}
                     onClose={closeTicketModal}
-                    firstTicket={ticket} // Pass the selected ticket to NewTicket
+                    firstTicket={ticket}
                     statuses={statuses}
                     isTicketClosed={closedStatusId === ticket.statusId}
                     reFetch={fetchTickets}
