@@ -7,11 +7,8 @@ import NewTicketDescription from "./NewTicketDescription";
 import NewTicketRootCause from "./NewTicketRootCause";
 import NewTicketStatusDropdown from "./NewTicketStatusDropdown";
 import NewTicketActivity from "./NewTicketActivity";
-import NewTicketInsideInfo from "./NewTicketInsideInfo";
-import axios from "axios";
 import config from "../../../config/config";
 import ToggleSwitch from "./ToggleSwitch";
-import TicketSectionButtons from "./TicketSectionButtons";
 import '../../../css/NewTicket.css';
 import { FaTrash } from "react-icons/fa";
 import TicketDeleteModal from "./TicketDeleteModal";
@@ -156,6 +153,7 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
                             setShowAddActivityModal={setShowAddActivityModal}
                         />
                     </Col>
+                    <hr className="responsive-hr" />
                     <Col md={4}>
                         <Row className="mb-2 justify-content-between">
                             <Col className="col-md-auto">

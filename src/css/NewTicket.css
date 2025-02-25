@@ -59,13 +59,24 @@
         margin-left: 10px; /* Ensure spacing for edit button */
     }
 }
+/* Default - hide hr */
+.responsive-hr {
+    display: none;
+}
+
 
 @media (max-width: 768px) {
     /* Target mobile screens */
     .d-flex {
         flex-direction: revert;
     }
+    /* Show hr only on small screens (max-width: 768px) */
+    .responsive-hr {
+        display: block;
+    }
 }
+
+
 
 
 
