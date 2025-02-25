@@ -50,7 +50,14 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
 
     const sortList = (list, type) => {
         if (type === "Contact" || type === "BaitWorker") {
-            list = list.sort((a, b) => (a.firstName + " " + a.lastName).localeCompare(b.firstName + " " + b.lastName))
+            list = list.sort((a, b) => {
+                // First, prioritize favorites
+                if (a.favorite !== b.favorite) {
+                    return b.favorite - a.favorite; // True (1) comes before False (0)
+                }
+                // Then, sort alphabetically by first and last name
+                return (a.firstName + " " + a.lastName).localeCompare(b.firstName + " " + b.lastName);
+            });
         } else if (type === "Device") {
             list = list.sort((a, b) => a.deviceName.localeCompare(b.deviceName))
         } else if (type === "WorkType") {
@@ -75,8 +82,8 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
         setAvailableDevices(sortedList)
     };
 
-    const changeAvailableContacts = () => {
-        const sortedList = sortList(contacts, "Contact")
+    const changeAvailableContacts = (availableContacts) => {
+        const sortedList = sortList(availableContacts, "Contact")
         setAvailableContacts(sortedList)
     }
 
