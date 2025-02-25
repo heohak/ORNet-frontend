@@ -12,7 +12,8 @@ import WorkerCommentModal from "../OneClientPage/WorkerCommentModal";
 import axiosInstance from "../../config/axiosInstance"; // Adjust the path if necessary
 
 function Contacts() {
-    const [workers, setWorkers] = useState([]);
+    const [filteredWorkers, setFilteredWorkers] = useState([]);
+    const [allWorkers, setAllWorkers] = useState([]);
     const [workerEmployers, setWorkerEmployers] = useState({});
     const [workerLocations, setWorkerLocations] = useState({});
     const [workerRoles, setWorkerRoles] = useState({});
@@ -24,6 +25,9 @@ function Contacts() {
     // State for comment modal
     const [showCommentModal, setShowCommentModal] = useState(false);
     const [commentWorker, setCommentWorker] = useState(null);
+
+    const [selectedWorkers, setSelectedWorkers] = useState(new Set());
+    const [showOnlySelected, setShowOnlySelected] = useState(false);
 
     useEffect(() => {
         const fetchWorkers = async () => {
@@ -75,7 +79,8 @@ function Contacts() {
                 });
 
                 // Set the final state after all data is fetched and processed
-                setWorkers(sortedWorkers);
+                setFilteredWorkers(sortedWorkers);
+                setAllWorkers(sortedWorkers);
                 setWorkerEmployers(employers);
                 setWorkerLocations(locations);
                 setWorkerRoles(roles);
@@ -92,7 +97,7 @@ function Contacts() {
 
 
     const handleCopyEmails = () => {
-        const emails = workers.map(worker => worker.email).filter(email => email).join("; ");
+        const emails = allWorkers.filter(worker => selectedWorkers.has(worker.id)).map(worker => worker.email).filter(email => email).join("; ");
         const textarea = document.createElement("textarea");
         textarea.value = emails;
         textarea.style.position = "fixed"; // Prevent scrolling to bottom
@@ -116,11 +121,45 @@ function Contacts() {
 
     const handleCommentSaved = (newComment) => {
         // Update the worker's comment in the workers array
-        setWorkers((prev) =>
+        setFilteredWorkers((prev) =>
             prev.map(w => w.id === commentWorker.id ? { ...w, comment: newComment } : w)
         );
         // Keep the modal open, just updated the comment shown
     };
+
+    const toggleWorkerSelection = (workerId) => {
+        setSelectedWorkers((prevSelected) => {
+            const newSelection = new Set(prevSelected);
+            if (newSelection.has(workerId)) {
+                newSelection.delete(workerId);
+            } else {
+                newSelection.add(workerId);
+            }
+            return newSelection;
+        });
+    };
+
+    const toggleSelectAll = () => {
+        if (showOnlySelected) return;
+        setSelectedWorkers(prevSelected => {
+            const allWorkerIds = new Set(filteredWorkers.map(worker => worker.id));
+
+            // If all filtered workers are selected, clear selection
+            if ([...allWorkerIds].every(id => prevSelected.has(id))) {
+                return new Set();
+            }
+
+            // Otherwise, select all filtered workers
+            return allWorkerIds;
+        });
+    };
+
+
+    // If showOnlySelected is true, filter workers to show only selected ones
+    const displayedWorkers = showOnlySelected
+        ? allWorkers.filter(worker => selectedWorkers.has(worker.id))
+        : filteredWorkers;
+
 
 
     if (error) {
@@ -142,14 +181,34 @@ function Contacts() {
                         <h1 className="mb-0">Email List</h1>
                     <div className="d-flex align-items-center">
                         <span style={{ marginRight: '10px', fontWeight: 'bold' }}>
-                                Selected contacts: {workers.filter(worker => worker.email).length}
+                                Selected: {selectedWorkers.size}
                         </span>
-                            <Button variant="primary" onClick={handleCopyEmails}>
+                        {/* Select All Button */}
+                        <span
+                            style={{
+                                cursor: 'pointer',
+                                textDecoration: 'none',
+                                color: '#0d6efd',
+                                marginRight: '10px'
+                            }}
+                            onClick={toggleSelectAll}
+                        >
+                            Select All
+                        </span>
+                        <Button
+                            variant={showOnlySelected ? "secondary" : "primary"}
+                            onClick={() => setShowOnlySelected(!showOnlySelected)}
+                            className="me-2"
+                        >
+                            {showOnlySelected ? "Show All Workers" : "Show Selected Workers"}
+                        </Button>
+
+                        <Button variant="primary" onClick={handleCopyEmails}>
                                 {copied ? "Emails Copied!" : "Copy Emails"}
                             </Button>
                     </div>
                 </div>
-                    <WorkerSearchFilter setWorkers={setWorkers} setLoading={setLoading} />
+                    <WorkerSearchFilter setWorkers={setFilteredWorkers} setLoading={setLoading} />
                 </div>
             </div>
             {loading ? (
@@ -161,13 +220,21 @@ function Contacts() {
             ) : (
             <Container className="mt-5 contacts-container">
                 <Row>
-                    {workers.length === 0 ? (
+                    {displayedWorkers.length === 0 ? (
                         <Alert variant="info">No contacts found.</Alert>
                     ) : (
-                        workers.map((worker) => (
+                        displayedWorkers.map((worker) => (
                             <Col md={3} key={worker.id} className="mb-4">
-                                <Card className='h-100 position-relative customer-page-card'>
-                                    <Card.Body className='all-page-cardBody'>
+                                <Card
+                                    className={`h-100 position-relative customer-page-card ${selectedWorkers.has(worker.id) ? 'selected-worker' : ''}`}
+                                    onClick={() => toggleWorkerSelection(worker.id)}
+                                    style={{
+                                        cursor: 'pointer',
+                                        border: selectedWorkers.has(worker.id) ? '2px solid blue' : '1px solid lightgray'
+                                    }}
+                                >
+
+                                <Card.Body className='all-page-cardBody'>
                                         <div style={{
                                             display: 'flex',
                                             justifyContent: 'space-between',
