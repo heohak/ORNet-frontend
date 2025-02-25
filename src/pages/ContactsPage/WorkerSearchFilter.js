@@ -66,12 +66,12 @@ function WorkerSearchFilter({ setWorkers, setLoading }) {
 
         const fetchCountries = async () => {
             try {
-                const response = await axiosInstance.get('https://restcountries.com/v3.1/all');
-                const options = response.data.map(country => ({
-                    value: country.cca3,
-                    label: country.name.common,
+                const response = await axiosInstance.get('/client/countries');
+                let options = response.data.map(country => ({
+                    value: country,
+                    label: country
                 }));
-                options.sort((a, b) => a.label.localeCompare(b.label));
+                options = options.sort((a, b) => a.label.localeCompare(b.label));
                 setCountryOptions(options);
             } catch (error) {
                 console.error('Error fetching countries:', error);
@@ -117,7 +117,7 @@ function WorkerSearchFilter({ setWorkers, setLoading }) {
                     favorite: favorite || undefined,
                     // Send countries if any are selected
                     countries: selectedCountries.length > 0
-                        ? selectedCountries.map(option => option.value).toString()
+                        ? selectedCountries.map(option => option.label.toUpperCase()).toString()
                         : undefined,
                 }
             });
