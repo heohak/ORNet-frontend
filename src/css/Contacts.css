@@ -79,6 +79,12 @@ browsers scrollbar */
     }
 }
 
+.selected-worker {
+    background-color: rgba(0, 0, 255, 0.1); /* Light blue background */
+    transition: 0.3s;
+}
+
+
 
 
 

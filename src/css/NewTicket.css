@@ -41,4 +41,43 @@
     overflow-y: auto; /* Scroll the activity section only */
 }
 
+@media (max-width: 576px) { /* Target mobile screens */
+    .activity-header {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .activity-header p {
+        font-size: 14px; /* Adjust font size for mobile */
+        margin-bottom: 0; /* Remove extra space */
+    }
+
+    .edit-button {
+        margin-left: 10px; /* Ensure spacing for edit button */
+    }
+}
+/* Default - hide hr */
+.responsive-hr {
+    display: none;
+}
+
+
+@media (max-width: 768px) {
+    /* Target mobile screens */
+    .d-flex {
+        flex-direction: revert;
+    }
+    /* Show hr only on small screens (max-width: 768px) */
+    .responsive-hr {
+        display: block;
+    }
+}
+
+
+
+
+
 
