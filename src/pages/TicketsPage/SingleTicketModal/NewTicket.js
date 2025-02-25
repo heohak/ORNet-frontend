@@ -153,7 +153,7 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
                             setShowAddActivityModal={setShowAddActivityModal}
                         />
                     </Col>
-                    <hr className="responsive-hr" />
+                    <hr className="responsive-hr" /> {/*Shows only the break line when screen goes small*/}
                     <Col md={4}>
                         <Row className="mb-2 justify-content-between">
                             <Col className="col-md-auto">
