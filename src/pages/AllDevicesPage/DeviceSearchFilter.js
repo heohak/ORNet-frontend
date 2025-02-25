@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Row, Col, Alert } from 'react-bootstrap';
-import axiosInstance from '../../config/axiosInstance';
+import React, { useEffect, useState } from 'react';
+import { Row, Col, Alert, Form } from 'react-bootstrap';
+import axiosInstance from "../../config/axiosInstance";
 import config from '../../config/config';
 import ReactDatePicker from "react-datepicker";
 
@@ -20,14 +20,10 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
     const [typingTimeout, setTypingTimeout] = useState(null);
     const [searchDateObj, setSearchDateObj] = useState(null);
 
+    // Update searchDateObj whenever searchDate changes so that the datepicker reflects it
     useEffect(() => {
-        if (searchDate) {
-            setSearchDateObj(new Date(searchDate));
-        }
-    }, []);
-
-
-    // States for date filtering
+        setSearchDateObj(searchDate ? new Date(searchDate) : null);
+    }, [searchDate]);
 
     useEffect(() => {
         const fetchClassificators = async () => {
@@ -97,7 +93,6 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
                 locationId: locationId || undefined,
                 writtenOff: writtenOff,
             };
-            // Only include date if both date and comparison are set
             if (searchDate && comparison) {
                 params.date = searchDate;
                 params.comparison = comparison;
@@ -110,7 +105,6 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
         }
     };
 
-    // Debounce effect to reduce API calls
     useEffect(() => {
         if (typingTimeout) clearTimeout(typingTimeout);
         const timeout = setTimeout(() => {
@@ -119,7 +113,6 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
         setTypingTimeout(timeout);
         return () => clearTimeout(timeout);
     }, [searchQuery, classificatorId, clientId, locationId, writtenOff, searchDate, comparison]);
-
 
     return (
         <>
@@ -193,11 +186,9 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
                     </Form.Control>
                 </Col>
 
-                {/* Comparison + Date + Written-off all in one column */}
+                {/* Comparison + Date + Written-off */}
                 <Col md={4}>
-                    {/* d-flex container with consistent gap */}
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                        {/* Comparison */}
                         <Form.Select
                             value={comparison}
                             onChange={(e) => {
@@ -205,7 +196,6 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
                                 setComparison(newComparison);
                                 if (newComparison === "") {
                                     setSearchDate("");
-                                    setSearchDateObj(null);
                                 }
                             }}
                             style={{ width: '70px' }}
@@ -215,30 +205,27 @@ function DeviceSearchFilter({ searchQuery, setSearchQuery,
                             <option value="before">Before</option>
                         </Form.Select>
 
-
-                        <div style={{width: '150px' }}>
+                        <div style={{ width: '150px' }}>
                             <ReactDatePicker
                                 selected={searchDateObj}
                                 onChange={(date) => {
                                     setSearchDateObj(date);
-                                    // Convert the selected date to YYYY-MM-DD for your query
                                     setSearchDate(date ? date.toISOString().split('T')[0] : '');
                                 }}
-                                dateFormat="dd/MM/yyyy"          // Display format: day/month/year
-                                className="form-control"         // To match Bootstrap styling
+                                dateFormat="dd/MM/yyyy"
+                                className="form-control"
                                 placeholderText="dd/mm/yyyy"
                                 isClearable
                             />
                         </div>
 
-                        {/* Written-off switch with a label */}
                         <Form.Check
                             type="switch"
                             id="written-off-switch"
                             label="Written-off"
                             checked={writtenOff}
                             onChange={(e) => setWrittenOff(e.target.checked)}
-                            style={{marginLeft: '20px'}}
+                            style={{ marginLeft: '20px' }}
                         />
                     </div>
                 </Col>

@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Row, Col, Spinner, Alert, Button, Container, Form, Card } from 'react-bootstrap';
-import axios from 'axios';
+import axiosInstance from "../../config/axiosInstance";
 import config from '../../config/config';
 import AddDeviceModal from './AddDeviceModal';
 import DeviceSearchFilter from './DeviceSearchFilter';
 import SummaryModal from './SummaryModal';
 import '../../css/AllDevicesPage/Devices.css';
-import { useLocation, useNavigate } from 'react-router-dom';
-import axiosInstance from "../../config/axiosInstance";
+import { useNavigate } from 'react-router-dom';
 
 // Custom hook to get current window width
 const useWindowWidth = () => {
@@ -21,28 +20,17 @@ const useWindowWidth = () => {
 };
 
 function Devices() {
-    // Call hooks at the top level (before any early returns)
-    const windowWidth = useWindowWidth();
-    const isMobile = windowWidth < 768; // Adjust breakpoint as needed
-
-    const location = useLocation();
     const navigate = useNavigate();
+    const windowWidth = useWindowWidth();
+    const isMobile = windowWidth < 768;
 
+    // Data states
     const [devices, setDevices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [showAddDeviceModal, setShowAddDeviceModal] = useState(false);
-    const [refresh, setRefresh] = useState(false);
-    const [showSummaryModal, setShowSummaryModal] = useState(false);
     const [classificators, setClassificators] = useState({});
     const [clients, setClients] = useState([]);
-    const [sortConfig, setSortConfig] = useState({ key: 'deviceName', direction: 'ascending' });
     const [locationNames, setLocationNames] = useState({});
-
-    // States for inline editing of version
-    const [editingDeviceId, setEditingDeviceId] = useState(null);
-    const [editingVersion, setEditingVersion] = useState("");
-    const [longPressTimer, setLongPressTimer] = useState(null);
 
     // Filter states
     const [searchQuery, setSearchQuery] = useState("");
@@ -53,30 +41,81 @@ function Devices() {
     const [searchDate, setSearchDate] = useState("");
     const [comparison, setComparison] = useState("");
 
-    // If filters are passed via location.state, apply them
-    useEffect(() => {
-        if (location.state?.filters) {
-            const f = location.state.filters;
-            setSearchQuery(f.searchQuery || "");
-            setClassificatorId(f.classificatorId || "");
-            setClientId(f.clientId || "");
-            setLocationId(f.locationId || "");
-            setWrittenOff(f.writtenOff || false);
-            setSearchDate(f.searchDate || "");
-            setComparison(f.comparison || "");
-        }
-    }, [location.state]);
+    // Skip first render when saving filters
+    const firstRender = useRef(true);
 
-    // Fetch devices, classificators, and clients
+    // Local triggers
+    const [refresh, setRefresh] = useState(false);
+    const [showAddDeviceModal, setShowAddDeviceModal] = useState(false);
+    const [showSummaryModal, setShowSummaryModal] = useState(false);
+
+    // Sorting state
+    const [sortConfig, setSortConfig] = useState({ key: 'deviceName', direction: 'ascending' });
+
+    // Inline editing for version
+    const [editingDeviceId, setEditingDeviceId] = useState(null);
+    const [editingVersion, setEditingVersion] = useState("");
+    const [longPressTimer, setLongPressTimer] = useState(null);
+
+    // -------------------- Load Filters from localStorage on mount --------------------
+    useEffect(() => {
+        const savedFilters = localStorage.getItem("deviceFilters");
+        if (savedFilters) {
+            try {
+                const parsed = JSON.parse(savedFilters);
+                setSearchQuery(parsed.searchQuery || "");
+                setClassificatorId(parsed.classificatorId || "");
+                setClientId(parsed.clientId || "");
+                setLocationId(parsed.locationId || "");
+                setWrittenOff(parsed.writtenOff || false);
+                setSearchDate(parsed.searchDate || "");
+                setComparison(parsed.comparison || "");
+            } catch (err) {
+                console.error("Error parsing deviceFilters from localStorage:", err);
+            }
+        }
+    }, []);
+
+    // -------------------- Save Filters to localStorage whenever they change --------------------
+    useEffect(() => {
+        if (firstRender.current) {
+            firstRender.current = false;
+            return;
+        }
+        const filters = {
+            searchQuery,
+            classificatorId,
+            clientId,
+            locationId,
+            writtenOff,
+            searchDate,
+            comparison
+        };
+        localStorage.setItem("deviceFilters", JSON.stringify(filters));
+    }, [searchQuery, classificatorId, clientId, locationId, writtenOff, searchDate, comparison]);
+
+    // -------------------- Clear Filters Button --------------------
+    const handleClearFilters = () => {
+        setSearchQuery("");
+        setClassificatorId("");
+        setClientId("");
+        setLocationId("");
+        setWrittenOff(false);
+        setSearchDate("");
+        setComparison("");
+        localStorage.removeItem("deviceFilters");
+    };
+
+    // -------------------- Fetch Data on Mount/Refresh --------------------
     useEffect(() => {
         const fetchDevices = async () => {
             try {
                 const response = await axiosInstance.get(`${config.API_BASE_URL}/device/all`);
-                // Only show devices that are not written off
+                // Filter out written-off devices
                 const filteredDevices = response.data.filter(device => !device.writtenOffDate);
                 setDevices(filteredDevices);
-            } catch (error) {
-                setError('Failed to load devices.');
+            } catch (err) {
+                setError("Failed to load devices.");
             } finally {
                 setLoading(false);
             }
@@ -85,13 +124,13 @@ function Devices() {
         const fetchClassificators = async () => {
             try {
                 const response = await axiosInstance.get(`${config.API_BASE_URL}/device/classificator/all`);
-                const classificatorsData = {};
-                response.data.forEach(classificator => {
-                    classificatorsData[classificator.id] = classificator.name;
+                const map = {};
+                response.data.forEach(c => {
+                    map[c.id] = c.name;
                 });
-                setClassificators(classificatorsData);
-            } catch (error) {
-                console.error("Couldn't fetch device classificators", error);
+                setClassificators(map);
+            } catch (err) {
+                console.error("Couldn't fetch device classificators", err);
             }
         };
 
@@ -99,8 +138,8 @@ function Devices() {
             try {
                 const response = await axiosInstance.get(`${config.API_BASE_URL}/client/all`);
                 setClients(response.data);
-            } catch (error) {
-                console.error("Couldn't fetch clients", error);
+            } catch (err) {
+                console.error("Couldn't fetch clients", err);
             }
         };
 
@@ -109,7 +148,7 @@ function Devices() {
         fetchClients();
     }, [refresh]);
 
-    // Fetch missing location names for each device
+    // -------------------- Fetch missing location names --------------------
     useEffect(() => {
         const fetchLocationName = async (locId) => {
             try {
@@ -121,16 +160,17 @@ function Devices() {
             }
         };
 
-        devices.forEach((device) => {
+        devices.forEach(device => {
             const locId = device.locationId;
             if (locId && !locationNames[locId]) {
-                fetchLocationName(locId).then((name) => {
+                fetchLocationName(locId).then(name => {
                     setLocationNames(prev => ({ ...prev, [locId]: name }));
                 });
             }
         });
     }, [devices, locationNames]);
 
+    // -------------------- Sorting Logic --------------------
     const handleSort = (key) => {
         let direction = 'ascending';
         if (sortConfig.key === key && sortConfig.direction === 'ascending') {
@@ -139,9 +179,9 @@ function Devices() {
         setSortConfig({ key, direction });
     };
 
-    const sortDevices = (devices, key, direction) => {
-        const sortedDevices = [...devices];
-        sortedDevices.sort((a, b) => {
+    const sortDevices = (devs, key, direction) => {
+        const sorted = [...devs];
+        sorted.sort((a, b) => {
             let valueA, valueB;
             if (key === 'type') {
                 valueA = classificators[a.classificatorId] || 'Unknown Type';
@@ -157,14 +197,21 @@ function Devices() {
             if (valueA > valueB) return direction === 'ascending' ? 1 : -1;
             return 0;
         });
-        return sortedDevices;
+        return sorted;
+    };
+
+    const renderSortArrow = (key) => {
+        if (sortConfig.key === key) {
+            return sortConfig.direction === 'ascending' ? '▲' : '▼';
+        }
+        return '↕';
     };
 
     const getLocationName = (locId) => {
         return locationNames[locId] || 'Loading...';
     };
 
-    // Inline version editing: start a long press timer to trigger editing
+    // -------------------- Inline Editing for Version --------------------
     const handleVersionMouseDown = (device) => {
         const timer = setTimeout(() => {
             setEditingDeviceId(device.id);
@@ -188,9 +235,7 @@ function Devices() {
                 versionUpdateDate: new Date().toISOString(),
             };
             await axiosInstance.put(`${config.API_BASE_URL}/device/update/${device.id}`, updatedDevice);
-            setDevices(prevDevices =>
-                prevDevices.map(d => d.id === device.id ? updatedDevice : d)
-            );
+            setDevices(prev => prev.map(d => (d.id === device.id ? updatedDevice : d)));
         } catch (error) {
             console.error("Error updating device version:", error);
         }
@@ -198,10 +243,9 @@ function Devices() {
         setEditingVersion("");
     };
 
-    // Retrieve the last visited device ID from localStorage
+    const sortedDevices = sortDevices(devices, sortConfig.key, sortConfig.direction);
     const lastVisitedDeviceId = localStorage.getItem("lastVisitedDeviceId");
 
-    // Early returns based on loading/error should now work properly since all hooks are called above.
     if (loading) {
         return (
             <div className="text-center mt-5">
@@ -223,15 +267,6 @@ function Devices() {
         );
     }
 
-    const sortedDevices = sortDevices(devices, sortConfig.key, sortConfig.direction);
-
-    const renderSortArrow = (key) => {
-        if (sortConfig.key === key) {
-            return sortConfig.direction === 'ascending' ? '▲' : '▼';
-        }
-        return '↕';
-    };
-
     return (
         <>
             <Container className="mt-5">
@@ -240,6 +275,9 @@ function Devices() {
                         <h1 className="mb-0">Devices</h1>
                     </Col>
                     <Col className="text-end">
+                        <Button variant="outline-secondary" onClick={handleClearFilters} className="me-2">
+                            Clear Filters
+                        </Button>
                         <Button variant="primary" className="me-2" onClick={() => setShowSummaryModal(true)}>
                             Show Summary
                         </Button>
@@ -248,6 +286,7 @@ function Devices() {
                         </Button>
                     </Col>
                 </Row>
+
                 <Row className="mt-4">
                     <DeviceSearchFilter
                         searchQuery={searchQuery}
@@ -269,7 +308,6 @@ function Devices() {
                 </Row>
 
                 {isMobile ? (
-                    // Mobile view: render each device as a Card with last visited highlighting.
                     sortedDevices.length === 0 ? (
                         <Alert variant="info">No devices found.</Alert>
                     ) : (
@@ -279,14 +317,14 @@ function Devices() {
                                 className="mb-3"
                                 style={{
                                     cursor: 'pointer',
-                                    backgroundColor: device.id.toString() === lastVisitedDeviceId ? "#ffffcc" : "inherit"
+                                    backgroundColor:
+                                        device.id.toString() === lastVisitedDeviceId ? "#ffffcc" : "inherit"
                                 }}
                                 onClick={() => {
                                     localStorage.setItem("lastVisitedDeviceId", device.id);
                                     navigate(`/device/${device.id}`, {
                                         state: {
                                             fromPath: "/devices",
-                                            filters: { searchQuery, classificatorId, clientId, locationId, writtenOff, searchDate, comparison }
                                         }
                                     });
                                 }}
@@ -312,7 +350,6 @@ function Devices() {
                         ))
                     )
                 ) : (
-                    // Desktop view: render table header and rows
                     <>
                         <Row className="fw-bold">
                             <Col md={3} onClick={() => handleSort('type')} style={{ cursor: 'pointer' }}>
@@ -337,56 +374,55 @@ function Devices() {
                         ) : (
                             sortedDevices.map((device, index) => {
                                 const baseBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
-                                const lastVisitedDeviceId = localStorage.getItem("lastVisitedDeviceId");
-                                const rowBgColor = (device.id.toString() === lastVisitedDeviceId) ? "#ffffcc" : baseBgColor;
+                                const rowBgColor = device.id.toString() === lastVisitedDeviceId ? "#ffffcc" : baseBgColor;
                                 return (
                                     <Row
                                         key={device.id}
                                         className="mb-2 py-2"
                                         style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
                                     >
-                                        <Col md={3} onClick={() => {
-                                            localStorage.setItem("lastVisitedDeviceId", device.id);
-                                            navigate(`/device/${device.id}`, {
-                                                state: {
-                                                    fromPath: "/devices",
-                                                    filters: { searchQuery, classificatorId, clientId, locationId, writtenOff, searchDate, comparison }
-                                                }
-                                            });
-                                        }}>
+                                        <Col
+                                            md={3}
+                                            onClick={() => {
+                                                localStorage.setItem("lastVisitedDeviceId", device.id);
+                                                navigate(`/device/${device.id}`, {
+                                                    state : {fromPath: "/devices"}
+                                                });
+                                            }}
+                                        >
                                             {classificators[device.classificatorId] || 'Unknown Type'}
                                         </Col>
-                                        <Col md={2} onClick={() => {
-                                            localStorage.setItem("lastVisitedDeviceId", device.id);
-                                            navigate(`/device/${device.id}`, {
-                                                state: {
-                                                    fromPath: "/devices",
-                                                    filters: { searchQuery, classificatorId, clientId, locationId, writtenOff, searchDate, comparison }
-                                                }
-                                            });
-                                        }}>
+                                        <Col
+                                            md={2}
+                                            onClick={() => {
+                                                localStorage.setItem("lastVisitedDeviceId", device.id);
+                                                navigate(`/device/${device.id}`, {
+                                                    state : {fromPath: "/devices"}
+                                                });
+                                            }}
+                                        >
                                             {device.deviceName}
                                         </Col>
-                                        <Col md={3} onClick={() => {
-                                            localStorage.setItem("lastVisitedDeviceId", device.id);
-                                            navigate(`/device/${device.id}`, {
-                                                state: {
-                                                    fromPath: "/devices",
-                                                    filters: { searchQuery, classificatorId, clientId, locationId, writtenOff, searchDate, comparison }
-                                                }
-                                            });
-                                        }}>
+                                        <Col
+                                            md={3}
+                                            onClick={() => {
+                                                localStorage.setItem("lastVisitedDeviceId", device.id);
+                                                navigate(`/device/${device.id}`, {
+                                                    state : {fromPath: "/devices"}
+                                                });
+                                            }}
+                                        >
                                             {getLocationName(device.locationId)}
                                         </Col>
-                                        <Col md={2} onClick={() => {
-                                            localStorage.setItem("lastVisitedDeviceId", device.id);
-                                            navigate(`/device/${device.id}`, {
-                                                state: {
-                                                    fromPath: "/devices",
-                                                    filters: { searchQuery, classificatorId, clientId, locationId, writtenOff, searchDate, comparison }
-                                                }
-                                            });
-                                        }}>
+                                        <Col
+                                            md={2}
+                                            onClick={() => {
+                                                localStorage.setItem("lastVisitedDeviceId", device.id);
+                                                navigate(`/device/${device.id}`, {
+                                                    state : {fromPath: "/devices"}
+                                                });
+                                            }}
+                                        >
                                             {device.serialNumber}
                                         </Col>
                                         <Col
