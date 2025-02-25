@@ -2,19 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Form, Row, Col, Alert } from 'react-bootstrap';
 import axiosInstance from '../../config/axiosInstance';
 import ReactDatePicker from "react-datepicker";
-import { format } from 'date-fns'; // Import format function from date-fns
+import { format } from 'date-fns';
 import "react-datepicker/dist/react-datepicker.css";
 
-const TrainingFilters = ({ onFilter }) => {
+const TrainingFilters = ({ onFilter, collapsed = false, advancedOnly = false }) => {
     const [searchQuery, setSearchQuery] = useState('');
-    const [trainingDate, setTrainingDate] = useState(null); // Use null for no date selected
+    const [trainingDate, setTrainingDate] = useState(null);
     const [clientId, setClientId] = useState('');
     const [locationId, setLocationId] = useState('');
     const [trainingType, setTrainingType] = useState('');
-
     const [clients, setClients] = useState([]);
     const [locations, setLocations] = useState([]);
-    const [trainingTypes, setTrainingTypes] = useState([]); // Assuming predefined enums
+    const [trainingTypes, setTrainingTypes] = useState([]);
     const [error, setError] = useState(null);
     const [typingTimeout, setTypingTimeout] = useState(null);
 
@@ -45,8 +44,8 @@ const TrainingFilters = ({ onFilter }) => {
     };
 
     const fetchTrainingTypes = async () => {
-        // If training types are predefined, list them here
-        setTrainingTypes(['ON_SITE', 'TEAMS']); // Adjust based on backend enums
+        // Predefined training types; adjust as needed.
+        setTrainingTypes(['ON_SITE', 'TEAMS']);
     };
 
     const handleSearchAndFilter = async () => {
@@ -56,7 +55,6 @@ const TrainingFilters = ({ onFilter }) => {
                     q: searchQuery,
                     clientId: clientId || undefined,
                     locationId: locationId || undefined,
-                    // Format the selected date as "yyyy-MM-dd" for LocalDate
                     date: trainingDate ? format(trainingDate, 'yyyy-MM-dd') : undefined,
                     type: trainingType || undefined
                 }
@@ -89,67 +87,133 @@ const TrainingFilters = ({ onFilter }) => {
                     </Col>
                 </Row>
             )}
-            <Row className="mb-3">
-                <Col md={3}>
-                    <Form.Control
-                        type="text"
-                        placeholder="Search trainings..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                </Col>
-                <Col md={3}>
-                    <Form.Control
-                        as="select"
-                        value={clientId}
-                        onChange={(e) => setClientId(e.target.value)}
-                    >
-                        <option value="">Select Client</option>
-                        {clients.map((client) => (
-                            <option key={client.id} value={client.id}>
-                                {client.fullName}
-                            </option>
-                        ))}
-                    </Form.Control>
-                </Col>
-                <Col md={2}>
-                    <Form.Control
-                        as="select"
-                        value={locationId}
-                        onChange={(e) => setLocationId(e.target.value)}
-                    >
-                        <option value="">Select Location</option>
-                        {locations.map((location) => (
-                            <option key={location.id} value={location.id}>
-                                {location.name}
-                            </option>
-                        ))}
-                    </Form.Control>
-                </Col>
-                <Col md={2}>
-                    <Form.Control
-                        as="select"
-                        value={trainingType}
-                        onChange={(e) => setTrainingType(e.target.value)}
-                    >
-                        <option value="">Select Type</option>
-                        {trainingTypes.map((type, index) => (
-                            <option key={index} value={type}>
-                                {type}
-                            </option>
-                        ))}
-                    </Form.Control>
-                </Col>
-                <Col md={2}>
-                    <ReactDatePicker
-                        selected={trainingDate}
-                        onChange={(date) => setTrainingDate(date)}
-                        dateFormat="dd.MM.yyyy"
-                        className="form-control"
-                        placeholderText="Select Date"
-                        isClearable
-                    />
-                </Col>
+            {/* Use Bootstrap's gap utility (g-2) when advancedOnly is true */}
+            <Row className={`${advancedOnly ? 'g-2' : ''}`}>
+                {/* Render search bar only if not advancedOnly */}
+                {!advancedOnly && (
+                    <Col md={collapsed ? 12 : 3} className="d-flex align-items-center">
+                        <Form.Control
+                            type="text"
+                            placeholder="Search trainings..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </Col>
+                )}
+                {/* If not collapsed and not in advancedOnly mode, render remaining filters */}
+                {!collapsed && !advancedOnly && (
+                    <>
+                        <Col md={3} className="d-flex align-items-center">
+                            <Form.Control
+                                as="select"
+                                value={clientId}
+                                onChange={(e) => setClientId(e.target.value)}
+                            >
+                                <option value="">Select Client</option>
+                                {clients.map((client) => (
+                                    <option key={client.id} value={client.id}>
+                                        {client.fullName}
+                                    </option>
+                                ))}
+                            </Form.Control>
+                        </Col>
+                        <Col md={2} className="d-flex align-items-center">
+                            <Form.Control
+                                as="select"
+                                value={locationId}
+                                onChange={(e) => setLocationId(e.target.value)}
+                            >
+                                <option value="">Select Location</option>
+                                {locations.map((location) => (
+                                    <option key={location.id} value={location.id}>
+                                        {location.name}
+                                    </option>
+                                ))}
+                            </Form.Control>
+                        </Col>
+                        <Col md={2} className="d-flex align-items-center">
+                            <Form.Control
+                                as="select"
+                                value={trainingType}
+                                onChange={(e) => setTrainingType(e.target.value)}
+                            >
+                                <option value="">Select Type</option>
+                                {trainingTypes.map((type, index) => (
+                                    <option key={index} value={type}>
+                                        {type}
+                                    </option>
+                                ))}
+                            </Form.Control>
+                        </Col>
+                        <Col md={2} className="d-flex align-items-center">
+                            <ReactDatePicker
+                                selected={trainingDate}
+                                onChange={(date) => setTrainingDate(date)}
+                                dateFormat="dd.MM.yyyy"
+                                className="form-control"
+                                placeholderText="Select Date"
+                                isClearable
+                            />
+                        </Col>
+                    </>
+                )}
+                {/* When advancedOnly is true, render only the additional filters */}
+                {advancedOnly && (
+                    <>
+                        <Col md={3} className="d-flex align-items-center">
+                            <Form.Control
+                                as="select"
+                                value={clientId}
+                                onChange={(e) => setClientId(e.target.value)}
+                            >
+                                <option value="">Select Client</option>
+                                {clients.map((client) => (
+                                    <option key={client.id} value={client.id}>
+                                        {client.fullName}
+                                    </option>
+                                ))}
+                            </Form.Control>
+                        </Col>
+                        <Col md={2} className="d-flex align-items-center">
+                            <Form.Control
+                                as="select"
+                                value={locationId}
+                                onChange={(e) => setLocationId(e.target.value)}
+                            >
+                                <option value="">Select Location</option>
+                                {locations.map((location) => (
+                                    <option key={location.id} value={location.id}>
+                                        {location.name}
+                                    </option>
+                                ))}
+                            </Form.Control>
+                        </Col>
+                        <Col md={2} className="d-flex align-items-center">
+                            <Form.Control
+                                as="select"
+                                value={trainingType}
+                                onChange={(e) => setTrainingType(e.target.value)}
+                            >
+                                <option value="">Select Type</option>
+                                {trainingTypes.map((type, index) => (
+                                    <option key={index} value={type}>
+                                        {type}
+                                    </option>
+                                ))}
+                            </Form.Control>
+                        </Col>
+                        <Col md={2} className="d-flex align-items-center">
+                            <ReactDatePicker
+                                selected={trainingDate}
+                                onChange={(date) => setTrainingDate(date)}
+                                dateFormat="dd.MM.yyyy"
+                                className="form-control"
+                                placeholderText="Select Date"
+                                isClearable
+                            />
+                        </Col>
+                    </>
+                )}
             </Row>
         </>
     );

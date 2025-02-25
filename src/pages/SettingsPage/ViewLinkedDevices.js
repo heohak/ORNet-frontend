@@ -10,9 +10,10 @@ import {
     Form,
     Spinner,
     Container,
-    Card
+    Card,
+    Collapse
 } from 'react-bootstrap';
-import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
+import { FaSort, FaSortUp, FaSortDown, FaFilter, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import axiosInstance from '../../config/axiosInstance';
 import config from '../../config/config';
 import ReactDatePicker from 'react-datepicker';
@@ -89,6 +90,7 @@ function ViewLinkedDevices() {
     const [templates, setTemplates] = useState([]);
     const [mainDevices, setMainDevices] = useState([]);
 
+    const [showMobileFilters, setShowMobileFilters] = useState(false);
     // Get window width and determine mobile view
     const windowWidth = useWindowWidth();
     const isMobile = windowWidth < 768; // adjust breakpoint as needed
@@ -525,19 +527,46 @@ function ViewLinkedDevices() {
             <Row>
                 <Col>
                     {/* Heading + "Add New Linked Device" button */}
-                    <Row className="d-flex justify-content-between align-items-center mb-2">
-                        <Col>
+                    <Row className="align-items-center justify-content-between mb-4">
+                        <Col xs="auto">
                             <h1 className="mb-0">Linked Devices</h1>
                         </Col>
-                        <Col className="text-end">
+                        <Col xs="auto">
                             <Button variant="primary" onClick={() => setShowAddModal(true)}>
-                                Add New Linked Device
+                                {isMobile ? 'Add New' : 'Add New Linked Device'}
                             </Button>
                         </Col>
                     </Row>
-                    <Row className='mt-4'>
-                        <LinkedDeviceSearchFilter setLinkedDevices={setLinkedDevices} />
-                    </Row>
+
+                    {isMobile ? (
+                        <>
+                            <Row className="mb-3 align-items-center">
+                                <Col className="align-items-center">
+                                    {/* Render the collapsed (search-only) filters */}
+                                    <LinkedDeviceSearchFilter collapsed setLinkedDevices={setLinkedDevices} />
+                                </Col>
+                                <Col xs="auto" className="d-flex align-items-center">
+                                    <Button
+                                        variant="outline-secondary"
+                                        onClick={() => setShowMobileFilters(!showMobileFilters)}
+                                    >
+                                        <FaFilter style={{ marginRight: '0.5rem' }} />
+                                        {showMobileFilters ? <FaChevronUp /> : <FaChevronDown />}
+                                    </Button>
+                                </Col>
+                            </Row>
+                            <Collapse in={showMobileFilters}>
+                                <div className="mb-3" style={{ padding: '0 1rem' }}>
+                                    {/* Render the advanced filters */}
+                                    <LinkedDeviceSearchFilter advancedOnly setLinkedDevices={setLinkedDevices} />
+                                </div>
+                            </Collapse>
+                        </>
+                    ) : (
+                        <Row className="mt-4">
+                            <LinkedDeviceSearchFilter setLinkedDevices={setLinkedDevices} />
+                        </Row>
+                    )}
 
                     {/* Conditionally Render: Mobile view as Cards, Desktop view as table rows */}
                     {loading ? (
@@ -551,7 +580,6 @@ function ViewLinkedDevices() {
                     ) : linkedDevices.length === 0 ? (
                         <Alert variant="info">No linked devices found.</Alert>
                     ) : isMobile ? (
-                        // Mobile view: Render each linked device as a Card with last visited highlighting.
                         sortedLinkedDevices.map((device) => (
                             <Card
                                 key={device.id}
@@ -582,8 +610,8 @@ function ViewLinkedDevices() {
                             </Card>
                         ))
                     ) : (
-                        // Desktop view: Render table headers and rows with last visited highlighting.
                         <>
+                            {/* Desktop table view */}
                             <Row className="fw-bold">
                                 <Col md={3} onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
                                     Name {renderSortIcon('name')}
