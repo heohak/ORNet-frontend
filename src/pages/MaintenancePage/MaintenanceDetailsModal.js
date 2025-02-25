@@ -214,7 +214,12 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                 </Modal.Header>
                 <Modal.Body>
                     <Row>
-                        <Col md={4}>Date</Col>
+                        <Col md={4}>
+                            <Row className="justify-content-between">
+                                <Col>Last Date</Col>
+                                <Col>Planned Date</Col>
+                            </Row>
+                        </Col>
                         <Col md={3}>Location</Col>
                         <Col md={2}>Time Spent - {formatDuration(maintenance.timeSpent)}</Col>
                         <Col md={2}>Status</Col>
@@ -248,7 +253,14 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                     </Col>
                                 </Row>
                             ) : (
-                                <h4>{DateUtils.formatDate(maintenance.lastDate)} - {DateUtils.formatDate(maintenance.maintenanceDate)}</h4>
+                                <Row>
+                                    <Col>
+                                        <h4>{DateUtils.formatDate(maintenance.lastDate)}</h4>
+                                    </Col>
+                                    <Col>
+                                        <h4>{DateUtils.formatDate(maintenance.maintenanceDate)}</h4>
+                                    </Col>
+                                </Row>
                             )}
                         </Col>
                         <Col md={3}>
