@@ -301,7 +301,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                         </Col>
                         <Col>
                             <Form.Group className="mb-3">
-                                <Form.Label>Planned Date</Form.Label>
+                                <Form.Label>Execute Date</Form.Label>
                                 <ReactDatePicker
                                     selected={parseLocalDate(maintenanceDate)}
                                     onChange={(date) => setMaintenanceDate(formatLocalDate(date))}
