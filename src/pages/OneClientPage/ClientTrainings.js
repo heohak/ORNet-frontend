@@ -108,11 +108,21 @@ const ClientTrainings = ({ trainings, locations, clientId, setTrainings, clientN
 
     return (
         <>
-            <Row className="row-margin-0 d-flex justify-content-between align-items-center mb-2">
-                <Col className="col-md-auto">
-                    <h2 className="mb-0" style={{ paddingBottom: "20px" }}>Trainings</h2>
+            {/*<Row className="row-margin-0 d-flex justify-content-between align-items-center mb-2">*/}
+            {/*    <Col className="col-md-auto">*/}
+            {/*        <h2 className="mb-0" style={{ paddingBottom: "20px" }}>Trainings</h2>*/}
+            {/*    </Col>*/}
+            {/*    <Col className="col-md-auto">*/}
+            {/*        <Button variant="primary" onClick={() => setShowAddTrainingModal(true)}>*/}
+            {/*            Add Training*/}
+            {/*        </Button>*/}
+            {/*    </Col>*/}
+            {/*</Row>*/}
+            <Row className="align-items-center justify-content-between mb-4">
+                <Col xs="auto">
+                    <h2 className="mb-0">Trainings</h2>
                 </Col>
-                <Col className="col-md-auto">
+                <Col xs="auto">
                     <Button variant="primary" onClick={() => setShowAddTrainingModal(true)}>
                         Add Training
                     </Button>

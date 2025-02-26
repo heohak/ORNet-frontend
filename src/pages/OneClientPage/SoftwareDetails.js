@@ -11,7 +11,7 @@ import EditTechnicalInfoModal from "../SettingsPage/EditTechnicalInfoModal";
 import {DateUtils} from "../../utils/DateUtils";
 
 
-function SoftwareDetails({softwareList, clientId, setRefresh, client}) {
+function SoftwareDetails({softwareList, clientId, setRefresh, client, isMobile}) {
 
     // State to manage expanded state for each software item
     const [expandedSoftwareId, setExpandedSoftwareId] = useState(null);
@@ -45,13 +45,15 @@ function SoftwareDetails({softwareList, clientId, setRefresh, client}) {
 
     return (
         <>
-            <Row className="d-flex justify-content-between align-items-center">
-                <Col className="col-md-auto">
-                    <h2 className="mb-0" style={{paddingBottom: "20px"}}>Technical information</h2>
+            <Row className="align-items-center justify-content-between mb-4">
+                <Col xs="auto">
+                    <h2 className="mb-0">
+                        {isMobile ? 'Technical info' : 'Technical information'}
+                    </h2>
                 </Col>
-                <Col className="col-md-auto">
+                <Col xs="auto">
                     <Button variant="primary" onClick={() => setShowAddSoftwareModal(true)}>
-                        Add Tech Info
+                        {isMobile ? 'Add New' : 'Add Tech Info'}
                     </Button>
                 </Col>
             </Row>

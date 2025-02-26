@@ -176,11 +176,11 @@ function ClientDevices({ clientId, locations, isMobile }) {
     return (
         <>
             {/* Header: Title and Add Device button */}
-            <Row className="row-margin-0 d-flex justify-content-between align-items-center mb-2">
-                <Col className="col-md-auto">
-                    <h2 className="mb-0" style={{ paddingBottom: "20px" }}>Devices</h2>
+            <Row className="align-items-center justify-content-between mb-4">
+                <Col xs="auto">
+                    <h2 className="mb-0">Devices</h2>
                 </Col>
-                <Col className="col-md-auto">
+                <Col xs="auto">
                     <Button variant="primary" onClick={() => setShowAddDeviceModal(true)}>
                         Add Device
                     </Button>
