@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Container, Button, Row, Col, Card, InputGroup, FormControl, Collapse } from 'react-bootstrap';
+import {Container, Button, Row, Col, Card, InputGroup, FormControl, Collapse, Spinner} from 'react-bootstrap';
 import { FaFilter, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import TrainingFilters from './TrainingFilters';
 import AddTrainingModal from './AddTrainingModal';
@@ -21,7 +21,7 @@ const useWindowWidth = () => {
 
 const Trainings = () => {
     const [trainings, setTrainings] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [selectedTraining, setSelectedTraining] = useState(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -210,14 +210,20 @@ const Trainings = () => {
                     </Collapse>
                 </>
             ) : (
-                <Row className="mt-4">
+                <Row className="mt-4 mb-3">
                     <TrainingFilters onFilter={setTrainings} />
                 </Row>
             )}
 
             {/* Trainings List */}
             {loading ? (
-                <p>Loading trainings...</p>
+                <Row className="justify-content-center mt-4">
+                    <Col md={2} className="text-center">
+                        <Spinner animation="border" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </Spinner>
+                    </Col>
+                </Row>
             ) : (
                 <>
                     {isMobile ? (

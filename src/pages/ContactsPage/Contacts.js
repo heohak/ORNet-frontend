@@ -285,7 +285,7 @@ function Contacts() {
 
             {/* Loading Spinner or Worker List */}
             {loading ? (
-                <Container className="text-center mt-5" style={{ paddingTop: "150px" }}>
+                <Container className="text-center mt-5" style={{ paddingTop: "160px" }}>
                     <Spinner animation="border" role="status">
                         <span className="visually-hidden">Loading...</span>
                     </Spinner>

@@ -249,16 +249,6 @@ function Devices() {
     const sortedDevices = sortDevices(devices, sortConfig.key, sortConfig.direction);
     const lastVisitedDeviceId = localStorage.getItem("lastVisitedDeviceId");
 
-    if (loading) {
-        return (
-            <div className="text-center mt-5">
-                <Spinner animation="border" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                </Spinner>
-            </div>
-        );
-    }
-
     if (error) {
         return (
             <div className="mt-5">
@@ -395,7 +385,15 @@ function Devices() {
 
                 {/* Devices Listing */}
                 {isMobile ? (
-                    sortedDevices.length === 0 ? (
+                    loading ? (
+                        <Row className="justify-content-center">
+                            <Col md={2} className="text-center">
+                                <Spinner animation="border" role="status">
+                                    <span className="visually-hidden">Loading...</span>
+                                </Spinner>
+                            </Col>
+                        </Row>
+                    ) : sortedDevices.length === 0 ? (
                         <Alert variant="info">No devices found.</Alert>
                     ) : (
                         sortedDevices.map((device) => (
@@ -435,25 +433,37 @@ function Devices() {
                     )
                 ) : (
                     <>
-                        <Row className="fw-bold">
-                            <Col md={3} onClick={() => handleSort('type')} style={{ cursor: 'pointer' }}>
-                                Type {renderSortArrow('type')}
-                            </Col>
-                            <Col md={2} onClick={() => handleSort('deviceName')} style={{ cursor: 'pointer' }}>
-                                Name {renderSortArrow('deviceName')}
-                            </Col>
-                            <Col md={3} onClick={() => handleSort('location')} style={{ cursor: 'pointer' }}>
-                                Location {renderSortArrow('location')}
-                            </Col>
-                            <Col md={2} onClick={() => handleSort('serialNumber')} style={{ cursor: 'pointer' }}>
-                                Serial Number {renderSortArrow('serialNumber')}
-                            </Col>
-                            <Col md={2} onClick={() => handleSort('version')} style={{ cursor: 'pointer' }}>
-                                Version {renderSortArrow('version')}
-                            </Col>
-                        </Row>
-                        <hr />
-                        {sortedDevices.length === 0 ? (
+                        {loading ? (
+                            <Row className="justify-content-center">
+                                <Col md={2} className="text-center">
+                                    <Spinner animation="border" role="status">
+                                        <span className="visually-hidden">Loading...</span>
+                                    </Spinner>
+                                </Col>
+                            </Row>
+                            ) : (
+                                <>
+                                <Row className="fw-bold">
+                                    <Col md={3} onClick={() => handleSort('type')} style={{ cursor: 'pointer' }}>
+                                        Type {renderSortArrow('type')}
+                                    </Col>
+                                    <Col md={2} onClick={() => handleSort('deviceName')} style={{ cursor: 'pointer' }}>
+                                        Name {renderSortArrow('deviceName')}
+                                    </Col>
+                                    <Col md={3} onClick={() => handleSort('location')} style={{ cursor: 'pointer' }}>
+                                        Location {renderSortArrow('location')}
+                                    </Col>
+                                    <Col md={2} onClick={() => handleSort('serialNumber')} style={{ cursor: 'pointer' }}>
+                                        Serial Number {renderSortArrow('serialNumber')}
+                                    </Col>
+                                    <Col md={2} onClick={() => handleSort('version')} style={{ cursor: 'pointer' }}>
+                                        Version {renderSortArrow('version')}
+                                    </Col>
+                                </Row>
+                                <hr />
+                            </>
+                            )}
+                        {!loading && sortedDevices.length === 0 ? (
                             <Alert variant="info">No devices found.</Alert>
                         ) : (
                             sortedDevices.map((device, index) => {
