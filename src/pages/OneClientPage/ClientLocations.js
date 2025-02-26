@@ -1,26 +1,13 @@
 import React, { useState } from 'react';
 import { Row, Col, Alert, Button } from 'react-bootstrap';
-import LocationMaintenances from './LocationMaintenances';
 import '../../css/OneClientPage/OneClient.css';
 import AddLocationModal from "./AddLocationModal";
-import axios from "axios";
 import config from "../../config/config";
 import axiosInstance from "../../config/axiosInstance";
 
 function ClientLocations({ locations, setRefresh, clientId }) {
-    const [selectedLocation, setSelectedLocation] = useState(null);
-    const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
     const [showAddLocationModal, setShowAddLocationModal] = useState(false);
 
-    const handleRowClick = (location) => {
-        setSelectedLocation(location);
-        setShowMaintenanceModal(true);
-    };
-
-    const handleCloseMaintenanceModal = () => {
-        setShowMaintenanceModal(false);
-        setSelectedLocation(null);
-    };
 
     const addLocationToCustomer = async(location) => {
         try {
@@ -63,8 +50,7 @@ function ClientLocations({ locations, setRefresh, clientId }) {
                             <Row
                                 key={location.id}
                                 className="align-items-center"
-                                style={{ margin: "0 0", cursor: 'pointer' }}
-                                onClick={() => handleRowClick(location)}
+                                style={{ margin: "0 0"}}
                             >
                                 <Col className="py-2" style={{ backgroundColor: rowBgColor}}>
                                     <Row className="align-items-center">
@@ -83,15 +69,6 @@ function ClientLocations({ locations, setRefresh, clientId }) {
                 </div>
             ) : (
                 <Alert className="mt-3" variant="info">No locations available.</Alert>
-            )}
-
-            {selectedLocation && (
-                <LocationMaintenances
-                    show={showMaintenanceModal}
-                    handleClose={handleCloseMaintenanceModal}
-                    location={selectedLocation}
-                    setRefresh={setRefresh}
-                />
             )}
             <AddLocationModal
                 show={showAddLocationModal}
