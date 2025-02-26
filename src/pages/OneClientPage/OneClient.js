@@ -318,6 +318,7 @@ function OneClient() {
                                         client={client}
                                         clientId={clientId}
                                         locations={locationsMap}
+                                        isMobile={isMobile}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
