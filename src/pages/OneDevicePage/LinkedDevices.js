@@ -7,7 +7,7 @@ import {
     Button,
     Alert,
     Modal,
-    Form,
+    Form, Card,
 } from 'react-bootstrap';
 import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import axiosInstance from '../../config/axiosInstance';
@@ -27,7 +27,8 @@ function LinkedDevices({
                            showModal,
                            setShowModal,
                            refreshData,
-    clientId
+    clientId,
+    isMobile
                        }) {
     // =======================
     // States for linking / adding new device
@@ -555,48 +556,76 @@ function LinkedDevices({
                 </Col>
             </Row>
 
-            {/* Sortable Table Headers */}
-            <Row style={{ fontWeight: 'bold' }} className="text-center">
-                {defaultFields
-                    .filter((field) => field.showInRow)
-                    .map((field) => (
-                        <Col
-                            key={field.key}
-                            md={3}
-                            onClick={() => handleSort(field.key)}
-                            style={{ cursor: 'pointer' }}
-                        >
-                            {field.label} {renderSortIcon(field.key)}
-                        </Col>
-                    ))}
-            </Row>
-            <hr />
-
-            {/* Linked Devices Rows */}
-            {sortedLinkedDevices.length > 0 ? (
-                sortedLinkedDevices.map((device, index) => {
-                    const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
-                    return (
-                        <Row
-                            key={device.id}
-                            className="align-items-center text-center py-2"
-                            style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
-                            onClick={() => handleLinkedDeviceClick(device.id)}
-                        >
-                            {defaultFields
-                                .filter((f) => f.showInRow)
-                                .map((field) => (
-                                    <Col key={field.key} md={3}>
-                                        {device[field.key]}
-                                    </Col>
-                                ))}
-                        </Row>
-                    );
-                })
+            {isMobile ? (
+                // Mobile: Render cards for each linked device
+                <>
+                    {sortedLinkedDevices.length > 0 ? (
+                        sortedLinkedDevices.map((device) => (
+                            <Card
+                                key={device.id}
+                                className="mb-3"
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => handleLinkedDeviceClick(device.id)}
+                            >
+                                <Card.Body>
+                                    {defaultFields.filter(f => f.showInRow).map((field) => (
+                                        <div key={field.key}>
+                                            <strong>{field.label}:</strong> {device[field.key]}
+                                        </div>
+                                    ))}
+                                </Card.Body>
+                            </Card>
+                        ))
+                    ) : (
+                        <Alert className="mt-3" variant="info">
+                            No linked devices available.
+                        </Alert>
+                    )}
+                </>
             ) : (
-                <Alert className="mt-3" variant="info">
-                    No linked devices available.
-                </Alert>
+                // Desktop: Render sortable table layout
+                <>
+                    <Row style={{ fontWeight: 'bold' }} className="text-center">
+                        {defaultFields
+                            .filter((field) => field.showInRow)
+                            .map((field) => (
+                                <Col
+                                    key={field.key}
+                                    md={3}
+                                    onClick={() => handleSort(field.key)}
+                                    style={{ cursor: 'pointer' }}
+                                >
+                                    {field.label} {renderSortIcon(field.key)}
+                                </Col>
+                            ))}
+                    </Row>
+                    <hr />
+                    {sortedLinkedDevices.length > 0 ? (
+                        sortedLinkedDevices.map((device, index) => {
+                            const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                            return (
+                                <Row
+                                    key={device.id}
+                                    className="align-items-center text-center py-2"
+                                    style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
+                                    onClick={() => handleLinkedDeviceClick(device.id)}
+                                >
+                                    {defaultFields
+                                        .filter((f) => f.showInRow)
+                                        .map((field) => (
+                                            <Col key={field.key} md={3}>
+                                                {device[field.key]}
+                                            </Col>
+                                        ))}
+                                </Row>
+                            );
+                        })
+                    ) : (
+                        <Alert className="mt-3" variant="info">
+                            No linked devices available.
+                        </Alert>
+                    )}
+                </>
             )}
 
             {/* "Link Device" Modal (Existing or New) */}
