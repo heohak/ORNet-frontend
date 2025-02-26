@@ -358,7 +358,7 @@ function DeviceDetailsModal({
         <>
             <Modal show={show} onHide={onHide} size="lg">
                 <Modal.Header closeButton>
-                    <Modal.Title>Linked Device Details</Modal.Title>
+                    <Modal.Title>{isTemplate ? "Template Details" : "Linked Device Details"}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-3">
