@@ -274,6 +274,7 @@ function OneClient() {
                                         locations={locations}
                                         setRefresh={setRefresh}
                                         clientId={clientId}
+                                        isMobile={isMobile}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
@@ -305,6 +306,7 @@ function OneClient() {
                                         statusMap={statusMap}
                                         clientId={clientId}
                                         setTickets={setTickets}
+                                        isMobile={isMobile}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
