@@ -236,7 +236,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                         </Col>
                         <Col xs={6} md={2}>
                             <Row>
-                                <Col>Planned Date</Col>
+                                <Col>Execute Date</Col>
                             </Row>
                             <Row>
                                 {isEditing ? (
