@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Button, Alert } from 'react-bootstrap';
+import { Row, Col, Button, Alert, Card } from 'react-bootstrap';
 import axiosInstance from "../../config/axiosInstance";
 import config from "../../config/config";
 import { FaEdit } from 'react-icons/fa';
@@ -8,7 +8,7 @@ import AddThirdPartyIT from "./AddThirdPartyIT";
 import EditThirdPartyITModal from "../SettingsPage/EditThirdPartyITModal";
 import ViewThirdPartyITModal from "./ViewThirdPartyITModal";
 
-function ClientThirdPartyIT({ clientId, refresh, setRefresh }) {
+function ClientThirdPartyIT({ clientId, refresh, setRefresh, isMobile }) {
     const [thirdPartyITs, setThirdPartyITs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -25,6 +25,9 @@ function ClientThirdPartyIT({ clientId, refresh, setRefresh }) {
     // Sorting config
     const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'ascending' });
 
+    // Retrieve last visited third party IT ID from localStorage
+    const lastVisitedThirdPartyIT = localStorage.getItem("lastVisitedThirdPartyIT");
+
     // Fetch Third-Party ITs for this client
     useEffect(() => {
         const fetchThirdPartyITs = async () => {
@@ -40,7 +43,7 @@ function ClientThirdPartyIT({ clientId, refresh, setRefresh }) {
         fetchThirdPartyITs();
     }, [clientId, refresh]);
 
-    // Sorting
+    // Sorting functions
     const handleSort = (key) => {
         let direction = 'ascending';
         if (sortConfig.key === key && sortConfig.direction === 'ascending') {
@@ -64,8 +67,9 @@ function ClientThirdPartyIT({ clientId, refresh, setRefresh }) {
         return 0;
     });
 
-    // Edit
-    const handleEdit = (thirdParty) => {
+    // Edit functions
+    const handleEdit = (thirdParty, e) => {
+        e.stopPropagation();
         setSelectedThirdParty(thirdParty);
         setShowEditModal(true);
     };
@@ -79,8 +83,9 @@ function ClientThirdPartyIT({ clientId, refresh, setRefresh }) {
         setRefresh(prev => !prev);
     };
 
-    // View
+    // View functions
     const handleRowClick = (thirdParty) => {
+        localStorage.setItem("lastVisitedThirdPartyIT", thirdParty.id);
         setSelectedForView(thirdParty);
         setShowViewModal(true);
     };
@@ -101,63 +106,84 @@ function ClientThirdPartyIT({ clientId, refresh, setRefresh }) {
 
     return (
         <>
-            <Row className="d-flex justify-content-between align-items-center mb-2">
-                <Col className="col-md-auto">
-                    <h2 className="mb-0" style={{ paddingBottom: "20px" }}>
-                        Third-Party ITs
-                    </h2>
+            <Row className="align-items-center justify-content-between mb-4">
+                <Col xs="auto">
+                    <h2 className="mb-0">Third-Party ITs</h2>
                 </Col>
-                <Col className="col-md-auto">
+                <Col xs="auto">
                     <Button variant="primary" onClick={() => setShowAddModal(true)}>
-                        Add Third-Party IT
+                        {isMobile ? "Add New" : "Add Third-Party IT"}
                     </Button>
                 </Col>
             </Row>
 
-            {/* Sortable Table Headers */}
-            <Row className="row-margin-0 fw-bold">
-                <Col md={4} onClick={() => handleSort('name')}>
-                    Name {renderSortArrow('name')}
-                </Col>
-                <Col md={4} onClick={() => handleSort('phone')}>
-                    Phone {renderSortArrow('phone')}
-                </Col>
-                <Col md={4} onClick={() => handleSort('email')}>
-                    Email {renderSortArrow('email')}
-                </Col>
-            </Row>
-            <hr />
+            {/* Desktop: Sortable Table Headers */}
+            {!isMobile && (
+                <>
+                    <Row className="row-margin-0 fw-bold">
+                        <Col md={4} onClick={() => handleSort('name')}>
+                            Name {renderSortArrow('name')}
+                        </Col>
+                        <Col md={4} onClick={() => handleSort('phone')}>
+                            Phone {renderSortArrow('phone')}
+                        </Col>
+                        <Col md={4} onClick={() => handleSort('email')}>
+                            Email {renderSortArrow('email')}
+                        </Col>
+                    </Row>
+                    <hr />
+                </>
+            )}
 
             {sortedThirdParties.length > 0 ? (
-                sortedThirdParties.map((thirdParty, index) => {
-                    const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
-                    return (
-                        <Row
+                isMobile ? (
+                    // Mobile view: Render each third-party IT as a Card
+                    sortedThirdParties.map((thirdParty) => (
+                        <Card
                             key={thirdParty.id}
-                            className="align-items-center"
-                            style={{ margin: '0 0', cursor: 'pointer', backgroundColor: rowBgColor }}
+                            className="mb-3"
                             onClick={() => handleRowClick(thirdParty)}
+                            style={{
+                                cursor: 'pointer',
+                                backgroundColor: thirdParty.id.toString() === lastVisitedThirdPartyIT ? "#ffffcc" : "inherit"
+                            }}
                         >
-                            <Col className="py-2">
-                                <Row className="align-items-center">
-                                    <Col md={4}>{thirdParty.name}</Col>
-                                    <Col md={4}>{thirdParty.phone || "N/A"}</Col>
-                                    <Col md={4}>{thirdParty.email || "N/A"}</Col>
-                                    <Col md={2}>
-                                        <Button
-                                            variant="link"
-                                            onClick={(e) => {
-                                                e.stopPropagation(); // prevent opening the View modal
-                                                handleEdit(thirdParty);
-                                            }}
-                                        >
-                                        </Button>
-                                    </Col>
-                                </Row>
-                            </Col>
-                        </Row>
-                    );
-                })
+                            <Card.Body>
+                                <Card.Title>{thirdParty.name}</Card.Title>
+                                <Card.Text>
+                                    <div>
+                                        <strong>Phone:</strong> {thirdParty.phone || "N/A"}
+                                    </div>
+                                    <div>
+                                        <strong>Email:</strong> {thirdParty.email || "N/A"}
+                                    </div>
+                                </Card.Text>
+                            </Card.Body>
+                        </Card>
+                    ))
+                ) : (
+                    // Desktop view: Render each third-party IT as a table row
+                    sortedThirdParties.map((thirdParty, index) => {
+                        const baseBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                        const rowBgColor = thirdParty.id.toString() === lastVisitedThirdPartyIT ? "#ffffcc" : baseBgColor;
+                        return (
+                            <Row
+                                key={thirdParty.id}
+                                className="align-items-center"
+                                style={{ margin: '0 0', cursor: 'pointer', backgroundColor: rowBgColor }}
+                                onClick={() => handleRowClick(thirdParty)}
+                            >
+                                <Col className="py-2">
+                                    <Row className="align-items-center">
+                                        <Col md={4}>{thirdParty.name}</Col>
+                                        <Col md={4}>{thirdParty.phone || "N/A"}</Col>
+                                        <Col md={4}>{thirdParty.email || "N/A"}</Col>
+                                    </Row>
+                                </Col>
+                            </Row>
+                        );
+                    })
+                )
             ) : (
                 <Alert className="mt-3" variant="info">
                     No third-party ITs available.

@@ -110,11 +110,11 @@ function ClientTickets({ tickets, statusMap, clientId, setTickets, isMobile }) {
     return (
         <>
             {/* Header: Title and Add Ticket button on one line */}
-            <Row className="d-flex justify-content-between align-items-center mb-2">
-                <Col className="col-md-auto">
-                    <h2 className="mb-0" style={{ paddingBottom: "20px" }}>Tickets</h2>
+            <Row className="align-items-center justify-content-between mb-4">
+                <Col xs="auto">
+                    <h2 className="mb-0">Tickets</h2>
                 </Col>
-                <Col className="col-md-auto">
+                <Col xs="auto">
                     <Button variant="primary" onClick={() => setShowAddTicketModal(true)}>
                         Add Ticket
                     </Button>
