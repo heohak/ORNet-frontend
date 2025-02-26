@@ -17,7 +17,22 @@ import CustomerActivity from "./Activity/CustomerActivity";
 import {FaArrowLeft} from "react-icons/fa";
 import axiosInstance from "../../config/axiosInstance";
 
+// Custom hook to get current window width
+const useWindowWidth = () => {
+    const [width, setWidth] = useState(window.innerWidth);
+    useEffect(() => {
+        const handleResize = () => setWidth(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    return width;
+};
+
+
 function OneClient() {
+    const windowWidth = useWindowWidth();
+    const isMobile = windowWidth < 768; // for responsive layout
+
     const { clientId } = useParams();
     const location = useLocation();
     const [client, setClient] = useState(null);
@@ -259,6 +274,7 @@ function OneClient() {
                                         locations={locations}
                                         setRefresh={setRefresh}
                                         clientId={clientId}
+                                        isMobile={isMobile}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
@@ -289,6 +305,7 @@ function OneClient() {
                                         statusMap={statusMap}
                                         clientId={clientId}
                                         setTickets={setTickets}
+                                        isMobile={isMobile}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>

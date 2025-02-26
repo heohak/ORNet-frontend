@@ -262,7 +262,7 @@ function AddClientWorker({
     //---------------------------------------------------------------------------
     return (
         <>
-            <Modal show={show} onHide={handleClose} backdrop="static">
+            <Modal dialogClassName={showRoleModal ? "dimmed" : ""} show={show} onHide={handleClose} backdrop="static">
                 <Form onSubmit={handleSubmit}>
                     <Modal.Header closeButton>
                         <Modal.Title>{modalTitle || "Add Contact"}</Modal.Title>

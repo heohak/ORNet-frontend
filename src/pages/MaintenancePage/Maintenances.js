@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Button, Row, Col, Collapse } from 'react-bootstrap';
+import {Container, Button, Row, Col, Collapse, Spinner} from 'react-bootstrap';
 import { FaFilter, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import MaintenanceFilters from "./MaintenanceFilters";
 import MaintenanceList from "./MaintenanceList";
@@ -20,7 +20,7 @@ const useWindowWidth = () => {
 
 const Maintenances = () => {
     const [maintenances, setMaintenances] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [selectedMaintenance, setSelectedMaintenance] = useState(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -115,6 +115,8 @@ const Maintenances = () => {
             setLocationNames(locations);
         } catch (error) {
             console.error('Error fetching locations', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -157,17 +159,26 @@ const Maintenances = () => {
                     </Collapse>
                 </>
             ) : (
-                <Row className="mt-4">
+                <Row className="mt-4 mb-3">
                     <MaintenanceFilters setMaintenances={setMaintenances} />
                 </Row>
             )}
-
-            <MaintenanceList
-                maintenances={maintenances}
-                locationNames={locationNames}
-                setShowDetailsModal={setShowDetailsModal}
-                setSelectedMaintenance={setSelectedMaintenance}
-            />
+            {loading ? (
+                <Row className="justify-content-center mt-4">
+                    <Col md={2} className="text-center">
+                        <Spinner animation="border" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </Spinner>
+                    </Col>
+                </Row>
+                ) : (
+                <MaintenanceList
+                    maintenances={maintenances}
+                    locationNames={locationNames}
+                    setShowDetailsModal={setShowDetailsModal}
+                    setSelectedMaintenance={setSelectedMaintenance}
+                />
+            )}
             {selectedMaintenance && (
                 <MaintenanceDetailsModal
                     show={showDetailsModal}
