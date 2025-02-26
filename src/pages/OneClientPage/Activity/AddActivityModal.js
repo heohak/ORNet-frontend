@@ -79,8 +79,15 @@ const AddActivityModal = ({show, handleClose, reFetch, clientId, clientLocations
                             return {...contact, roles: rolesRes.data.map(role => role.role)};
                         })
                     );
-
-                    setContacts(contactsWithRoles);
+                    const sortedContacts = contactsWithRoles.sort((a, b) => {
+                        // First, prioritize favorites
+                        if (a.favorite !== b.favorite) {
+                            return b.favorite - a.favorite; // True (1) comes before False (0)
+                        }
+                        // Then, sort alphabetically by first and last name
+                        return (a.firstName + " " + a.lastName).localeCompare(b.firstName + " " + b.lastName);
+                    });
+                    setContacts(sortedContacts);
                 } catch (error) {
                     console.error('Error fetching locations or contacts:', error);
                 }

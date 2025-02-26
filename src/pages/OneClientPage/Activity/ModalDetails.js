@@ -133,6 +133,7 @@ const ModalDetails = forwardRef(({
             await axiosInstance.put(`${config.API_BASE_URL}/client-activity/update/${activity.id}`, {
                 ...editedActivity,
                 contactIds: selectedContacts.map(contact => contact.value),
+                crisis: editedActivity.crisis === 1,
                 workTypeIds: selectedWorkTypes.map(workType => workType.value),
                 deviceIds: selectedDevices.map(device => device.value)
             });

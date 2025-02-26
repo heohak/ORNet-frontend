@@ -291,6 +291,7 @@ function OneClient() {
                                         contacts={workers}
                                         statuses={statuses}
                                         openStatusId={openStatusId}
+                                        isMobile={isMobile}
                                     />
                                 </Accordion.Body>
 
@@ -317,6 +318,7 @@ function OneClient() {
                                         client={client}
                                         clientId={clientId}
                                         locations={locationsMap}
+                                        isMobile={isMobile}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
@@ -331,6 +333,7 @@ function OneClient() {
                                         client={client}
                                         locationNames={locationsMap}
                                         responsibleNames={baitWorkersMap}
+                                        isMobile={isMobile}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
@@ -344,6 +347,7 @@ function OneClient() {
                                         locations={locations}
                                         clientId={client.id}
                                         clientName={client.fullName}
+                                        isMobile={isMobile}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
@@ -356,6 +360,7 @@ function OneClient() {
                                         clientId={clientId}
                                         setRefresh={setRefresh}
                                         client={client}
+                                        isMobile={isMobile}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
@@ -368,6 +373,7 @@ function OneClient() {
                                         client={client}
                                         refresh={refresh}
                                         setRefresh={setRefresh}
+                                        isMobile={isMobile}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>

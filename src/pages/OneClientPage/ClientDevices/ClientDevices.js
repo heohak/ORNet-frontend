@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Button, Col, Form, ListGroup, Row, Spinner } from 'react-bootstrap';
+import { Alert, Button, Card, Col, Form, ListGroup, Row, Spinner } from 'react-bootstrap';
 import AddClientDevice from './AddClientDevice';
 import { useNavigate } from 'react-router-dom';
 import config from "../../../config/config";
 import '../../../css/OneClientPage/OneClient.css';
 import axiosInstance from "../../../config/axiosInstance";
-import {DateUtils} from "../../../utils/DateUtils";
+import { DateUtils } from "../../../utils/DateUtils";
 
-function ClientDevices({ clientId, locations }) {
+function ClientDevices({ clientId, locations, isMobile }) {
     const [showAddDeviceModal, setShowAddDeviceModal] = useState(false);
     const [classificatorList, setClassificatorList] = useState([]);
     const [classificators, setClassificators] = useState({});
@@ -20,9 +20,11 @@ function ClientDevices({ clientId, locations }) {
     const [devices, setDevices] = useState([]);
     const [refresh, setRefresh] = useState(false);
     const [sortConfig, setSortConfig] = useState({ key: 'type', direction: 'descending' });
-    const [lastDate, setLastDate] = useState(null);
 
     const navigate = useNavigate();
+
+    // Retrieve last visited device ID from localStorage
+    const lastVisitedDeviceId = localStorage.getItem("lastVisitedDeviceId");
 
     useEffect(() => {
         fetchClassificators();
@@ -49,22 +51,17 @@ function ClientDevices({ clientId, locations }) {
                     const response = await axiosInstance.get(`${config.API_BASE_URL}/device/tickets/${device.id}`);
                     const tickets = response.data;
 
-                    // Get the most recent ticket date
                     const ticketDates = tickets
                         .map(ticket => new Date(ticket.createdDateTime))
-                        .filter(date => !isNaN(date)); // Remove invalid dates
+                        .filter(date => !isNaN(date));
 
                     const latestTicketDate = ticketDates.length > 0 ? new Date(Math.max(...ticketDates)) : null;
-
-                    // Convert device.versionUpdateDate to Date object
                     const versionUpdateDate = device.versionUpdateDate ? new Date(device.versionUpdateDate) : null;
-
-                    // Find the latest date between tickets and version update
                     const latestDate = [latestTicketDate, versionUpdateDate]
-                        .filter(date => date instanceof Date && !isNaN(date)) // Ensure only valid dates
-                        .sort((a, b) => b - a)[0] || 'No Data'; // Default to 'No Data' if no valid date
+                        .filter(date => date instanceof Date && !isNaN(date))
+                        .sort((a, b) => b - a)[0] || 'No Data';
 
-                    return { ...device, lastDate: latestDate};
+                    return { ...device, lastDate: latestDate };
                 } catch (error) {
                     console.error(`Error fetching tickets for device ${device.id}:`, error);
                     return { ...device, lastDate: 'No Data' };
@@ -75,26 +72,22 @@ function ClientDevices({ clientId, locations }) {
         setDevices(updatedDevices);
     };
 
-
-
-
     const renderSortArrow = (key) => {
         if (sortConfig.key === key) {
             return sortConfig.direction === 'ascending' ? '▲' : '▼';
         }
-        return '↕'; // Default for unsorted
+        return '↕';
     };
 
     const fetchClassificators = async () => {
         try {
             const response = await axiosInstance.get(`${config.API_BASE_URL}/device/classificator/all`);
-            const sortedClassificators = response.data.sort((a, b) => a.name.localeCompare(b.name))
+            const sortedClassificators = response.data.sort((a, b) => a.name.localeCompare(b.name));
             setClassificatorList(sortedClassificators);
             const classificatorMap = response.data.reduce((acc, classificator) => {
                 acc[classificator.id] = classificator.name;
                 return acc;
             }, {});
-
             setClassificators(classificatorMap);
         } catch (error) {
             console.error('Error fetching classificators:', error);
@@ -140,7 +133,6 @@ function ClientDevices({ clientId, locations }) {
             if (key === 'date') {
                 const parseDate = (dateStr) => {
                     if (!dateStr || dateStr === 'No Data') return null;
-                    // Here, assume the formatted date is parseable by Date.
                     const parsed = new Date(dateStr);
                     return isNaN(parsed) ? null : parsed;
                 };
@@ -148,28 +140,21 @@ function ClientDevices({ clientId, locations }) {
                 const dateA = parseDate(a.lastDate);
                 const dateB = parseDate(b.lastDate);
 
-                // If both dates are null, consider them equal.
                 if (!dateA && !dateB) return 0;
                 if (!dateA) return direction === 'ascending' ? -1 : 1;
                 if (!dateB) return direction === 'ascending' ? 1 : -1;
 
-                return direction === 'ascending'
-                    ? dateA - dateB
-                    : dateB - dateA;
+                return direction === 'ascending' ? dateA - dateB : dateB - dateA;
             }
 
-            const valueA = a[key] ?? ''; // Default to empty string if undefined/null
+            const valueA = a[key] ?? '';
             const valueB = b[key] ?? '';
-
-            // Check if both values are numbers
             const isNumeric = !isNaN(valueA) && !isNaN(valueB);
             if (isNumeric) {
                 return direction === 'ascending'
                     ? Number(valueA) - Number(valueB)
                     : Number(valueB) - Number(valueA);
             }
-
-            // Default to string comparison
             return direction === 'ascending'
                 ? valueA.toString().localeCompare(valueB.toString())
                 : valueB.toString().localeCompare(valueA.toString());
@@ -177,8 +162,6 @@ function ClientDevices({ clientId, locations }) {
 
         return sortedItems;
     };
-
-
 
     const handleSort = (key) => {
         let direction = 'ascending';
@@ -192,16 +175,19 @@ function ClientDevices({ clientId, locations }) {
 
     return (
         <>
-            <Row className="row-margin-0 d-flex justify-content-between align-items-center mb-2">
-                <Col className="col-md-auto">
-                    <h2 className="mb-0" style={{ paddingBottom: "20px" }}>
-                        {'Devices'}
-                    </h2>
+            {/* Header: Title and Add Device button */}
+            <Row className="align-items-center justify-content-between mb-4">
+                <Col xs="auto">
+                    <h2 className="mb-0">Devices</h2>
                 </Col>
-                <Col className="col-md-auto">
-                    <Button variant="primary" onClick={() => setShowAddDeviceModal(true)}>Add Device</Button>
+                <Col xs="auto">
+                    <Button variant="primary" onClick={() => setShowAddDeviceModal(true)}>
+                        Add Device
+                    </Button>
                 </Col>
             </Row>
+
+            {/* Search and Filters */}
             <Form className="mb-e" onSubmit={(e) => e.preventDefault()}>
                 <Row className="row-margin-0 align-items-end">
                     <Col md={3}>
@@ -222,7 +208,9 @@ function ClientDevices({ clientId, locations }) {
                                           onChange={(e) => setSelectedClassificatorId(e.target.value)}>
                                 <option value="">All Types</option>
                                 {classificatorList.map((classificator) => (
-                                    <option key={classificator.id} value={classificator.id}>{classificator.name}</option>
+                                    <option key={classificator.id} value={classificator.id}>
+                                        {classificator.name}
+                                    </option>
                                 ))}
                             </Form.Control>
                         </Form.Group>
@@ -241,54 +229,103 @@ function ClientDevices({ clientId, locations }) {
                     </Col>
                 </Row>
             </Form>
-            <Row className="row-margin-0 fw-bold mt-2">
-                <Col md={2} onClick={() => handleSort('classificatorId')}>
-                    Type {renderSortArrow('classificatorId')}
-                </Col>
-                <Col md={3} onClick={() => handleSort('deviceName')}>
-                    Name {renderSortArrow('deviceName')}
-                </Col>
-                <Col md={2} onClick={() => handleSort('locationId')}>
-                    Location {renderSortArrow('locationId')}
-                </Col>
-                <Col md={2} onClick={() => handleSort('serialNumber')}>
-                    Serial Number {renderSortArrow('serialNumber')}
-                </Col>
-                <Col md={1} onClick={() => handleSort('version')}>
-                    Version {renderSortArrow('version')}
-                </Col>
-                <Col md={2} onClick={() => handleSort('date')}>
-                    Last Date? {renderSortArrow('date')}
-                </Col>
-            </Row>
-            <hr />
+
+            {/* Devices List */}
             {sortedData.length > 0 ? (
-                sortedData.map((device, index) => {
-                    const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
-                    return (
-                        <Row
+                isMobile ? (
+                    // Mobile view: Render each device as a Card
+                    sortedData.map((device) => (
+                        <Card
                             key={device.id}
-                            className="align-items-center"
-                            style={{ cursor: 'pointer', margin: "0 0" }}
-                            onClick={() => navigate(`/device/${device.id}`)}
+                            className="mb-3"
+                            onClick={() => {
+                                localStorage.setItem("lastVisitedDeviceId", device.id);
+                                navigate(`/device/${device.id}`);
+                            }}
+                            style={{
+                                cursor: 'pointer',
+                                backgroundColor: device.id.toString() === lastVisitedDeviceId ? "#ffffcc" : "inherit"
+                            }}
                         >
-                            <Col className="py-2" style={{ backgroundColor: rowBgColor }}>
-                                <Row className="align-items-center">
-                                    <Col md={2}>{classificators[device.classificatorId] || 'Unknown Type'}</Col>
-                                    <Col md={3}>{device.deviceName}</Col>
-                                    <Col md={2}>{locations[device.locationId] || 'Unknown'}</Col>
-                                    <Col md={2}>{device.serialNumber}</Col>
-                                    <Col md={1}>{device.version}</Col>
-                                    <Col md={2}>{DateUtils.formatDate(device.lastDate)}</Col>
-                                </Row>
+                            <Card.Body>
+                                <Card.Title>{device.deviceName}</Card.Title>
+                                <Card.Text>
+                                    <div>
+                                        <strong>Type:</strong> {classificators[device.classificatorId] || 'Unknown Type'}
+                                    </div>
+                                    <div>
+                                        <strong>Location:</strong> {locations[device.locationId] || 'Unknown'}
+                                    </div>
+                                    <div>
+                                        <strong>Serial Number:</strong> {device.serialNumber}
+                                    </div>
+                                    <div>
+                                        <strong>Version:</strong> {device.version}
+                                    </div>
+                                    <div>
+                                        <strong>Last Date:</strong> {DateUtils.formatDate(device.lastDate)}
+                                    </div>
+                                </Card.Text>
+                            </Card.Body>
+                        </Card>
+                    ))
+                ) : (
+                    // Desktop view: Render table-like rows with sortable headers
+                    <>
+                        <Row className="row-margin-0 fw-bold mt-2">
+                            <Col md={2} onClick={() => handleSort('classificatorId')}>
+                                Type {renderSortArrow('classificatorId')}
+                            </Col>
+                            <Col md={3} onClick={() => handleSort('deviceName')}>
+                                Name {renderSortArrow('deviceName')}
+                            </Col>
+                            <Col md={2} onClick={() => handleSort('locationId')}>
+                                Location {renderSortArrow('locationId')}
+                            </Col>
+                            <Col md={2} onClick={() => handleSort('serialNumber')}>
+                                Serial Number {renderSortArrow('serialNumber')}
+                            </Col>
+                            <Col md={1} onClick={() => handleSort('version')}>
+                                Version {renderSortArrow('version')}
+                            </Col>
+                            <Col md={2} onClick={() => handleSort('date')}>
+                                Last Date {renderSortArrow('date')}
                             </Col>
                         </Row>
-                    );
-                })
+                        <hr />
+                        {sortedData.map((device, index) => {
+                            const baseBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                            const rowBgColor = device.id.toString() === lastVisitedDeviceId ? "#ffffcc" : baseBgColor;
+                            return (
+                                <Row
+                                    key={device.id}
+                                    className="align-items-center"
+                                    style={{ cursor: 'pointer', margin: "0" }}
+                                    onClick={() => {
+                                        localStorage.setItem("lastVisitedDeviceId", device.id);
+                                        navigate(`/device/${device.id}`);
+                                    }}
+                                >
+                                    <Col className="py-2" style={{ backgroundColor: rowBgColor }}>
+                                        <Row className="align-items-center">
+                                            <Col md={2}>{classificators[device.classificatorId] || 'Unknown Type'}</Col>
+                                            <Col md={3}>{device.deviceName}</Col>
+                                            <Col md={2}>{locations[device.locationId] || 'Unknown'}</Col>
+                                            <Col md={2}>{device.serialNumber}</Col>
+                                            <Col md={1}>{device.version}</Col>
+                                            <Col md={2}>{DateUtils.formatDate(device.lastDate)}</Col>
+                                        </Row>
+                                    </Col>
+                                </Row>
+                            );
+                        })}
+                    </>
+                )
             ) : (
                 <Alert className="mt-3" variant="info">No devices available.</Alert>
             )}
 
+            {/* Device Summary */}
             <h3 className="mt-2">Device Summary</h3>
             {loadingSummary ? (
                 <Spinner animation="border" role="status">
@@ -309,7 +346,7 @@ function ClientDevices({ clientId, locations }) {
                 </ListGroup>
             )}
 
-            {/* Render AddClientDevice component when needed */}
+            {/* Add Device Modal */}
             {showAddDeviceModal && (
                 <AddClientDevice
                     clientId={clientId}

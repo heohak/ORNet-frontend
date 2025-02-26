@@ -11,7 +11,21 @@ import DeviceExtras from "./DeviceExtras";
 import {FaArrowLeft} from "react-icons/fa";
 import axiosInstance from "../../config/axiosInstance";
 
+// Custom hook to get current window width
+const useWindowWidth = () => {
+    const [width, setWidth] = useState(window.innerWidth);
+    useEffect(() => {
+        const handleResize = () => setWidth(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    return width;
+};
+
 function OneDevice() {
+    const windowWidth = useWindowWidth();
+    const isMobile = windowWidth < 768; // for responsive layout
+
     const {deviceId} = useParams();
     const [device, setDevice] = useState(null);
     const [linkedDevices, setLinkedDevices] = useState([]);
@@ -219,6 +233,7 @@ function OneDevice() {
                                         setLinkedDevices={setLinkedDevices}
                                         refreshData={handleRefresh}
                                         clientId={device?.clientId}
+                                        isMobile={isMobile}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
@@ -230,7 +245,10 @@ function OneDevice() {
                             >
                                 <Accordion.Header onClick={() => handleAccordionToggle('4')}>Tickets</Accordion.Header>
                                 <Accordion.Body>
-                                    <DeviceTickets deviceId={deviceId} />
+                                    <DeviceTickets
+                                        deviceId={deviceId}
+                                        isMobile={isMobile}
+                                    />
                                 </Accordion.Body>
                             </Accordion.Item>
 
@@ -249,6 +267,7 @@ function OneDevice() {
                                         setRefresh={handleRefresh}
                                         locationNames={locationNames}
                                         responsibleNames={responsibleNames}
+                                        isMobile={isMobile}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
