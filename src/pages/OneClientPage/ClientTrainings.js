@@ -1,13 +1,12 @@
-import {Alert, Button, Col, Row} from "react-bootstrap";
-import {DateUtils} from "../../utils/DateUtils";
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
+import { Alert, Button, Card, Col, Row } from "react-bootstrap";
+import { DateUtils } from "../../utils/DateUtils";
 import AddTrainingModal from "../TrainingPage/AddTrainingModal";
 import TrainingDetailsModal from "../TrainingPage/TrainingDetailsModal";
 import axiosInstance from "../../config/axiosInstance";
 import TrainingService from "../TrainingPage/TrainingService";
 
-
-const ClientTrainings = ({trainings, locations, clientId, setTrainings, clientName}) => {
+const ClientTrainings = ({ trainings, locations, clientId, setTrainings, clientName, isMobile }) => {
     const [showAddTrainingModal, setShowAddTrainingModal] = useState(false);
     const [showTrainingModal, setShowTrainingModal] = useState(false);
     const [selectedTraining, setSelectedTraining] = useState(null);
@@ -17,6 +16,8 @@ const ClientTrainings = ({trainings, locations, clientId, setTrainings, clientNa
     const [showEditModal, setShowEditModal] = useState(false);
     const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'ascending' });
 
+    // Retrieve last visited training ID from localStorage
+    const lastVisitedTrainingId = localStorage.getItem("lastVisitedTrainingId");
 
     useEffect(() => {
         fetchTrainers();
@@ -25,13 +26,13 @@ const ClientTrainings = ({trainings, locations, clientId, setTrainings, clientNa
             return acc;
         }, {});
         setLocationNames(locationsMap);
-        const client = { [clientId]: clientName }
+        const client = { [clientId]: clientName };
         setClientNames(client);
-    },[]);
+    }, []);
 
-    const fetchTrainers = async() => {
+    const fetchTrainers = async () => {
         try {
-            const response = await axiosInstance.get(`/bait/worker/all`)
+            const response = await axiosInstance.get(`/bait/worker/all`);
             const workers = response.data.reduce((acc, worker) => {
                 acc[worker.id] = worker.firstName;
                 return acc;
@@ -40,18 +41,16 @@ const ClientTrainings = ({trainings, locations, clientId, setTrainings, clientNa
         } catch (error) {
             console.error('Error fetching Bait Workers:', error);
         }
-    }
+    };
 
-    const fetchTrainings = async() => {
+    const fetchTrainings = async () => {
         try {
-            const response = await axiosInstance.get(`/training/client/${clientId}`)
+            const response = await axiosInstance.get(`/training/client/${clientId}`);
             setTrainings(response.data);
         } catch (error) {
             console.error('Error fetching trainings', error);
         }
-    }
-
-
+    };
 
     const handleSort = (key) => {
         let direction = 'ascending';
@@ -82,8 +81,6 @@ const ClientTrainings = ({trainings, locations, clientId, setTrainings, clientNa
         return 0;
     });
 
-
-
     const renderSortArrow = (key) => {
         if (sortConfig.key === key) {
             return sortConfig.direction === 'ascending' ? '▲' : '▼';
@@ -92,9 +89,11 @@ const ClientTrainings = ({trainings, locations, clientId, setTrainings, clientNa
     };
 
     const handleTrainingClick = (training) => {
-        setShowTrainingModal(true);
+        localStorage.setItem("lastVisitedTrainingId", training.id);
         setSelectedTraining(training);
-    }
+        setShowTrainingModal(true);
+    };
+
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this training?')) {
             try {
@@ -107,15 +106,11 @@ const ClientTrainings = ({trainings, locations, clientId, setTrainings, clientNa
         }
     };
 
-
-
     return (
         <>
             <Row className="row-margin-0 d-flex justify-content-between align-items-center mb-2">
                 <Col className="col-md-auto">
-                    <h2 className="mb-0" style={{paddingBottom: "20px"}}>
-                        Trainings
-                    </h2>
+                    <h2 className="mb-0" style={{ paddingBottom: "20px" }}>Trainings</h2>
                 </Col>
                 <Col className="col-md-auto">
                     <Button variant="primary" onClick={() => setShowAddTrainingModal(true)}>
@@ -124,51 +119,87 @@ const ClientTrainings = ({trainings, locations, clientId, setTrainings, clientNa
                 </Col>
             </Row>
 
-            {/* Sortable Table Headers */}
-            <Row className="row-margin-0 fw-bold">
-                <Col md={4} onClick={() => handleSort('name')}>
-                    Training Name {renderSortArrow('name')}
-                </Col>
-                <Col md={3} onClick={() => handleSort('trainingType')}>
-                    Type {renderSortArrow('trainingType')}
-                </Col>
-                <Col md={3} onClick={() => handleSort('location')}>
-                    Location {renderSortArrow('location')}
-                </Col>
-                <Col md={2} onClick={() => handleSort('date')}>
-                    Date {renderSortArrow('date')}
-                </Col>
-            </Row>
-            <hr />
+            {/* Desktop: Sortable Table Headers */}
+            {!isMobile && (
+                <>
+                    <Row className="row-margin-0 fw-bold">
+                        <Col md={4} onClick={() => handleSort('name')}>
+                            Training Name {renderSortArrow('name')}
+                        </Col>
+                        <Col md={3} onClick={() => handleSort('trainingType')}>
+                            Type {renderSortArrow('trainingType')}
+                        </Col>
+                        <Col md={3} onClick={() => handleSort('location')}>
+                            Location {renderSortArrow('location')}
+                        </Col>
+                        <Col md={2} onClick={() => handleSort('date')}>
+                            Date {renderSortArrow('date')}
+                        </Col>
+                    </Row>
+                    <hr />
+                </>
+            )}
 
-            {/* Maintenance List */}
+            {/* Trainings List */}
             {sortedTrainings.length > 0 ? (
-                sortedTrainings.map((training, index) => {
-                    const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
-                    const locationName = locations.find(loc => (loc.id === training.locationId))?.name;
-                    return (
-                        <Row
+                isMobile ? (
+                    // Mobile view: Render each training as a Card
+                    sortedTrainings.map((training) => (
+                        <Card
                             key={training.id}
-                            className="align-items-center"
-                            style={{ margin: '0 0', cursor: 'pointer' }}
+                            className="mb-3"
                             onClick={() => handleTrainingClick(training)}
+                            style={{
+                                cursor: 'pointer',
+                                backgroundColor: training.id.toString() === lastVisitedTrainingId ? "#ffffcc" : "inherit"
+                            }}
                         >
-                            <Col className="py-2" style={{ backgroundColor: rowBgColor}}>
-                                <Row className="align-items-center">
-                                    <Col md={4}>{training.name}</Col>
-                                    <Col md={3}>{training.trainingType}</Col>
-                                    <Col md={3}>{locationName}</Col>
-                                    <Col md={2}>{DateUtils.formatDate(training.trainingDate)}</Col>
-                                </Row>
-                            </Col>
-                        </Row>
-                    );
-                })
+                            <Card.Body>
+                                <Card.Title>{training.name}</Card.Title>
+                                <Card.Text>
+                                    <div>
+                                        <strong>Type:</strong> {training.trainingType}
+                                    </div>
+                                    <div>
+                                        <strong>Location:</strong> {locationNames[training.locationId] || 'Unknown Location'}
+                                    </div>
+                                    <div>
+                                        <strong>Date:</strong> {DateUtils.formatDate(training.trainingDate)}
+                                    </div>
+                                </Card.Text>
+                            </Card.Body>
+                        </Card>
+                    ))
+                ) : (
+                    // Desktop view: Render trainings as rows
+                    sortedTrainings.map((training, index) => {
+                        const baseBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                        const rowBgColor = training.id.toString() === lastVisitedTrainingId ? "#ffffcc" : baseBgColor;
+                        const locationName = locations.find(loc => loc.id === training.locationId)?.name;
+                        return (
+                            <Row
+                                key={training.id}
+                                className="align-items-center"
+                                style={{ margin: '0 0', cursor: 'pointer' }}
+                                onClick={() => handleTrainingClick(training)}
+                            >
+                                <Col className="py-2" style={{ backgroundColor: rowBgColor }}>
+                                    <Row className="align-items-center">
+                                        <Col md={4}>{training.name}</Col>
+                                        <Col md={3}>{training.trainingType}</Col>
+                                        <Col md={3}>{locationName}</Col>
+                                        <Col md={2}>{DateUtils.formatDate(training.trainingDate)}</Col>
+                                    </Row>
+                                </Col>
+                            </Row>
+                        );
+                    })
+                )
             ) : (
                 <Alert className="mt-3" variant="info">No trainings available.</Alert>
             )}
 
-            {/* Add Maintenance Modal */}
+            {/* Add Training Modal */}
             <AddTrainingModal
                 show={showAddTrainingModal}
                 onHide={() => setShowAddTrainingModal(false)}
@@ -176,8 +207,8 @@ const ClientTrainings = ({trainings, locations, clientId, setTrainings, clientNa
                 clientId={clientId}
             />
 
-            {/* Maintenance Details Modal */}
-            {selectedTraining &&
+            {/* Training Details Modal */}
+            {selectedTraining && (
                 <TrainingDetailsModal
                     show={showTrainingModal}
                     onHide={() => setShowTrainingModal(false)}
@@ -192,10 +223,9 @@ const ClientTrainings = ({trainings, locations, clientId, setTrainings, clientNa
                         fetchTrainings();
                     }}
                 />
-            }
+            )}
         </>
     );
-
-}
+};
 
 export default ClientTrainings;

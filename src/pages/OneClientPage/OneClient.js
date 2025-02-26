@@ -346,6 +346,7 @@ function OneClient() {
                                         locations={locations}
                                         clientId={client.id}
                                         clientName={client.fullName}
+                                        isMobile={isMobile}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
@@ -370,6 +371,7 @@ function OneClient() {
                                         client={client}
                                         refresh={refresh}
                                         setRefresh={setRefresh}
+                                        isMobile={isMobile}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
