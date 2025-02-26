@@ -245,7 +245,10 @@ function OneDevice() {
                             >
                                 <Accordion.Header onClick={() => handleAccordionToggle('4')}>Tickets</Accordion.Header>
                                 <Accordion.Body>
-                                    <DeviceTickets deviceId={deviceId} />
+                                    <DeviceTickets
+                                        deviceId={deviceId}
+                                        isMobile={isMobile}
+                                    />
                                 </Accordion.Body>
                             </Accordion.Item>
 

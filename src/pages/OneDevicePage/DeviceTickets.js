@@ -1,7 +1,7 @@
 // src/pages/OneDevicePage/DeviceTickets.js
 
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Button, Alert, Spinner } from 'react-bootstrap';
+import {Row, Col, Button, Alert, Spinner, Card} from 'react-bootstrap';
 import axios from 'axios';
 import {useLocation, useNavigate, useParams} from 'react-router-dom';
 import config from '../../config/config';
@@ -9,7 +9,7 @@ import NewTicket from '../TicketsPage/SingleTicketModal/NewTicket';
 import axiosInstance from "../../config/axiosInstance";
 import {DateUtils} from "../../utils/DateUtils";
 
-function DeviceTickets({ deviceId }) {
+function DeviceTickets({ deviceId, isMobile }) {
     const navigate = useNavigate();
     const [tickets, setTickets] = useState([]);
     const [ticket, setTicket] = useState(null);
@@ -136,64 +136,124 @@ function DeviceTickets({ deviceId }) {
                     <h2 className="mb-0" style={{ paddingBottom: "20px" }}>Tickets</h2>
                 </Col>
             </Row>
-            {tickets.length > 0 ? (
+            {isMobile ? (
                 <>
-                    <Row className="row-margin-0 fw-bold mt-2">
-                        <Col md={2}>No</Col>
-                        <Col md={3}>Title</Col>
-                        <Col md={2}>Date</Col>
-                        <Col md={2}>Location</Col>
-                        <Col className="d-flex justify-content-center" md={2}>Status</Col>
-                        <Col className="d-flex justify-content-center" md={1}>Priority</Col>
-                    </Row>
-                    <hr />
-                    {tickets.map((ticket, index) => {
-                        const status = statusMap[ticket.statusId];
-                        const priorityColor = ticket.crisis ? 'red' : 'green';
-                        const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
-
-                        return (
-                            <Row
-                                key={ticket.id}
-                                className="align-items-center"
-                                style={{ cursor: 'pointer', margin: "0 0" }}
-                                onClick={() => handleTicketClick(ticket)}
-                            >
-                                <Col className="py-1" style={{ backgroundColor: rowBgColor }}>
-                                    <Row className="align-items-center">
-                                        <Col md={2}>{ticket.baitNumeration || 'N/A'}</Col>
-                                        <Col md={3}>{ticket.title}</Col>
-                                        <Col md={2}>{DateUtils.formatDate(ticket.startDateTime)}</Col>
-                                        <Col md={2}>{locations[ticket.locationId] || 'Unknown Location'}</Col>
-                                        <Col className="d-flex justify-content-center" md={2}>
-                                            <Button
-                                                style={{
-                                                    minWidth: "75px",
-                                                    backgroundColor: status?.color || '#007bff',
-                                                    borderColor: status?.color || '#007bff',
-                                                }}
-                                                disabled
-                                            >
-                                                {status?.status || 'Unknown Status'}
-                                            </Button>
-                                        </Col>
-                                        <Col className="d-flex justify-content-center" md={1}>
-                                            <Button
-                                                style={{
-                                                    backgroundColor: priorityColor,
-                                                    borderColor: priorityColor,
-                                                }}
-                                                disabled
-                                            ></Button>
-                                        </Col>
-                                    </Row>
-                                </Col>
-                            </Row>
-                        );
-                    })}
+                    {tickets.length > 0 ? (
+                        tickets.map((ticket) => {
+                            const status = statusMap[ticket.statusId];
+                            const priorityColor = ticket.crisis ? 'red' : 'green';
+                            return (
+                                <Card
+                                    key={ticket.id}
+                                    className="mb-3"
+                                    style={{ cursor: 'pointer' }}
+                                    onClick={() => handleTicketClick(ticket)}
+                                >
+                                    <Card.Body>
+                                        <Card.Title>{ticket.title}</Card.Title>
+                                        <Card.Subtitle className="mb-2 text-muted">
+                                            {DateUtils.formatDate(ticket.startDateTime)}
+                                        </Card.Subtitle>
+                                        <Card.Text>
+                                            <div>
+                                                <strong>No:</strong> {ticket.baitNumeration || 'N/A'}
+                                            </div>
+                                            <div>
+                                                <strong>Location:</strong> {locations[ticket.locationId] || 'Unknown Location'}
+                                            </div>
+                                            <div>
+                                                <strong>Status:</strong>{" "}
+                                                <Button
+                                                    style={{
+                                                        minWidth: "75px",
+                                                        backgroundColor: status?.color || '#007bff',
+                                                        borderColor: status?.color || '#007bff',
+                                                    }}
+                                                    disabled
+                                                >
+                                                    {status?.status || 'Unknown Status'}
+                                                </Button>
+                                            </div>
+                                            <div>
+                                                <strong>Priority:</strong>{" "}
+                                                <Button
+                                                    style={{
+                                                        backgroundColor: priorityColor,
+                                                        borderColor: priorityColor,
+                                                    }}
+                                                    disabled
+                                                />
+                                            </div>
+                                        </Card.Text>
+                                    </Card.Body>
+                                </Card>
+                            );
+                        })
+                    ) : (
+                        <Alert variant="info">No tickets found for this device.</Alert>
+                    )}
                 </>
             ) : (
-                <Alert variant="info">No tickets found for this device.</Alert>
+                <>
+                    {tickets.length > 0 ? (
+                        <>
+                            <Row className="row-margin-0 fw-bold mt-2">
+                                <Col md={2}>No</Col>
+                                <Col md={3}>Title</Col>
+                                <Col md={2}>Date</Col>
+                                <Col md={2}>Location</Col>
+                                <Col className="d-flex justify-content-center" md={2}>Status</Col>
+                                <Col className="d-flex justify-content-center" md={1}>Priority</Col>
+                            </Row>
+                            <hr />
+                            {tickets.map((ticket, index) => {
+                                const status = statusMap[ticket.statusId];
+                                const priorityColor = ticket.crisis ? 'red' : 'green';
+                                const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                                return (
+                                    <Row
+                                        key={ticket.id}
+                                        className="align-items-center"
+                                        style={{ cursor: 'pointer', margin: "0 0" }}
+                                        onClick={() => handleTicketClick(ticket)}
+                                    >
+                                        <Col className="py-1" style={{ backgroundColor: rowBgColor }}>
+                                            <Row className="align-items-center">
+                                                <Col md={2}>{ticket.baitNumeration || 'N/A'}</Col>
+                                                <Col md={3}>{ticket.title}</Col>
+                                                <Col md={2}>{DateUtils.formatDate(ticket.startDateTime)}</Col>
+                                                <Col md={2}>{locations[ticket.locationId] || 'Unknown Location'}</Col>
+                                                <Col className="d-flex justify-content-center" md={2}>
+                                                    <Button
+                                                        style={{
+                                                            minWidth: "75px",
+                                                            backgroundColor: status?.color || '#007bff',
+                                                            borderColor: status?.color || '#007bff',
+                                                        }}
+                                                        disabled
+                                                    >
+                                                        {status?.status || 'Unknown Status'}
+                                                    </Button>
+                                                </Col>
+                                                <Col className="d-flex justify-content-center" md={1}>
+                                                    <Button
+                                                        style={{
+                                                            backgroundColor: priorityColor,
+                                                            borderColor: priorityColor,
+                                                        }}
+                                                        disabled
+                                                    />
+                                                </Col>
+                                            </Row>
+                                        </Col>
+                                    </Row>
+                                );
+                            })}
+                        </>
+                    ) : (
+                        <Alert variant="info">No tickets found for this device.</Alert>
+                    )}
+                </>
             )}
 
             {ticketModal && ticket && statuses.length > 0 && !loading && (
