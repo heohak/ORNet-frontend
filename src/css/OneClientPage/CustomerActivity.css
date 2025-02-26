@@ -7,3 +7,15 @@
 .custom-modal .modal-content {
     min-height: 95vh; /* Set a minimum height for the modal */
 }
+
+.activities-header {
+    padding-bottom: 20px;
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .activities-header {
+        padding-bottom: 0;
+    }
+
+}

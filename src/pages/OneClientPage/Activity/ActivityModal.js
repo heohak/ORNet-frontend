@@ -111,6 +111,7 @@ const ActivityModal = ({ activity, handleClose, reFetch, clientName, locations, 
                                 ref={modalCommentsRef}
                             />
                         </Col>
+                        <hr className="responsive-hr" />
                         <Col md={4}>
                             <Row className="mb-2 justify-content-between">
                                 <Col className="col-md-auto">
@@ -140,10 +141,9 @@ const ActivityModal = ({ activity, handleClose, reFetch, clientName, locations, 
                                             ) : <p className="fw-bold mb-0 fs-5">Deadline: {DateUtils.formatDate(deadline)}</p>
                                             }
                                         </Col>
-
                                     </div>
                                 </Col>
-                                <Col className="col-md-auto align-content-center" style={{paddingLeft: 0}}>
+                                <Col xs="auto" className="col-md-auto align-content-center" style={{paddingLeft: 0}}>
                                     <Button
                                         variant="link"
                                         onClick={handleEditToggle}  // Stop event propagation here

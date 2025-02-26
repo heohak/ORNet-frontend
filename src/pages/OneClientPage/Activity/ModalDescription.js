@@ -27,45 +27,48 @@ const ModalDescription = forwardRef(({ activity, reFetch, isEditing }, ref) => {
     };
 
     return (
-        <div style={{ display: "flex", alignItems: "flex-start", width: "100%" }}>
-            {/* Description Section */}
-            <div style={{ flexGrow: 1, maxWidth: "calc(100% - 40px)" }}>
-                {isEditing ? (
-                    <TextareaAutosize
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        rows={4}
-                        style={{ width: "100%" }}
-                    />
-                ) : (
-                    <p style={{ margin: 0 }}>
-                        {description &&
-                            description.split("\n").map((line, index) => (
-                                <React.Fragment key={index}>
-                                    <Linkify
-                                        componentDecorator={(decoratedHref, decoratedText, key) => (
-                                            <a
-                                                key={key}
-                                                href={decoratedHref}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                style={{ color: "#007bff", textDecoration: "underline" }}
-                                            >
-                                                {decoratedText}
-                                            </a>
-                                        )}
-                                    >
-                                        {line}
-                                    </Linkify>
-                                    <br />
-                                </React.Fragment>
-                            ))}
-                    </p>
+        <>
+            <div style={{ display: "flex", alignItems: "flex-start", width: "100%" }}>
+                {/* Description Section */}
+                <div style={{ flexGrow: 1, maxWidth: "calc(100% - 40px)" }}>
+                    {isEditing ? (
+                        <TextareaAutosize
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            rows={4}
+                            style={{ width: "100%" }}
+                        />
+                    ) : (
+                        <p style={{ margin: 0 }}>
+                            {description &&
+                                description.split("\n").map((line, index) => (
+                                    <React.Fragment key={index}>
+                                        <Linkify
+                                            componentDecorator={(decoratedHref, decoratedText, key) => (
+                                                <a
+                                                    key={key}
+                                                    href={decoratedHref}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    style={{ color: "#007bff", textDecoration: "underline" }}
+                                                >
+                                                    {decoratedText}
+                                                </a>
+                                            )}
+                                        >
+                                            {line}
+                                        </Linkify>
+                                        <br />
+                                    </React.Fragment>
+                                ))}
+                        </p>
 
 
-                )}
+                    )}
+                </div>
             </div>
-        </div>
+        <hr />
+    </>
     );
 });
 

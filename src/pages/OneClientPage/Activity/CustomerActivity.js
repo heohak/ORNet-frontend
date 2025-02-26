@@ -1,14 +1,14 @@
-import {Alert, Button, Col, Form, Row} from "react-bootstrap";
+import {Alert, Button, Col, Form, Row, Container, Card} from "react-bootstrap";
 import React, {useEffect, useState} from "react";
 import ActivityModal from "./ActivityModal";
-import axios from "axios";
 import config from "../../../config/config";
 import AddActivityModal from "./AddActivityModal";
 import '../../../css/OneClientPage/OneClient.css';
 import axiosInstance from "../../../config/axiosInstance";
 import {DateUtils} from "../../../utils/DateUtils";
+import "../../../css/OneClientPage/CustomerActivity.css";
 
-const CustomerActivity = ({ activities, setActivities, clientId, clientName, locations, contacts, statuses, openStatusId}) => {
+const CustomerActivity = ({ activities, setActivities, clientId, clientName, locations, contacts, statuses, openStatusId, isMobile}) => {
     const [selectedActivity, setSelectedActivity] = useState(null);
     const [showActivityModal, setShowActivityModal] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
@@ -72,7 +72,7 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
         <>
             <Row className="row-margin-0 d-flex justify-content-between align-items-center mb-2">
                 <Col className="col-md-auto">
-                    <h2 className="mb-0" style={{paddingBottom: "20px"}}>
+                    <h2 className="activities-header">
                         {'Activities'}
                     </h2>
                 </Col>
@@ -97,59 +97,33 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
                     </Form.Group>
                 </Col>
             </Row>
-            {activities.length > 0 ? (
-                <div>
-                    {/* Table header */}
-                    <Row className="row-margin-0 fw-bold mt-2">
-                        <Col md={3}>Title</Col>
-                        <Col md={3}>Contact</Col>
-                        <Col md={3}>Deadline</Col>
-                        <Col className="d-flex justify-content-center" md={1}>State</Col>
-                        <Col className="d-flex justify-content-center" md={1}>Status</Col>
-                        <Col className="d-flex justify-content-center" md={1}>Priority</Col>
-                    </Row>
-                    <hr />
+            {isMobile ? (
+                <>
+                    {/* Mobile Layout: Card-based design for activities */}
+                    {activities.length > 0 ? (
+                        activities.map((activity) => {
+                            const contactNames = activity.contactIds
+                                .map(contactId => {
+                                    const contact = contacts.find(c => c.id === contactId);
+                                    return contact ? (contact.firstName + " " + contact.lastName) : null;
+                                })
+                                .filter(name => name)
+                                .join(', ');
+                            const deadlineColor = getDeadlineColor(activity.endDateTime);
+                            const status = statuses.find(status => activity.statusId === status.id);
+                            const priorityColor = activity.crisis ? "red" : "green";
 
-                    {/* Activity rows */}
-                    {activities.map((activity, index) => {
-                        const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
-                        const contactNames = activity.contactIds
-                            .map(contactId => {
-                                const contact = contacts.find(c => c.id === contactId);
-                                return contact ? (contact.firstName + " " + contact.lastName) : null; // Handle cases where a contact might not be found
-                            })
-                            .filter(name => name) // Filter out null values if any contacts were not found
-                            .join(', '); // Join names with a comma for display
-                        const deadlineColor = getDeadlineColor(activity.endDateTime)
-                        const status = statuses.find(status => activity.statusId === status.id)
-                        const priorityColor = activity.crisis ? "red" : "green"
-                        return (
-                            <Row
-                                key={activity.id}
-                                className="align-items-center"
-                                style={{cursor: 'pointer', margin: "0 0"}}
-                                onClick={() => handleRowClick(activity)}
-                            >
-                                <Col className="py-2" style={{ backgroundColor: rowBgColor}}>
-                                    <Row className="align-items-center">
-                                        <Col md={3}>{activity.title}</Col>
-                                        <Col md={3}>{contactNames}</Col>
-                                        <Col md={3}>{DateUtils.formatDate(activity.endDateTime)}</Col>
-                                        <Col className="d-flex align-content-center justify-content-center" md={1}>
-                                    <span
-                                        style={{
-                                            display: 'inline-block',
-                                            width: '12px',
-                                            height: '12px',
-                                            borderRadius: '50%',
-                                            backgroundColor: deadlineColor
-                                        }}
-                                    />
-                                        </Col>
-                                        <Col className="d-flex align-content-center justify-content-center" md={1}>
+                            return (
+                                <Card key={activity.id} className="mb-3 mt-3" onClick={() => handleRowClick(activity)}>
+                                    <Card.Body>
+                                        <Card.Title>{activity.title}</Card.Title>
+                                        <Card.Text>
+                                            <strong>Contact:</strong> {contactNames}<br />
+                                            <strong>Deadline:</strong> {DateUtils.formatDate(activity.endDateTime)}<br />
+                                            <strong>Status:</strong>{" "}
                                             <Button
+                                                size="sm"
                                                 style={{
-                                                    minWidth: "75px",
                                                     backgroundColor: status?.color || '#007bff',
                                                     borderColor: status?.color || '#007bff'
                                                 }}
@@ -157,25 +131,127 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
                                             >
                                                 {status?.status || "N/A"}
                                             </Button>
-                                        </Col>
-                                        <Col className="d-flex align-content-center justify-content-center" md={1}>
-                                            <Button
-                                                style={{ backgroundColor: priorityColor, borderColor: priorityColor }}
-                                                disabled
-                                            ></Button>
+                                            <br />
+
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <strong>State:</strong>{" "}
+                                                <span
+                                                    style={{
+                                                        display: 'inline-block',
+                                                        width: '12px',
+                                                        height: '12px',
+                                                        borderRadius: '50%',
+                                                        backgroundColor: deadlineColor
+                                                    }}
+                                                />
+                                            </div>
+                                            <div className="d-flex justify-content-between align-items-center mt-2">
+                                                <div>
+                                                    <Button
+                                                        size="sm"
+                                                        style={{ backgroundColor: priorityColor, borderColor: priorityColor }}
+                                                        disabled
+                                                    >
+                                                        Priority
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </Card.Text>
+                                    </Card.Body>
+                                </Card>
+                            );
+                        })
+                    ) : (
+                        <Alert className="mt-3" variant="info">No activities available.</Alert>
+                    )}
+                </>
+            ) : (
+                <>
+                    {/* Desktop Layout */}
+                    {activities.length > 0 ? (
+                        <div>
+                            {/* Table header */}
+                            <Row className="row-margin-0 fw-bold mt-2">
+                                <Col md={3}>Title</Col>
+                                <Col md={3}>Contact</Col>
+                                <Col md={3}>Deadline</Col>
+                                <Col className="d-flex justify-content-center" md={1}>State</Col>
+                                <Col className="d-flex justify-content-center" md={1}>Status</Col>
+                                <Col className="d-flex justify-content-center" md={1}>Priority</Col>
+                            </Row>
+                            <hr />
+
+                            {/* Activity rows */}
+                            {activities.map((activity, index) => {
+                                const rowBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                                const contactNames = activity.contactIds
+                                    .map(contactId => {
+                                        const contact = contacts.find(c => c.id === contactId);
+                                        return contact ? (contact.firstName + " " + contact.lastName) : null;
+                                    })
+                                    .filter(name => name)
+                                    .join(', ');
+                                const deadlineColor = getDeadlineColor(activity.endDateTime);
+                                const status = statuses.find(status => activity.statusId === status.id);
+                                const priorityColor = activity.crisis ? "red" : "green";
+
+                                return (
+                                    <Row
+                                        key={activity.id}
+                                        className="align-items-center"
+                                        style={{ cursor: 'pointer', margin: "0 0" }}
+                                        onClick={() => handleRowClick(activity)}
+                                    >
+                                        <Col className="py-2" style={{ backgroundColor: rowBgColor }}>
+                                            <Row className="align-items-center">
+                                                <Col md={3}>{activity.title}</Col>
+                                                <Col md={3}>{contactNames}</Col>
+                                                <Col md={3}>{DateUtils.formatDate(activity.endDateTime)}</Col>
+                                                <Col className="d-flex align-content-center justify-content-center" md={1}>
+                                                    <span
+                                                        style={{
+                                                            display: 'inline-block',
+                                                            width: '12px',
+                                                            height: '12px',
+                                                            borderRadius: '50%',
+                                                            backgroundColor: deadlineColor
+                                                        }}
+                                                    />
+                                                </Col>
+                                                <Col className="d-flex align-content-center justify-content-center" md={1}>
+                                                    <Button
+                                                        style={{
+                                                            minWidth: "75px",
+                                                            backgroundColor: status?.color || '#007bff',
+                                                            borderColor: status?.color || '#007bff'
+                                                        }}
+                                                        disabled
+                                                    >
+                                                        {status?.status || "N/A"}
+                                                    </Button>
+                                                </Col>
+                                                <Col className="d-flex align-content-center justify-content-center" md={1}>
+                                                    <Button
+                                                        style={{ backgroundColor: priorityColor, borderColor: priorityColor }}
+                                                        disabled
+                                                    >
+                                                        Priority
+                                                    </Button>
+                                                </Col>
+                                            </Row>
                                         </Col>
                                     </Row>
-                                </Col>
-
-
-                            </Row>
-                        );
-                    })}
-                </div>
-            ) : (
-                <Alert className="mt-3" variant="info">No activities available.</Alert>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <Alert className="mt-3" variant="info">No activities available.</Alert>
+                    )}
+                </>
             )}
-            {selectedActivity &&
+
+            {/* Modals */}
+            {selectedActivity && (
                 <ActivityModal
                     activity={selectedActivity}
                     handleClose={handleCloseModal}
@@ -184,7 +260,7 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
                     locations={locations}
                     statuses={statuses}
                 />
-            }
+            )}
             <AddActivityModal
                 show={showAddModal}
                 handleClose={() => setShowAddModal(false)}
@@ -196,5 +272,6 @@ const CustomerActivity = ({ activities, setActivities, clientId, clientName, loc
             />
         </>
     );
-}
+};
+
 export default CustomerActivity;

@@ -290,6 +290,7 @@ function OneClient() {
                                         contacts={workers}
                                         statuses={statuses}
                                         openStatusId={openStatusId}
+                                        isMobile={isMobile}
                                     />
                                 </Accordion.Body>
 
