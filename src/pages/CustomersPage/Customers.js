@@ -709,6 +709,7 @@ function Customers() {
                 </>
             )}
 
+
             {showNewAddCustomerModal && (
                 <NewAddCustomer
                     show={showNewAddCustomerModal}
