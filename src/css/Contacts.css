@@ -36,11 +36,25 @@ browsers scrollbar */
 .contacts-container {
     padding-top: 130px;
 }
+
+.search-menu-container {
+    padding-left: 0;
+}
+
+
 /* Responsive Styles */
 @media (min-width: 576px) {
 
     .contact-search-menu-items {
         max-width: 540px;
+    }
+}
+
+/* Responsive Styles */
+@media (max-width: 576px) {
+
+    .col-auto-padding-left-0 {
+        padding-left: 0;
     }
 }
 

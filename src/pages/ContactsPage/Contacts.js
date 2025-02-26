@@ -177,12 +177,12 @@ function Contacts() {
             {/* Main Menu Container */}
             <Container fluid className="contact-search-menu">
                 <Container className="contact-search-menu-items">
-                    <Container className="mt-5">
+                    <Container className="mt-5 search-menu-container">
                         {/* Header */}
                         {isMobile ? (
                             <>
                                 <Row className="d-flex justify-content-between mb-2">
-                                    <Col xs="auto">
+                                    <Col xs="auto" className="col-auto-padding-left-0">
                                         <h1 className="mb-0">
                                             Emails
                                         </h1>
@@ -216,7 +216,7 @@ function Contacts() {
                             </>
                         ) : (
                             <Row className="d-flex justify-content-between align-items-center mb-4">
-                                <Col xs="auto">
+                                <Col xs="auto" className="emails-header-padding">
                                     <h1 className="mb-0">Email List</h1>
                                 </Col>
                                 <Col xs="auto" className="text-end">
