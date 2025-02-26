@@ -214,7 +214,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                 )}
                 <Form onSubmit={handleSubmit}>
                     <Row>
-                        <Col>
+                        <Col md={4}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Maintenance Name</Form.Label>
                                 <Form.Control
@@ -226,7 +226,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                                 />
                             </Form.Group>
                         </Col>
-                        <Col>
+                        <Col md={4}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Customer</Form.Label>
                                 <Select
@@ -249,7 +249,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                                 />
                             </Form.Group>
                         </Col>
-                        <Col>
+                        <Col md={4}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Location</Form.Label>
                                 <Form.Control
@@ -277,7 +277,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                     </Row>
 
                     <Row>
-                        <Col>
+                        <Col md={4}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Last Date</Form.Label>
                                 <ReactDatePicker
@@ -299,7 +299,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                                 />
                             </Form.Group>
                         </Col>
-                        <Col>
+                        <Col md={4}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Planned Date</Form.Label>
                                 <ReactDatePicker
@@ -313,7 +313,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                                 />
                             </Form.Group>
                         </Col>
-                        <Col>
+                        <Col md={4}>
                             <Form.Label>Responsible Technical Specialist</Form.Label>
                             <Form.Control
                                 as="select"
@@ -333,7 +333,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
 
                     {/* Devices, Linked Devices, Softwares with "Select All" */}
                     <Row>
-                        <Col>
+                        <Col md={4}>
                             <div className="d-flex justify-content-between align-items-center mb-1">
                                 <Form.Label className="mb-0">Devices</Form.Label>
                                 <Button variant="link" onClick={handleSelectAllDevices} style={{ padding: 0, textDecoration: 'none' }}>
@@ -350,7 +350,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                                 placeholder="Search and select devices"
                             />
                         </Col>
-                        <Col>
+                        <Col md={4}>
                             <div className="d-flex justify-content-between align-items-center mb-1">
                                 <Form.Label className="mb-0">Linked Devices</Form.Label>
                                 <Button variant="link" onClick={handleSelectAllLinked} style={{ padding: 0, textDecoration: 'none' }}>
@@ -367,7 +367,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                                 placeholder="Search and select linked devices"
                             />
                         </Col>
-                        <Col>
+                        <Col md={4}>
                             <div className="d-flex justify-content-between align-items-center mb-1">
                                 <Form.Label className="mb-0">Softwares</Form.Label>
                                 <Button variant="link" onClick={handleSelectAllSoftware} style={{ padding: 0, textDecoration: 'none' }}>

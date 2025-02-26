@@ -214,25 +214,12 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                 </Modal.Header>
                 <Modal.Body>
                     <Row>
-                        <Col md={4}>
-                            <Row className="justify-content-between">
+                        <Col xs={6} md={2}>
+                            <Row>
                                 <Col>Last Date</Col>
-                                <Col>Planned Date</Col>
                             </Row>
-                        </Col>
-                        <Col md={3}>Location</Col>
-                        <Col md={2}>Time Spent - {formatDuration(maintenance.timeSpent)}</Col>
-                        <Col md={2}>Status</Col>
-                        <Col className="text-end">
-                            <Button variant="link" onClick={toggleEdit}>
-                                {isEditing ? <FaSave  style={{ fontSize: '1.5rem' }} /> : <FaEdit  style={{ fontSize: '1.5rem' }} />}
-                            </Button>
-                        </Col>
-                    </Row>
-                    <Row >
-                        <Col md={4}>
-                            {isEditing ? (
-                                <Row>
+                            <Row>
+                                {isEditing ? (
                                     <Col>
                                         <DatePicker
                                             selected={lastDate}
@@ -242,6 +229,17 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                             placeholderText="Select Start Date"
                                         />
                                     </Col>
+                                    ) : (
+                                        <h4>{DateUtils.formatDate(maintenance.lastDate)}</h4>
+                                    )}
+                            </Row>
+                        </Col>
+                        <Col xs={6} md={2}>
+                            <Row>
+                                <Col>Planned Date</Col>
+                            </Row>
+                            <Row>
+                                {isEditing ? (
                                     <Col>
                                         <DatePicker
                                             selected={plannedDate}
@@ -251,22 +249,21 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                             placeholderText="Select End Date"
                                         />
                                     </Col>
-                                </Row>
-                            ) : (
-                                <Row>
-                                    <Col>
-                                        <h4>{DateUtils.formatDate(maintenance.lastDate)}</h4>
-                                    </Col>
-                                    <Col>
-                                        <h4>{DateUtils.formatDate(maintenance.maintenanceDate)}</h4>
-                                    </Col>
-                                </Row>
-                            )}
+                                ) : (
+                                    <h4>{DateUtils.formatDate(maintenance.maintenanceDate)}</h4>
+                                )}
+                            </Row>
                         </Col>
                         <Col md={3}>
-                            <h4>{locationNames[maintenance.locationId]}</h4>
+                            <Row>
+                                <Col>Location</Col>
+                            </Row>
+                            <Row><h4>{locationNames[maintenance.locationId]}</h4></Row>
                         </Col>
-                        <Col md={2}>
+                        <Col xs={7} md={2}>
+                            <Row>
+                                <Col>Time Spent - {formatDuration(maintenance.timeSpent)}</Col>
+                            </Row>
                             <Row>
                                 <Col className="col-md-auto" style={{paddingRight: "0"}}>
                                     <input
@@ -298,18 +295,32 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                 </Col>
                             </Row>
                         </Col>
-                        <Col md={2}>
-                            {isEditing ? (
-                                <Form.Select
-                                    value={status}
-                                    onChange={(e) => setStatus(e.target.value)}
-                                >
-                                    <option value="OPEN">OPEN</option>
-                                    <option value="DONE">DONE</option>
-                                </Form.Select>
-                            ) : (
-                                maintenance.maintenanceStatus
-                            )}
+                        <Col xs={4} md={2}>
+                            <Row>
+                                <Col style={{paddingLeft: 0}}>
+                                    Status
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col style={{paddingLeft: 0}}>
+                                    {isEditing ? (
+                                        <Form.Select
+                                            value={status}
+                                            onChange={(e) => setStatus(e.target.value)}
+                                        >
+                                            <option value="OPEN">OPEN</option>
+                                            <option value="DONE">DONE</option>
+                                        </Form.Select>
+                                    ) : (
+                                        maintenance.maintenanceStatus
+                                    )}
+                                </Col>
+                            </Row>
+                        </Col>
+                        <Col xs="auto" className="align-content-center text-end px-0">
+                            <Button className="px-0" style={{paddingTop: "20px", paddingBottom: 0}} variant="link" onClick={toggleEdit}>
+                                {isEditing ? <FaSave  style={{ fontSize: '1.5rem' }} /> : <FaEdit  style={{ fontSize: '1.5rem' }} />}
+                            </Button>
                         </Col>
                     </Row>
                     <Row className="mt-4">
