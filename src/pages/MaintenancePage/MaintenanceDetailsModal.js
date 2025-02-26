@@ -217,7 +217,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                         <Col md={4}>
                             <Row className="justify-content-between">
                                 <Col>Last Date</Col>
-                                <Col>Planned Date</Col>
+                                <Col>Execute Date</Col>
                             </Row>
                         </Col>
                         <Col md={3}>Location</Col>
