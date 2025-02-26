@@ -360,6 +360,7 @@ function OneClient() {
                                         clientId={clientId}
                                         setRefresh={setRefresh}
                                         client={client}
+                                        isMobile={isMobile}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>

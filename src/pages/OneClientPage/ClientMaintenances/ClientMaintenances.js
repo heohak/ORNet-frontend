@@ -60,49 +60,19 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client, locati
 
     return (
         <>
-            {isMobile ? (
-                <>
-                    <Row className="mb-2">
-                        <Col>
-                            <h2 className="mb-0" style={{ paddingBottom: "10px" }}>Maintenances</h2>
-                        </Col>
-                    </Row>
-                    <Row className="mb-3">
-                        <Col xs={6}>
-                            <Button
-                                variant="primary"
-                                onClick={() => setShowTermsModal(true)}
-                                className="w-100"
-                            >
-                                Terms
-                            </Button>
-                        </Col>
-                        <Col xs={6}>
-                            <Button
-                                variant="primary"
-                                onClick={() => setShowAddMaintenanceModal(true)}
-                                className="w-100"
-                            >
-                                Add Maintenance
-                            </Button>
-                        </Col>
-                    </Row>
-                </>
-            ) : (
-                <Row className="row-margin-0 d-flex justify-content-between align-items-center mb-2">
-                    <Col className="col-md-auto">
-                        <h2 className="mb-0" style={{ paddingBottom: "20px" }}>Maintenances</h2>
-                    </Col>
-                    <Col className="col-md-auto">
-                        <Button variant="primary" onClick={() => setShowTermsModal(true)} className="me-2">
-                            Terms
-                        </Button>
-                        <Button variant="primary" onClick={() => setShowAddMaintenanceModal(true)}>
-                            Add Maintenance
-                        </Button>
-                    </Col>
-                </Row>
-            )}
+            <Row className="align-items-center justify-content-between mb-4">
+                <Col xs="auto">
+                    <h2 className="mb-0">Maintenances</h2>
+                </Col>
+                <Col xs="auto">
+                    <Button variant="primary" onClick={() => setShowTermsModal(true)} className="me-1">
+                        Terms
+                    </Button>
+                    <Button variant="primary" onClick={() => setShowAddMaintenanceModal(true)}>
+                        {isMobile ? 'Add' : 'Add Maintenance'}
+                    </Button>
+                </Col>
+            </Row>
 
 
             {isMobile ? (
