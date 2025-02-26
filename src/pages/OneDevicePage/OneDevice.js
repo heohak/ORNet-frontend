@@ -267,6 +267,7 @@ function OneDevice() {
                                         setRefresh={handleRefresh}
                                         locationNames={locationNames}
                                         responsibleNames={responsibleNames}
+                                        isMobile={isMobile}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
