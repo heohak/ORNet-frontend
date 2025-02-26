@@ -709,16 +709,6 @@ function Customers() {
                 </>
             )}
 
-            {loading && (
-                <Row className="justify-content-center">
-                    <Col md={2} className="text-center">
-                        <Spinner animation="border" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                        </Spinner>
-                    </Col>
-                </Row>
-            )}
-
             {showNewAddCustomerModal && (
                 <NewAddCustomer
                     show={showNewAddCustomerModal}
