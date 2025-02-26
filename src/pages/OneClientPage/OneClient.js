@@ -332,6 +332,7 @@ function OneClient() {
                                         client={client}
                                         locationNames={locationsMap}
                                         responsibleNames={baitWorkersMap}
+                                        isMobile={isMobile}
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
