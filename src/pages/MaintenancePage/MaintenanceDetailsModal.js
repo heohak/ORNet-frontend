@@ -1,4 +1,4 @@
-import {Alert, Button, Col, Form, Modal, Row, Spinner, Dropdown} from "react-bootstrap";
+import {Alert, Button, Col, Form, Modal, Row, Spinner, Dropdown, Card} from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 import { DateUtils } from "../../utils/DateUtils";
 import axiosInstance from "../../config/axiosInstance";
@@ -11,7 +11,7 @@ import ShowFilesModal from "./ShowFilesModal";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 
 
-const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, setMaintenance, setRefresh, responsibleNames }) => {
+const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, setMaintenance, setRefresh, responsibleNames, isMobile }) => {
     const [devices, setDevices] = useState([]);
     const [softwares, setSoftwares] = useState([]);
     const [linkedDevices, setLinkedDevices] = useState([]);
@@ -302,7 +302,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                 </Col>
                             </Row>
                             <Row>
-                                <Col style={{paddingLeft: 0}}>
+                                <Col className="align-content-center" style={{height: "38px", paddingLeft: 0}}>
                                     {isEditing ? (
                                         <Form.Select
                                             value={status}
@@ -363,12 +363,234 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                         </Col>
                     </Row>
                     {loading ? (
-                            <div className="text-center mt-1">
-                                <Spinner animation="border" role="status">
-                                    <span className="visually-hidden">Loading...</span>
-                                </Spinner>
-                            </div>
+                        <div className="text-center mt-1">
+                            <Spinner animation="border" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </Spinner>
+                        </div>
+                    ) : (
+                        <>
+                        {isMobile ? (
+                            // Mobile view with Cards
+                            <>
+                                <Row className="mt-4">
+                                    {/* Display the first available section header */}
+                                    {devices.length > 0 ? (
+                                        <Col className="fw-bold" md={3}>Device List:</Col>
+                                    ) : linkedDevices.length > 0 ? (
+                                        <Col className="fw-bold" md={3}>Linked Device List:</Col>
+                                    ) : softwares.length > 0 ? (
+                                        <Col className="fw-bold" md={3}>Software List:</Col>
+                                    ) : (
+                                        <Col className="fw-bold">Device List:</Col>
+                                    )}
+                                </Row>
+                                {devices.length === 0 && linkedDevices.length === 0 && softwares.length === 0 && (
+                                    <div className="mt-2">
+                                        <Alert variant="info">No devices found.</Alert>
+                                    </div>
+                                )}
+                                {/* Devices */}
+                                {devices.map((device) => {
+                                    const relatedComment = comments.find((comment) => comment.deviceId === device.id);
+                                    return (
+                                        <Card key={device.id} className="mb-3">
+                                            <Card.Body>
+                                                <Card.Title>{device.deviceName}</Card.Title>
+                                                <Card.Text>
+                                                    <strong>Serial No:</strong> {device.serialNumber}<br />
+                                                    <strong>Status:</strong> {
+                                                    isEditing && editableComments ? (
+                                                        <Dropdown>
+                                                            <Dropdown.Toggle variant="light">
+                                                                {getStatusIcon(editableComments.find(c => c.deviceId === device.id)?.maintenanceStatus || "OPEN")}
+                                                            </Dropdown.Toggle>
+                                                            <Dropdown.Menu>
+                                                                <Dropdown.Item onClick={() => setEditableComments(editableComments.map(comment =>
+                                                                    comment.deviceId === device.id ? { ...comment, maintenanceStatus: "OPEN" } : comment
+                                                                ))}>
+                                                                    <FaExclamationCircle style={{ color: "goldenrod" }} /> OPEN
+                                                                </Dropdown.Item>
+                                                                <Dropdown.Item onClick={() => setEditableComments(editableComments.map(comment =>
+                                                                    comment.deviceId === device.id ? { ...comment, maintenanceStatus: "DONE" } : comment
+                                                                ))}>
+                                                                    <FaCheckCircle style={{ color: "green" }} /> DONE
+                                                                </Dropdown.Item>
+                                                            </Dropdown.Menu>
+                                                        </Dropdown>
+                                                    ) : (
+                                                        relatedComment?.maintenanceStatus === "DONE" ? (
+                                                            <FaCheckCircle style={{ color: "green" }} />
+                                                        ) : (
+                                                            <FaExclamationCircle style={{ color: "goldenrod" }} />
+                                                        )
+                                                    )
+                                                }<br />
+                                                    <strong>Comment:</strong> {
+                                                    isEditing && editableComments ? (
+                                                        <Form.Control
+                                                            as="textarea"
+                                                            value={editableComments.find(c => c.deviceId === device.id)?.comment || ""}
+                                                            onChange={(e) => {
+                                                                setEditableComments(editableComments.map(comment =>
+                                                                    comment.deviceId === device.id ? { ...comment, comment: e.target.value } : comment
+                                                                ));
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        relatedComment?.comment || "N/A"
+                                                    )
+                                                }<br />
+                                                    <Button className="px-0" variant="light" onClick={() => {
+                                                        setSelectedCommentId(relatedComment?.id || null);
+                                                        setFileModalOpen(true);
+                                                    }}>
+                                                        <strong>Files: </strong><FaFileUpload />
+                                                    </Button>
+                                                </Card.Text>
+                                            </Card.Body>
+                                        </Card>
+                                    );
+                                })}
+
+                                {linkedDevices.length > 0 && devices.length > 0 && (
+                                    <Row>
+                                        <Col className="fw-bold">Linked Device List:</Col>
+                                    </Row>
+                                )}
+                                {/* Linked Devices */}
+                                {linkedDevices.map((linkedDevice, index) => {
+                                    const relatedComment = comments.find((comment) => comment.linkedDeviceId === linkedDevice.id);
+                                    return (
+                                        <Card key={linkedDevice.id} className="mb-3">
+                                            <Card.Body>
+                                                <Card.Title>{linkedDevice.name}</Card.Title>
+                                                <Card.Text>
+                                                    <strong>Serial No:</strong> {linkedDevice.serialNumber}<br />
+                                                    <strong>Status:</strong> {
+                                                    isEditing && editableComments ? (
+                                                        <Dropdown>
+                                                            <Dropdown.Toggle variant="light">
+                                                                {getStatusIcon(editableComments.find(c => c.linkedDeviceId === linkedDevice.id)?.maintenanceStatus || "OPEN")}
+                                                            </Dropdown.Toggle>
+                                                            <Dropdown.Menu>
+                                                                <Dropdown.Item onClick={() => setEditableComments(editableComments.map(comment =>
+                                                                    comment.linkedDeviceId === linkedDevice.id ? { ...comment, maintenanceStatus: "OPEN" } : comment
+                                                                ))}>
+                                                                    <FaExclamationCircle style={{ color: "goldenrod" }} /> OPEN
+                                                                </Dropdown.Item>
+                                                                <Dropdown.Item onClick={() => setEditableComments(editableComments.map(comment =>
+                                                                    comment.linkedDeviceId === linkedDevice.id ? { ...comment, maintenanceStatus: "DONE" } : comment
+                                                                ))}>
+                                                                    <FaCheckCircle style={{ color: "green" }} /> DONE
+                                                                </Dropdown.Item>
+                                                            </Dropdown.Menu>
+                                                        </Dropdown>
+                                                    ) : (
+                                                        relatedComment?.maintenanceStatus === "DONE" ? (
+                                                            <FaCheckCircle style={{ color: "green" }} />
+                                                        ) : (
+                                                            <FaExclamationCircle style={{ color: "goldenrod" }} />
+                                                        )
+                                                    )
+                                                }<br />
+                                                    <strong>Comment:</strong> {
+                                                    isEditing && editableComments ? (
+                                                        <Form.Control
+                                                            as="textarea"
+                                                            value={editableComments.find(c => c.linkedDeviceId === linkedDevice.id)?.comment || ""}
+                                                            onChange={(e) => {
+                                                                setEditableComments(editableComments.map(comment =>
+                                                                    comment.linkedDeviceId === linkedDevice.id ? { ...comment, comment: e.target.value } : comment
+                                                                ));
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        relatedComment?.comment || "N/A"
+                                                    )
+                                                }<br />
+                                                    <Button className="px-0" variant="light" onClick={() => {
+                                                        setSelectedCommentId(relatedComment?.id || null);
+                                                        setFileModalOpen(true);
+                                                    }}>
+                                                        <strong>Files: </strong><FaFileUpload />
+                                                    </Button>
+                                                </Card.Text>
+                                            </Card.Body>
+                                        </Card>
+                                    );
+                                })}
+
+                                {softwares.length > 0 && (linkedDevices.length > 0 || devices.length > 0) && (
+                                    <Row>
+                                        <Col className="fw-bold">Software List:</Col>
+                                    </Row>
+                                )}
+
+                                {/* Software list */}
+                                {softwares.map((software) => {
+                                    const relatedComment = comments.find((comment) => comment.softwareId === software.id);
+                                    return (
+                                        <Card key={software.id} className="mb-3">
+                                            <Card.Body>
+                                                <Card.Title>{software.name}</Card.Title>
+                                                <Card.Text>
+                                                    <strong>Status:</strong> {
+                                                    isEditing && editableComments ? (
+                                                        <Dropdown>
+                                                            <Dropdown.Toggle variant="light">
+                                                                {getStatusIcon(editableComments.find(c => c.softwareId === software.id)?.maintenanceStatus || "OPEN")}
+                                                            </Dropdown.Toggle>
+                                                            <Dropdown.Menu>
+                                                                <Dropdown.Item onClick={() => setEditableComments(editableComments.map(comment =>
+                                                                    comment.softwareId === software.id ? { ...comment, maintenanceStatus: "OPEN" } : comment
+                                                                ))}>
+                                                                    <FaExclamationCircle style={{ color: "goldenrod" }} /> OPEN
+                                                                </Dropdown.Item>
+                                                                <Dropdown.Item onClick={() => setEditableComments(editableComments.map(comment =>
+                                                                    comment.softwareId === software.id ? { ...comment, maintenanceStatus: "DONE" } : comment
+                                                                ))}>
+                                                                    <FaCheckCircle style={{ color: "green" }} /> DONE
+                                                                </Dropdown.Item>
+                                                            </Dropdown.Menu>
+                                                        </Dropdown>
+                                                    ) : (
+                                                        relatedComment?.maintenanceStatus === "DONE" ? (
+                                                            <FaCheckCircle style={{ color: "green" }} />
+                                                        ) : (
+                                                            <FaExclamationCircle style={{ color: "goldenrod" }} />
+                                                        )
+                                                    )
+                                                    }<br />
+                                                    <strong>Comment:</strong> {
+                                                    isEditing && editableComments ? (
+                                                        <Form.Control
+                                                            as="textarea"
+                                                            value={editableComments.find(c => c.softwareId === software.id)?.comment || ""}
+                                                            onChange={(e) => {
+                                                                setEditableComments(editableComments.map(comment =>
+                                                                    comment.softwareId === software.id ? { ...comment, comment: e.target.value } : comment
+                                                                ));
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        relatedComment?.comment || "N/A"
+                                                    )
+                                                }<br />
+                                                    <Button className="px-0" variant="light" onClick={() => {
+                                                        setSelectedCommentId(relatedComment?.id || null);
+                                                        setFileModalOpen(true);
+                                                    }}>
+                                                        <strong>Files: </strong><FaFileUpload />
+                                                    </Button>
+                                                </Card.Text>
+                                            </Card.Body>
+                                        </Card>
+                                    );
+                                })}
+                            </>
                         ) : (
+                            // Desktop view with Rows and Cols
                             <>
                                 <Row style={{margin: "0"}} className="mt-4">
                                     {/* Display the first available section header */}
@@ -624,12 +846,13 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                                                     relatedComment?.comment || "N/A"
                                                 )}
                                             </Col>
-
                                         </Row>
                                     );
                                 })}
                             </>
                         )}
+                        </>
+                    )}
                     <Row className="mt-4">
                         <Col>Internal Comment</Col>
                     </Row>

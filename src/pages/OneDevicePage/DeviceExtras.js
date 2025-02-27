@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Row, Col, Button, Form } from 'react-bootstrap';
 import { FaUpload, FaPaperPlane } from 'react-icons/fa';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -60,17 +60,20 @@ const DeviceExtras = ({ deviceId }) => {
             <Card className="mb-4">
                 <Card.Header>
                     <Row className="align-items-center mt-1">
-                        <h5>Comments & Files</h5>
+                        <Col>
+                            <h5>Comments & Files</h5>
+                        </Col>
                     </Row>
                 </Card.Header>
                 <Card.Body>
                     <Row>
-                        <Col md={6}>
+                        <Col xs={12} md={6}>
                             <h6>Comments</h6>
                             {comments.length > 0 ? (
                                 comments.map((comment, index) => (
                                     <div key={index} className="mb-2">
-                                        <strong>{DateUtils.formatDate(comment.timestamp)}</strong>: <Linkify>{comment.comment}</Linkify>
+                                        <strong>{DateUtils.formatDate(comment.timestamp)}</strong>:{" "}
+                                        <Linkify>{comment.comment}</Linkify>
                                     </div>
                                 ))
                             ) : (
@@ -82,7 +85,6 @@ const DeviceExtras = ({ deviceId }) => {
                                     placeholder="Add a comment..."
                                     value={inlineComment}
                                     onChange={(e) => setInlineComment(e.target.value)}
-                                    style={{ maxWidth: "70%" }}
                                     className="me-2"
                                 />
                                 <Button type="submit" variant="link" className="p-0 text-primary" title="Submit Comment">
@@ -90,7 +92,7 @@ const DeviceExtras = ({ deviceId }) => {
                                 </Button>
                             </Form>
                         </Col>
-                        <Col md={6}>
+                        <Col xs={12} md={6} className="mt-3 mt-md-0">
                             <Row className="align-items-center">
                                 <Col>
                                     <h6 className="mb-0">Files</h6>
@@ -100,7 +102,6 @@ const DeviceExtras = ({ deviceId }) => {
                                         variant="link"
                                         onClick={() => setShowUploadModal(true)}
                                         title="Upload Files"
-                                        style={{ marginRight: "12px" }}
                                         className="text-primary p-0"
                                     >
                                         <FaUpload size={20} />

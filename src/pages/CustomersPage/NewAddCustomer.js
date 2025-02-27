@@ -1,5 +1,3 @@
-// NewAddCustomer.js
-
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Form, Button, Alert, Modal, Row, Col } from 'react-bootstrap';
@@ -29,7 +27,6 @@ function NewAddCustomer({ show, onClose }) {
     const [dateError, setDateError] = useState(null);
 
     const [showLocationModal, setShowLocationModal] = useState(false);
-
     const [showThirdPartyModal, setShowThirdPartyModal] = useState(false);
     const [newThirdParty, setNewThirdParty] = useState({ name: '', email: '', phone: '' });
 
@@ -238,10 +235,11 @@ function NewAddCustomer({ show, onClose }) {
                         {dateError}
                     </Alert>
                 )}
+                {error && <Alert variant="danger">{error}</Alert>}
                 <Form onSubmit={handleSubmit}>
                     {/* Row 1: Full Name and Short Name */}
                     <Row>
-                        <Col md={8}>
+                        <Col xs={12} md={8}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Full Name</Form.Label>
                                 <Form.Control
@@ -253,7 +251,7 @@ function NewAddCustomer({ show, onClose }) {
                                 />
                             </Form.Group>
                         </Col>
-                        <Col>
+                        <Col xs={12} md={4}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Short Name</Form.Label>
                                 <Form.Control
@@ -269,16 +267,14 @@ function NewAddCustomer({ show, onClose }) {
 
                     {/* Row 2: Locations and Country */}
                     <Row>
-                        <Col md={8}>
+                        <Col xs={12} md={8}>
                             <Form.Group className="mb-3">
                                 <Row className="mb-1">
-                                    <Col className="col-md-auto align-content-center">
-                                        <Form.Label className="mb-0">
-                                            Locations
-                                        </Form.Label>
+                                    <Col xs="auto" className="d-flex align-items-center">
+                                        <Form.Label className="mb-0">Locations</Form.Label>
                                     </Col>
-                                    <Col className="col-md-auto px-0 py-0">
-                                        <Button className="px-0 py-0" variant="link" onClick={() => setShowLocationModal(true)}>
+                                    <Col xs="auto" className="px-0">
+                                        <Button variant="link" onClick={() => setShowLocationModal(true)}>
                                             Add New Location
                                         </Button>
                                     </Col>
@@ -291,7 +287,7 @@ function NewAddCustomer({ show, onClose }) {
                                 />
                             </Form.Group>
                         </Col>
-                        <Col md={4}>
+                        <Col xs={12} md={4}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Country</Form.Label>
                                 <AsyncSelect
@@ -307,17 +303,15 @@ function NewAddCustomer({ show, onClose }) {
                         </Col>
                     </Row>
 
-                    {/* Contacts and Third Party ITs */}
+                    {/* Row 3: Contacts and Third Party ITs */}
                     <Row className="mb-3">
-                        <Col md={8}>
+                        <Col xs={12} md={8}>
                             <Form.Group className="mb-3">
                                 <Row>
-                                    <Col className="col-md-auto align-content-center">
-                                        <Form.Label className="mb-0">
-                                            Contacts
-                                        </Form.Label>
+                                    <Col xs="auto" className="d-flex align-items-center">
+                                        <Form.Label className="mb-0">Contacts</Form.Label>
                                     </Col>
-                                    <Col className="col-md-auto px-0 py-0">
+                                    <Col xs="auto" className="px-0">
                                         <Button variant="link" onClick={() => setShowAddContactModal(true)}>
                                             Add New Contact
                                         </Button>
@@ -333,16 +327,13 @@ function NewAddCustomer({ show, onClose }) {
                                 />
                             </Form.Group>
                         </Col>
-
-                        <Col md={4}>
+                        <Col xs={12} md={4}>
                             <Form.Group>
                                 <Row>
-                                    <Col className="col-md-auto align-content-center">
-                                        <Form.Label className="mb-0">
-                                            Third Party ITs
-                                        </Form.Label>
+                                    <Col xs="auto" className="d-flex align-items-center">
+                                        <Form.Label className="mb-0">Third Party ITs</Form.Label>
                                     </Col>
-                                    <Col className="col-md-auto px-0 py-0">
+                                    <Col xs="auto" className="px-0">
                                         <Button variant="link" onClick={() => setShowThirdPartyModal(true)}>
                                             Add New Third Party
                                         </Button>
@@ -358,8 +349,8 @@ function NewAddCustomer({ show, onClose }) {
                         </Col>
                     </Row>
 
-                    {/* Customer Types: Header and Checkboxes on the Same Line */}
-                    <Form.Group className="mb-3 d-flex align-items-center">
+                    {/* Row 4: Customer Types */}
+                    <Form.Group className="mb-3 d-flex align-items-center flex-wrap">
                         <Form.Label className="me-3 mb-0">Customer Types:</Form.Label>
                         <Form.Check
                             inline

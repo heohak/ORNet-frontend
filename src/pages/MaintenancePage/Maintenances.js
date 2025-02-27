@@ -188,6 +188,7 @@ const Maintenances = () => {
                     setMaintenance={setSelectedMaintenance}
                     setRefresh={() => setRefresh(!refresh)}
                     responsibleNames={responsibleNames}
+                    isMobile={isMobile}
                 />
             )}
             <AddMaintenanceModal

@@ -15,17 +15,13 @@ import { FaTrash, FaEdit, FaSave } from 'react-icons/fa';
 import axios from 'axios';
 import config from '../../config/config';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-    faCog,
-    faHistory,
-    faComments,
-} from '@fortawesome/free-solid-svg-icons';
+import { faCog, faHistory, faComments } from '@fortawesome/free-solid-svg-icons';
 import '../../css/AllDevicesPage/Devices.css';
 import EditDevice from './EditDevice';
 import { format } from 'date-fns';
 import axiosInstance from '../../config/axiosInstance';
 import ReactDatePicker from 'react-datepicker';
-import {faEdit} from "@fortawesome/free-solid-svg-icons/faEdit";
+import { faEdit as faEditIcon } from "@fortawesome/free-solid-svg-icons/faEdit";
 
 function DeviceDetails({ device, navigate, setRefresh }) {
     // Basic state variables
@@ -197,9 +193,6 @@ function DeviceDetails({ device, navigate, setRefresh }) {
         });
     };
 
-
-    // When the left column edit icon is clicked:
-    // If in edit mode, save automatically; otherwise, enable edit mode.
     const handleLeftColumnToggle = () => {
         if (leftColumnEditMode) {
             handleLeftColumnSave();
@@ -208,7 +201,6 @@ function DeviceDetails({ device, navigate, setRefresh }) {
         }
     };
 
-    // Handler for saving updates for the entire left column.
     const handleLeftColumnSave = async () => {
         try {
             await axiosInstance.put(
@@ -223,7 +215,7 @@ function DeviceDetails({ device, navigate, setRefresh }) {
         }
     };
 
-    // Render fields grouped into header, left column, and right column.
+    // Updated renderFields with responsive layout.
     const renderFields = () => {
         if (!fieldsConfig || fieldsConfig.length === 0) return null;
 
@@ -242,7 +234,7 @@ function DeviceDetails({ device, navigate, setRefresh }) {
             <>
                 {/* Header Section */}
                 <Row className="mb-3 align-items-center">
-                    <Col>
+                    <Col xs={12} md>
                         <h4>
                             {[
                                 localDevice.clientName,
@@ -254,7 +246,7 @@ function DeviceDetails({ device, navigate, setRefresh }) {
                                 .join(' / ')}
                         </h4>
                     </Col>
-                    <Col className="col-md-auto" style={{ alignSelf: "flex-start" }}>
+                    <Col xs={12} md="auto" className="d-flex justify-content-md-end mt-2 mt-md-0">
                         <div className="d-flex">
                             <Button
                                 variant="link"
@@ -270,7 +262,7 @@ function DeviceDetails({ device, navigate, setRefresh }) {
                                 onClick={handleEditDevice}
                                 title="Edit Device"
                             >
-                                <FontAwesomeIcon icon={faEdit} />
+                                <FontAwesomeIcon icon={faEditIcon} />
                             </Button>
                             <Button
                                 variant="link"
@@ -287,19 +279,7 @@ function DeviceDetails({ device, navigate, setRefresh }) {
                 {/* Fields Section */}
                 <Row className="mb-3">
                     {/* Left Column with Fast Edit */}
-                    <Col
-                        md={6}
-                        style={
-                            leftColumnEditMode
-                                ? {
-                                    backgroundColor: '#f9f9f9',
-                                    border: '1px solid #ddd',
-                                    padding: '10px',
-                                    borderRadius: '4px',
-                                }
-                                : {}
-                        }
-                    >
+                    <Col xs={12} md={6} style={leftColumnEditMode ? { backgroundColor: '#f9f9f9', border: '1px solid #ddd', padding: '10px', borderRadius: '4px' } : {}}>
                         <div className="d-flex justify-content-between align-items-center mb-2">
                             <h5>Technical Info</h5>
                             <Button
@@ -321,7 +301,6 @@ function DeviceDetails({ device, navigate, setRefresh }) {
                                     const label = field.label;
                                     const value = leftColumnValues[key] || '';
                                     return (
-                                        // Render inline: label and input side by side.
                                         <div key={key} className="d-flex align-items-center mb-2">
                       <span style={{ minWidth: '140px', fontWeight: 'bold' }}>
                         {label}:
@@ -367,13 +346,14 @@ function DeviceDetails({ device, navigate, setRefresh }) {
                     </Col>
 
                     {/* Right Column */}
-                    <Col md={6}>
+                    <Col xs={12} md={6} className="mt-3 mt-md-0">
                         {rightColumnFields.map((field) => {
                             const value = localDevice[field.key] || localDevice.attributes?.[field.key];
                             if (value !== undefined && value !== null) {
                                 return (
                                     <div key={field.key} className="mb-1">
-                                        <strong>{field.label}: </strong> {value}
+                                        <strong>{field.label}: </strong>
+                                        <span>{value}</span>
                                     </div>
                                 );
                             }
@@ -387,7 +367,7 @@ function DeviceDetails({ device, navigate, setRefresh }) {
                                         const value = localDevice.attributes?.[field.key];
                                         if (value !== undefined && value !== null) {
                                             return (
-                                                <Col md={6} key={field.key}>
+                                                <Col xs={12} md={6} key={field.key}>
                                                     <div className="mb-1">
                                                         <strong>{field.label}: </strong> {value}
                                                     </div>

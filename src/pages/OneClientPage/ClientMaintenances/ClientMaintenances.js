@@ -186,6 +186,7 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client, locati
                     setMaintenance={setSelectedMaintenance}
                     setRefresh={setRefresh}
                     responsibleNames={responsibleNames}
+                    isMobile={isMobile}
                 />
             }
 
