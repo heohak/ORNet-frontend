@@ -1,6 +1,15 @@
-// src/pages/DevicesPage/Devices.js
 import React, { useEffect, useState, useRef } from 'react';
-import { Row, Col, Spinner, Alert, Button, Container, Form, Card, Collapse } from 'react-bootstrap';
+import {
+    Row,
+    Col,
+    Spinner,
+    Alert,
+    Button,
+    Container,
+    Form,
+    Card,
+    Collapse
+} from 'react-bootstrap';
 import axiosInstance from "../../config/axiosInstance";
 import config from '../../config/config';
 import AddDeviceModal from './AddDeviceModal';
@@ -402,7 +411,8 @@ function Devices() {
                                 className="mb-3"
                                 style={{
                                     cursor: 'pointer',
-                                    backgroundColor: device.id.toString() === lastVisitedDeviceId ? "#ffffcc" : "inherit"
+                                    backgroundColor:
+                                        device.id.toString() === lastVisitedDeviceId ? "#ffffcc" : "inherit"
                                 }}
                                 onClick={() => {
                                     localStorage.setItem("lastVisitedDeviceId", device.id);
@@ -424,7 +434,29 @@ function Devices() {
                                             <strong>Serial Number:</strong> {device.serialNumber}
                                         </div>
                                         <div>
-                                            <strong>Version:</strong> {device.version || 'N/A'}
+                                            <strong>Version:</strong>{" "}
+                                            <div
+                                                onMouseDown={(e) => { e.preventDefault(); handleVersionMouseDown(device); }}
+                                                onMouseUp={(e) => { e.preventDefault(); handleVersionMouseUpOrLeave(); }}
+                                                onMouseLeave={(e) => { e.preventDefault(); handleVersionMouseUpOrLeave(); }}
+                                                onTouchStart={(e) => { e.preventDefault(); handleVersionMouseDown(device); }}
+                                                onTouchEnd={(e) => { e.preventDefault(); handleVersionMouseUpOrLeave(); }}
+                                                onTouchCancel={(e) => { e.preventDefault(); handleVersionMouseUpOrLeave(); }}
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                {editingDeviceId === device.id ? (
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={editingVersion}
+                                                        onChange={(e) => setEditingVersion(e.target.value)}
+                                                        onBlur={() => handleVersionUpdate(device)}
+                                                        autoFocus
+                                                        style={{ display: 'inline-block', width: 'auto' }}
+                                                    />
+                                                ) : (
+                                                    device.version || 'N/A'
+                                                )}
+                                            </div>
                                         </div>
                                     </Card.Text>
                                 </Card.Body>
@@ -441,8 +473,8 @@ function Devices() {
                                     </Spinner>
                                 </Col>
                             </Row>
-                            ) : (
-                                <>
+                        ) : (
+                            <>
                                 <Row className="fw-bold">
                                     <Col md={3} onClick={() => handleSort('type')} style={{ cursor: 'pointer' }}>
                                         Type {renderSortArrow('type')}
@@ -461,57 +493,61 @@ function Devices() {
                                     </Col>
                                 </Row>
                                 <hr />
+                                {!loading && sortedDevices.length === 0 ? (
+                                    <Alert variant="info">No devices found.</Alert>
+                                ) : (
+                                    sortedDevices.map((device, index) => {
+                                        const baseBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                                        const rowBgColor = device.id.toString() === lastVisitedDeviceId ? "#ffffcc" : baseBgColor;
+                                        return (
+                                            <Row
+                                                key={device.id}
+                                                className="mb-2 py-2"
+                                                style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
+                                                onClick={() => {
+                                                    localStorage.setItem("lastVisitedDeviceId", device.id);
+                                                    navigate(`/device/${device.id}`, { state: { fromPath: "/devices" } });
+                                                }}
+                                            >
+                                                <Col md={3}>
+                                                    {classificators[device.classificatorId] || 'Unknown Type'}
+                                                </Col>
+                                                <Col md={2}>
+                                                    {device.deviceName}
+                                                </Col>
+                                                <Col md={3}>
+                                                    {getLocationName(device.locationId)}
+                                                </Col>
+                                                <Col md={2}>
+                                                    {device.serialNumber}
+                                                </Col>
+                                                <Col
+                                                    md={2}
+                                                    onMouseDown={(e) => { e.preventDefault(); handleVersionMouseDown(device); }}
+                                                    onMouseUp={(e) => { e.preventDefault(); handleVersionMouseUpOrLeave(); }}
+                                                    onMouseLeave={(e) => { e.preventDefault(); handleVersionMouseUpOrLeave(); }}
+                                                    onTouchStart={(e) => { e.preventDefault(); handleVersionMouseDown(device); }}
+                                                    onTouchEnd={(e) => { e.preventDefault(); handleVersionMouseUpOrLeave(); }}
+                                                    onTouchCancel={(e) => { e.preventDefault(); handleVersionMouseUpOrLeave(); }}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    {editingDeviceId === device.id ? (
+                                                        <Form.Control
+                                                            type="text"
+                                                            value={editingVersion}
+                                                            onChange={(e) => setEditingVersion(e.target.value)}
+                                                            onBlur={() => handleVersionUpdate(device)}
+                                                            autoFocus
+                                                        />
+                                                    ) : (
+                                                        device.version || 'N/A'
+                                                    )}
+                                                </Col>
+                                            </Row>
+                                        );
+                                    })
+                                )}
                             </>
-                            )}
-                        {!loading && sortedDevices.length === 0 ? (
-                            <Alert variant="info">No devices found.</Alert>
-                        ) : (
-                            sortedDevices.map((device, index) => {
-                                const baseBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
-                                const rowBgColor = device.id.toString() === lastVisitedDeviceId ? "#ffffcc" : baseBgColor;
-                                return (
-                                    <Row
-                                        key={device.id}
-                                        className="mb-2 py-2"
-                                        style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
-                                        onClick={() => {
-                                            localStorage.setItem("lastVisitedDeviceId", device.id);
-                                            navigate(`/device/${device.id}`, { state: { fromPath: "/devices" } });
-                                        }}
-                                    >
-                                        <Col md={3}>
-                                            {classificators[device.classificatorId] || 'Unknown Type'}
-                                        </Col>
-                                        <Col md={2}>
-                                            {device.deviceName}
-                                        </Col>
-                                        <Col md={3}>
-                                            {getLocationName(device.locationId)}
-                                        </Col>
-                                        <Col md={2}>
-                                            {device.serialNumber}
-                                        </Col>
-                                        <Col
-                                            md={2}
-                                            onMouseDown={() => handleVersionMouseDown(device)}
-                                            onMouseUp={handleVersionMouseUpOrLeave}
-                                            onMouseLeave={handleVersionMouseUpOrLeave}
-                                        >
-                                            {editingDeviceId === device.id ? (
-                                                <Form.Control
-                                                    type="text"
-                                                    value={editingVersion}
-                                                    onChange={(e) => setEditingVersion(e.target.value)}
-                                                    onBlur={() => handleVersionUpdate(device)}
-                                                    autoFocus
-                                                />
-                                            ) : (
-                                                device.version || 'N/A'
-                                            )}
-                                        </Col>
-                                    </Row>
-                                );
-                            })
                         )}
                     </>
                 )}
