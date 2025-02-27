@@ -388,21 +388,17 @@ function EditClient({ clientId, onClose, onSave, setRefresh, reFetchRoles, setRo
 
             // 3. Third-Party IT
             for (const itId of addedThirdPartyITs) {
-                // Assume some endpoint to link IT to client
                 await axiosInstance.put(`${config.API_BASE_URL}/third-party/add/${itId}/${clientId}`);
             }
             for (const itId of removedThirdPartyITs) {
-                // Assume some endpoint to remove IT from client
                 await axiosInstance.put(`${config.API_BASE_URL}/third-party/remove/${itId}/${clientId}`);
             }
 
             // 4. Locations
             for (const locId of addedLocations) {
-                // Assume some endpoint to link location to client
                 await axiosInstance.put(`${config.API_BASE_URL}/location/addToClient/${locId}/${clientId}`);
             }
             for (const locId of removedLocations) {
-                // Assume some endpoint to remove location from client
                 await axiosInstance.put(`${config.API_BASE_URL}/location/removeFromClient/${locId}/${clientId}`);
             }
 
@@ -415,7 +411,6 @@ function EditClient({ clientId, onClose, onSave, setRefresh, reFetchRoles, setRo
                 nextMaintenance: clientData.nextMaintenance ? format(clientData.nextMaintenance, 'yyyy-MM-dd') : null,
             };
 
-            // Update the client itself
             await axiosInstance.put(`${config.API_BASE_URL}/client/update/${clientId}`, updatedClientData);
 
             const updatedClientResponse = await axiosInstance.get(`${config.API_BASE_URL}/client/${clientId}`);
@@ -482,7 +477,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh, reFetchRoles, setRo
                 )}
                 <Form onSubmit={handleSubmit}>
                     <Row>
-                        <Col md={8}>
+                        <Col xs={12} md={8}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Full Name</Form.Label>
                                 <Form.Control
@@ -496,11 +491,11 @@ function EditClient({ clientId, onClose, onSave, setRefresh, reFetchRoles, setRo
 
                             {/* Locations */}
                             <Form.Group className="mb-3">
-                                <Row className="mb-2" style={{height: "24px"}}>
-                                    <Col className="col-md-auto align-content-center">
+                                <Row className="mb-2" style={{ height: "24px" }}>
+                                    <Col xs="auto" className="d-flex align-items-center">
                                         <Form.Label className="mb-0">Locations</Form.Label>
                                     </Col>
-                                    <Col className="col-md-auto">
+                                    <Col xs="auto">
                                         <Button
                                             className="px-0 py-0"
                                             variant="link"
@@ -544,10 +539,10 @@ function EditClient({ clientId, onClose, onSave, setRefresh, reFetchRoles, setRo
                             {/* Technical Information */}
                             <Form.Group className="mb-3">
                                 <Row>
-                                    <Col className="col-md-auto align-content-center">
+                                    <Col xs="auto" className="d-flex align-items-center">
                                         <Form.Label className="mb-0">Technical Information</Form.Label>
                                     </Col>
-                                    <Col className="col-md-auto px-0 py-0">
+                                    <Col xs="auto" className="px-0 py-0">
                                         <Button variant="link" onClick={() => setShowAddSoftwareModal(true)}>
                                             Add New Technical Information
                                         </Button>
@@ -591,10 +586,10 @@ function EditClient({ clientId, onClose, onSave, setRefresh, reFetchRoles, setRo
                             {/* Third-Party ITs */}
                             <Form.Group className="mb-3">
                                 <Row>
-                                    <Col className="col-md-auto align-content-center">
+                                    <Col xs="auto" className="d-flex align-items-center">
                                         <Form.Label className="mb-0">Third-Party ITs</Form.Label>
                                     </Col>
-                                    <Col className="col-md-auto px-0 py-0">
+                                    <Col xs="auto" className="px-0 py-0">
                                         <Button variant="link" onClick={() => setShowThirdPartyITModal(true)}>
                                             Add New Third-Party IT
                                         </Button>
@@ -632,7 +627,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh, reFetchRoles, setRo
                             </Form.Group>
                         </Col>
 
-                        <Col md={4}>
+                        <Col xs={12} md={4}>
                             {/* Short Name */}
                             <Form.Group className="mb-3">
                                 <Form.Label>Short Name</Form.Label>
@@ -661,16 +656,12 @@ function EditClient({ clientId, onClose, onSave, setRefresh, reFetchRoles, setRo
 
                             {/* Contacts */}
                             <Form.Group className="mb-3">
-                                <Row className="mb-3" style={{height: "24px"}}>
-                                    <Col className="col-md-auto align-content-center">
+                                <Row className="mb-3" style={{ height: "24px" }}>
+                                    <Col xs="auto" className="d-flex align-items-center">
                                         <Form.Label className="mb-0">Contacts</Form.Label>
                                     </Col>
-                                    <Col className="col-md-auto">
-                                        <Button
-                                            variant="link"
-                                            onClick={() => setShowAddContactModal(true)}
-                                            className="px-0 py-0"
-                                        >
+                                    <Col xs="auto">
+                                        <Button variant="link" onClick={() => setShowAddContactModal(true)} className="px-0 py-0">
                                             Add New Contact
                                         </Button>
                                     </Col>
@@ -711,56 +702,64 @@ function EditClient({ clientId, onClose, onSave, setRefresh, reFetchRoles, setRo
                     </Row>
 
                     {/* Customer Types */}
-                    <Form.Group className="mb-3 d-flex align-items-center">
+                    <Form.Group className="mb-3 d-flex flex-wrap align-items-center">
                         <Form.Label className="me-3 mb-0">Customer Types:</Form.Label>
-                        <Form.Check
-                            inline
-                            type="checkbox"
-                            label="Pathology"
-                            name="pathologyClient"
-                            checked={clientData.pathologyClient}
-                            onChange={handleInputChange}
-                        />
-                        <Form.Check
-                            inline
-                            type="checkbox"
-                            label="Surgery"
-                            name="surgeryClient"
-                            checked={clientData.surgeryClient}
-                            onChange={handleInputChange}
-                        />
-                        <Form.Check
-                            inline
-                            type="checkbox"
-                            label="Editor"
-                            name="editorClient"
-                            checked={clientData.editorClient}
-                            onChange={handleInputChange}
-                        />
-                        <Form.Check
-                            inline
-                            type="checkbox"
-                            label="Other Medical Devices"
-                            name="otherMedicalDevices"
-                            checked={clientData.otherMedicalDevices}
-                            onChange={handleInputChange}
-                        />
-                        <Form.Check
-                            inline
-                            type="checkbox"
-                            label="Prospect"
-                            name="prospect"
-                            checked={clientData.prospect}
-                            onChange={handleInputChange}
-                        />
-                        <Form.Check
-                            inline
-                            type="checkbox"
-                            label="Agreement"
-                            name="agreement"
-                            checked={clientData.agreement}
-                            onChange={handleInputChange}
-                        />
+                        <div className="d-flex flex-wrap">
+                            <Form.Check
+                                inline
+                                type="checkbox"
+                                label="Pathology"
+                                name="pathologyClient"
+                                checked={clientData.pathologyClient}
+                                onChange={handleInputChange}
+                                className="me-3"
+                            />
+                            <Form.Check
+                                inline
+                                type="checkbox"
+                                label="Surgery"
+                                name="surgeryClient"
+                                checked={clientData.surgeryClient}
+                                onChange={handleInputChange}
+                                className="me-3"
+                            />
+                            <Form.Check
+                                inline
+                                type="checkbox"
+                                label="Editor"
+                                name="editorClient"
+                                checked={clientData.editorClient}
+                                onChange={handleInputChange}
+                                className="me-3"
+                            />
+                            <Form.Check
+                                inline
+                                type="checkbox"
+                                label="Other Medical Devices"
+                                name="otherMedicalDevices"
+                                checked={clientData.otherMedicalDevices}
+                                onChange={handleInputChange}
+                                className="me-3"
+                            />
+                            <Form.Check
+                                inline
+                                type="checkbox"
+                                label="Prospect"
+                                name="prospect"
+                                checked={clientData.prospect}
+                                onChange={handleInputChange}
+                                className="me-3"
+                            />
+                            <Form.Check
+                                inline
+                                type="checkbox"
+                                label="Agreement"
+                                name="agreement"
+                                checked={clientData.agreement}
+                                onChange={handleInputChange}
+                                className="me-3"
+                            />
+                        </div>
                     </Form.Group>
 
                     <Row>
@@ -777,7 +776,6 @@ function EditClient({ clientId, onClose, onSave, setRefresh, reFetchRoles, setRo
                                     isClearable
                                 />
                             </Form.Group>
-
                         </Col>
                         <Col xs={12} md={6}>
                             <Form.Group className="mb-3">
@@ -821,8 +819,6 @@ function EditClient({ clientId, onClose, onSave, setRefresh, reFetchRoles, setRo
                 onAddTechnicalInfo={() => {
                     setRefresh((prev) => !prev);
                     setShowAddSoftwareModal(false);
-                    // After adding, re-fetch local data:
-                    // Actually, just fetch client data and re-init local arrays
                     fetchClientData();
                 }}
                 clientId={clientId}
