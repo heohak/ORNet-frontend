@@ -149,15 +149,19 @@ function Contacts() {
     };
 
     const toggleSelectAll = () => {
-        if (showOnlySelected) return;
         setSelectedWorkers(prevSelected => {
+            if (showOnlySelected) {
+                return new Set(); // Always clear selection when "Show Only Selected" is active
+            }
+
             const allWorkerIds = new Set(filteredWorkers.map(worker => worker.id));
             if ([...allWorkerIds].every(id => prevSelected.has(id))) {
-                return new Set();
+                return new Set(); // If everything is selected, deselect all
             }
-            return allWorkerIds;
+            return allWorkerIds; // Otherwise, select all
         });
     };
+
 
     const displayedWorkers = showOnlySelected
         ? allWorkers.filter(worker => selectedWorkers.has(worker.id))
@@ -206,10 +210,12 @@ function Contacts() {
                                         Selected: {selectedWorkers.size}
                                         </span>
                                         <span
-                                            style={{ cursor: 'pointer', textDecoration: 'underline', color: '#0d6efd' }}
+                                            style={{ cursor: 'pointer', textDecoration: 'none', color: '#0d6efd' }}
                                             onClick={toggleSelectAll}
                                         >
-                                            Select All
+                                            {([...selectedWorkers].length === filteredWorkers.length && filteredWorkers.length > 0) || showOnlySelected
+                                                ? "Deselect All"
+                                                : "Select All"}
                                         </span>
                                     </Col>
                                 </Row>
@@ -220,15 +226,18 @@ function Contacts() {
                                     <h1 className="mb-0">Email List</h1>
                                 </Col>
                                 <Col xs="auto" className="text-end">
-            <span style={{ fontWeight: 'bold', marginRight: '10px' }}>
-              Selected: {selectedWorkers.size}
-            </span>
+                                    <span style={{ fontWeight: 'bold', marginRight: '10px' }}>
+                                      Selected: {selectedWorkers.size}
+                                    </span>
                                     <span
-                                        style={{ cursor: 'pointer', textDecoration: 'underline', color: '#0d6efd', marginRight: '10px' }}
+                                        style={{ cursor: 'pointer', textDecoration: 'none', color: '#0d6efd', marginRight: '10px' }}
                                         onClick={toggleSelectAll}
                                     >
-              Select All
-            </span>
+                                        {([...selectedWorkers].length === filteredWorkers.length && filteredWorkers.length > 0) || showOnlySelected
+                                            ? "Deselect All"
+                                            : "Select All"}
+                                    </span>
+
                                     <Button
                                         variant={showOnlySelected ? "secondary" : "primary"}
                                         className="me-2"
