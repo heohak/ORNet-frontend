@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -10,11 +10,25 @@ const MenuBar = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const [expanded, setExpanded] = useState(false);
+    const [username, setUsername] = useState("");
+
+    useEffect(() => {
+        if (localStorage.getItem("token")) {
+            axiosInstance.get("/user/username")
+                .then(response => {
+                    setUsername(response.data.token);
+                })
+                .catch(error => {
+                    console.error("Failed to fetch username", error);
+                });
+        }
+    }, []);
 
     const handleLogout = async () => {
         try {
             await axiosInstance.post("/auth/logout");
             localStorage.removeItem("token");
+            setUsername("");
             navigate("/login");
             setExpanded(false);
         } catch (err) {
@@ -25,13 +39,7 @@ const MenuBar = () => {
     const isLoggedIn = !!localStorage.getItem("token");
 
     return (
-        <Navbar
-            bg="light"
-            expand="lg"
-            fixed="top"
-            className="navbar-custom"
-            expanded={expanded}
-        >
+        <Navbar bg="light" expand="lg" fixed="top" className="navbar-custom" expanded={expanded}>
             <Container>
                 <LinkContainer to="/customers" onClick={() => setExpanded(false)}>
                     <Navbar.Brand>BP CRM</Navbar.Brand>
@@ -72,13 +80,23 @@ const MenuBar = () => {
                     </Nav>
                     {isLoggedIn && (
                         <Nav className="ms-auto">
-                            <Nav.Link
-                                onClick={handleLogout}
-                                className="logout-icon"
-                                title="Log out"
-                            >
-                                <FaSignOutAlt />
-                            </Nav.Link>
+                            <div className="d-flex align-items-center">
+                                <Navbar.Text className="me-2" style={{ fontWeight: "bold" }}>
+                                    {username ? `Logged in as: ${username}` : "Loading..."}
+                                </Navbar.Text>
+                                <Nav.Link
+                                    onClick={handleLogout}
+                                    className="logout-icon"
+                                    title="Log out"
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        padding: "0.5rem",
+                                    }}
+                                >
+                                    <FaSignOutAlt size={20} />
+                                </Nav.Link>
+                            </div>
                         </Nav>
                     )}
                 </Navbar.Collapse>
