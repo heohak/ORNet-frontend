@@ -246,6 +246,7 @@ function OneClient() {
                             setRefresh={setRefresh}
                             reFetchRoles={fetchRoles}
                             setRoles={setRoles}
+                            isMobile={isMobile}
                         />
                         <Accordion
                             activeKey={activeAccordionKeys}

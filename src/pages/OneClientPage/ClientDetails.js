@@ -5,14 +5,10 @@ import { faEdit, faHistory } from '@fortawesome/free-solid-svg-icons';
 import EditClient from "./EditClient";
 import config from "../../config/config";
 import axiosInstance from "../../config/axiosInstance";
-import {DateUtils} from "../../utils/DateUtils";
+import { DateUtils } from "../../utils/DateUtils";
 import { format } from 'date-fns';
 
-
-// Define the default visibility of each field
-
-
-function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles }) {
+function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles, isMobile }) {
     const [client, setClient] = useState(null);
     const [error, setError] = useState(null);
     const [showEditClient, setShowEditClient] = useState(false);
@@ -24,14 +20,14 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles 
         fetchNextMaintenanceDate();
     }, [clientId]);
 
-    const fetchNextMaintenanceDate = async() => {
+    const fetchNextMaintenanceDate = async () => {
         try {
-            const response = await axiosInstance.get(`/maintenance/next/${clientId}`)
+            const response = await axiosInstance.get(`/maintenance/next/${clientId}`);
             setNextMaintenanceDate(response.data);
         } catch (error) {
-            console.error("Error fetching next maintenance date", error)
+            console.error("Error fetching next maintenance date", error);
         }
-    }
+    };
 
     useEffect(() => {
         const fetchLastTrainingDate = async () => {
@@ -47,7 +43,6 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles 
         }
     }, [clientId]);
 
-
     const fetchClientData = async () => {
         try {
             const response = await axiosInstance.get(`${config.API_BASE_URL}/client/${clientId}`);
@@ -56,7 +51,6 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles 
             setError(error.message);
         }
     };
-
 
     const handleNavigate = () => {
         if (client && client.id) {
@@ -72,8 +66,7 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles 
             client.editorClient && "Editor",
             client.surgeryClient && "Surgery",
             client.otherMedicalDevices && "Other Medical Devices"
-        ].filter(Boolean); // Filter out any false or undefined values
-
+        ].filter(Boolean);
         return types.join(", ");
     };
 
@@ -92,13 +85,14 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles 
         <>
             {client ? (
                 <>
+                    {/* Header Row */}
                     <Row className="justify-content-between mb-2">
-                        <Col className="col-md-auto">
+                        <Col xs={12} md="auto">
                             <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#343a40' }}>
                                 {client.fullName}/{client.shortName}
                             </div>
                         </Col>
-                        <Col className="col-md-auto">
+                        <Col xs={12} md="auto" className="text-md-end mt-2 mt-md-0">
                             <Button
                                 variant="link"
                                 onClick={() => setShowEditClient(true)}
@@ -111,52 +105,80 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles 
                             </Button>
                         </Col>
                     </Row>
-                    <Row className="justify-content-between mb-3">
-                        <Col className="col-md-auto">
-                            <Row>
-                                <Col className="col-md-auto">
+
+                    {isMobile ? (
+                        // Mobile layout: Combine Maintenance and Training info in one row with two columns.
+                        <Row className="mb-3">
+                            <Col xs={6}>
+                                <div className="mb-2">
                                     <div className="maintenance-box">
                                         <div className="maintenance-text">Maintenance</div>
                                     </div>
-                                </Col>
-                                <Col className="col-md-auto">
-                                    <Row className="maintenance-date-box">
-                                        <Col className="col-md-auto">
-                                            <div>
-                                                <div className="maintenance-text">
-                                                    Next: {client.nextMaintenance ? DateUtils.formatDate(nextMaintenanceDate) : 'None'}
-                                                </div>
-                                            </div>
-                                        </Col>
-                                    </Row>
-                                </Col>
-                            </Row>
-                        </Col>
-                        <Col className="col-md-auto align-content-center">
-                            <div className="maintenance-text">{renderTypes()}</div>
-                        </Col>
-                    </Row>
-                    {/* Last Training Date Row: uses same classnames as Next Maintenance */}
-                    <Row className="justify-content-between mb-3">
-                        <Col className="col-md-auto">
-                            <Row>
-                                <Col className="col-md-auto">
+                                    <div className="maintenance-text">
+                                        Next: {client.nextMaintenance ? DateUtils.formatDate(nextMaintenanceDate) : 'None'}
+                                    </div>
+                                </div>
+                                <div>
                                     <div className="maintenance-box">
                                         <div className="maintenance-text">Training</div>
                                     </div>
-                                </Col>
+                                    <div className="maintenance-text">
+                                        Last: {lastTrainingDate ? DateUtils.formatDate(new Date(lastTrainingDate)) : 'None'}
+                                    </div>
+                                </div>
+                            </Col>
+                            <Col xs={6} className="d-flex align-items-center justify-content-center">
+                                <div className="maintenance-text">{renderTypes()}</div>
+                            </Col>
+                        </Row>
+                    ) : (
+                        // Desktop layout: Separate rows for Maintenance and Training.
+                        <>
+                            <Row className="justify-content-between mb-3">
                                 <Col className="col-md-auto">
-                                    <Row className="maintenance-date-box">
+                                    <Row>
                                         <Col className="col-md-auto">
-                                            <div className="maintenance-text">
-                                                Last: {lastTrainingDate ? DateUtils.formatDate(new Date(lastTrainingDate)) : 'None'}
+                                            <div className="maintenance-box">
+                                                <div className="maintenance-text">Maintenance</div>
                                             </div>
+                                        </Col>
+                                        <Col className="col-md-auto">
+                                            <Row className="maintenance-date-box">
+                                                <Col className="col-md-auto">
+                                                    <div className="maintenance-text">
+                                                        Next: {client.nextMaintenance ? DateUtils.formatDate(nextMaintenanceDate) : 'None'}
+                                                    </div>
+                                                </Col>
+                                            </Row>
+                                        </Col>
+                                    </Row>
+                                </Col>
+                                <Col className="col-md-auto align-content-center">
+                                    <div className="maintenance-text">{renderTypes()}</div>
+                                </Col>
+                            </Row>
+                            <Row className="justify-content-between mb-3">
+                                <Col className="col-md-auto">
+                                    <Row>
+                                        <Col className="col-md-auto">
+                                            <div className="maintenance-box">
+                                                <div className="maintenance-text">Training</div>
+                                            </div>
+                                        </Col>
+                                        <Col className="col-md-auto">
+                                            <Row className="maintenance-date-box">
+                                                <Col className="col-md-auto">
+                                                    <div className="maintenance-text">
+                                                        Last: {lastTrainingDate ? DateUtils.formatDate(new Date(lastTrainingDate)) : 'None'}
+                                                    </div>
+                                                </Col>
+                                            </Row>
                                         </Col>
                                     </Row>
                                 </Col>
                             </Row>
-                        </Col>
-                    </Row>
+                        </>
+                    )}
                 </>
             ) : (
                 <Alert variant="info">No client details available.</Alert>
