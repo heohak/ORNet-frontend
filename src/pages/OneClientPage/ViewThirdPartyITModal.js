@@ -429,7 +429,7 @@ function ViewThirdPartyITModal({
 
                 <Modal.Footer>
                     <Button variant="outline-info" onClick={onHide}>
-                        Close
+                        Cancel
                     </Button>
                 </Modal.Footer>
             </Modal>

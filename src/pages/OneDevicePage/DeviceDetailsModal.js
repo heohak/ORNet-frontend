@@ -5,6 +5,8 @@ import { format } from 'date-fns';
 import ReactDatePicker from 'react-datepicker';
 import { DateUtils } from '../../utils/DateUtils';
 import { Link } from 'react-router-dom';
+import axiosInstance from "../../config/axiosInstance";
+import config from "../../config/config";
 
 function DeviceDetailsModal({
                                 show,
@@ -26,6 +28,7 @@ function DeviceDetailsModal({
                                 setNewField,
                                 handleAddField,
                                 comments,
+    setComments,
                                 newComment,
                                 setNewComment,
                                 isSubmitting,
@@ -333,9 +336,20 @@ function DeviceDetailsModal({
                 <hr />
                 <h5>Existing Comments</h5>
                 {comments.length > 0 ? (
-                    comments.map((comment, index) => (
-                        <div key={index} className="mb-2">
-                            <strong>{DateUtils.formatDate(comment.timestamp)}</strong>: {comment.comment}
+                    comments.map((comment) => (
+                        <div key={comment.id} className="mb-2 d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{DateUtils.formatDate(comment.timestamp)}</strong>: {comment.comment}
+                            </div>
+                            <Button
+                                variant="link"
+                                size="sm"
+                                className="text-danger"
+                                onClick={() => handleDeleteComment(comment.id)}
+                                title="Delete Comment"
+                            >
+                                <FaTrash />
+                            </Button>
                         </div>
                     ))
                 ) : (
@@ -353,6 +367,29 @@ function DeviceDetailsModal({
             );
         }
     }
+
+    const fetchComments = async (linkedDeviceId) => {
+        try {
+            const url = `${config.API_BASE_URL}/linked/device/comment/${linkedDeviceId}`;
+            const response = await axiosInstance.get(url);
+            setComments(response.data);
+        } catch (err) {
+            console.error('Error fetching comments:', err);
+        }
+    };
+
+    const handleDeleteComment = async (commentId) => {
+        try {
+            await axiosInstance.delete(`${config.API_BASE_URL}/comment/${commentId}`);
+            // Refresh comments after deletion:
+            fetchComments(deviceId);
+        } catch (error) {
+            console.error("Error deleting comment:", error);
+        }
+    };
+
+
+
 
     return (
         <>

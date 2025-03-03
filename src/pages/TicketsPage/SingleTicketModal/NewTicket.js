@@ -138,14 +138,15 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
             <Modal.Body>
                 <Row>
                     <Col md={8}>
-                        <NewTicketDescription
-                            ticket={ticket}
-                        />
                         {isClosed && (
                             <NewTicketRootCause
                                 ticket={ticket}
                             />
                         )}
+                        <NewTicketDescription
+                            ticket={ticket}
+                        />
+
                         <hr/>
                         <NewTicketActivity
                             ticket={ticket}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Row, Col, Button, Form } from 'react-bootstrap';
-import { FaUpload, FaPaperPlane } from 'react-icons/fa';
+import { Card, Row, Col, Button, Form, Alert } from 'react-bootstrap';
+import { FaUpload, FaPaperPlane, FaTrash } from 'react-icons/fa';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faComments } from "@fortawesome/free-solid-svg-icons";
 import axiosInstance from '../../config/axiosInstance';
@@ -55,6 +55,15 @@ const DeviceExtras = ({ deviceId }) => {
         }
     };
 
+    const handleDeleteComment = async (commentId) => {
+        try {
+            await axiosInstance.delete(`${config.API_BASE_URL}/comment/${commentId}`);
+            fetchComments();
+        } catch (error) {
+            console.error("Error deleting comment:", error);
+        }
+    };
+
     return (
         <>
             <Card className="mb-4">
@@ -71,9 +80,22 @@ const DeviceExtras = ({ deviceId }) => {
                             <h6>Comments</h6>
                             {comments.length > 0 ? (
                                 comments.map((comment, index) => (
-                                    <div key={index} className="mb-2">
-                                        <strong>{DateUtils.formatDate(comment.timestamp)}</strong>:{" "}
-                                        <Linkify>{comment.comment}</Linkify>
+                                    <div
+                                        key={comment.id || index}
+                                        className="mb-2 d-flex align-items-center justify-content-between"
+                                    >
+                                        <div>
+                                            <strong>{DateUtils.formatDate(comment.timestamp)}</strong>:{" "}
+                                            <Linkify>{comment.comment}</Linkify>
+                                        </div>
+                                        <Button
+                                            variant="link"
+                                            onClick={() => handleDeleteComment(comment.id)}
+                                            className="p-0 text-danger"
+                                            title="Delete Comment"
+                                        >
+                                            <FaTrash />
+                                        </Button>
                                     </div>
                                 ))
                             ) : (
