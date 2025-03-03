@@ -371,6 +371,7 @@ function ViewLinkedDevices() {
             });
             setComments([{ comment: newComment, timestamp: new Date() }, ...comments]);
             setNewComment('');
+            fetchComments(currentDeviceId)
         } catch (error) {
             console.error('Error adding comment:', error);
         } finally {
@@ -806,6 +807,7 @@ function ViewLinkedDevices() {
                             setNewField={setNewField}
                             handleAddField={handleAddFieldLocal}
                             comments={comments}
+                            setComments={setComments}
                             newComment={newComment}
                             setNewComment={setNewComment}
                             isSubmitting={isSubmittingComment}
