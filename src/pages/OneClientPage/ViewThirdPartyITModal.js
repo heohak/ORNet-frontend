@@ -57,6 +57,7 @@ function ViewThirdPartyITModal({
         streetAddress: "",
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const [phoneNumberError, setPhoneNumberError] = useState("");
 
     // For Delete confirmation
@@ -366,6 +367,8 @@ function ViewThirdPartyITModal({
 
     // handle deletion
     const handleDelete = async () => {
+        if (isDeleting) return;
+        setIsDeleting(true);
         try {
             await axiosInstance.delete(`${config.API_BASE_URL}/third-party/${localThirdParty.id}`);
             if (onUpdate) onUpdate();
@@ -374,12 +377,15 @@ function ViewThirdPartyITModal({
         } catch (err) {
             console.error("Delete error:", err);
             setError("Failed to delete third-party IT.");
+        } finally {
+            setIsDeleting(false);
         }
     };
 
     return (
         <>
             <Modal
+                dialogClassName={showAddContactModal || showDeleteModal || showFileModal ? "dimmed" : ""}
                 show={show}
                 onHide={onHide}
                 size="lg"
@@ -462,8 +468,8 @@ function ViewThirdPartyITModal({
                     <Button variant="outline-info" onClick={() => setShowDeleteModal(false)}>
                         Cancel
                     </Button>
-                    <Button variant="danger" onClick={handleDelete}>
-                        Delete
+                    <Button variant="danger" onClick={handleDelete} disabled={isDeleting}>
+                        {isDeleting ? "Deleting..." : "Delete"}
                     </Button>
                 </Modal.Footer>
             </Modal>

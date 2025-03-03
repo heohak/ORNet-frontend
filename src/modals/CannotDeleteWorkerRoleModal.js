@@ -1,7 +1,7 @@
 import { Modal, ListGroup } from "react-bootstrap";
 import React from "react";
 
-function EditWorkerRoleModal({ show, handleClose, workerList }) {
+function CannotDeleteWorkerRoleModal({ show, handleClose, workerList }) {
     return (
         <>
             <Modal backdrop="static" show={show} onHide={handleClose}>
@@ -28,4 +28,4 @@ function EditWorkerRoleModal({ show, handleClose, workerList }) {
     );
 }
 
-export default EditWorkerRoleModal;
+export default CannotDeleteWorkerRoleModal;

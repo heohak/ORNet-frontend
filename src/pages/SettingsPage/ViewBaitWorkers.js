@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import {
     Row,
     Col,
@@ -46,6 +45,8 @@ function ViewBaitWorkers() {
     const [relatedTickets, setRelatedTickets] = useState([]);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     useEffect(() => {
         const fetchWorkers = async () => {
             try {
@@ -63,6 +64,8 @@ function ViewBaitWorkers() {
 
     const handleAddWorker = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         setError(null);
         const trimmedPhoneNumber = phoneNumber.trim();
         if (!/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
@@ -90,6 +93,8 @@ function ViewBaitWorkers() {
             setTitle('');
         } catch (error) {
             setError(error.message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -105,6 +110,8 @@ function ViewBaitWorkers() {
 
     const handleUpdateWorker = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         setError(null);
         const trimmedPhoneNumber = editPhoneNumber.trim();
         if (!/^\+?\d+(?:\s\d+)*$/.test(trimmedPhoneNumber)) {
@@ -128,6 +135,8 @@ function ViewBaitWorkers() {
             setSelectedWorker(null);
         } catch (error) {
             setError(error.message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -148,6 +157,8 @@ function ViewBaitWorkers() {
     };
 
     const handleDeleteWorker = async () => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         try {
             await axiosInstance.delete(`${config.API_BASE_URL}/bait/worker/${selectedWorker.id}`);
             const response = await axiosInstance.get(`${config.API_BASE_URL}/bait/worker/all`);
@@ -157,6 +168,8 @@ function ViewBaitWorkers() {
             setSelectedWorker(null);
         } catch (error) {
             setError('Error deleting worker');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -299,15 +312,20 @@ function ViewBaitWorkers() {
                         <Button variant="outline-info" onClick={() => setShowAddModal(false)}>
                             Cancel
                         </Button>
-                        <Button variant="primary" type="submit">
-                            Add Worker
+                        <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? "Adding..." : "Add Worker"}
                         </Button>
                     </Modal.Footer>
                 </Form>
             </Modal>
 
             {/* Edit Worker Modal */}
-            <Modal backdrop="static" show={showEditModal} onHide={() => setShowEditModal(false)}>
+            <Modal
+                dialogClassName={showDeleteModal ? "dimmed" : ""}
+                backdrop="static"
+                show={showEditModal}
+                onHide={() => setShowEditModal(false)}
+            >
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Worker</Modal.Title>
                 </Modal.Header>
@@ -375,8 +393,8 @@ function ViewBaitWorkers() {
                         <Button variant="danger" onClick={handleShowDeleteModal}>
                             Delete Worker
                         </Button>
-                        <Button variant="primary" type="submit">
-                            Update Worker
+                        <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? "Updating..." : "Update Worker"}
                         </Button>
                     </Modal.Footer>
                 </Form>
@@ -413,8 +431,8 @@ function ViewBaitWorkers() {
                         Close
                     </Button>
                     {relatedTickets.length === 0 && (
-                        <Button variant="danger" onClick={handleDeleteWorker}>
-                            Delete Worker
+                        <Button variant="danger" onClick={handleDeleteWorker} disabled={isSubmitting}>
+                            {isSubmitting ? "Deleting..." : "Delete Worker"}
                         </Button>
                     )}
                 </Modal.Footer>

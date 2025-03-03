@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Button, Spinner, Alert } from 'react-bootstrap';
+import {Container, Row, Col, Button, Spinner, Alert, Card} from 'react-bootstrap';
 import axiosInstance from "../../config/axiosInstance";
 import config from '../../config/config';
 
@@ -10,6 +10,17 @@ import { FaArrowLeft } from 'react-icons/fa';
 import AddThirdPartyITModal from "../OneClientPage/AddThirdPartyITModal";
 import ViewThirdPartyITModal from "../OneClientPage/ViewThirdPartyITModal";
 
+
+// Custom hook to get current window width
+const useWindowWidth = () => {
+    const [width, setWidth] = useState(window.innerWidth);
+    useEffect(() => {
+        const handleResize = () => setWidth(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    return width;
+};
 
 function ViewThirdPartyITs() {
     const [thirdPartyITs, setThirdPartyITs] = useState([]);
@@ -22,6 +33,9 @@ function ViewThirdPartyITs() {
     // "View Third-Party" modal
     const [selectedThirdParty, setSelectedThirdParty] = useState(null);
     const [showViewModal, setShowViewModal] = useState(false);
+
+    const windowWidth = useWindowWidth();
+    const isMobile = windowWidth < 768; // for responsive layout
 
     // 1. Fetch Third-Party IT list on mount
     useEffect(() => {
@@ -123,6 +137,31 @@ function ViewThirdPartyITs() {
             {thirdPartyITs.length === 0 ? (
                 <Alert variant="info">No Third-Party ITs found.</Alert>
             ) : (
+                isMobile ? (
+                    // Mobile view: Render each third-party IT as a Card
+                    thirdPartyITs.map((thirdParty) => (
+                        <Card
+                            key={thirdParty.id}
+                            className="mb-3"
+                            onClick={() => handleRowClick(thirdParty)}
+                            style={{
+                                cursor: 'pointer',
+                            }}
+                        >
+                            <Card.Body>
+                                <Card.Title>{thirdParty.name}</Card.Title>
+                                <Card.Text>
+                                    <div>
+                                        <strong>Phone:</strong> {thirdParty.phone || "N/A"}
+                                    </div>
+                                    <div>
+                                        <strong>Email:</strong> {thirdParty.email || "N/A"}
+                                    </div>
+                                </Card.Text>
+                            </Card.Body>
+                        </Card>
+                    ))
+                ) : (
                 <>
                     {/* Table-like headers (non-clickable) */}
                     <Row className="fw-bold row-margin-0">
@@ -152,7 +191,7 @@ function ViewThirdPartyITs() {
                         );
                     })}
                 </>
-            )}
+            ))}
 
             {/* Add ThirdPartyIT Modal */}
             <AddThirdPartyITModal

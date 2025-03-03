@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import {
     Container,
     Row,
@@ -34,6 +33,10 @@ function ViewTicketStatusClassificators() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [relatedTickets, setRelatedTickets] = useState([]);
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+
     useEffect(() => {
         fetchClassificators();
     }, []);
@@ -53,6 +56,8 @@ function ViewTicketStatusClassificators() {
 
     const handleAddClassificator = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         try {
             await axiosInstance.post(`${config.API_BASE_URL}/ticket/classificator/add`, {
                 status: newStatus,
@@ -64,6 +69,8 @@ function ViewTicketStatusClassificators() {
             fetchClassificators(); // Refresh the list
         } catch (error) {
             setError('Error adding ticket status classificator');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -76,6 +83,8 @@ function ViewTicketStatusClassificators() {
 
     const handleUpdateClassificator = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         try {
             await axiosInstance.put(
                 `${config.API_BASE_URL}/ticket/classificator/update/${selectedClassificator.id}`,
@@ -86,6 +95,8 @@ function ViewTicketStatusClassificators() {
             fetchClassificators(); // Refresh the list
         } catch (error) {
             setError('Error updating ticket status classificator');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -110,6 +121,8 @@ function ViewTicketStatusClassificators() {
     };
 
     const handleDeleteClassificator = async () => {
+        if (isDeleting) return;
+        setIsDeleting(true);
         try {
             await axiosInstance.delete(`${config.API_BASE_URL}/ticket/classificator/${selectedClassificator.id}`);
             setShowDeleteModal(false);
@@ -118,6 +131,8 @@ function ViewTicketStatusClassificators() {
             fetchClassificators(); // Refresh the list
         } catch (error) {
             setError('Error deleting ticket status classificator');
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -155,9 +170,9 @@ function ViewTicketStatusClassificators() {
                         <>
                             {/* Table header */}
                             <Row className="fw-bold mt-2">
-                                <Col md={9}>Status</Col>
-                                <Col md={1}>Color</Col>
-                                <Col md={2}>Actions</Col>
+                                <Col xs={7} md={9}>Status</Col>
+                                <Col xs="auto" md={1}>Color</Col>
+                                <Col xs="auto" md={2}>Actions</Col>
                             </Row>
                             <hr />
                             {/* Status rows */}
@@ -170,8 +185,8 @@ function ViewTicketStatusClassificators() {
                                         className="align-items-center py-1"
                                         style={{ backgroundColor: rowBgColor }}
                                     >
-                                        <Col md={9}>{classificator.status}</Col>
-                                        <Col md={1}>
+                                        <Col xs={7} md={9}>{classificator.status}</Col>
+                                        <Col xs={2} md={1}>
                                             <div
                                                 style={{
                                                     width: '20px',
@@ -182,7 +197,7 @@ function ViewTicketStatusClassificators() {
                                                 }}
                                             ></div>
                                         </Col>
-                                        <Col md={2}>
+                                        <Col xs={2} md={2}>
                                             <Button
                                                 variant="link"
                                                 className="d-flex p-0"
@@ -231,15 +246,20 @@ function ViewTicketStatusClassificators() {
                         <Button variant="outline-info" onClick={() => setShowAddModal(false)}>
                             Cancel
                         </Button>
-                        <Button variant="primary" type="submit">
-                            Add Status
+                        <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? "Adding..." : "Add Status"}
                         </Button>
                     </Modal.Footer>
                 </Form>
             </Modal>
 
             {/* Edit Classificator Modal */}
-            <Modal backdrop="static" show={showEditModal} onHide={() => setShowEditModal(false)}>
+            <Modal
+                dialogClassName={showDeleteModal ? "dimmed" : ""}
+                backdrop="static"
+                show={showEditModal}
+                onHide={() => setShowEditModal(false)}
+            >
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Ticket Status</Modal.Title>
                 </Modal.Header>
@@ -274,7 +294,7 @@ function ViewTicketStatusClassificators() {
                             Delete Status
                         </Button>
                         <Button variant="primary" type="submit">
-                            Update Status
+                            {isSubmitting ? "Updating..." : "Update Status"}
                         </Button>
                     </Modal.Footer>
                 </Form>
@@ -311,8 +331,8 @@ function ViewTicketStatusClassificators() {
                         Close
                     </Button>
                     {relatedTickets.length === 0 && (
-                        <Button variant="danger" onClick={handleDeleteClassificator}>
-                            Delete Status
+                        <Button variant="danger" onClick={handleDeleteClassificator} disabled={isDeleting}>
+                            {isDeleting ? "Deleting..." : "Delete Status"}
                         </Button>
                     )}
                 </Modal.Footer>

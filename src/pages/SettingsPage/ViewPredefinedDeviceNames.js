@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import {
     Container,
     Row,
@@ -24,6 +23,7 @@ function ViewPredefinedDeviceNames() {
     // State for Delete Confirmation Modal
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedDeviceName, setSelectedDeviceName] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         fetchDeviceNames();
@@ -44,6 +44,8 @@ function ViewPredefinedDeviceNames() {
 
     const handleAddDeviceName = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         try {
             await axiosInstance.post(`${config.API_BASE_URL}/predefined/add`, null, {
                 params: {
@@ -55,6 +57,8 @@ function ViewPredefinedDeviceNames() {
             fetchDeviceNames(); // Refresh the list
         } catch (error) {
             setError('Error adding predefined device name');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -66,6 +70,8 @@ function ViewPredefinedDeviceNames() {
 
     // Function to delete the device name
     const handleDeleteDeviceName = async () => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         try {
             await axiosInstance.delete(`${config.API_BASE_URL}/predefined/delete/${selectedDeviceName.id}`);
             fetchDeviceNames(); // Refresh the list
@@ -73,6 +79,8 @@ function ViewPredefinedDeviceNames() {
             setSelectedDeviceName(null);
         } catch (error) {
             setError('Error deleting predefined device name');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -120,8 +128,8 @@ function ViewPredefinedDeviceNames() {
                                 className="align-items-center py-1"
                                 style={{ backgroundColor: rowBgColor }}
                             >
-                                <Col md={10}>{deviceName.name}</Col>
-                                <Col md={2}>
+                                <Col xs={10} md={10}>{deviceName.name}</Col>
+                                <Col xs={2} md={2}>
                                     <Button
                                         variant="link"
                                         className="d-flex p-0"
@@ -158,8 +166,8 @@ function ViewPredefinedDeviceNames() {
                         <Button variant="outline-info" onClick={() => setShowAddModal(false)}>
                             Cancel
                         </Button>
-                        <Button variant="primary" type="submit">
-                            Add Device Name
+                        <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? "Adding..." : "Add Device Name"}
                         </Button>
                     </Modal.Footer>
                 </Form>
@@ -182,8 +190,8 @@ function ViewPredefinedDeviceNames() {
                     <Button variant="outline-info" onClick={() => setShowDeleteModal(false)}>
                         Cancel
                     </Button>
-                    <Button variant="danger" onClick={handleDeleteDeviceName}>
-                        Delete
+                    <Button variant="danger" onClick={handleDeleteDeviceName} disabled={isSubmitting}>
+                        {isSubmitting ? "Deleting..." : "Delete"}
                     </Button>
                 </Modal.Footer>
             </Modal>
