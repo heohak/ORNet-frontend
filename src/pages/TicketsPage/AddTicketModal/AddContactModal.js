@@ -5,7 +5,7 @@ import config from "../../../config/config";
 import axiosInstance from "../../../config/axiosInstance";
 import Select from "react-select";
 
-const AddContactModal = ({ show, handleClose, onAdd, locations, clientId, selectedLocation }) => {
+const AddContactModal = ({ show, handleClose, onAdd, locations, clientId, selectedLocation, refresh }) => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
@@ -67,7 +67,8 @@ const AddContactModal = ({ show, handleClose, onAdd, locations, clientId, select
                 setLocationId('');
                 setTitle('');
                 setSelectedRoles([]);
-                setNewRole('');
+                setNewRole({ role: '' });
+                refresh();
                 handleClose();
             } catch (error) {
                 console.error('Error adding new contact:', error);

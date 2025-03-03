@@ -46,6 +46,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
     const [submitType, setSubmitType] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [defaultDeviceOptions, setDefaultDeviceOptions] = useState([]);
+    const [refresh, setRefresh] = useState(false);
 
 
     const sortList = (list, type) => {
@@ -132,7 +133,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
         };
 
         fetchLocationsAndContacts();
-    }, [formData.clientId]);
+    }, [formData.clientId, refresh]);
 
     const handleChange = (e) => {
         const {id, value } = e.target;
@@ -628,6 +629,7 @@ const AddTicketModal = ({show, handleClose, reFetch, onNavigate, setTicket, clie
                 clientId={formData.clientId}
                 locations={locations}
                 selectedLocation={formData.locationId}
+                refresh={() => setRefresh(!refresh)}
             />
         </Modal>
     );
