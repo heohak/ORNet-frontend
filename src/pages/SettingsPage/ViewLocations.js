@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import {
     Container,
     Row,
@@ -8,13 +7,24 @@ import {
     Spinner,
     Alert,
     Form,
-    Modal,
+    Modal, Card,
 } from 'react-bootstrap';
 import config from '../../config/config';
 import AddLocationModal from '../OneClientPage/AddLocationModal';
 import {FaArrowLeft, FaEdit} from 'react-icons/fa';
 import { validatePhoneAndPostalCode } from '../../utils/Validation';
 import axiosInstance from "../../config/axiosInstance";
+
+// Custom hook to get current window width
+const useWindowWidth = () => {
+    const [width, setWidth] = useState(window.innerWidth);
+    useEffect(() => {
+        const handleResize = () => setWidth(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    return width;
+};
 
 function ViewLocations() {
     const [locations, setLocations] = useState([]);
@@ -42,6 +52,11 @@ function ViewLocations() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     // State for second confirmation modal
     const [showForceDeleteModal, setShowForceDeleteModal] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const windowWidth = useWindowWidth();
+    const isMobile = windowWidth < 768; // for responsive layout
 
 
     // Debounce the search query
@@ -92,6 +107,8 @@ function ViewLocations() {
 
     const handleUpdateLocation = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         const isValid = validatePhoneAndPostalCode(
             editPhone,
             editPostalCode,
@@ -123,6 +140,8 @@ function ViewLocations() {
                 setSelectedLocation(null);
             } catch (error) {
                 setError('Error updating location');
+            } finally {
+                setIsSubmitting(false);
             }
         }
     };
@@ -153,6 +172,8 @@ function ViewLocations() {
     };
 
     const handleDeleteLocation = async () => {
+        if (isDeleting) return;
+        setIsDeleting(true);
         try {
             await axiosInstance.delete(`${config.API_BASE_URL}/location/${selectedLocation.id}`);
             // Refresh the locations list
@@ -165,10 +186,14 @@ function ViewLocations() {
             setSelectedLocation(null);
         } catch (error) {
             setError('Error deleting location');
+        } finally {
+            setIsDeleting(false);
         }
     };
 
     async function handleForceDeleteLocation() {
+        if (isDeleting) return;
+        setIsDeleting(true);
         try {
             // Call your new endpoint
             await axiosInstance.delete(
@@ -190,6 +215,8 @@ function ViewLocations() {
             setError('Error force deleting location');
             // Close only the Force Delete modal
             setShowForceDeleteModal(false);
+        } finally {
+            setIsDeleting(false);
         }
     }
 
@@ -237,6 +264,41 @@ function ViewLocations() {
                     </Alert>
                 </Container>
             ) : (
+                isMobile ? (
+                    // Mobile view: render each location as a Card
+                    locations.map((location) => (
+                        <Card key={location.id} className="mb-3">
+                            <Card.Body>
+                                <Row className="justify-content-between">
+                                    <Col xs={10}>
+                                        <Card.Title>{location.name}</Card.Title>
+                                    </Col>
+                                    <Col xs="auto">
+                                        <Button
+                                            variant="link"
+                                            className="d-flex p-0"
+                                            onClick={() => handleEdit(location)}
+                                        >
+                                            <FaEdit />
+                                        </Button>
+                                    </Col>
+                                </Row>
+
+                                <Card.Text>
+                                    <div>
+                                        <strong>Address:</strong> {location.streetAddress}, {location.city}, {location.country}, {location.postalCode}
+                                    </div>
+                                    <div>
+                                        <strong>Phone:</strong> {location.phone}
+                                    </div>
+                                    <div>
+                                        <strong>Email:</strong> {location.email}
+                                    </div>
+                                </Card.Text>
+                            </Card.Body>
+                        </Card>
+                    ))
+                ) : (
                 <>
                     {locations.length === 0 ? (
                         <Alert variant="info">No Locations found.</Alert>
@@ -283,7 +345,7 @@ function ViewLocations() {
                         </>
                     )}
                 </>
-            )}
+                ))}
 
             {/* Add Location Modal */}
             <AddLocationModal
@@ -293,7 +355,12 @@ function ViewLocations() {
             />
 
             {/* Edit Location Modal */}
-            <Modal backdrop="static" show={showEditModal} onHide={() => setShowEditModal(false)}>
+            <Modal
+                dialogClassName={showDeleteModal ? "dimmed" : ""}
+                backdrop="static"
+                show={showEditModal}
+                onHide={() => setShowEditModal(false)}
+            >
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Location</Modal.Title>
                 </Modal.Header>
@@ -392,8 +459,8 @@ function ViewLocations() {
                         <Button variant="danger" onClick={handleShowDeleteModal}>
                             Delete Location
                         </Button>
-                        <Button variant="primary" type="submit">
-                            Update Location
+                        <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? "Updating..." : "Update Location"}
                         </Button>
                     </Modal.Footer>
                 </Form>
@@ -441,7 +508,7 @@ function ViewLocations() {
                     {relatedClients.length === 0 && relatedWorkers.length === 0 ? (
                         // Normal delete if no references
                         <Button variant="danger" onClick={handleDeleteLocation}>
-                            Delete Location
+                            {isDeleting ? "Deleting..." : "Delete Location"}
                         </Button>
                     ) : (
                         // If references exist, show Force Delete button
@@ -477,8 +544,8 @@ function ViewLocations() {
                     <Button variant="outline-info" onClick={() => setShowForceDeleteModal(false)}>
                         Cancel
                     </Button>
-                    <Button variant="danger" onClick={handleForceDeleteLocation}>
-                        Yes, Force Delete
+                    <Button variant="danger" onClick={handleForceDeleteLocation} disabled={isDeleting}>
+                        {isDeleting ? "Deleting..." : "Yes, Force Delete"}
                     </Button>
                 </Modal.Footer>
             </Modal>

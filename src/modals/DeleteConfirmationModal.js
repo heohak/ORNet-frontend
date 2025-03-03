@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
 
-function DeleteConfirmationModal({ show, handleClose, handleDelete }) {
+function DeleteConfirmationModal({ show, handleClose, handleDelete, isDeleting }) {
     return (
         <Modal backdrop="static" show={show} onHide={handleClose}>
             <Modal.Header closeButton>
@@ -14,8 +14,8 @@ function DeleteConfirmationModal({ show, handleClose, handleDelete }) {
                 <Button variant="secondary" onClick={handleClose}>
                     Cancel
                 </Button>
-                <Button variant="danger" onClick={handleDelete}>
-                    Delete
+                <Button variant="danger" onClick={handleDelete} disabled={isDeleting}>
+                    {isDeleting ? "Deleting..." : "Delete"}
                 </Button>
             </Modal.Footer>
         </Modal>

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../config/axiosInstance";
 import "../../css/LoginPage/LoginPage.css"; // Import the CSS file
 
@@ -7,7 +6,6 @@ const LoginPage = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
-    const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -19,7 +17,6 @@ const LoginPage = () => {
             localStorage.setItem("token", response.data.token);
             window.location.href = "/";
             // window.location.reload();
-            // navigate("/"); // Redirect to home
         } catch (err) {
             setError("Invalid username or password.");
         }
