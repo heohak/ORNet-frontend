@@ -471,12 +471,14 @@ function LinkedDevices({
             });
             setComments([{ comment: newComment, timestamp: new Date() }, ...comments]);
             setNewComment('');
+            fetchComments(deviceId)
         } catch (error) {
             console.error('Error adding comment:', error);
         } finally {
             setIsSubmitting(false);
         }
     };
+
 
     // =======================
     // Unlink
@@ -877,6 +879,7 @@ function LinkedDevices({
                 setNewField={setNewField}
                 handleAddField={handleAddField}
                 comments={comments}
+                setComments={setComments}
                 newComment={newComment}
                 setNewComment={setNewComment}
                 isSubmitting={isSubmitting}
