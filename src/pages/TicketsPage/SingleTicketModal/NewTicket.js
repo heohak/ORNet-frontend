@@ -18,7 +18,6 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
     const [ticket, setTicket] = useState(firstTicket);
     const [activeKey, setActiveKey] = useState('0');
     const [isClosed, setIsClosed] = useState(isTicketClosed);
-    const [activeSection, setActiveSection] = useState('activity');
     const [locationName, setLocationName] = useState('');
     const [paidTime, setPaidTime] = useState(ticket.paidTime);
     const [timeSpent, setTimeSpent] = useState(ticket.timeSpent);
@@ -26,6 +25,8 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
     const [showRootCauseModal, setShowRootCauseModal] = useState(false);
     const [showAddActivityModal, setShowAddActivityModal] = useState(false);
     const [error, setError] = useState("");
+    const [showActivityDeleteModal, setShowActivityDeleteModal] = useState(false);
+
 
 
     useEffect(() => {
@@ -126,7 +127,9 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
             backdrop="static"
             onHide={onClose}
             className="custom-width-modal"
-            dialogClassName={showDeleteModal || showRootCauseModal || showAddActivityModal ? "dimmed custom-modal" : "custom-modal"}
+            dialogClassName={showDeleteModal ||
+                showActivityDeleteModal ||
+                showRootCauseModal || showAddActivityModal ? "dimmed custom-modal" : "custom-modal"}
         >
             <Modal.Header closeButton>
                 <div className="w-100">
@@ -152,6 +155,8 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
                             ticket={ticket}
                             reFetch={reFetchTicket}
                             setShowAddActivityModal={setShowAddActivityModal}
+                            showActivityDeleteModal={showActivityDeleteModal}
+                            setShowActivityDeleteModal={setShowActivityDeleteModal}
                         />
                     </Col>
                     <hr className="responsive-hr" /> {/*Shows only the break line when screen goes small*/}
