@@ -18,7 +18,6 @@ const NewTicket = ({ firstTicket, onClose, statuses, isTicketClosed, reFetch, cl
     const [ticket, setTicket] = useState(firstTicket);
     const [activeKey, setActiveKey] = useState('0');
     const [isClosed, setIsClosed] = useState(isTicketClosed);
-    const [activeSection, setActiveSection] = useState('activity');
     const [locationName, setLocationName] = useState('');
     const [paidTime, setPaidTime] = useState(ticket.paidTime);
     const [timeSpent, setTimeSpent] = useState(ticket.timeSpent);

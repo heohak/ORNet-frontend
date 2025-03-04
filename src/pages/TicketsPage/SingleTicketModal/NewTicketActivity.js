@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Card, ListGroup, Form, InputGroup, Button, Modal } from "react-bootstrap";
+import { Card, ListGroup, Form, Button, Modal } from "react-bootstrap";
 import {FaPaperPlane, FaEdit, FaSave, FaTrash} from "react-icons/fa";
-import axios from "axios";
 import config from "../../../config/config";
 import '../../../css/NewTicket.css';
 import TextareaAutosize from 'react-textarea-autosize';
