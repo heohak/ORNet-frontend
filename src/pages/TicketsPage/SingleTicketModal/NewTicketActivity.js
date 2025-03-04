@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Card, ListGroup, Form, InputGroup, Button, Modal } from "react-bootstrap";
-import { FaPaperPlane, FaEdit, FaSave } from "react-icons/fa";
+import {FaPaperPlane, FaEdit, FaSave, FaTrash} from "react-icons/fa";
 import axios from "axios";
 import config from "../../../config/config";
 import '../../../css/NewTicket.css';
@@ -10,7 +10,7 @@ import {DateUtils} from "../../../utils/DateUtils";
 import Linkify from 'react-linkify';
 
 
-const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
+const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal, showActivityDeleteModal, setShowActivityDeleteModal }) => {
     const [newActivity, setNewActivity] = useState("");
     const [activities, setActivities] = useState([]);
     const [editMode, setEditMode] = useState(null); // To track which activity is being edited
@@ -20,6 +20,7 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
     const [modalMinutes, setModalMinutes] = useState(0);
     const [modalPaid, setModalPaid] = useState(ticket.paid);
     const activityEndRef = useRef(null);
+    const [activityToDelete, setActivityToDelete] = useState(null);
 
     useEffect(() => {
         if (ticket.activityIds.length > 0) {
@@ -101,6 +102,23 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
         }
     };
 
+    const handleDeleteActivity = async () => {
+        try {
+            await axiosInstance.delete(`/activity/delete/${activityToDelete}`);
+            setShowActivityDeleteModal(false);
+            setEditMode(null);
+            fetchActivities();
+            reFetch();
+        } catch (error) {
+            console.error("Error deleting activity", error);
+        }
+    };
+
+    const handleDeleteClick = (activityId) => {
+        setActivityToDelete(activityId);
+        setShowActivityDeleteModal(true);
+    };
+
     const fetchActivities = async () => {
         try {
             const response = await axiosInstance.get(`${config.API_BASE_URL}/ticket/activity/${ticket.id}`);
@@ -132,16 +150,32 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
                                 </div>
                                 <div>
                                     {editMode === index ? (
-                                        <FaSave
-                                            size={25}
-                                            style={{ cursor: "pointer", opacity: "0.7" }}
-                                            onClick={() => handleSaveActivity(index, activity.id)}
-                                        />
+                                        <>
+                                            <FaTrash
+                                                size={20}
+                                                className="text-danger"
+                                                style={{ cursor: "pointer", opacity: "0.7" }}
+                                                onClick={() =>
+                                                    handleDeleteClick(activity.id)
+                                                }
+                                            />
+                                            <FaSave
+                                                size={20}
+                                                className="text-success mx-2"
+                                                style={{ cursor: "pointer", opacity: "0.7" }}
+                                                onClick={() =>
+                                                    handleSaveActivity(index, activity.id)
+                                                }
+                                            />
+                                        </>
                                     ) : (
                                         <FaEdit
-                                            size={25}
+                                            size={20}
+                                            className="text-primary"
                                             style={{ cursor: "pointer", opacity: "0.7" }}
-                                            onClick={() => handleEditClick(index, activity.activity)}
+                                            onClick={() =>
+                                                handleEditClick(index, activity.activity)
+                                            }
                                         />
                                     )}
                                 </div>
@@ -246,6 +280,24 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal }) => {
                     </Button>
                     <Button variant="primary" onClick={submitActivity}>
                         Submit
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Delete Confirmation Modal */}
+            <Modal show={showActivityDeleteModal} onHide={() => setShowActivityDeleteModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    Are you sure you want to delete this activity? This action cannot be undone.
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowActivityDeleteModal(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={handleDeleteActivity}>
+                        Delete
                     </Button>
                 </Modal.Footer>
             </Modal>
