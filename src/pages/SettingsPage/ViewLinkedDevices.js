@@ -23,6 +23,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 // Import your DeviceDetailsModal
 import DeviceDetailsModal from '../OneDevicePage/DeviceDetailsModal';
 import LinkedDeviceSearchFilter from "../AllLinkedDevicePage/LinkedDeviceSearchFilter";
+import AsyncSelect from "react-select/async";
 
 // Custom hook to get window width
 const useWindowWidth = () => {
@@ -137,6 +138,7 @@ function ViewLinkedDevices() {
     };
 
     const handleTemplateSelect = (templateId) => {
+        if (!templateId) return;
         const template = templates.find(t => t.id === Number(templateId));
         if (template) {
             setName(template.name);
@@ -146,13 +148,16 @@ function ViewLinkedDevices() {
         }
     };
 
+
     // =======================
     // Fetch Linked Devices
     // =======================
     const fetchLinkedDevices = async () => {
         setLoading(true);
         try {
-            const response = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/all`);
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/search`, {
+                      params: { template: false }   // Only get non-templates
+                });
             setLinkedDevices(response.data);
             setError(null);
         } catch (err) {
@@ -337,6 +342,25 @@ function ViewLinkedDevices() {
             setEditError('Error deleting linked device');
         }
     };
+
+    const loadTemplateOptions = async (inputValue) => {
+        try {
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/search`, {
+                params: {
+                    q: inputValue,
+                    template: true
+                }
+            });
+            return response.data.map(template => ({
+                value: template.id,
+                label: `${template.name} (product code: ${template.productCode})`
+            }));
+        } catch (error) {
+            console.error("Error searching templates:", error);
+            return [];
+        }
+    };
+
 
     // =======================
     // Fetch Comments
@@ -677,15 +701,28 @@ function ViewLinkedDevices() {
                                     <>
                                         <Form.Group controlId="formTemplateSelect" className="mb-3">
                                             <Form.Label>Select Template</Form.Label>
-                                            <Form.Control as="select" onChange={(e) => handleTemplateSelect(e.target.value)}>
-                                                <option value="">Select a template...</option>
-                                                {templates.map((template) => (
-                                                    <option key={template.id} value={template.id}>
-                                                        {template.name}
-                                                    </option>
-                                                ))}
-                                            </Form.Control>
+                                            <AsyncSelect
+                                                cacheOptions
+                                                defaultOptions
+                                                isClearable
+                                                loadOptions={loadTemplateOptions}
+                                                onChange={(selectedOption) => {
+                                                    if (selectedOption) {
+                                                        // Existing logic when a template is chosen
+                                                        handleTemplateSelect(selectedOption.value);
+                                                    } else {
+                                                        // When cleared, reset these fields
+                                                        setName('');
+                                                        setManufacturer('');
+                                                        setProductCode('');
+                                                        setDescription('');
+                                                    }
+                                                }}
+                                                placeholder="Search templates..."
+                                            />
                                         </Form.Group>
+
+
                                     </>
                                 )}
                                 {/* Name Field */}
