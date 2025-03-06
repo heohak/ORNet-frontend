@@ -320,7 +320,7 @@ function ViewLinkedDevices() {
             );
 
             // Refresh the device list
-            const updatedRes = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/all`);
+            const updatedRes = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/search`, {params : {template: false}});
             setLinkedDevices(updatedRes.data);
             initializeFieldsConfig(updatedRes.data);
             setActiveTab('details');
@@ -333,7 +333,7 @@ function ViewLinkedDevices() {
     const handleDeleteLinkedDevice = async () => {
         try {
             await axiosInstance.delete(`${config.API_BASE_URL}/linked/device/${currentDeviceId}`);
-            const updatedRes = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/all`);
+            const updatedRes = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/search`, {params: {template: false}});
             setLinkedDevices(updatedRes.data);
             setShowDeleteLinkedDeviceModal(false);
             setShowDeviceModal(false);
