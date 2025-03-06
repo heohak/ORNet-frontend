@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import {
     Container,
     Row,
@@ -29,6 +28,8 @@ function ViewClientWorkerRoles() {
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedRole, setSelectedRole] = useState(null);
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -50,6 +51,8 @@ function ViewClientWorkerRoles() {
 
     const handleAddRole = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         try {
             await axiosInstance.post(`${config.API_BASE_URL}/worker/classificator/add`, {
                 role: roleName,
@@ -59,6 +62,8 @@ function ViewClientWorkerRoles() {
             setRoleName('');
         } catch (error) {
             setError('Error adding role');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -117,7 +122,7 @@ function ViewClientWorkerRoles() {
                             {/* Table Header */}
                             <Row className="fw-bold mt-2">
                                 <Col>Role</Col>
-                                <Col md="auto">Actions</Col>
+                                <Col xs="auto" md="auto">Actions</Col>
                             </Row>
                             <hr />
                             {/* Roles Rows */}
@@ -130,7 +135,7 @@ function ViewClientWorkerRoles() {
                                         style={{ backgroundColor: rowBgColor }}
                                     >
                                         <Col>{role.role}</Col>
-                                        <Col md="auto">
+                                        <Col xs="auto" md="auto">
                                             <Button
                                                 variant="link"
                                                 className="d-flex p-0"
@@ -169,8 +174,8 @@ function ViewClientWorkerRoles() {
                         <Button variant="outline-info" onClick={() => setShowAddModal(false)}>
                             Cancel
                         </Button>
-                        <Button variant="primary" type="submit">
-                            Add Role
+                        <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? "Adding" : "Add Role"}
                         </Button>
                     </Modal.Footer>
                 </Form>

@@ -180,7 +180,7 @@ function ViewFiles() {
                     {/* Table Header */}
                     <Row className="fw-bold mt-2">
                         <Col>File Name</Col>
-                        <Col md="auto">Actions</Col>
+                        <Col xs="auto" md="auto">Actions</Col>
                     </Row>
                     <hr />
                     {/* Files Rows */}
@@ -193,28 +193,35 @@ function ViewFiles() {
                                 style={{ backgroundColor: rowBgColor }}
                             >
                                 <Col>
-                                    <a
+                                    <Button
                                         onClick={() => handleFileOpen(file.id)}
-                                        style={{cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}
-                                    >
+                                        style={{
+                                            cursor: 'pointer',
+                                            textDecoration: 'none',
+                                            color: 'inherit',
+                                            background: 'none',
+                                            border: 'none',
+                                            padding: 0,
+                                            font: 'inherit'
+                                        }}                                    >
                                         {file.fileName}
-                                    </a>
+                                    </Button>
                                 </Col>
-                                <Col md="auto">
-                                    <a onClick={() => handleFileDownload(file.id, file.fileName)}>
-                                        <Button variant="link" className="p-0">
-                                            <FaDownload />
-                                        </Button>
-                                    </a>
-                                    <a onClick={() => {
-                                        setSelectedFileId(file.id); // Set the file ID
-                                        setSelectedFileName(file.fileName); // Set the file name
-                                        setShowDeleteModal(true); // Show delete confirmation modal
-                                    }}>
-                                        <Button variant="link" className="ms-4 p-0">
-                                            <FaTrash className="text-danger" />
-                                        </Button>
-                                    </a>
+                                <Col xs="auto" md="auto">
+                                    <Button variant="link" className="p-0" onClick={() => handleFileDownload(file.id, file.fileName)}>
+                                        <FaDownload />
+                                    </Button>
+                                    <Button
+                                        variant="link"
+                                        className="ms-4 p-0"
+                                        onClick={() => {
+                                            setSelectedFileId(file.id); // Set the file ID
+                                            setSelectedFileName(file.fileName); // Set the file name
+                                            setShowDeleteModal(true); // Show delete confirmation modal
+                                        }}
+                                    >
+                                        <FaTrash className="text-danger" />
+                                    </Button>
                                 </Col>
                             </Row>
                         );

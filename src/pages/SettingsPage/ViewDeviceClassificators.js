@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import {
     Container,
     Row,
@@ -32,6 +31,10 @@ function ViewDeviceClassificators() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [relatedDevices, setRelatedDevices] = useState([]);
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+
     useEffect(() => {
         fetchClassificators();
     }, []);
@@ -51,6 +54,8 @@ function ViewDeviceClassificators() {
 
     const handleAddClassificator = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         try {
             await axiosInstance.post(`${config.API_BASE_URL}/device/classificator/add`, { name: newName });
             setShowAddModal(false);
@@ -58,6 +63,8 @@ function ViewDeviceClassificators() {
             fetchClassificators(); // Refresh the list
         } catch (error) {
             setError('Error adding device type');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -69,6 +76,8 @@ function ViewDeviceClassificators() {
 
     const handleUpdateClassificator = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         try {
             await axiosInstance.put(
                 `${config.API_BASE_URL}/device/classificator/update/${selectedClassificator.id}`,
@@ -79,6 +88,8 @@ function ViewDeviceClassificators() {
             fetchClassificators(); // Refresh the list
         } catch (error) {
             setError('Error updating device type');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -103,6 +114,8 @@ function ViewDeviceClassificators() {
     };
 
     const handleDeleteClassificator = async () => {
+        if (isDeleting) return;
+        setIsDeleting(true);
         try {
             await axiosInstance.delete(`${config.API_BASE_URL}/device/classificator/${selectedClassificator.id}`);
             setShowDeleteModal(false);
@@ -111,6 +124,8 @@ function ViewDeviceClassificators() {
             fetchClassificators(); // Refresh the list
         } catch (error) {
             setError('Error deleting device type');
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -148,8 +163,8 @@ function ViewDeviceClassificators() {
                         <>
                             {/* Table header */}
                             <Row className="fw-bold mt-2">
-                                <Col md={10}>Device Type</Col>
-                                <Col md={2}>Actions</Col>
+                                <Col xs={9} md={10}>Device Type</Col>
+                                <Col xs={3} md={2}>Actions</Col>
                             </Row>
                             <hr />
                             {/* Device Type rows */}
@@ -162,8 +177,8 @@ function ViewDeviceClassificators() {
                                         className="align-items-center py-1"
                                         style={{ backgroundColor: rowBgColor }}
                                     >
-                                        <Col md={10}>{classificator.name}</Col>
-                                        <Col md={2}>
+                                        <Col xs={9} md={10}>{classificator.name}</Col>
+                                        <Col xs={3} md={2}>
                                             <Button
                                                 variant="link"
                                                 className="d-flex p-0"
@@ -202,8 +217,8 @@ function ViewDeviceClassificators() {
                         <Button variant="outline-info" onClick={() => setShowAddModal(false)}>
                             Cancel
                         </Button>
-                        <Button variant="primary" type="submit">
-                            Add Type
+                        <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? "Adding..." : "Add Type"}
                         </Button>
                     </Modal.Footer>
                 </Form>
@@ -234,8 +249,8 @@ function ViewDeviceClassificators() {
                         <Button variant="danger" onClick={handleShowDeleteModal}>
                             Delete Type
                         </Button>
-                        <Button variant="primary" type="submit">
-                            Update Type
+                        <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? "Updating..." : "Update Type"}
                         </Button>
                     </Modal.Footer>
                 </Form>
@@ -273,8 +288,8 @@ function ViewDeviceClassificators() {
                         Close
                     </Button>
                     {relatedDevices.length === 0 && (
-                        <Button variant="danger" onClick={handleDeleteClassificator}>
-                            Delete Type
+                        <Button variant="danger" onClick={handleDeleteClassificator} disabled={isDeleting}>
+                            {isDeleting ? "Deleting..." : "Delete Type"}
                         </Button>
                     )}
                 </Modal.Footer>

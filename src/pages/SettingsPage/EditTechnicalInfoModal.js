@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button, Alert, Row, Col } from 'react-bootstrap';
-import axios from 'axios';
 import config from '../../config/config';
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -189,6 +188,8 @@ function EditTechnicalInfoModal({ show, onHide, software, onUpdate }) {
     };
 
     const handleDeleteSoftware = async () => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         try {
             await axiosInstance.delete(`${config.API_BASE_URL}/software/${software.id}`);
             if (onUpdate) {
@@ -198,6 +199,8 @@ function EditTechnicalInfoModal({ show, onHide, software, onUpdate }) {
             onHide();
         } catch (error) {
             setError('Error deleting technical information');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -212,7 +215,14 @@ function EditTechnicalInfoModal({ show, onHide, software, onUpdate }) {
 
     return (
         <>
-            <Modal show={show} onHide={onHide} size="lg" backdrop="static" keyboard={false}>
+            <Modal
+                dialogClassName={showDeleteModal ? "dimmed" : ""}
+                show={show}
+                onHide={onHide}
+                size="lg"
+                backdrop="static"
+                keyboard={false}
+            >
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Technical Information</Modal.Title>
                 </Modal.Header>
@@ -638,8 +648,8 @@ function EditTechnicalInfoModal({ show, onHide, software, onUpdate }) {
                     <Button variant="outline-info" onClick={handleCloseDeleteModal}>
                         Close
                     </Button>
-                    <Button variant="danger" onClick={handleDeleteSoftware}>
-                        Delete
+                    <Button variant="danger" onClick={handleDeleteSoftware} disabled={isSubmitting}>
+                        {isSubmitting ? "Deleting..." : "Delete"}
                     </Button>
                 </Modal.Footer>
             </Modal>

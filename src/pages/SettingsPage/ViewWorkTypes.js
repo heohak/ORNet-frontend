@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import {
     Container,
     Row,
@@ -33,6 +32,7 @@ function ViewWorkTypes() {
     const [relatedTickets, setRelatedTickets] = useState([]);
 
     const [refresh, setRefresh] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         fetchWorkTypes();
@@ -54,6 +54,8 @@ function ViewWorkTypes() {
 
     const handleAddWorkType = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         try {
             await axiosInstance.post(`${config.API_BASE_URL}/work-type/classificator/add`, { workType: newWorkType });
             setShowAddModal(false);
@@ -61,6 +63,8 @@ function ViewWorkTypes() {
             setRefresh((prev) => !prev); // Refresh the list
         } catch (error) {
             setError('Error adding work type');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -72,6 +76,8 @@ function ViewWorkTypes() {
 
     const handleUpdateWorkType = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         try {
             await axiosInstance.put(
                 `${config.API_BASE_URL}/work-type/classificator/update/${selectedWorkType.id}`,
@@ -82,6 +88,8 @@ function ViewWorkTypes() {
             setRefresh((prev) => !prev); // Refresh the list
         } catch (error) {
             setError('Error updating work type');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -151,8 +159,8 @@ function ViewWorkTypes() {
                         <>
                             {/* Table header */}
                             <Row className="fw-bold mt-2">
-                                <Col md={10}>Work Type</Col>
-                                <Col md={2}>Actions</Col>
+                                <Col xs="9" md={10}>Work Type</Col>
+                                <Col xs="auto" md={2}>Actions</Col>
                             </Row>
                             <hr />
                             {/* Work Type rows */}
@@ -164,8 +172,8 @@ function ViewWorkTypes() {
                                         className="align-items-center py-1"
                                         style={{ backgroundColor: rowBgColor }}
                                     >
-                                        <Col md={10}>{workType.workType}</Col>
-                                        <Col md={2}>
+                                        <Col xs="9" md={10}>{workType.workType}</Col>
+                                        <Col xs="auto" md={2}>
                                             <Button
                                                 variant="link"
                                                 className="d-flex p-0"
@@ -204,8 +212,8 @@ function ViewWorkTypes() {
                         <Button variant="outline-info" onClick={() => setShowAddModal(false)}>
                             Cancel
                         </Button>
-                        <Button variant="primary" type="submit">
-                            Add Work Type
+                        <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? "Adding.." : "Add Work Type"}
                         </Button>
                     </Modal.Footer>
                 </Form>
@@ -236,8 +244,8 @@ function ViewWorkTypes() {
                         <Button variant="danger" onClick={handleShowDeleteModal}>
                             Delete Work Type
                         </Button>
-                        <Button variant="primary" type="submit">
-                            Update Work Type
+                        <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? "Updating..." : "Update Work Type"}
                         </Button>
                     </Modal.Footer>
                 </Form>
@@ -272,8 +280,8 @@ function ViewWorkTypes() {
                         Close
                     </Button>
                     {relatedTickets.length === 0 && (
-                        <Button variant="danger" onClick={handleDeleteWorkType}>
-                            Delete Work Type
+                        <Button variant="danger" onClick={handleDeleteWorkType} disabled={isSubmitting}>
+                            {isSubmitting ? "Deleting..." : "Delete Work Type"}
                         </Button>
                     )}
                 </Modal.Footer>

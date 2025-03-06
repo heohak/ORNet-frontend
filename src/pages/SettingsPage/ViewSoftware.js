@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import {
     Container,
     Row,
@@ -90,9 +89,9 @@ function ViewSoftware() {
                         <>
                             {/* Table Header */}
                             <Row className="fw-bold mt-2">
-                                <Col>Name</Col>
-                                <Col>DB Version</Col>
-                                <Col md="auto">Actions</Col>
+                                <Col xs={4}>Name</Col>
+                                <Col xs={5}>DB Version</Col>
+                                <Col xs="auto" md="auto">Actions</Col>
                             </Row>
                             <hr />
                             {/* Software Rows */}
@@ -104,9 +103,9 @@ function ViewSoftware() {
                                         className="align-items-center py-1"
                                         style={{ backgroundColor: rowBgColor }}
                                     >
-                                        <Col>{software.name}</Col>
-                                        <Col>{software.dbVersion}</Col>
-                                        <Col md="auto">
+                                        <Col xs={4}>{software.name}</Col>
+                                        <Col xs={5}>{software.dbVersion}</Col>
+                                        <Col xs="auto" md="auto">
                                             <Button
                                                 variant="link"
                                                 className="d-flex p-0"

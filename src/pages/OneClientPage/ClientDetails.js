@@ -6,7 +6,6 @@ import EditClient from "./EditClient";
 import config from "../../config/config";
 import axiosInstance from "../../config/axiosInstance";
 import { DateUtils } from "../../utils/DateUtils";
-import { format } from 'date-fns';
 
 function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles, isMobile }) {
     const [client, setClient] = useState(null);

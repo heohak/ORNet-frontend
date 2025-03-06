@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Form, Button, Alert } from 'react-bootstrap';
-import axios from 'axios';
 import config from '../../config/config';
-import EditWorkerRoleModal from '../../modals/EditWorkerRoleModal';
+import CannotDeleteWorkerRoleModal from '../../modals/CannotDeleteWorkerRoleModal';
 import DeleteConfirmationModal from '../../modals/DeleteConfirmationModal';
 import axiosInstance from "../../config/axiosInstance";
 
@@ -11,11 +10,16 @@ function EditClientWorkerRoleModal({ show, onHide, role, onUpdate }) {
     const [error, setError] = useState(null);
 
     const [workerList, setWorkerList] = useState([]);
-    const [showEditWorkerRoleModal, setShowEditWorkerRoleModal] = useState(false);
+    const [showCannotDeleteModal, setShowCannotDeleteModal] = useState(false);
     const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+
 
     const handleUpdateRole = async (e) => {
         e.preventDefault();
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         try {
             await axiosInstance.put(`${config.API_BASE_URL}/worker/classificator/update/${role.id}`, {
                 role: roleName,
@@ -24,10 +28,14 @@ function EditClientWorkerRoleModal({ show, onHide, role, onUpdate }) {
             onHide();
         } catch (error) {
             setError('Error updating role');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     const handleDeleteRole = async () => {
+        if (isDeleting) return;
+        setIsDeleting(true);
         try {
             const response = await axiosInstance.get(`${config.API_BASE_URL}/worker/search`, {
                 params: {
@@ -58,30 +66,37 @@ function EditClientWorkerRoleModal({ show, onHide, role, onUpdate }) {
                 );
 
                 setWorkerList(workerListWithEmployer);
-                setShowEditWorkerRoleModal(true);
+                setShowCannotDeleteModal(true);
             }
         } catch (error) {
             setError('Error fetching associated workers');
+        } finally {
+            setIsDeleting(false);
         }
     };
 
     const deleteClassificator = async () => {
+        if (isDeleting) return;
+        setIsDeleting(true);
         try {
             await axiosInstance.delete(`${config.API_BASE_URL}/worker/classificator/${role.id}`);
             onUpdate();
             onHide();
         } catch (error) {
             setError('Error deleting role');
+        } finally {
+            setIsDeleting(false);
         }
-    };
-
-    const handleNavigate = () => {
-        console.log('Navigate to role history');
     };
 
     return (
         <>
-            <Modal backdrop="static" show={show} onHide={onHide}>
+            <Modal
+                dialogClassName={showDeleteConfirmationModal || showCannotDeleteModal ? "dimmed" : ""}
+                backdrop="static"
+                show={show}
+                onHide={onHide}
+            >
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Customer Contact Role</Modal.Title>
                 </Modal.Header>
@@ -111,23 +126,24 @@ function EditClientWorkerRoleModal({ show, onHide, role, onUpdate }) {
                         <Button variant="danger" onClick={handleDeleteRole}>
                             Delete Role
                         </Button>
-                        <Button variant="primary" type="submit">
-                            Update Role
+                        <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? "Updating..." : "Update Role"}
                         </Button>
                     </Modal.Footer>
                 </Form>
             </Modal>
 
-            {/* Modals for deletion confirmation and worker role editing */}
-            <EditWorkerRoleModal
-                show={showEditWorkerRoleModal}
-                handleClose={() => setShowEditWorkerRoleModal(false)}
+            {/* Modal when the worker cannot be deleted, because it is linked with other customers */}
+            <CannotDeleteWorkerRoleModal
+                show={showCannotDeleteModal}
+                handleClose={() => setShowCannotDeleteModal(false)}
                 workerList={workerList}
             />
             <DeleteConfirmationModal
                 show={showDeleteConfirmationModal}
                 handleClose={() => setShowDeleteConfirmationModal(false)}
                 handleDelete={deleteClassificator}
+                isDeleting={isDeleting}
             />
         </>
     );

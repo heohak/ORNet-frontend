@@ -32,7 +32,6 @@ import EditDevice from "./pages/OneDevicePage/EditDevice";
 import EditLinkedDevice from "./pages/SettingsPage/EditLinkedDeviceModal";
 import EditClientWorkerRole from "./pages/SettingsPage/EditClientWorkerRoleModal";
 import EditSoftware from "./pages/SettingsPage/EditSoftware";
-import EditWorkType from "./pages/SettingsPage/EditWorkType";
 import HistoryTable from "./components/HistoryTable";
 import Contacts from "./pages/ContactsPage/Contacts";
 import ScrollToTop from "./components/ScrollToTop";
@@ -348,14 +347,6 @@ function App() {
                             element={
                                 <ProtectedRoute>
                                     <EditSoftware />
-                                </ProtectedRoute>
-                            }
-                        />
-                        <Route
-                            path="/settings/work-types/edit/:id"
-                            element={
-                                <ProtectedRoute>
-                                    <EditWorkType />
                                 </ProtectedRoute>
                             }
                         />
