@@ -80,7 +80,7 @@ function LinkedDeviceSearchFilter({ setLinkedDevices, collapsed = false, advance
                 q: searchQuery || undefined,
                 locationId: locationId ? parseInt(locationId, 10) : undefined,
                 deviceId: deviceId ? parseInt(deviceId, 10) : undefined,
-                template: isTemplate ? true : undefined,
+                template: isTemplate,
             };
             if (searchDate && comparison) {
                 params.date = searchDate;
