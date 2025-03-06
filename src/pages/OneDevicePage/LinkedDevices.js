@@ -18,6 +18,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 // IMPORT your new DeviceDetailsModal
 import DeviceDetailsModal from './DeviceDetailsModal';
+import AsyncSelect from "react-select/async";
 
 function LinkedDevices({
                            linkedDevices,
@@ -129,6 +130,24 @@ function LinkedDevices({
             setLocations(response.data);
         } catch (err) {
             console.error('Error fetching client-specific locations:', err);
+        }
+    };
+
+    const loadTemplateOptions = async (inputValue) => {
+        try {
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/linked/device/search`, {
+                params: {
+                    q: inputValue,
+                    template: true
+                }
+            });
+            return response.data.map(template => ({
+                value: template.id,
+                label: `${template.name} (product code: ${template.productCode})`
+            }));
+        } catch (error) {
+            console.error("Error searching templates:", error);
+            return [];
         }
     };
 
@@ -695,18 +714,29 @@ function LinkedDevices({
                             <>
                                 <Form.Group controlId="formTemplateSelect" className="mb-3">
                                     <Form.Label>Select Template</Form.Label>
-                                    <Form.Control
-                                        as="select"
-                                        onChange={(e) => handleTemplateSelect(e.target.value)}
-                                    >
-                                        <option value="">Select a template...</option>
-                                        {templates.map((template) => (
-                                            <option key={template.id} value={template.id}>
-                                                {template.name}
-                                            </option>
-                                        ))}
-                                    </Form.Control>
+                                    <AsyncSelect
+                                        cacheOptions
+                                        defaultOptions
+                                        loadOptions={loadTemplateOptions}
+                                        isClearable
+                                        onChange={(selectedOption) => {
+                                            if (selectedOption) {
+                                                handleTemplateSelect(selectedOption.value);
+                                            } else {
+                                                // Clear the template selection by resetting related fields
+                                                setNewLinkedDevice({
+                                                    ...newLinkedDevice,
+                                                    name: '',
+                                                    manufacturer: '',
+                                                    productCode: '',
+                                                    description: ''
+                                                });
+                                            }
+                                        }}
+                                        placeholder="Search templates..."
+                                    />
                                 </Form.Group>
+
 
                                 <Form.Group controlId="newDeviceName" className="mb-3">
                                     <Form.Label>Name</Form.Label>
