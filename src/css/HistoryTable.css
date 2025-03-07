@@ -1,8 +1,4 @@
-.table-wrapper {
-    max-height: 70vh; /* Adjust based on the desired height */
-    overflow-x: auto; /* Allows horizontal scrolling */
-    overflow-y: auto; /* Allows vertical scrolling */
-}
+
 
 .table-responsive {
     display: inline-block; /* Keeps the table inline, allowing scrolling */
