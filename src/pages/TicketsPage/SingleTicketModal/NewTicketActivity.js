@@ -142,7 +142,7 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal, showActiv
                         <ListGroup.Item key={index} className="border-0 pb-3" style={{paddingRight: '10px'}}>
                             <div className="activity-header justify-content-between d-flex">
                                 <div className="d-flex align-items-center">
-                                    <strong>{activity.author || "Author"}</strong>
+                                    <strong>{activity.username || "Author"}</strong>
                                     <p className="text-muted ms-2 mb-0">
                                         {DateUtils.formatDate(activity.timestamp)}
                                     </p>
