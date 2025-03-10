@@ -238,7 +238,9 @@ const TicketsList = ({ tickets, loading, onNavigate, error, statuses }) => {
                                 <Col md={2}>{ticket.title}</Col>
                                 <Col className="d-flex" md={2}>
                                     <Button
-                                        style={{ backgroundColor: statusColor, borderColor: statusColor }}
+                                        style={{ backgroundColor: statusColor,
+                                            borderColor: statusColor,
+                                        minWidth: "100%"}}
                                         disabled
                                     >
                                         {statusName}
