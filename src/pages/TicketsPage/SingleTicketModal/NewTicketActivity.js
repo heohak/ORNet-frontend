@@ -134,75 +134,92 @@ const NewTicketActivity = ({ ticket, reFetch, setShowAddActivityModal, showActiv
     };
 
 
+
+
     return (
         <Card className="border-0 mt-2">
             <div className="scrollable-activity">
                 <ListGroup variant="flush">
-                    {activities.map((activity, index) => (
-                        <ListGroup.Item key={index} className="border-0 pb-3" style={{paddingRight: '10px'}}>
-                            <div className="activity-header justify-content-between d-flex">
-                                <div className="d-flex align-items-center">
-                                    <strong>{activity.username || "Author"}</strong>
-                                    <p className="text-muted ms-2 mb-0">
-                                        {DateUtils.formatDate(activity.timestamp)}
+                    {activities.map((activity, index) => {
+                        // 1) If username is provided, use it; otherwise default to "Author"
+                        let displayedUser = activity.username || "Author";
+                        // 2) If it ends with "@bait.local", remove that part
+                        if (displayedUser.endsWith("@bait.local")) {
+                            displayedUser = displayedUser.substring(
+                                0,
+                                displayedUser.indexOf("@")
+                            );
+                        }
+
+                        return (
+                            <ListGroup.Item
+                                key={index}
+                                className="border-0 pb-3"
+                                style={{ paddingRight: "10px" }}
+                            >
+                                <div className="activity-header justify-content-between d-flex">
+                                    <div className="d-flex align-items-center">
+                                        <strong>{displayedUser}</strong>
+                                        <p className="text-muted ms-2 mb-0">
+                                            {DateUtils.formatDate(activity.timestamp)}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        {editMode === index ? (
+                                            <>
+                                                <FaTrash
+                                                    size={20}
+                                                    className="text-danger"
+                                                    style={{ cursor: "pointer", opacity: "0.7" }}
+                                                    onClick={() => handleDeleteClick(activity.id)}
+                                                />
+                                                <FaSave
+                                                    size={20}
+                                                    className="text-success mx-2"
+                                                    style={{ cursor: "pointer", opacity: "0.7" }}
+                                                    onClick={() => handleSaveActivity(index, activity.id)}
+                                                />
+                                            </>
+                                        ) : (
+                                            <FaEdit
+                                                size={20}
+                                                className="text-primary"
+                                                style={{ cursor: "pointer", opacity: "0.7" }}
+                                                onClick={() =>
+                                                    handleEditClick(index, activity.activity)
+                                                }
+                                            />
+                                        )}
+                                    </div>
+                                </div>
+                                {editMode === index ? (
+                                    <TextareaAutosize
+                                        minRows={2}
+                                        value={editedActivity}
+                                        onChange={(e) => setEditedActivity(e.target.value)}
+                                        className="mt-2"
+                                        style={{ width: "100%" }}
+                                    />
+                                ) : (
+                                    <p className="mb-0 bg-white p-0 rounded">
+                                        {activity &&
+                                            activity.activity &&
+                                            activity.activity.split("\n").map((line, i) => (
+                                                <React.Fragment key={i}>
+                                                    <Linkify>{line}</Linkify>
+                                                    <br />
+                                                </React.Fragment>
+                                            ))}
                                     </p>
-                                </div>
-                                <div>
-                                    {editMode === index ? (
-                                        <>
-                                            <FaTrash
-                                                size={20}
-                                                className="text-danger"
-                                                style={{ cursor: "pointer", opacity: "0.7" }}
-                                                onClick={() =>
-                                                    handleDeleteClick(activity.id)
-                                                }
-                                            />
-                                            <FaSave
-                                                size={20}
-                                                className="text-success mx-2"
-                                                style={{ cursor: "pointer", opacity: "0.7" }}
-                                                onClick={() =>
-                                                    handleSaveActivity(index, activity.id)
-                                                }
-                                            />
-                                        </>
-                                    ) : (
-                                        <FaEdit
-                                            size={20}
-                                            className="text-primary"
-                                            style={{ cursor: "pointer", opacity: "0.7" }}
-                                            onClick={() =>
-                                                handleEditClick(index, activity.activity)
-                                            }
-                                        />
-                                    )}
-                                </div>
-                            </div>
-                            {editMode === index ? (
-                                <TextareaAutosize
-                                    minRows={2}
-                                    value={editedActivity}
-                                    onChange={(e) => setEditedActivity(e.target.value)}
-                                    className="mt-2"
-                                    style={{width: "100%"}}
-                                />
-                            ) : (
-                                <p className="mb-0 bg-white p-0 rounded">
-                                    {activity && activity.activity &&
-                                        activity.activity.split("\n").map((line, index) => (
-                                            <React.Fragment key={index}>
-                                                <Linkify>{line}</Linkify>
-                                                <br />
-                                            </React.Fragment>
-                                        ))}
+                                )}
+                                <p style={{ fontStyle: "italic", color: "gray" }}>
+                                    {activity.paid
+                                        ? `Paid Time: ${formatTime(activity.timeSpent)}`
+                                        : `Time Spent: ${formatTime(activity.timeSpent)}`}
                                 </p>
-                            )}
-                            <p style={{ fontStyle: 'italic', color: 'gray' }}>
-                                {activity.paid ? `Paid Time: ${formatTime(activity.timeSpent)}` : `Time Spent: ${formatTime(activity.timeSpent)}`}
-                            </p>
-                        </ListGroup.Item>
-                    ))}
+                            </ListGroup.Item>
+                        );
+                    })}
                     <div ref={activityEndRef} />
                 </ListGroup>
             </div>
