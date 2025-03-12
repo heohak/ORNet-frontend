@@ -243,7 +243,7 @@ function Contacts() {
                                         className="me-2"
                                         onClick={() => setShowOnlySelected(!showOnlySelected)}
                                     >
-                                        {showOnlySelected ? "Show All Workers" : "Show Selected Workers"}
+                                        {showOnlySelected ? "Show All Contacts" : "Show Selected Contacts"}
                                     </Button>
                                     <Button variant="primary" onClick={handleCopyEmails}>
                                         {copied ? "Emails Copied!" : "Copy Emails"}
@@ -360,13 +360,12 @@ function Contacts() {
                                                         <FaEnvelope className="me-1" />
                                                         {worker.email ? (
                                                             <a
-                                                                href={`https://outlook.office.com/mail/deeplink/compose?to=${worker.email}`}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
+                                                                href={`mailto:${worker.email}`}
                                                                 style={{ textDecoration: 'none', color: 'inherit' }}
                                                             >
                                                                 {worker.email}
                                                             </a>
+
                                                         ) : (
                                                             'N/A'
                                                         )}

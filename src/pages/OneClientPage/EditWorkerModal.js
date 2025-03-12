@@ -192,7 +192,7 @@ function EditWorkerModal({ show, handleClose, worker, onUpdateSuccess, roles, cl
                     <Modal.Title>Confirm Deletion</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    Are you sure you want to delete this worker?
+                    Are you sure you want to delete this contact?
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="outline-info" onClick={() => setShowDeleteConfirm(false)}>Cancel</Button>

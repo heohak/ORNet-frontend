@@ -268,9 +268,7 @@ function ClientWorker({workers, client, clientId, refresh, setRefresh, reFetchRo
                                             <FaEnvelope className="me-1" />
                                             {worker.email ? (
                                                 <a
-                                                    href={`https://outlook.office.com/mail/deeplink/compose?to=${worker.email}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
+                                                    href={`mailto:${worker.email}`}
                                                     style={{ textDecoration: 'none', color: 'inherit' }}
                                                 >
                                                     {worker.email}
