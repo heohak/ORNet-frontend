@@ -91,11 +91,11 @@ const MaintenanceList = ({ maintenances, locationNames, setSelectedMaintenance, 
                 <Col md={3} onClick={() => handleSort('maintenanceDate')}>
                     Planned Date {renderSortArrow('maintenanceDate')}
                 </Col>
-                <Col md={2} onClick={() => handleSort('maintenanceStatus')}>
+                <Col md={1} onClick={() => handleSort('maintenanceStatus')}>
                     Status {renderSortArrow('maintenanceStatus')}
                 </Col>
-                <Col md={1} onClick={() => handleSort('lastDate')}>
-                    Last Date {renderSortArrow('lastDate')}
+                <Col md={2} onClick={() => handleSort('lastDate')}>
+                    Executed Date {renderSortArrow('lastDate')}
                 </Col>
             </Row>
             <hr />
@@ -122,10 +122,10 @@ const MaintenanceList = ({ maintenances, locationNames, setSelectedMaintenance, 
                         <Col md={3} className="py-2">
                             {DateUtils.formatDate(maintenance.maintenanceDate)}
                         </Col>
-                        <Col md={2} className="py-2">
+                        <Col md={1} className="py-2">
                             {maintenance.maintenanceStatus}
                         </Col>
-                        <Col md={1} className="py-2">
+                        <Col md={2} className="py-2">
                             {DateUtils.formatDate(maintenance.lastDate)}
                         </Col>
                     </Row>
