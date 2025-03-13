@@ -68,7 +68,7 @@ const MaintenanceList = ({ maintenances, locationNames, setSelectedMaintenance, 
                                     <strong>Status:</strong> {maintenance.maintenanceStatus}
                                 </div>
                                 <div>
-                                    <strong>Last Date:</strong> {DateUtils.formatDate(maintenance.lastDate)}
+                                    <strong>Executed Date:</strong> {DateUtils.formatDate(maintenance.lastDate)}
                                 </div>
                             </Card.Text>
                         </Card.Body>
