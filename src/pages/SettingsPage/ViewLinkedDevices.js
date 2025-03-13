@@ -638,19 +638,19 @@ function ViewLinkedDevices() {
                         <>
                             {/* Desktop table view */}
                             <Row className="fw-bold">
-                                <Col md={3} onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
+                                <Col md={2} onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
                                     Name {renderSortIcon('name')}
                                 </Col>
-                                <Col md={3} onClick={() => handleSort('manufacturer')} style={{ cursor: 'pointer' }}>
+                                <Col md={2} onClick={() => handleSort('manufacturer')} style={{ cursor: 'pointer' }}>
                                     Manufacturer {renderSortIcon('manufacturer')}
                                 </Col>
                                 <Col md={2} onClick={() => handleSort('productCode')} style={{ cursor: 'pointer' }}>
                                     Product Code {renderSortIcon('productCode')}
                                 </Col>
-                                <Col md={2} onClick={() => handleSort('serialNumber')} style={{ cursor: 'pointer' }}>
+                                <Col md={3} onClick={() => handleSort('serialNumber')} style={{ cursor: 'pointer' }}>
                                     Serial Number {renderSortIcon('serialNumber')}
                                 </Col>
-                                <Col md={2} onClick={() => handleSort('location')} style={{ cursor: 'pointer' }}>
+                                <Col md={3} onClick={() => handleSort('location')} style={{ cursor: 'pointer' }}>
                                     Location {renderSortIcon('location')}
                                 </Col>
                             </Row>
@@ -665,11 +665,11 @@ function ViewLinkedDevices() {
                                         style={{ backgroundColor: rowBgColor, cursor: 'pointer' }}
                                         onClick={() => handleLinkedDeviceClick(device.id)}
                                     >
-                                        <Col md={3}>{device.name}</Col>
-                                        <Col md={3}>{device.manufacturer}</Col>
+                                        <Col md={2}>{device.name}</Col>
+                                        <Col md={2}>{device.manufacturer}</Col>
                                         <Col md={2}>{device.productCode}</Col>
-                                        <Col md={2}>{device.serialNumber}</Col>
-                                        <Col md={2}>{getLocationName(device.locationId)}</Col>
+                                        <Col md={3}>{device.serialNumber}</Col>
+                                        <Col md={3}>{getLocationName(device.locationId)}</Col>
                                     </Row>
                                 );
                             })}
