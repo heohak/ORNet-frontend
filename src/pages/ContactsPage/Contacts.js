@@ -448,7 +448,7 @@ function Contacts() {
                     Are you sure you want to delete this contact?
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowDeleteContactModal(false)}>Cancel</Button>
+                    <Button variant="outline-info" onClick={() => setShowDeleteContactModal(false)}>Cancel</Button>
                     <Button variant="danger" onClick={handleDeleteContact}>Delete</Button>
                 </Modal.Footer>
             </Modal>
