@@ -176,9 +176,9 @@ function LinkedDeviceSearchFilter({ setLinkedDevices, collapsed = false, advance
                                     setSearchDateObj(date);
                                     setSearchDate(date ? date.toISOString().split('T')[0] : '');
                                 }}
-                                dateFormat="dd/MM/yyyy"
+                                dateFormat="dd.MM.yyyy"
                                 className="form-control"
-                                placeholderText="dd/mm/yyyy"
+                                placeholderText="dd.mm.yyyy"
                                 isClearable
                             />
                         </Col>
@@ -261,9 +261,9 @@ function LinkedDeviceSearchFilter({ setLinkedDevices, collapsed = false, advance
                                         setSearchDateObj(date);
                                         setSearchDate(date ? date.toISOString().split('T')[0] : '');
                                     }}
-                                    dateFormat="dd/MM/yyyy"
+                                    dateFormat="dd.MM.yyyy"
                                     className="form-control"
-                                    placeholderText="dd/mm/yyyy"
+                                    placeholderText="dd.mm.yyyy"
                                     isClearable
                                 />
                             </div>
