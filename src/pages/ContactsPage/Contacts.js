@@ -197,7 +197,12 @@ function Contacts() {
             await axiosInstance.delete(`${config.API_BASE_URL}/admin/worker/${contactToDelete}`);
             // Refresh workers by re-fetching
             const response = await axiosInstance.get(`${config.API_BASE_URL}/worker/search`);
-            const sortedWorkers = response.data.sort((a, b) => (a.firstName + " " + a.lastName).localeCompare(b.firstName + " " + b.lastName));
+            const sortedWorkers = response.data.sort((a, b) => {
+                if (a.favorite === b.favorite) {
+                    return (a.firstName + " " + a.lastName).localeCompare(b.firstName + " " + b.lastName);
+                }
+                return a.favorite ? -1 : 1;
+            });
             setAllWorkers(sortedWorkers);
             setFilteredWorkers(sortedWorkers);
             setShowDeleteContactModal(false);
@@ -206,6 +211,7 @@ function Contacts() {
             console.error("Error deleting contact:", error);
         }
     };
+
 
 
     return (
