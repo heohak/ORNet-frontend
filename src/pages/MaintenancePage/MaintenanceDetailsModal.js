@@ -1,6 +1,6 @@
 import {Alert, Button, Col, Form, Modal, Row, Spinner, Dropdown, Card} from "react-bootstrap";
 import React, { useEffect, useState } from "react";
-import { DateUtils } from "../../utils/DateUtils";
+import {DateUtils, formatLocalDate} from "../../utils/DateUtils";
 import axiosInstance from "../../config/axiosInstance";
 import TextareaAutosize from "react-textarea-autosize";
 import Linkify from "react-linkify";
@@ -16,6 +16,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
     const [softwares, setSoftwares] = useState([]);
     const [linkedDevices, setLinkedDevices] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
+    const [firstDate, setFirstDate] = useState(null);
     const [lastDate, setLastDate] = useState(null);
     const [plannedDate, setPlannedDate] = useState(null);
     const [description, setDescription] = useState("");
@@ -39,8 +40,9 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
         if (show && maintenance.id) {
             setDescription(maintenance.description || "");
             setInternalComment(maintenance.internalComment || "");
-            setLastDate(new Date(maintenance.lastDate))
-            setPlannedDate(new Date(maintenance.maintenanceDate))
+            setFirstDate(maintenance.firstDate ? new Date(maintenance.firstDate) : null);
+            setLastDate(maintenance.lastDate ? new Date(maintenance.lastDate) : null);
+            setPlannedDate(maintenance.maintenanceDate ? new Date(maintenance.maintenanceDate) : null);
             setStatus(maintenance.maintenanceStatus || "OPEN")
             setResponsibleId(maintenance.baitWorkerId || "")
             setEditableComments([]); // Reset editableComments when a new maintenance is loaded
@@ -103,12 +105,18 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
             setMaintenance((prev) => ({
                 ...prev,
                 maintenanceDate: plannedDate,
-                lastDate: lastDate,
+                firstDate: firstDate || lastDate, // If firstDate is null, set it to lastDate
+                lastDate: lastDate || firstDate,
                 description: description,
                 internalComment: internalComment,
                 maintenanceStatus: status,
                 baitWorkerId: responsibleId
             }));
+            if (!lastDate && firstDate) {
+                setLastDate(firstDate);
+            } else if (lastDate && !firstDate) {
+                setFirstDate(lastDate);
+            }
             // Save edited comments back to the state when exiting edit mode
             setComments(editableComments);
             handleSave();
@@ -168,6 +176,7 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
         try {
             await axiosInstance.put(`/maintenance/update/${maintenance.id}`, {
                 maintenanceDate: plannedDate,
+                firstDate: firstDate,
                 lastDate: lastDate,
                 description,
                 internalComment,
@@ -210,56 +219,76 @@ const MaintenanceDetailsModal = ({ show, onHide, maintenance, locationNames, set
                 dialogClassName={fileModalOpen || showDeleteModal ? "dimmed" : ""}
             >
                 <Modal.Header closeButton>
-                    <Modal.Title>Maintenance Details </Modal.Title>
+                    <div>
+                        <Modal.Title>Maintenance Details </Modal.Title>
+                        <p className="text-muted mb-0">Location: {locationNames[maintenance.locationId]}</p>
+                    </div>
                 </Modal.Header>
                 <Modal.Body>
                     <Row>
                         <Col xs={6} md={2}>
                             <Row>
-                                <Col>Last Date</Col>
-                            </Row>
-                            <Row>
-                                {isEditing ? (
-                                    <Col>
-                                        <DatePicker
-                                            selected={lastDate}
-                                            onChange={(date) => setLastDate(date)}
-                                            dateFormat="dd.MM.yyyy"
-                                            className="form-control dark-placeholder"
-                                            placeholderText="Select Start Date"
-                                        />
-                                    </Col>
-                                    ) : (
-                                        <h4>{DateUtils.formatDate(maintenance.lastDate)}</h4>
-                                    )}
-                            </Row>
-                        </Col>
-                        <Col xs={6} md={2}>
-                            <Row>
-                                <Col>Execute Date</Col>
+                                <Col>Planned Date</Col>
                             </Row>
                             <Row>
                                 {isEditing ? (
                                     <Col>
                                         <DatePicker
                                             selected={plannedDate}
-                                            onChange={(date) => setPlannedDate(date)}
+                                            onChange={(date) => setPlannedDate(formatLocalDate(date))}
                                             dateFormat="dd.MM.yyyy"
                                             className="form-control dark-placeholder"
-                                            placeholderText="Select End Date"
+                                            placeholderText="Select Start Date"
                                         />
                                     </Col>
+                                    ) : (
+                                        <h4>{DateUtils.formatDate(maintenance.maintenanceDate)}</h4>
+                                    )}
+                            </Row>
+                        </Col>
+                        <Col xs={6} md={4}>
+                            <Row>
+                                <Col>Execute Date</Col>
+                            </Row>
+                            <Row>
+                                {isEditing ? (
+                                    <>
+                                    <Col>
+                                        <DatePicker
+                                            selected={firstDate}
+                                            onChange={(date) => setFirstDate(formatLocalDate(date))}
+                                            dateFormat="dd.MM.yyyy"
+                                            className="form-control dark-placeholder"
+                                            placeholderText="Select First Date"
+                                            disabled={status === "OPEN"}
+
+                                        />
+                                    </Col>
+                                        <Col>
+                                            <DatePicker
+                                                selected={lastDate}
+                                                onChange={(date) => setLastDate(formatLocalDate(date))}
+                                                dateFormat="dd.MM.yyyy"
+                                                className="form-control dark-placeholder"
+                                                placeholderText="Select Last Date"
+                                                disabled={status === "OPEN"}
+                                            />
+                                        </Col>
+                                    </>
+
                                 ) : (
-                                    <h4>{DateUtils.formatDate(maintenance.maintenanceDate)}</h4>
+                                    <div style={{ display: "flex", gap: "5px" }}>
+                                        {maintenance.firstDate && maintenance.lastDate && maintenance.firstDate !== maintenance.lastDate ? (
+                                            <h4>{DateUtils.formatDate(maintenance.firstDate)} - {DateUtils.formatDate(maintenance.lastDate)}</h4>
+                                        ) : (
+                                            <h4>{DateUtils.formatDate(maintenance.firstDate || maintenance.lastDate)}</h4>
+                                        )}
+                                    </div>
                                 )}
                             </Row>
                         </Col>
-                        <Col md={3}>
-                            <Row>
-                                <Col>Location</Col>
-                            </Row>
-                            <Row><h4>{locationNames[maintenance.locationId]}</h4></Row>
-                        </Col>
+
+                        <Col md={1}></Col>
                         <Col xs={7} md={2}>
                             <Row>
                                 <Col>Time Spent - {formatDuration(maintenance.timeSpent)}</Col>
