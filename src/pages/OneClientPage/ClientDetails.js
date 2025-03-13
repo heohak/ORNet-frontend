@@ -120,7 +120,7 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles,
                         // Mobile layout: Combine Maintenance and Training info in one row with two columns.
                         <>
                             <Row className="mb-3">
-                                <Col xs={5}>
+                                <Col xs={5} className="align-content-center">
                                     <div className="maintenance-box">
                                         <div className="maintenance-text">Maintenance</div>
                                     </div>
@@ -139,19 +139,19 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles,
                                 </Col>
                             </Row>
                             <Row className="mb-3">
-                                <Col>
+                                <Col >
                                     <div className="maintenance-box">
                                         <div className="maintenance-text">Training</div>
                                     </div>
                                 </Col>
-                                <Col>
+                                <Col className="align-content-center">
                                     <div className="maintenance-text">
                                         Last: {lastTrainingDate ? DateUtils.formatDate(new Date(lastTrainingDate)) : 'None'}
                                     </div>
                                 </Col>
                             </Row>
                             <Row className="mb-3">
-                                <Col className="d-flex align-items-center justify-content-center">
+                                <Col className="d-flex align-items-center">
                                     <div className="maintenance-text">{renderTypes()}</div>
                                 </Col>
                             </Row>
