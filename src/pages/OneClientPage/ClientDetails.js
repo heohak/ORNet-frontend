@@ -126,14 +126,16 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles,
                                     </div>
                                 </Col>
                                 <Col>
-                                    <div className="maintenance-text">
-                                        Next: {client.nextMaintenance ? DateUtils.formatDate(nextMaintenanceDate) : 'None'}
-                                    </div>
-                                </Col>
-                                <Col>
-                                    <div className="maintenance-text">
-                                        Last: {client.lastMaintenance ? DateUtils.formatDate(lastMaintenanceDate) : 'None'}
-                                    </div>
+                                    <Row>
+                                        <div className="maintenance-text">
+                                            Next: {client.nextMaintenance ? DateUtils.formatDate(nextMaintenanceDate) : 'None'}
+                                        </div>
+                                    </Row>
+                                    <Row>
+                                        <div className="maintenance-text">
+                                            Last: {client.lastMaintenance ? DateUtils.formatDate(lastMaintenanceDate) : 'None'}
+                                        </div>
+                                    </Row>
                                 </Col>
                             </Row>
                             <Row className="mb-3">
