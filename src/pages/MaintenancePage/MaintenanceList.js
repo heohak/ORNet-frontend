@@ -82,11 +82,11 @@ const MaintenanceList = ({ maintenances, locationNames, setSelectedMaintenance, 
     return (
         <>
             <Row className="row-margin-0 fw-bold mt-2">
-                <Col md={3} onClick={() => handleSort('maintenanceName')}>
-                    Maintenance Name {renderSortArrow('maintenanceName')}
-                </Col>
                 <Col md={3} onClick={() => handleSort('locationId')}>
                     Location {renderSortArrow('locationId')}
+                </Col>
+                <Col md={3} onClick={() => handleSort('maintenanceName')}>
+                    Maintenance Name {renderSortArrow('maintenanceName')}
                 </Col>
                 <Col md={3} onClick={() => handleSort('maintenanceDate')}>
                     Planned Date {renderSortArrow('maintenanceDate')}
@@ -114,10 +114,10 @@ const MaintenanceList = ({ maintenances, locationNames, setSelectedMaintenance, 
                         }}
                     >
                         <Col md={3} className="py-2">
-                            {maintenance.maintenanceName}
+                            {locationNames[maintenance.locationId]}
                         </Col>
                         <Col md={3} className="py-2">
-                            {locationNames[maintenance.locationId]}
+                            {maintenance.maintenanceName}
                         </Col>
                         <Col md={3} className="py-2">
                             {DateUtils.formatDate(maintenance.maintenanceDate)}
