@@ -279,29 +279,7 @@ const AddMaintenanceModal = ({ show, onHide, clients, selectedClientId, workers,
                     <Row>
                         <Col md={4}>
                             <Form.Group className="mb-3">
-                                <Form.Label>Last Date</Form.Label>
-                                <ReactDatePicker
-                                    selected={parseLocalDate(lastDate)}
-                                    onChange={(date) => setLastDate(formatLocalDate(date))}
-                                    dateFormat="dd.MM.yyyy"
-                                    className="form-control"
-                                    isClearable
-                                    required
-                                    disabled={!clientId || !locationId}
-                                    placeholderText={
-                                        !clientId
-                                            ? "Pick a customer"
-                                            : !locationId
-                                                ? "Pick a location"
-                                                : "Select Date"
-                                    }
-
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col md={4}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Execute Date</Form.Label>
+                                <Form.Label>Planned Date</Form.Label>
                                 <ReactDatePicker
                                     selected={parseLocalDate(maintenanceDate)}
                                     onChange={(date) => setMaintenanceDate(formatLocalDate(date))}

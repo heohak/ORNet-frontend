@@ -68,7 +68,7 @@ const MaintenanceList = ({ maintenances, locationNames, setSelectedMaintenance, 
                                     <strong>Status:</strong> {maintenance.maintenanceStatus}
                                 </div>
                                 <div>
-                                    <strong>Last Date:</strong> {DateUtils.formatDate(maintenance.lastDate)}
+                                    <strong>Executed Date:</strong> {DateUtils.formatDate(maintenance.lastDate)}
                                 </div>
                             </Card.Text>
                         </Card.Body>
@@ -82,20 +82,20 @@ const MaintenanceList = ({ maintenances, locationNames, setSelectedMaintenance, 
     return (
         <>
             <Row className="row-margin-0 fw-bold mt-2">
-                <Col md={3} onClick={() => handleSort('maintenanceName')}>
-                    Maintenance Name {renderSortArrow('maintenanceName')}
-                </Col>
                 <Col md={3} onClick={() => handleSort('locationId')}>
                     Location {renderSortArrow('locationId')}
+                </Col>
+                <Col md={3} onClick={() => handleSort('maintenanceName')}>
+                    Maintenance Name {renderSortArrow('maintenanceName')}
                 </Col>
                 <Col md={3} onClick={() => handleSort('maintenanceDate')}>
                     Planned Date {renderSortArrow('maintenanceDate')}
                 </Col>
-                <Col md={2} onClick={() => handleSort('maintenanceStatus')}>
+                <Col md={1} onClick={() => handleSort('maintenanceStatus')}>
                     Status {renderSortArrow('maintenanceStatus')}
                 </Col>
-                <Col md={1} onClick={() => handleSort('lastDate')}>
-                    Last Date {renderSortArrow('lastDate')}
+                <Col md={2} onClick={() => handleSort('lastDate')}>
+                    Executed Date {renderSortArrow('lastDate')}
                 </Col>
             </Row>
             <hr />
@@ -114,18 +114,18 @@ const MaintenanceList = ({ maintenances, locationNames, setSelectedMaintenance, 
                         }}
                     >
                         <Col md={3} className="py-2">
-                            {maintenance.maintenanceName}
+                            {locationNames[maintenance.locationId]}
                         </Col>
                         <Col md={3} className="py-2">
-                            {locationNames[maintenance.locationId]}
+                            {maintenance.maintenanceName}
                         </Col>
                         <Col md={3} className="py-2">
                             {DateUtils.formatDate(maintenance.maintenanceDate)}
                         </Col>
-                        <Col md={2} className="py-2">
+                        <Col md={1} className="py-2">
                             {maintenance.maintenanceStatus}
                         </Col>
-                        <Col md={1} className="py-2">
+                        <Col md={2} className="py-2">
                             {DateUtils.formatDate(maintenance.lastDate)}
                         </Col>
                     </Row>

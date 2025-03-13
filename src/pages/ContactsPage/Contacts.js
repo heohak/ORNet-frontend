@@ -2,11 +2,23 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Alert, Button, Card, Col, Container, Row, Spinner, Badge, Collapse } from "react-bootstrap";
+import {Alert, Button, Card, Col, Container, Row, Spinner, Badge, Collapse, Modal} from "react-bootstrap";
 import config from "../../config/config";
 import WorkerSearchFilter from './WorkerSearchFilter';
 import '../../css/Contacts.css';
-import { FaFilter, FaChevronUp, FaChevronDown, FaEnvelope, FaPhone, FaUserTie, FaComment, FaIdBadge, FaStar, FaRegStar } from "react-icons/fa";
+import {
+    FaFilter,
+    FaChevronUp,
+    FaChevronDown,
+    FaEnvelope,
+    FaPhone,
+    FaUserTie,
+    FaComment,
+    FaIdBadge,
+    FaStar,
+    FaRegStar,
+    FaTrash
+} from "react-icons/fa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBuilding, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import WorkerCommentModal from "../OneClientPage/WorkerCommentModal";
@@ -45,6 +57,10 @@ function Contacts() {
 
     // State to control mobile filters toggle
     const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+    const [showDeleteContactModal, setShowDeleteContactModal] = useState(false);
+    const [contactToDelete, setContactToDelete] = useState(null);
+
 
     useEffect(() => {
         const fetchWorkers = async () => {
@@ -175,6 +191,28 @@ function Contacts() {
         if (diffInDays <= 7) return 'orange';
         return 'green';
     };
+
+    const handleDeleteContact = async () => {
+        try {
+            await axiosInstance.delete(`${config.API_BASE_URL}/admin/worker/${contactToDelete}`);
+            // Refresh workers by re-fetching
+            const response = await axiosInstance.get(`${config.API_BASE_URL}/worker/search`);
+            const sortedWorkers = response.data.sort((a, b) => {
+                if (a.favorite === b.favorite) {
+                    return (a.firstName + " " + a.lastName).localeCompare(b.firstName + " " + b.lastName);
+                }
+                return a.favorite ? -1 : 1;
+            });
+            setAllWorkers(sortedWorkers);
+            setFilteredWorkers(sortedWorkers);
+            setShowDeleteContactModal(false);
+            setContactToDelete(null);
+        } catch (error) {
+            console.error("Error deleting contact:", error);
+        }
+    };
+
+
 
     return (
         <>
@@ -335,6 +373,9 @@ function Contacts() {
                                                     <Button variant="link" onClick={() => handleOpenCommentModal(worker)}>
                                                         <FaComment title="View/Edit Comment" />
                                                     </Button>
+                                                    <Button variant="link" onClick={(e) => { e.stopPropagation(); setContactToDelete(worker.id); setShowDeleteContactModal(true); }}>
+                                                        <FaTrash title="Delete Contact" style={{ color: 'red' }} />
+                                                    </Button>
                                                 </Col>
                                             </Row>
                                             <Card.Text
@@ -404,6 +445,20 @@ function Contacts() {
                     </Row>
                 </Container>
             )}
+
+            <Modal show={showDeleteContactModal} onHide={() => setShowDeleteContactModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    Are you sure you want to delete this contact?
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="outline-info" onClick={() => setShowDeleteContactModal(false)}>Cancel</Button>
+                    <Button variant="danger" onClick={handleDeleteContact}>Delete</Button>
+                </Modal.Footer>
+            </Modal>
+
 
             {/* Comment Modal */}
             {commentWorker && (

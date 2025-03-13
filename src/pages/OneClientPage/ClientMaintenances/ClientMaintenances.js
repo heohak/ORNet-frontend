@@ -98,7 +98,7 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client, locati
                                             <strong>Status:</strong> {maintenance.maintenanceStatus}
                                         </div>
                                         <div>
-                                            <strong>Last Date:</strong> {DateUtils.formatDate(maintenance.lastDate)}
+                                            <strong>Executed Date:</strong> {DateUtils.formatDate(maintenance.lastDate)}
                                         </div>
                                     </Card.Text>
                                 </Card.Body>
@@ -112,7 +112,7 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client, locati
                 <>
                     <Row className="row-margin-0 fw-bold">
                         <Col md={3} onClick={() => handleSort('maintenanceDate')}>
-                            Execute Date {renderSortArrow('maintenanceDate')}
+                            Executed Date {renderSortArrow('maintenanceDate')}
                         </Col>
                         <Col md={3} onClick={() => handleSort('maintenanceName')}>
                             Maintenance Name {renderSortArrow('maintenanceName')}
@@ -120,11 +120,11 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client, locati
                         <Col md={3} onClick={() => handleSort('locationId')}>
                             Location {renderSortArrow('locationId')}
                         </Col>
-                        <Col md={2} onClick={() => handleSort('maintenanceStatus')}>
+                        <Col md={1} onClick={() => handleSort('maintenanceStatus')}>
                             Status {renderSortArrow('maintenanceStatus')}
                         </Col>
-                        <Col md={1} onClick={() => handleSort('lastDate')}>
-                            Last Date {renderSortArrow('lastDate')}
+                        <Col md={2} onClick={() => handleSort('lastDate')}>
+                            Planned Date {renderSortArrow('lastDate')}
                         </Col>
                     </Row>
                     <hr />
@@ -141,7 +141,7 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client, locati
                                     <Col className="py-2" style={{ backgroundColor: rowBgColor }}>
                                         <Row className="align-items-center">
                                             <Col md={3} className="py-2">
-                                                {DateUtils.formatDate(maintenance.maintenanceDate)}
+                                                {DateUtils.formatDate(maintenance.lastDate)}
                                             </Col>
                                             <Col md={3} className="py-2">
                                                 {maintenance.maintenanceName}
@@ -149,11 +149,11 @@ function ClientMaintenances({ maintenances, clientId, setRefresh, client, locati
                                             <Col md={3} className="py-2">
                                                 {locationNames[maintenance.locationId]}
                                             </Col>
-                                            <Col md={2} className="py-2">
+                                            <Col md={1} className="py-2">
                                                 {maintenance.maintenanceStatus}
                                             </Col>
-                                            <Col md={1} className="py-2">
-                                                {DateUtils.formatDate(maintenance.lastDate)}
+                                            <Col md={2} className="py-2">
+                                                {DateUtils.formatDate(maintenance.maintenanceDate)}
                                             </Col>
                                         </Row>
                                     </Col>

@@ -12,11 +12,13 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles,
     const [error, setError] = useState(null);
     const [showEditClient, setShowEditClient] = useState(false);
     const [nextMaintenanceDate, setNextMaintenanceDate] = useState(null);
+    const [lastMaintenanceDate, setLastMaintenanceDate] = useState(null);
     const [lastTrainingDate, setLastTrainingDate] = useState(null);
 
     useEffect(() => {
         fetchClientData();
         fetchNextMaintenanceDate();
+        fetchLastMaintenanceDate();
     }, [clientId]);
 
     const fetchNextMaintenanceDate = async () => {
@@ -25,6 +27,15 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles,
             setNextMaintenanceDate(response.data);
         } catch (error) {
             console.error("Error fetching next maintenance date", error);
+        }
+    };
+
+    const fetchLastMaintenanceDate = async () => {
+        try {
+            const response = await axiosInstance.get(`/maintenance/client/last/${clientId}`);
+            setLastMaintenanceDate(response.data);
+        } catch (error) {
+            console.error("Error fetching last maintenance date", error);
         }
     };
 
@@ -107,29 +118,44 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles,
 
                     {isMobile ? (
                         // Mobile layout: Combine Maintenance and Training info in one row with two columns.
-                        <Row className="mb-3">
-                            <Col xs={6}>
-                                <div className="mb-2">
+                        <>
+                            <Row className="mb-3">
+                                <Col xs={5} className="align-content-center">
                                     <div className="maintenance-box">
                                         <div className="maintenance-text">Maintenance</div>
                                     </div>
-                                    <div className="maintenance-text">
-                                        Next: {client.nextMaintenance ? DateUtils.formatDate(nextMaintenanceDate) : 'None'}
-                                    </div>
-                                </div>
-                                <div>
+                                </Col>
+                                <Col>
+                                    <Row>
+                                        <div className="maintenance-text">
+                                            Next: {client.nextMaintenance ? DateUtils.formatDate(nextMaintenanceDate) : 'None'}
+                                        </div>
+                                    </Row>
+                                    <Row>
+                                        <div className="maintenance-text">
+                                            Last: {client.lastMaintenance ? DateUtils.formatDate(lastMaintenanceDate) : 'None'}
+                                        </div>
+                                    </Row>
+                                </Col>
+                            </Row>
+                            <Row className="mb-3">
+                                <Col >
                                     <div className="maintenance-box">
                                         <div className="maintenance-text">Training</div>
                                     </div>
+                                </Col>
+                                <Col className="align-content-center">
                                     <div className="maintenance-text">
                                         Last: {lastTrainingDate ? DateUtils.formatDate(new Date(lastTrainingDate)) : 'None'}
                                     </div>
-                                </div>
-                            </Col>
-                            <Col xs={6} className="d-flex align-items-center justify-content-center">
-                                <div className="maintenance-text">{renderTypes()}</div>
-                            </Col>
-                        </Row>
+                                </Col>
+                            </Row>
+                            <Row className="mb-3">
+                                <Col className="d-flex align-items-center">
+                                    <div className="maintenance-text">{renderTypes()}</div>
+                                </Col>
+                            </Row>
+                        </>
                     ) : (
                         // Desktop layout: Separate rows for Maintenance and Training.
                         <>
@@ -146,6 +172,9 @@ function ClientDetails({ clientId, navigate, setRefresh, reFetchRoles, setRoles,
                                                 <Col className="col-md-auto">
                                                     <div className="maintenance-text">
                                                         Next: {client.nextMaintenance ? DateUtils.formatDate(nextMaintenanceDate) : 'None'}
+                                                    </div>
+                                                    <div className="maintenance-text">
+                                                        Last: {client.lastMaintenance ? DateUtils.formatDate(lastMaintenanceDate) : 'None'}
                                                     </div>
                                                 </Col>
                                             </Row>

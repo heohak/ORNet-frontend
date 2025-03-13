@@ -89,7 +89,7 @@ function DeviceDetailsModal({
                 ) : `${mainName}${serial}`;
             }
             if (field.key === 'introducedDate') {
-                value = format(new Date(value), 'dd/MM/yyyy');
+                value = format(new Date(value), 'dd.MM.yyyy');
             }
             if (field.key === 'locationId') {
                 const foundLoc = locations.find(loc => loc.id === value);
@@ -206,7 +206,7 @@ function DeviceDetailsModal({
                         <ReactDatePicker
                             selected={editIntroducedDate}
                             onChange={(date) => setEditIntroducedDate(date)}
-                            dateFormat="dd/MM/yyyy"
+                            dateFormat="dd.MM.yyyy"
                             className="form-control"
                             isClearable
                             required

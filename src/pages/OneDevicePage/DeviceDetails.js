@@ -348,8 +348,11 @@ function DeviceDetails({ device, navigate, setRefresh }) {
                     {/* Right Column */}
                     <Col xs={12} md={6} className="mt-3 mt-md-0">
                         {rightColumnFields.map((field) => {
-                            const value = localDevice[field.key] || localDevice.attributes?.[field.key];
+                            let value = localDevice[field.key] || localDevice.attributes?.[field.key];
                             if (value !== undefined && value !== null) {
+                                if (field.key === 'introducedDate') {
+                                    value = format(new Date(value), 'dd.MM.yyyy'); // Format the date correctly
+                                }
                                 return (
                                     <div key={field.key} className="mb-1">
                                         <strong>{field.label}: </strong>
