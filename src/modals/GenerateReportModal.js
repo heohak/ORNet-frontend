@@ -54,8 +54,8 @@ function GenerateReportModal({ show, handleClose }) {
             let response;
 
             // Format dates to 'yyyy-MM-dd' or the format expected by your API
-            const formattedStartDate = startDate ? format(startDate, 'yyyy-MM-dd') : null;
-            const formattedEndDate = endDate ? format(endDate, 'yyyy-MM-dd') : null;
+            const formattedStartDate = startDate ? format(startDate, 'dd.MM.yyyy') : null;
+            const formattedEndDate = endDate ? format(endDate, 'dd.MM.yyyy') : null;
 
             if (includeAllClients) {
                 // Determine which report to generate for all clients based on report type
