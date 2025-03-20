@@ -342,7 +342,7 @@ function LinkedDevices({
         try {
             let introducedDateFormatted = null;
             if (newLinkedDevice.introducedDate) {
-                introducedDateFormatted = format(newLinkedDevice.introducedDate, 'yyyy-MM-dd');
+                introducedDateFormatted = format(newLinkedDevice.introducedDate, 'dd.MM.yyyy');
             }
             const payload = {
                 name: newLinkedDevice.name,
@@ -810,7 +810,7 @@ function LinkedDevices({
                                                     introducedDate: date,
                                                 })
                                             }
-                                            dateFormat="dd/MM/yyyy"
+                                            dateFormat="dd.MM.yyyy"
                                             className="form-control"
                                             placeholderText="Select introduced date"
                                             isClearable

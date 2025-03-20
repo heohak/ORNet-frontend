@@ -43,7 +43,7 @@ const NewTicketResponse = ({ ticket }) => {
                                 <Datetime
                                     value={responseDateTime ? new Date(responseDateTime) : null}
                                     onChange={(date) => setResponseDateTime(date ? date.toISOString() : '')} // Update state correctly
-                                    dateFormat="YYYY-MM-DD"
+                                    dateFormat="dd.MM.yyyy"
                                     timeFormat="HH:mm"
                                     closeOnSelect // Close the calendar after selecting
                                     inputProps={{ placeholder: "Select date and time" }} // Placeholder for the input

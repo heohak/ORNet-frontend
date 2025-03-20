@@ -407,8 +407,8 @@ function EditClient({ clientId, onClose, onSave, setRefresh, reFetchRoles, setRo
                 locations: undefined,
                 thirdPartyITs: undefined,
                 contacts: undefined,
-                lastMaintenance: clientData.lastMaintenance ? format(clientData.lastMaintenance, 'yyyy-MM-dd') : null,
-                nextMaintenance: clientData.nextMaintenance ? format(clientData.nextMaintenance, 'yyyy-MM-dd') : null,
+                lastMaintenance: clientData.lastMaintenance ? format(clientData.lastMaintenance, 'dd.MM.yyyy') : null,
+                nextMaintenance: clientData.nextMaintenance ? format(clientData.nextMaintenance, 'dd.MM.yyyy') : null,
             };
 
             await axiosInstance.put(`${config.API_BASE_URL}/client/update/${clientId}`, updatedClientData);
