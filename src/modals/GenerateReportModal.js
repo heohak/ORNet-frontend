@@ -191,7 +191,7 @@ function GenerateReportModal({ show, handleClose }) {
                         <ReactDatePicker
                             selected={startDate}
                             onChange={(date) => setStartDate(date)}
-                            dateFormat="dd/MM/yyyy"
+                            dateFormat="dd.MM.yyyy"
                             className="form-control dark-placeholder"
                             placeholderText="Select a start date"
                             isClearable
@@ -206,7 +206,7 @@ function GenerateReportModal({ show, handleClose }) {
                         <ReactDatePicker
                             selected={endDate}
                             onChange={(date) => setEndDate(date)}
-                            dateFormat="dd/MM/yyyy"
+                            dateFormat="dd.MM.yyyy"
                             className="form-control dark-placeholder"
                             placeholderText="Select an end date"
                             isClearable

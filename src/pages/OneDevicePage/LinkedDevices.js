@@ -810,7 +810,7 @@ function LinkedDevices({
                                                     introducedDate: date,
                                                 })
                                             }
-                                            dateFormat="dd/MM/yyyy"
+                                            dateFormat="dd.MM.yyyy"
                                             className="form-control"
                                             placeholderText="Select introduced date"
                                             isClearable
