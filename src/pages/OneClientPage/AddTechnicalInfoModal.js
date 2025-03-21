@@ -171,7 +171,6 @@ function AddTechnicalInfoModal({ show, onHide, onAddTechnicalInfo, clientId }) {
                             placeholder="Enter DB Version"
                             value={dbVersion}
                             onChange={(e) => setDbVersion(e.target.value)}
-                            required
                         />
                     </Form.Group>
 
