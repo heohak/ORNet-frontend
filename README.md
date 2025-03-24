@@ -1,26 +1,18 @@
 # PROJECT FRONTEND
 
-This frontend web application is designed to provide a user interface for interacting with the backend services of [Project Name]. It is built using HTML, CSS, and JavaScript, with React for the UI and Bootstrap for the responsiveness of the web components. The app fetches data from a backend API and displays it dynamically on the page.
+This is the frontend application for the CRM, built with React and styled using Bootstrap. The application interacts with backend APIs to fetch and display data dynamically. It is optimized for modern web browsers and offers a responsive UI.
 
 ## Requirements
-
-For development, you will only need Node.js installed on your environment.
-And please use the appropriate [Editorconfig](http://editorconfig.org/) plugin for your Editor (not mandatory).
-
 ### Node
 
-[Node](http://nodejs.org/) is really easy to install & now includes [NPM](https://npmjs.org/).
-You should be able to run the following command after the installation procedure
+Ensure you have Node.js installed (recommended version: >=18.x). You can verify your installation by running:
 below.
 
-    $ node --version
-    v0.10.24
+    node --version
+    npm --version
 
-    $ npm --version
-    1.3.21
-
-#### Node installation on OS X
-
+#### Installation
+macOS:
 You will need to use a Terminal. On OS X, you can find the default terminal in
 `/Applications/Utilities/Terminal.app`.
 
@@ -32,17 +24,11 @@ If everything went fine, you should run
 
     brew install node
 
-#### Node installation on Linux
+Linux:
 
-    sudo apt-get install python-software-properties
-    sudo add-apt-repository ppa:chris-lea/node.js
-    sudo apt-get update
-    sudo apt-get install nodejs
+    sudo apt-get update && sudo apt-get install nodejs npm
 
-#### Node installation on Windows
-
-Just go on [official Node.js website](http://nodejs.org/) & grab the installer.
-Also, be sure to have `git` available in your PATH, `npm` might need it.
+Windows: Download from [Node.js official site](https://nodejs.org/en)
 
 ## Install
 
@@ -52,10 +38,18 @@ Also, be sure to have `git` available in your PATH, `npm` might need it.
 
 ### Configure app
 
-Edit `config.js` if needed:
+Edit `config.js` and `axiosInstance.js` if needed:
+baseUrl and API_BASE_URL should use the same IP/URL
 
-- backend API - `http://localhost:8080` when run on your own computer,
-  or `http://*(IP)*:8080` if using a different IP.
+- backend API - `http://localhost:8080/api` when run on your own computer,
+  or `http://*(IP)*:8080/api` if using a different IP.
+
+Make sure to have /api after the URL
+
+-If you want the frontend application to run on a different IP or Port:
+Make a new file called `.env` in the main directory and add:
+HOST=IP
+PORT=port
 
 ## Start & watch
 
@@ -82,10 +76,23 @@ To run those 3 commands you can just do:
 
 ## Project Structure
 
-- `src/`: Contains the source code for the frontend app.
-    - `components/`: React components used throughout the app.
-    - `css/`: CSS files for styling the app.
-    - `config.js`: Configuration file for the API endpoint.
+heohak-ornet-frontend/
+├── public/          # Static files (index.html, manifest.json, robots.txt)
+├── src/             # Source code
+│   ├── components/  # Reusable UI components
+│   ├── pages/       # Page-level components
+│   ├── modals/      # Modal components
+│   ├── config/      # Configuration files
+│   ├── utils/       # Helper functions
+│   ├── css/         # Stylesheets
+│   ├── assets/      # Images and static assets
+│   ├── App.js       # Main React component
+│   ├── index.js     # Entry point
+│   └── ...
+├── package.json     # Project dependencies
+├── Dockerfile       # Docker configuration
+├── nginx.conf       # Nginx config (if using Docker)
+└── README.md        # Documentation
 
 
 ## Languages & tools
@@ -105,16 +112,10 @@ To run those 3 commands you can just do:
 ## Dependencies
 
 
-- React: A JavaScript library for building user interfaces (^18.3.1).
-- React DOM: Provides DOM-specific methods for React (^18.3.1).
-- React Router DOM: Handles routing in the application (^6.24.0).
-- React Bootstrap: A React implementation of the Bootstrap framework (^2.10.4).
-- Bootstrap: CSS framework for responsive web design (^5.3.3).
-- Axios: A promise-based HTTP client for making requests (^1.7.2).
-- React Select: A flexible select input control (^5.8.0).
-- React Datetime: A date and time picker component (^3.2.0).
-- FontAwesome & React FontAwesome: Icon toolkit and React components for icons (^6.6.0, ^0.2.2).
-- React Icons: Popular icons as React components (^5.2.1).
-- Moment.js: Date manipulation library (^2.30.1).
-- Cors: Middleware for handling cross-origin resource sharing (^2.8.5).
-- Testing Libraries: Utilities for testing React components, including DOM and user events (^13.4.0, ^5.17.0, ^13.5.0).
+- React: UI framework
+- React Router DOM: Routing solution
+- Axios: HTTP client
+- Bootstrap & React-Bootstrap: Styling and layout
+- Moment.js: Date formatting
+- FontAwesome & React Icons: Icons library
+Full dependencies are listed in package.json.
