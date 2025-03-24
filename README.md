@@ -76,23 +76,23 @@ To run those 3 commands you can just do:
 
 ## Project Structure
 
-heohak-ornet-frontend/
-├── public/          # Static files (index.html, manifest.json, robots.txt)
-├── src/             # Source code
-│   ├── components/  # Reusable UI components
-│   ├── pages/       # Page-level components
-│   ├── modals/      # Modal components
-│   ├── config/      # Configuration files
-│   ├── utils/       # Helper functions
-│   ├── css/         # Stylesheets
-│   ├── assets/      # Images and static assets
-│   ├── App.js       # Main React component
-│   ├── index.js     # Entry point
-│   └── ...
-├── package.json     # Project dependencies
-├── Dockerfile       # Docker configuration
-├── nginx.conf       # Nginx config (if using Docker)
-└── README.md        # Documentation
+- `public/`:         # Static files (index.html, manifest.json, robots.txt)
+- `src/`:            # Source code
+    - `components/`: # React components used throughout the app.
+    - `pages/`:      # Page-level components
+    - `modals/`:     # Modal components
+    - `config/`:     # Configuration files
+    - `utils/`:      # Helper functions
+    - `css/`:        # Stylesheets
+    - `assets/`:     # Images and static assets
+    - `App.js`:      # Main React component
+    - `index.js`:    # Entry point
+    - `...`
+- `package.json`:    # Project dependencies
+- `Dockerfile`:      # Docker configuration
+- `nginx.conf`:      # Nginx config (if using Docker)
+- `README.md`:       # Documentation
+
 
 
 ## Languages & tools
