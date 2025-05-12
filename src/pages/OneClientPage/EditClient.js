@@ -162,16 +162,11 @@ function EditClient({ clientId, onClose, onSave, setRefresh, reFetchRoles, setRo
                 return nameA.localeCompare(nameB);
             });
 
-            const lastMaintenanceDate = client.lastMaintenance ? new Date(client.lastMaintenance) : null;
-            const nextMaintenanceDate = client.nextMaintenance ? new Date(client.nextMaintenance) : null;
-
             const updatedClientData = {
                 ...client,
                 contacts,
                 locations,
                 thirdPartyITs,
-                lastMaintenance: lastMaintenanceDate,
-                nextMaintenance: nextMaintenanceDate,
             };
 
             setOriginalClientData(updatedClientData);
@@ -324,22 +319,6 @@ function EditClient({ clientId, onClose, onSave, setRefresh, reFetchRoles, setRo
             return; // Data not loaded
         }
 
-        const today = new Date();
-
-        if (clientData.lastMaintenance && clientData.lastMaintenance > today) {
-            setError('Last Maintenance date cannot be in the future.');
-            return;
-        }
-
-        if (
-            clientData.lastMaintenance &&
-            clientData.nextMaintenance &&
-            clientData.nextMaintenance < clientData.lastMaintenance
-        ) {
-            setError('Next Maintenance date cannot be before the Last Maintenance date.');
-            return;
-        }
-
         try {
             // Determine which contacts were added or removed
             const originalContactIds = originalClientData.contacts.map(c => c.id);
@@ -407,8 +386,7 @@ function EditClient({ clientId, onClose, onSave, setRefresh, reFetchRoles, setRo
                 locations: undefined,
                 thirdPartyITs: undefined,
                 contacts: undefined,
-                lastMaintenance: clientData.lastMaintenance ? format(clientData.lastMaintenance, 'dd.MM.yyyy') : null,
-                nextMaintenance: clientData.nextMaintenance ? format(clientData.nextMaintenance, 'dd.MM.yyyy') : null,
+
             };
 
             await axiosInstance.put(`${config.API_BASE_URL}/client/update/${clientId}`, updatedClientData);
@@ -761,37 +739,6 @@ function EditClient({ clientId, onClose, onSave, setRefresh, reFetchRoles, setRo
                             />
                         </div>
                     </Form.Group>
-
-                    <Row>
-                        <Col xs={12} md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Last Maintenance</Form.Label>
-                                <ReactDatePicker
-                                    selected={clientData.lastMaintenance}
-                                    onChange={(date) => setClientData({ ...clientData, lastMaintenance: date })}
-                                    dateFormat="dd.MM.yyyy"
-                                    className="form-control dark-placeholder"
-                                    placeholderText="Select Last Maintenance Date"
-                                    maxDate={new Date()}
-                                    isClearable
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col xs={12} md={6}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Next Maintenance</Form.Label>
-                                <ReactDatePicker
-                                    selected={clientData.nextMaintenance}
-                                    onChange={(date) => setClientData({ ...clientData, nextMaintenance: date })}
-                                    dateFormat="dd.MM.yyyy"
-                                    className="form-control dark-placeholder"
-                                    placeholderText="Select Next Maintenance Date"
-                                    minDate={clientData.lastMaintenance || new Date()}
-                                    isClearable
-                                />
-                            </Form.Group>
-                        </Col>
-                    </Row>
                 </Form>
             </Modal.Body>
             <Modal.Footer>

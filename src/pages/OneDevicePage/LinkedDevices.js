@@ -19,6 +19,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 // IMPORT your new DeviceDetailsModal
 import DeviceDetailsModal from './DeviceDetailsModal';
 import AsyncSelect from "react-select/async";
+import {DateUtils, formatLocalDate, parseLocalDate} from "../../utils/DateUtils";
 
 function LinkedDevices({
                            linkedDevices,
@@ -342,7 +343,7 @@ function LinkedDevices({
         try {
             let introducedDateFormatted = null;
             if (newLinkedDevice.introducedDate) {
-                introducedDateFormatted = format(newLinkedDevice.introducedDate, 'dd.MM.yyyy');
+                introducedDateFormatted = newLinkedDevice.introducedDate;
             }
             const payload = {
                 name: newLinkedDevice.name,

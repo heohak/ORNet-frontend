@@ -18,8 +18,6 @@ function NewAddCustomer({ show, onClose }) {
     const [otherMedicalDevices, setOtherMedicalDevices] = useState(false);
     const [prospect, setProspect] = useState(false);
     const [agreement, setAgreement] = useState(false);
-    const [lastMaintenance, setLastMaintenance] = useState('');
-    const [nextMaintenance, setNextMaintenance] = useState('');
     const [locationOptions, setLocationOptions] = useState([]);
     const [thirdPartyOptions, setThirdPartyOptions] = useState([]);
     const [selectedLocations, setSelectedLocations] = useState([]);
@@ -117,20 +115,6 @@ function NewAddCustomer({ show, onClose }) {
         if (isSubmitting) return;
         setIsSubmitting(true);
 
-        const today = new Date().toISOString().split("T")[0];
-
-        if (new Date(lastMaintenance) > new Date(today)) {
-            setDateError('Last Maintenance date cannot be in the future.');
-            setIsSubmitting(false);
-            return;
-        }
-
-        if (new Date(nextMaintenance) < new Date(lastMaintenance)) {
-            setDateError('Next maintenance date cannot be before the last maintenance date.');
-            setIsSubmitting(false);
-            return;
-        }
-
         try {
             const clientResponse = await axiosInstance.post(`${config.API_BASE_URL}/client/add`, {
                 fullName,
@@ -139,8 +123,6 @@ function NewAddCustomer({ show, onClose }) {
                 surgeryClient: surgeryCustomer,
                 editorClient: editorCustomer,
                 otherMedicalDevices,
-                lastMaintenance,
-                nextMaintenance,
                 prospect,
                 agreement,
                 country: selectedCountry ? selectedCountry.value : '',
