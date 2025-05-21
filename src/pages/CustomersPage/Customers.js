@@ -563,7 +563,7 @@ function Customers() {
                                                         marginRight: '8px'
                                                     }}
                                                 />
-                                                {DateUtils.formatDate(activityDates[customer.id]?.updateDateTime) || "N/A"}
+                                                {DateUtils.formatDate(activityDates[customer.id]?.endDateTime) || "N/A"}
                                             </div>
                                         </Card.Text>
                                     </Card.Body>
@@ -613,8 +613,8 @@ function Customers() {
                                         : 'N/A';
 
                                     const deadlineColor = getDeadlineColor(activityDates[customer.id]?.endDateTime);
-                                    const updateDate =
-                                        DateUtils.formatDate(activityDates[customer.id]?.updateDateTime) || "N/A";
+                                    const endDateTime =
+                                        DateUtils.formatDate(activityDates[customer.id]?.endDateTime) || "N/A";
 
                                     const baseBgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
                                     const rowBgColor =
@@ -697,7 +697,7 @@ function Customers() {
                                   marginRight: '8px',
                               }}
                           />
-                                                    {updateDate}
+                                                    {endDateTime}
                                                 </div>
                                             </Col>
                                         </Row>
